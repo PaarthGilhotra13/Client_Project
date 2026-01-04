@@ -27,11 +27,10 @@ app.post('/', (req, res) => {
 });
 
 app.listen(port,(err)=>{
-    if(err){
-        console.log("server is not connected")
-        
-    }
-    else{
-        console.log("server is running on port",port)
-    }
+  if(err){
+    console.log("server is not connected!!")
+  }
+  else{
+    console.log("server is running on port",port)
+  }
 })

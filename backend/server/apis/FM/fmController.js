@@ -1,4 +1,4 @@
-const employeeModel = require("./employeeModel")
+const fmModel = require("./fmModel")
 const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 
@@ -41,24 +41,24 @@ const add = (req, res) => {
                     userObj.name = req.body.name
                     userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
-                    userObj.userType = 2
-                    userObj.designation = "Employee"
+                    userObj.userType = 3
+                    userObj.designation = "FM"
                     userObj.save()
                     .then((newUserData) => {
-                        let employeeObj = new employeeModel()
-                        employeeObj.userId = newUserData._id
-                        employeeObj.name = req.body.name
-                        employeeObj.email = req.body.email
-                        employeeObj.contact = req.body.contact
-                        employeeObj.empcode = generateEmployeeCode()
-                        employeeObj.designation = "Employee"
-                        employeeObj.save()
-                            .then((employeeData) => {
+                        let fmObj = new fmModel()
+                        fmObj.userId = newUserData._id
+                        fmObj.name = req.body.name
+                        fmObj.email = req.body.email
+                        fmObj.contact = req.body.contact
+                        fmObj.designation = "FM"
+                        fmObj.empcode = generateEmployeeCode() 
+                        fmObj.save()
+                            .then((fmData) => {
                                 res.send({
                                     status: 200,
                                     success: true,
-                                    message: "Employee Register Successfully",
-                                    employeeData: employeeData,
+                                    message: "FM Register Successfully",
+                                    employeeData: fmData,
                                     userData: newUserData
                                 })
                             })
@@ -66,7 +66,7 @@ const add = (req, res) => {
                                 res.send({
                                     status: 500,
                                     success: false,
-                                    message: "Employee Not Register!"
+                                    message: "FM Not Register!"
                                 })
                             })
                     })
@@ -82,7 +82,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee Already Exists"
+                        message: "FM Already Exists"
                     })
                 }
             })
@@ -97,22 +97,22 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    employeeModel.find(req.body)
+    fmModel.find(req.body)
         .populate("userId")
-        .then((employeeData) => {
-            if (employeeData.length == 0) {
+        .then((fmData) => {
+            if (fmData.length == 0) {
                 res.send({
                     status: 422,
                     success: false,
-                    message: "No Employee Data Found",
+                    message: "No Manager Data Found",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "All Employee Data Found",
-                    data: employeeData
+                    message: "All Manager Data Found",
+                    data: fmData
                 })
 
             }
@@ -139,21 +139,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        fmModel.findOne({ _id: req.body._id })
+            .then((fmData) => {
+                if (fmData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Business Finance not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Employee Data Found",
-                        data: employeeData
+                        message: "Business Finance Data Found",
+                        data: fmData
                     })
                 }
             })
@@ -180,28 +180,28 @@ const update = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then(async (employeeData) => {
-                if (employeeData == null) {
+        fmModel.findOne({ _id: req.body._id })
+            .then( (fmData) => {
+                if (fmData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Facility Manager not Found"
                     })
                 }
                 else {
                     if (req.body.name) {
-                        employeeData.name = req.body.name
+                        fmData.name = req.body.name
                     }
                     if (req.body.contact) {
-                        employeeData.contact = req.body.contact
+                        fmData.contact = req.body.contact
                     }  
                     if (req.body.designation) {
-                        employeeData.designation = req.body.designation
+                        fmData.designation = req.body.designation
                     }
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    fmData.save()
+                        .then((fmData) => {
+                            userModel.findOne({ _id: fmData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -220,7 +220,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Updated Successfully",
-                                                    data: employeeData,
+                                                    data: fmData,
                                                     userData
                                                 })
                                             })
@@ -229,7 +229,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Not Updated ",
-                                                    data: employeeData
+                                                    data: fmData
                                                 })
                                             })
                                     }
@@ -238,7 +238,7 @@ const update = (req, res) => {
                                     res.send({
                                         status: 422,
                                         success: false,
-                                        message: "Employee Data not Updated"
+                                        message: "Facility Manager Data not Updated"
                                     })
                                 })
                         })
@@ -261,7 +261,7 @@ const update = (req, res) => {
     }
 }
 
-const delEmployee = (req, res) => {
+const delfm = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -274,19 +274,19 @@ const delEmployee = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        fmModel.findOne({ _id: req.body._id })
+            .then((fmData) => {
+                if (fmData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Facility Manager not Found"
                     })
                 }
                 else {
-                    employeeData.deleteOne()
+                    fmData.deleteOne()
                         .then(() => {
-                            userModel.findOne({ _id: employeeData.userId })
+                            userModel.findOne({ _id: fmData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -325,7 +325,7 @@ const delEmployee = (req, res) => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Employee Not Deleted!!"
+                                message: "Facility Manager Not Deleted!!"
                             })
                         })
                 }
@@ -357,20 +357,20 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        fmModel.findOne({ _id: req.body._id })
+            .then((fmData) => {
+                if (fmData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Facility Manager not Found"
                     })
                 }
                 else {
-                    employeeData.status = req.body.status
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    fmData.status = req.body.status
+                    fmData.save()
+                        .then((fmData) => {
+                            userModel.findOne({ _id: fmData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -387,7 +387,7 @@ const changeStatus = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Status Updated Successfully",
-                                                    employeeData,
+                                                    fmData,
                                                     userData
                                                 })
                                             })
@@ -427,4 +427,5 @@ const changeStatus = (req, res) => {
     }
 }
 
-module.exports = { add, getAll, getSingle, update, delEmployee, changeStatus }
+
+module.exports = { add, getAll, getSingle, update, delfm, changeStatus }

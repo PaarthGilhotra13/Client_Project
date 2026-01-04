@@ -1,4 +1,4 @@
-const employeeModel = require("./employeeModel")
+const zhModel = require("./zhModel")
 const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 
@@ -41,24 +41,24 @@ const add = (req, res) => {
                     userObj.name = req.body.name
                     userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
-                    userObj.userType = 2
-                    userObj.designation = "Employee"
+                    userObj.userType = 5
+                    userObj.designation = "Zonal Head"
                     userObj.save()
                     .then((newUserData) => {
-                        let employeeObj = new employeeModel()
-                        employeeObj.userId = newUserData._id
-                        employeeObj.name = req.body.name
-                        employeeObj.email = req.body.email
-                        employeeObj.contact = req.body.contact
-                        employeeObj.empcode = generateEmployeeCode()
-                        employeeObj.designation = "Employee"
-                        employeeObj.save()
-                            .then((employeeData) => {
+                        let zhObj = new zhModel()
+                        zhObj.userId = newUserData._id
+                        zhObj.name = req.body.name
+                        zhObj.email = req.body.email
+                        zhObj.contact = req.body.contact
+                        zhObj.designation = "Zonal Head"
+                        zhObj.empcode = generateEmployeeCode() 
+                        zhObj.save()
+                            .then((zhData) => {
                                 res.send({
                                     status: 200,
                                     success: true,
-                                    message: "Employee Register Successfully",
-                                    employeeData: employeeData,
+                                    message: "Zonal Head Register Successfully",
+                                    employeeData: zhData,
                                     userData: newUserData
                                 })
                             })
@@ -66,7 +66,7 @@ const add = (req, res) => {
                                 res.send({
                                     status: 500,
                                     success: false,
-                                    message: "Employee Not Register!"
+                                    message: "Zonal Head Not Register!"
                                 })
                             })
                     })
@@ -82,7 +82,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee Already Exists"
+                        message: "Zonal Head Already Exists"
                     })
                 }
             })
@@ -97,22 +97,22 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    employeeModel.find(req.body)
+    zhModel.find(req.body)
         .populate("userId")
-        .then((employeeData) => {
-            if (employeeData.length == 0) {
+        .then((zhData) => {
+            if (zhData.length == 0) {
                 res.send({
                     status: 422,
                     success: false,
-                    message: "No Employee Data Found",
+                    message: "No Manager Data Found",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "All Employee Data Found",
-                    data: employeeData
+                    message: "All Manager Data Found",
+                    data: zhData
                 })
 
             }
@@ -139,21 +139,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        zhModel.findOne({ _id: req.body._id })
+            .then((zhData) => {
+                if (zhData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Business Finance not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Employee Data Found",
-                        data: employeeData
+                        message: "Business Finance Data Found",
+                        data: zhData
                     })
                 }
             })
@@ -180,28 +180,28 @@ const update = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then(async (employeeData) => {
-                if (employeeData == null) {
+        zhModel.findOne({ _id: req.body._id })
+            .then( (zhData) => {
+                if (zhData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Zonal Head not Found"
                     })
                 }
                 else {
                     if (req.body.name) {
-                        employeeData.name = req.body.name
+                        zhData.name = req.body.name
                     }
                     if (req.body.contact) {
-                        employeeData.contact = req.body.contact
+                        zhData.contact = req.body.contact
                     }  
                     if (req.body.designation) {
-                        employeeData.designation = req.body.designation
+                        zhData.designation = req.body.designation
                     }
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    zhData.save()
+                        .then((zhData) => {
+                            userModel.findOne({ _id: zhData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -220,7 +220,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Updated Successfully",
-                                                    data: employeeData,
+                                                    data: zhData,
                                                     userData
                                                 })
                                             })
@@ -229,7 +229,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Not Updated ",
-                                                    data: employeeData
+                                                    data: zhData
                                                 })
                                             })
                                     }
@@ -238,7 +238,7 @@ const update = (req, res) => {
                                     res.send({
                                         status: 422,
                                         success: false,
-                                        message: "Employee Data not Updated"
+                                        message: "Zonal Head Data not Updated"
                                     })
                                 })
                         })
@@ -261,7 +261,7 @@ const update = (req, res) => {
     }
 }
 
-const delEmployee = (req, res) => {
+const delzh = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -274,19 +274,19 @@ const delEmployee = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        zhModel.findOne({ _id: req.body._id })
+            .then((zhData) => {
+                if (zhData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Zonal Head not Found"
                     })
                 }
                 else {
-                    employeeData.deleteOne()
+                    zhData.deleteOne()
                         .then(() => {
-                            userModel.findOne({ _id: employeeData.userId })
+                            userModel.findOne({ _id: zhData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -325,7 +325,7 @@ const delEmployee = (req, res) => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Employee Not Deleted!!"
+                                message: "Zonal Head Not Deleted!!"
                             })
                         })
                 }
@@ -357,20 +357,20 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        zhModel.findOne({ _id: req.body._id })
+            .then((zhData) => {
+                if (zhData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Zonal Head not Found"
                     })
                 }
                 else {
-                    employeeData.status = req.body.status
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    zhData.status = req.body.status
+                    zhData.save()
+                        .then((zhData) => {
+                            userModel.findOne({ _id: zhData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -387,7 +387,7 @@ const changeStatus = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Status Updated Successfully",
-                                                    employeeData,
+                                                    zhData,
                                                     userData
                                                 })
                                             })
@@ -427,4 +427,5 @@ const changeStatus = (req, res) => {
     }
 }
 
-module.exports = { add, getAll, getSingle, update, delEmployee, changeStatus }
+
+module.exports = { add, getAll, getSingle, update, delzh, changeStatus }

@@ -1,4 +1,4 @@
-const employeeModel = require("./employeeModel")
+const bfModel = require("./bfModel")
 const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 
@@ -41,24 +41,24 @@ const add = (req, res) => {
                     userObj.name = req.body.name
                     userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
-                    userObj.userType = 2
-                    userObj.designation = "Employee"
+                    userObj.userType = 6
+                    userObj.designation = "Business Finance"
                     userObj.save()
                     .then((newUserData) => {
-                        let employeeObj = new employeeModel()
-                        employeeObj.userId = newUserData._id
-                        employeeObj.name = req.body.name
-                        employeeObj.email = req.body.email
-                        employeeObj.contact = req.body.contact
-                        employeeObj.empcode = generateEmployeeCode()
-                        employeeObj.designation = "Employee"
-                        employeeObj.save()
-                            .then((employeeData) => {
+                        let bfObj = new bfModel()
+                        bfObj.userId = newUserData._id
+                        bfObj.name = req.body.name
+                        bfObj.email = req.body.email
+                        bfObj.contact = req.body.contact
+                        bfObj.designation = "Business Finance"
+                        bfObj.empcode = generateEmployeeCode() 
+                        bfObj.save()
+                            .then((bfData) => {
                                 res.send({
                                     status: 200,
                                     success: true,
-                                    message: "Employee Register Successfully",
-                                    employeeData: employeeData,
+                                    message: "Business Finance Register Successfully",
+                                    employeeData: bfData,
                                     userData: newUserData
                                 })
                             })
@@ -66,7 +66,7 @@ const add = (req, res) => {
                                 res.send({
                                     status: 500,
                                     success: false,
-                                    message: "Employee Not Register!"
+                                    message: "Business Finance Not Register!"
                                 })
                             })
                     })
@@ -82,7 +82,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee Already Exists"
+                        message: "Business Finance Already Exists"
                     })
                 }
             })
@@ -97,10 +97,10 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    employeeModel.find(req.body)
+    bfModel.find(req.body)
         .populate("userId")
-        .then((employeeData) => {
-            if (employeeData.length == 0) {
+        .then((bfData) => {
+            if (bfData.length == 0) {
                 res.send({
                     status: 422,
                     success: false,
@@ -112,7 +112,7 @@ const getAll = (req, res) => {
                     status: 200,
                     success: true,
                     message: "All Employee Data Found",
-                    data: employeeData
+                    data: bfData
                 })
 
             }
@@ -139,21 +139,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        bfModel.findOne({ _id: req.body._id })
+            .then((bfData) => {
+                if (bfData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Business Finance not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Employee Data Found",
-                        data: employeeData
+                        message: "Business Finance Data Found",
+                        data: bfData
                     })
                 }
             })
@@ -180,28 +180,28 @@ const update = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then(async (employeeData) => {
-                if (employeeData == null) {
+        bfModel.findOne({ _id: req.body._id })
+            .then(async (bfData) => {
+                if (bfData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Business Finance not Found"
                     })
                 }
                 else {
                     if (req.body.name) {
-                        employeeData.name = req.body.name
+                        bfData.name = req.body.name
                     }
                     if (req.body.contact) {
-                        employeeData.contact = req.body.contact
+                        bfData.contact = req.body.contact
                     }  
                     if (req.body.designation) {
-                        employeeData.designation = req.body.designation
+                        bfData.designation = req.body.designation
                     }
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    bfData.save()
+                        .then((bfData) => {
+                            userModel.findOne({ _id: bfData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -220,7 +220,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Updated Successfully",
-                                                    data: employeeData,
+                                                    data: bfData,
                                                     userData
                                                 })
                                             })
@@ -229,7 +229,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Not Updated ",
-                                                    data: employeeData
+                                                    data: bfData
                                                 })
                                             })
                                     }
@@ -238,7 +238,7 @@ const update = (req, res) => {
                                     res.send({
                                         status: 422,
                                         success: false,
-                                        message: "Employee Data not Updated"
+                                        message: "Business Finance Data not Updated"
                                     })
                                 })
                         })
@@ -261,7 +261,7 @@ const update = (req, res) => {
     }
 }
 
-const delEmployee = (req, res) => {
+const delbf = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -274,19 +274,19 @@ const delEmployee = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        bfModel.findOne({ _id: req.body._id })
+            .then((bfData) => {
+                if (bfData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Business finance not Found"
                     })
                 }
                 else {
-                    employeeData.deleteOne()
+                    bfData.deleteOne()
                         .then(() => {
-                            userModel.findOne({ _id: employeeData.userId })
+                            userModel.findOne({ _id: bfData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -325,7 +325,7 @@ const delEmployee = (req, res) => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Employee Not Deleted!!"
+                                message: "Business finance Not Deleted!!"
                             })
                         })
                 }
@@ -427,4 +427,5 @@ const changeStatus = (req, res) => {
     }
 }
 
-module.exports = { add, getAll, getSingle, update, delEmployee, changeStatus }
+
+module.exports = { add, getAll, getSingle, update, delbf, changeStatus }

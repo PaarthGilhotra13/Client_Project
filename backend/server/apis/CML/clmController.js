@@ -1,4 +1,4 @@
-const employeeModel = require("./employeeModel")
+const clmModel = require("./clmModel")
 const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 
@@ -41,24 +41,24 @@ const add = (req, res) => {
                     userObj.name = req.body.name
                     userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
-                    userObj.userType = 2
-                    userObj.designation = "Employee"
+                    userObj.userType = 4
+                    userObj.designation = "CLM"
                     userObj.save()
                     .then((newUserData) => {
-                        let employeeObj = new employeeModel()
-                        employeeObj.userId = newUserData._id
-                        employeeObj.name = req.body.name
-                        employeeObj.email = req.body.email
-                        employeeObj.contact = req.body.contact
-                        employeeObj.empcode = generateEmployeeCode()
-                        employeeObj.designation = "Employee"
-                        employeeObj.save()
-                            .then((employeeData) => {
+                        let clmObj = new clmModel()
+                        clmObj.userId = newUserData._id
+                        clmObj.name = req.body.name
+                        clmObj.email = req.body.email
+                        clmObj.contact = req.body.contact
+                        clmObj.designation = "CLM"
+                        clmObj.empcode = generateEmployeeCode() 
+                        clmObj.save()
+                            .then((clmData) => {
                                 res.send({
                                     status: 200,
                                     success: true,
-                                    message: "Employee Register Successfully",
-                                    employeeData: employeeData,
+                                    message: "CLM Register Successfully",
+                                    employeeData: clmData,
                                     userData: newUserData
                                 })
                             })
@@ -66,7 +66,7 @@ const add = (req, res) => {
                                 res.send({
                                     status: 500,
                                     success: false,
-                                    message: "Employee Not Register!"
+                                    message: "CLM Not Register!"
                                 })
                             })
                     })
@@ -82,7 +82,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee Already Exists"
+                        message: "CLM Already Exists"
                     })
                 }
             })
@@ -97,22 +97,22 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    employeeModel.find(req.body)
+    clmModel.find(req.body)
         .populate("userId")
-        .then((employeeData) => {
-            if (employeeData.length == 0) {
+        .then((clmData) => {
+            if (clmData.length == 0) {
                 res.send({
                     status: 422,
                     success: false,
-                    message: "No Employee Data Found",
+                    message: "No CLM Data Found",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "All Employee Data Found",
-                    data: employeeData
+                    message: "All CLM Data Found",
+                    data: clmData
                 })
 
             }
@@ -139,21 +139,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        clmModel.findOne({ _id: req.body._id })
+            .then((clmData) => {
+                if (clmData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Business Finance not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Employee Data Found",
-                        data: employeeData
+                        message: "Business Finance Data Found",
+                        data: clmData
                     })
                 }
             })
@@ -180,28 +180,28 @@ const update = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then(async (employeeData) => {
-                if (employeeData == null) {
+        clmModel.findOne({ _id: req.body._id })
+            .then( (clmData) => {
+                if (clmData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "CLM not Found"
                     })
                 }
                 else {
                     if (req.body.name) {
-                        employeeData.name = req.body.name
+                        clmData.name = req.body.name
                     }
                     if (req.body.contact) {
-                        employeeData.contact = req.body.contact
+                        clmData.contact = req.body.contact
                     }  
                     if (req.body.designation) {
-                        employeeData.designation = req.body.designation
+                        clmData.designation = req.body.designation
                     }
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    clmData.save()
+                        .then((clmData) => {
+                            userModel.findOne({ _id: clmData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -220,7 +220,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Updated Successfully",
-                                                    data: employeeData,
+                                                    data: clmData,
                                                     userData
                                                 })
                                             })
@@ -229,7 +229,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Not Updated ",
-                                                    data: employeeData
+                                                    data: clmData
                                                 })
                                             })
                                     }
@@ -238,7 +238,7 @@ const update = (req, res) => {
                                     res.send({
                                         status: 422,
                                         success: false,
-                                        message: "Employee Data not Updated"
+                                        message: "CLM Data not Updated"
                                     })
                                 })
                         })
@@ -261,7 +261,7 @@ const update = (req, res) => {
     }
 }
 
-const delEmployee = (req, res) => {
+const delclm = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -274,19 +274,19 @@ const delEmployee = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        clmModel.findOne({ _id: req.body._id })
+            .then((clmData) => {
+                if (clmData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "CLM not Found"
                     })
                 }
                 else {
-                    employeeData.deleteOne()
+                    clmData.deleteOne()
                         .then(() => {
-                            userModel.findOne({ _id: employeeData.userId })
+                            userModel.findOne({ _id: clmData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -325,7 +325,7 @@ const delEmployee = (req, res) => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Employee Not Deleted!!"
+                                message: "CLM Not Deleted!!"
                             })
                         })
                 }
@@ -357,20 +357,20 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        clmModel.findOne({ _id: req.body._id })
+            .then((clmData) => {
+                if (clmData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "CLM not Found"
                     })
                 }
                 else {
-                    employeeData.status = req.body.status
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    clmData.status = req.body.status
+                    clmData.save()
+                        .then((clmData) => {
+                            userModel.findOne({ _id: clmData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -387,7 +387,7 @@ const changeStatus = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Status Updated Successfully",
-                                                    employeeData,
+                                                    clmData,
                                                     userData
                                                 })
                                             })
@@ -427,4 +427,5 @@ const changeStatus = (req, res) => {
     }
 }
 
-module.exports = { add, getAll, getSingle, update, delEmployee, changeStatus }
+
+module.exports = { add, getAll, getSingle, update, delclm, changeStatus }

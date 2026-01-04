@@ -1,4 +1,4 @@
-const employeeModel = require("./employeeModel")
+const procureModel = require("./procureModel")
 const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 
@@ -41,24 +41,24 @@ const add = (req, res) => {
                     userObj.name = req.body.name
                     userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
-                    userObj.userType = 2
-                    userObj.designation = "Employee"
+                    userObj.userType = 7
+                    userObj.designation = "Procurement"
                     userObj.save()
                     .then((newUserData) => {
-                        let employeeObj = new employeeModel()
-                        employeeObj.userId = newUserData._id
-                        employeeObj.name = req.body.name
-                        employeeObj.email = req.body.email
-                        employeeObj.contact = req.body.contact
-                        employeeObj.empcode = generateEmployeeCode()
-                        employeeObj.designation = "Employee"
-                        employeeObj.save()
-                            .then((employeeData) => {
+                        let procureObj = new procureModel()
+                        procureObj.userId = newUserData._id
+                        procureObj.name = req.body.name
+                        procureObj.email = req.body.email
+                        procureObj.contact = req.body.contact
+                        procureObj.designation = "Procurement"
+                        procureObj.empcode = generateEmployeeCode() 
+                        procureObj.save()
+                            .then((procureData) => {
                                 res.send({
                                     status: 200,
                                     success: true,
-                                    message: "Employee Register Successfully",
-                                    employeeData: employeeData,
+                                    message: "Procurement Register Successfully",
+                                    employeeData: procureData,
                                     userData: newUserData
                                 })
                             })
@@ -66,7 +66,7 @@ const add = (req, res) => {
                                 res.send({
                                     status: 500,
                                     success: false,
-                                    message: "Employee Not Register!"
+                                    message: "Procurement Not Register!"
                                 })
                             })
                     })
@@ -82,7 +82,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee Already Exists"
+                        message: "Procurement Already Exists"
                     })
                 }
             })
@@ -96,23 +96,24 @@ const add = (req, res) => {
     }
 }
 
+
 const getAll = (req, res) => {
-    employeeModel.find(req.body)
+    procureModel.find(req.body)
         .populate("userId")
-        .then((employeeData) => {
-            if (employeeData.length == 0) {
+        .then((procureData) => {
+            if (procureData.length == 0) {
                 res.send({
                     status: 422,
                     success: false,
-                    message: "No Employee Data Found",
+                    message: "No procure Data Found",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "All Employee Data Found",
-                    data: employeeData
+                    message: "All procure Data Found",
+                    data: procureData
                 })
 
             }
@@ -139,21 +140,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        procureModel.findOne({ _id: req.body._id })
+            .then((procureData) => {
+                if (procureData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "Business Finance not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Employee Data Found",
-                        data: employeeData
+                        message: "Business Finance Data Found",
+                        data: procureData
                     })
                 }
             })
@@ -180,28 +181,28 @@ const update = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then(async (employeeData) => {
-                if (employeeData == null) {
+        procureModel.findOne({ _id: req.body._id })
+            .then( (procureData) => {
+                if (procureData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "procure not Found"
                     })
                 }
                 else {
                     if (req.body.name) {
-                        employeeData.name = req.body.name
+                        procureData.name = req.body.name
                     }
                     if (req.body.contact) {
-                        employeeData.contact = req.body.contact
+                        procureData.contact = req.body.contact
                     }  
                     if (req.body.designation) {
-                        employeeData.designation = req.body.designation
+                        procureData.designation = req.body.designation
                     }
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    procureData.save()
+                        .then((procureData) => {
+                            userModel.findOne({ _id: procureData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -220,7 +221,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Updated Successfully",
-                                                    data: employeeData,
+                                                    data: procureData,
                                                     userData
                                                 })
                                             })
@@ -229,7 +230,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Not Updated ",
-                                                    data: employeeData
+                                                    data: procureData
                                                 })
                                             })
                                     }
@@ -238,7 +239,7 @@ const update = (req, res) => {
                                     res.send({
                                         status: 422,
                                         success: false,
-                                        message: "Employee Data not Updated"
+                                        message: "procure Data not Updated"
                                     })
                                 })
                         })
@@ -261,7 +262,7 @@ const update = (req, res) => {
     }
 }
 
-const delEmployee = (req, res) => {
+const delprocure = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -274,19 +275,19 @@ const delEmployee = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        procureModel.findOne({ _id: req.body._id })
+            .then((procureData) => {
+                if (procureData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "procure not Found"
                     })
                 }
                 else {
-                    employeeData.deleteOne()
+                    procureData.deleteOne()
                         .then(() => {
-                            userModel.findOne({ _id: employeeData.userId })
+                            userModel.findOne({ _id: procureData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -325,7 +326,7 @@ const delEmployee = (req, res) => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Employee Not Deleted!!"
+                                message: "procure Not Deleted!!"
                             })
                         })
                 }
@@ -357,20 +358,20 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then((employeeData) => {
-                if (employeeData == null) {
+        procureModel.findOne({ _id: req.body._id })
+            .then((procureData) => {
+                if (procureData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Employee not Found"
+                        message: "procure not Found"
                     })
                 }
                 else {
-                    employeeData.status = req.body.status
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
+                    procureData.status = req.body.status
+                    procureData.save()
+                        .then((procureData) => {
+                            userModel.findOne({ _id: procureData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -387,7 +388,7 @@ const changeStatus = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Status Updated Successfully",
-                                                    employeeData,
+                                                    procureData,
                                                     userData
                                                 })
                                             })
@@ -427,4 +428,5 @@ const changeStatus = (req, res) => {
     }
 }
 
-module.exports = { add, getAll, getSingle, update, delEmployee, changeStatus }
+
+module.exports = { add, getAll, getSingle, update, delprocure, changeStatus }

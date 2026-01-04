@@ -1,6 +1,6 @@
 const mongoose =require("mongoose")
 
-const employeeSchema=new mongoose.Schema({
+const fmSchema=new mongoose.Schema({
     name:{type:String,default:""},
     email:{type:String,default:""},
     contact:{type:String,default:""},
@@ -11,6 +11,6 @@ const employeeSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()},
 })
 
-module.exports=new mongoose.model("employee",employeeSchema)
+module.exports=new mongoose.model("Facility Manager",fmSchema)
 
 
