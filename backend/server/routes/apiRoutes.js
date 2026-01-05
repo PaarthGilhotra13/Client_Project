@@ -54,13 +54,6 @@ routes.post("/bf/update",bfController.update)
 routes.post("/bf/delete",bfController.delbf)
 routes.post("/bf/changeStaus",bfController.changeStatus)
 
-routes.post("/bf/add",bfController.add)
-routes.post("/bf/add",bfController.add)
-routes.post("/bf/add",bfController.add)
-routes.post("/bf/add",bfController.add)
-routes.post("/bf/add",bfController.add)
-routes.post("/bf/add",bfController.add)
-
 // Procurement
 routes.post("/procure/add",procureController.add)
 routes.post("/procure/all",procureController.getAll)
