@@ -3,12 +3,14 @@ const routes=require("express").Router()
 const employeeModel = require("../apis/Employee/employeeController")
 const userController=require("../apis/User/userController")
 const zhController=require("../apis/ZH/zhController")
-const clmController=require("../apis/CML/clmController")
+const clmController=require("../apis/CLM/clmController")
 const fmController=require("../apis/FM/fmController")
 const bfController=require("../apis/BF/bfController")
 const procureController=require("../apis/Procurement/procurementController")
 const zoneController=require("../apis/Zone/zoneController")
 const cityController=require("../apis/City/cityController")
+const storeCategoryController=require("../apis/Store Category/storeCategoryController")
+const storeController=require("../apis/Store/storeController")
 
 // Employee Model
 routes.post("/employee/add",employeeModel.add)
@@ -79,5 +81,21 @@ routes.post("/city/single",cityController.getSingle)
 routes.post("/city/update",cityController.update)
 routes.post("/city/delete",cityController.delCity)
 routes.post("/city/changeStaus",cityController.changeStatus)
+
+// Store Category
+routes.post("/storeCategory/add",storeCategoryController.add)
+routes.post("/storeCategory/all",storeCategoryController.getAll)
+routes.post("/storeCategory/single",storeCategoryController.getSingle)
+routes.post("/storeCategory/update",storeCategoryController.update)
+routes.post("/storeCategory/delete",storeCategoryController.delStoreCategory)
+routes.post("/storeCategory/changeStaus",storeCategoryController.changeStatus)
+
+// Store 
+routes.post("/store/add",storeController.add)
+routes.post("/store/all",storeController.getAll)
+routes.post("/store/single",storeController.getSingle)
+routes.post("/store/update",storeController.update)
+routes.post("/store/delete",storeController.delStore)
+routes.post("/store/changeStaus",storeController.changeStatus)
 
 module.exports=routes

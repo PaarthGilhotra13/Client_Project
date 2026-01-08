@@ -22,7 +22,7 @@ const add = (req, res) => {
                 if (cityData == null) {
                     let cityObj = new cityModel()
                     cityObj.name = req.body.cityName
-                    cityObj.categoryId = req.body.zoneId
+                    cityObj.zoneId = req.body.zoneId
                     cityObj.save()
                         .then((cityData) => {
                             res.send({
