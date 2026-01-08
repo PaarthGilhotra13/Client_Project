@@ -1,9 +1,27 @@
-const zoneModel = require("./zoneModel")
+const storeModel = require("./storeModel")
 
+
+// storeName,
+//     storeCode
+//     storeCategoryId
+//     cityId
+//     zoneId
 const add = (req, res) => {
     var errMsgs = []
-    if (!req.body.zoneName) {
-        errMsgs.push("name is required")
+    if (!req.body.storeName) {
+        errMsgs.push("storeName is required")
+    }
+    if (!req.body.storeCode) {
+        errMsgs.push("storeCode is required")
+    }
+    if (!req.body.storeCategoryId) {
+        errMsgs.push("storeCategoryId is required")
+    }
+    if (!req.body.cityId) {
+        errMsgs.push("cityId is required")
+    }
+    if (!req.body.zoneId) {
+        errMsgs.push("zoneId is required")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -13,25 +31,29 @@ const add = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ zoneName: req.body.zoneName })
-            .then((zoneData) => {
-                if (zoneData == null) {
-                    let zoneObj = new zoneModel()
-                    zoneObj.zoneName = req.body.zoneName
-                    zoneObj.save()
-                        .then((zoneData) => {
+        storeModel.findOne({ storeName: req.body.storeName })
+            .then((storeData) => {
+                if (storeData == null) {
+                    let storeObj = new storeModel()
+                    storeObj.storeName = req.body.storeName
+                    storeObj.storeCode = req.body.storeCode
+                    storeObj.storeCategoryId = req.body.storeCategoryId
+                    storeObj.cityId = req.body.cityId
+                    storeObj.zoneId = req.body.zoneId
+                    storeObj.save()
+                        .then((storeData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Zone Added Successfully",
-                                data: zoneData
+                                message: "Store Added Successfully",
+                                data: storeData
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Zone Not Added"
+                                message: "Store Not Added"
                             })
                         })
                 }
@@ -39,7 +61,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone Already Exists"
+                        message: "Store Already Exists"
                     })
                 }
             })
@@ -55,22 +77,21 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    zoneModel.find(req.body)
-        .then((zoneData) => {
-            if (zoneData.length == 0) {
+    storeModel.find(req.body)
+        .then((storeData) => {
+            if (storeData.length == 0) {
                 res.send({
                     status: 402,
                     success: false,
-                    message: "Zone is Empty",
-                    data: zoneData
+                    message: "Store is Empty",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "Zone Found",
-                    data: zoneData
+                    message: "Store Found",
+                    data: storeData
                 })
 
             }
@@ -97,21 +118,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ _id: req.body._id })
-            .then((zoneData) => {
-                if (zoneData == null) {
+        storeModel.findOne({ _id: req.body._id })
+            .then((storeData) => {
+                if (storeData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone not Found"
+                        message: "Store not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Zone Found",
-                        data: zoneData
+                        message: "Store Found",
+                        data: storeData
                     })
                 }
             })
@@ -138,43 +159,55 @@ const update = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ zoneName: req.body.zoneName })
-            .then((zoneData1) => {
-                if (zoneData1 && zoneData1._id.toString()  !== req.body._id.toString() ) {
+        storeModel.findOne({ storeName: req.body.storeName })
+            .then((storeData1) => {
+                if (storeData1 && storeData1._id.toString()  !== req.body._id.toString() ) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone Already Exists with same Name"
+                        message: "Store Already Exists with same Name"
                     })
                 }
                 else {
-                    zoneModel.findOne({ _id: req.body._id })
-                        .then((zoneData) => {
-                            if (zoneData == null) {
+                    storeModel.findOne({ _id: req.body._id })
+                        .then((storeData) => {
+                            if (storeData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
-                                    message: "Zone not Found"
+                                    message: "Store not Found"
                                 })
                             }
                             else {
-                                if (req.body.zoneName) {
-                                    zoneData.zoneName = req.body.zoneName
+                                if (req.body.storeName) {
+                                    storeData.storeName = req.body.storeName
                                 }
-                                zoneData.save()
-                                    .then((zoneData) => {
+                                if (req.body.storeCode) {
+                                    storeData.storeCode = req.body.storeCode
+                                }
+                                if (req.body.storeCategoryId) {
+                                    storeData.storeCategoryId = req.body.storeCategoryId
+                                }
+                                if (req.body.cityId) {
+                                    storeData.cityId = req.body.cityId
+                                }
+                                if (req.body.zoneId) {
+                                    storeData.zoneId = req.body.zoneId
+                                }
+                                storeData.save()
+                                    .then((storeData) => {
                                         res.send({
                                             status: 200,
                                             success: true,
-                                            message: "Zone Updated Successfully",
-                                            data: zoneData
+                                            message: "Store Updated Successfully",
+                                            data: storeData
                                         })
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
-                                            message: "Zone not Updated"
+                                            message: "Store not Updated"
                                         })
                                     })
                             }
@@ -200,7 +233,7 @@ const update = (req, res) => {
     }
 }
 
-const delZone = (req, res) => {
+const delStore = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -213,29 +246,29 @@ const delZone = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ _id: req.body._id })
-            .then((zoneData) => {
-                if (zoneData == null) {
+        storeModel.findOne({ _id: req.body._id })
+            .then((storeData) => {
+                if (storeData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone not Found"
+                        message: "Store not Found"
                     })
                 }
                 else {
-                    zoneData.deleteOne()
+                    storeData.deleteOne()
                         .then(() => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Zone Deleted Successfully"
+                                message: "Store Deleted Successfully"
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Zone not Deleted "
+                                message: "Store not Deleted "
                             })
                         })
                 }
@@ -267,24 +300,24 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ _id: req.body._id })
-            .then((zoneData) => {
-                if (zoneData == null) {
+        storeModel.findOne({ _id: req.body._id })
+            .then((storeData) => {
+                if (storeData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone not Found"
+                        message: "Store not Found"
                     })
                 }
                 else {
-                    zoneData.status = req.body.status
-                    zoneData.save()
-                        .then((zoneData) => {
+                    storeData.status = req.body.status
+                    storeData.save()
+                        .then((storeData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Status Updated Successfully",
-                                data: zoneData
+                                message: "Status Successfully",
+                                data: storeData
                             })
                         })
                         .catch(() => {
@@ -307,4 +340,4 @@ const changeStatus = (req, res) => {
 }
 
 
-module.exports = { add, getAll, getSingle, update, delZone, changeStatus }
+module.exports = { add, getAll, getSingle, update, delStore, changeStatus }

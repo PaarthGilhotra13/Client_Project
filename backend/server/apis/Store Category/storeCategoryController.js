@@ -1,9 +1,12 @@
-const zoneModel = require("./zoneModel")
+const storeCategoryModel = require("./storeCategoryModel")
 
 const add = (req, res) => {
     var errMsgs = []
-    if (!req.body.zoneName) {
+    if (!req.body.name) {
         errMsgs.push("name is required")
+    }
+    if (!req.body.description) {
+        errMsgs.push("description is required")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -13,25 +16,26 @@ const add = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ zoneName: req.body.zoneName })
-            .then((zoneData) => {
-                if (zoneData == null) {
-                    let zoneObj = new zoneModel()
-                    zoneObj.zoneName = req.body.zoneName
-                    zoneObj.save()
-                        .then((zoneData) => {
+        storeCategoryModel.findOne({ name: req.body.name })
+            .then((storeCategoryData) => {
+                if (storeCategoryData == null) {
+                    let storeCategoryObj = new storeCategoryModel()
+                    storeCategoryObj.name = req.body.name
+                    storeCategoryObj.description = req.body.description
+                    storeCategoryObj.save()
+                        .then((storeCategoryData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Zone Added Successfully",
-                                data: zoneData
+                                message: "Store Category Added Successfully",
+                                data: storeCategoryData
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Zone Not Added"
+                                message: "Store Category Not Added"
                             })
                         })
                 }
@@ -39,7 +43,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone Already Exists"
+                        message: "Store Category Already Exists"
                     })
                 }
             })
@@ -55,22 +59,21 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    zoneModel.find(req.body)
-        .then((zoneData) => {
-            if (zoneData.length == 0) {
+    storeCategoryModel.find(req.body)
+        .then((storeCategoryData) => {
+            if (storeCategoryData.length == 0) {
                 res.send({
                     status: 402,
                     success: false,
-                    message: "Zone is Empty",
-                    data: zoneData
+                    message: "Store Category is Empty",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "Zone Found",
-                    data: zoneData
+                    message: "Store Category Found",
+                    data: storeCategoryData
                 })
 
             }
@@ -97,21 +100,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ _id: req.body._id })
-            .then((zoneData) => {
-                if (zoneData == null) {
+        storeCategoryModel.findOne({ _id: req.body._id })
+            .then((storeCategoryData) => {
+                if (storeCategoryData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone not Found"
+                        message: "Store Category not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Zone Found",
-                        data: zoneData
+                        message: "Store Category Found",
+                        data: storeCategoryData
                     })
                 }
             })
@@ -138,43 +141,46 @@ const update = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ zoneName: req.body.zoneName })
-            .then((zoneData1) => {
-                if (zoneData1 && zoneData1._id.toString()  !== req.body._id.toString() ) {
+        storeCategoryModel.findOne({ name: req.body.name })
+            .then((storeCategoryData1) => {
+                if (storeCategoryData1 && storeCategoryData1._id.toString()  !== req.body._id.toString() ) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone Already Exists with same Name"
+                        message: "Store Category Already Exists with same Name"
                     })
                 }
                 else {
-                    zoneModel.findOne({ _id: req.body._id })
-                        .then((zoneData) => {
-                            if (zoneData == null) {
+                    storeCategoryModel.findOne({ _id: req.body._id })
+                        .then((storeCategoryData) => {
+                            if (storeCategoryData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
-                                    message: "Zone not Found"
+                                    message: "Store Category not Found"
                                 })
                             }
                             else {
-                                if (req.body.zoneName) {
-                                    zoneData.zoneName = req.body.zoneName
+                                if (req.body.name) {
+                                    storeCategoryData.name = req.body.name
                                 }
-                                zoneData.save()
-                                    .then((zoneData) => {
+                                if (req.body.description) {
+                                    storeCategoryData.description = req.body.description
+                                }
+                                storeCategoryData.save()
+                                    .then((storeCategoryData) => {
                                         res.send({
                                             status: 200,
                                             success: true,
-                                            message: "Zone Updated Successfully",
-                                            data: zoneData
+                                            message: "Store Category Updated Successfully",
+                                            data: storeCategoryData
                                         })
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
-                                            message: "Zone not Updated"
+                                            message: "Store Category not Updated"
                                         })
                                     })
                             }
@@ -200,7 +206,7 @@ const update = (req, res) => {
     }
 }
 
-const delZone = (req, res) => {
+const delStoreCategory = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -213,29 +219,29 @@ const delZone = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ _id: req.body._id })
-            .then((zoneData) => {
-                if (zoneData == null) {
+        storeCategoryModel.findOne({ _id: req.body._id })
+            .then((storeCategoryData) => {
+                if (storeCategoryData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone not Found"
+                        message: "Store Category not Found"
                     })
                 }
                 else {
-                    zoneData.deleteOne()
+                    storeCategoryData.deleteOne()
                         .then(() => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Zone Deleted Successfully"
+                                message: "Store Category Deleted Successfully"
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Zone not Deleted "
+                                message: "Store Category not Deleted "
                             })
                         })
                 }
@@ -267,24 +273,24 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        zoneModel.findOne({ _id: req.body._id })
-            .then((zoneData) => {
-                if (zoneData == null) {
+        storeCategoryModel.findOne({ _id: req.body._id })
+            .then((storeCategoryData) => {
+                if (storeCategoryData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Zone not Found"
+                        message: "Store Category not Found"
                     })
                 }
                 else {
-                    zoneData.status = req.body.status
-                    zoneData.save()
-                        .then((zoneData) => {
+                    storeCategoryData.status = req.body.status
+                    storeCategoryData.save()
+                        .then((storeCategoryData) => {
                             res.send({
                                 status: 200,
                                 success: true,
                                 message: "Status Updated Successfully",
-                                data: zoneData
+                                data: storeCategoryData
                             })
                         })
                         .catch(() => {
@@ -307,4 +313,4 @@ const changeStatus = (req, res) => {
 }
 
 
-module.exports = { add, getAll, getSingle, update, delZone, changeStatus }
+module.exports = { add, getAll, getSingle, update, delStoreCategory, changeStatus }
