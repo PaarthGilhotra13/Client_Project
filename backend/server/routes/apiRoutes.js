@@ -7,6 +7,8 @@ const clmController=require("../apis/CML/clmController")
 const fmController=require("../apis/FM/fmController")
 const bfController=require("../apis/BF/bfController")
 const procureController=require("../apis/Procurement/procurementController")
+const zoneController=require("../apis/Zone/zoneController")
+const cityController=require("../apis/City/cityController")
 
 // Employee Model
 routes.post("/employee/add",employeeModel.add)
@@ -61,5 +63,21 @@ routes.post("/procure/single",procureController.getSingle)
 routes.post("/procure/update",procureController.update)
 routes.post("/procure/delete",procureController.delprocure)
 routes.post("/procure/changeStaus",procureController.changeStatus)
+
+// Zone
+routes.post("/zone/add",zoneController.add)
+routes.post("/zone/all",zoneController.getAll)
+routes.post("/zone/single",zoneController.getSingle)
+routes.post("/zone/update",zoneController.update)
+routes.post("/zone/delete",zoneController.delZone)
+routes.post("/zone/changeStaus",zoneController.changeStatus)
+
+// City
+routes.post("/city/add",cityController.add)
+routes.post("/city/all",cityController.getAll)
+routes.post("/city/single",cityController.getSingle)
+routes.post("/city/update",cityController.update)
+routes.post("/city/delete",cityController.delCity)
+routes.post("/city/changeStaus",cityController.changeStatus)
 
 module.exports=routes
