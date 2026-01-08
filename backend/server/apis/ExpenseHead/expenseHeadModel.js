@@ -7,4 +7,4 @@ const expenseHeadSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()}
 })
 
-module.exports=new mongoose.model("expenseHead",expenseHeadSchema)
+module.exports=new mongoose.model("expenseHeadData",expenseHeadSchema)
