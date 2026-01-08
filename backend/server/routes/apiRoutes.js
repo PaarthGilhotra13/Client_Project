@@ -11,6 +11,13 @@ const zoneController=require("../apis/Zone/zoneController")
 const cityController=require("../apis/City/cityController")
 const storeCategoryController=require("../apis/Store Category/storeCategoryController")
 const storeController=require("../apis/Store/storeController")
+const expenseController=require("../apis/Expense/expenseController")
+
+//login
+routes.post("/user/login",userController.login)
+
+// Token checker
+routes.use(require("../middleware/tokenChecker"))
 
 // Employee Model
 routes.post("/employee/add",employeeModel.add)
@@ -21,7 +28,6 @@ routes.post("/employee/delete",employeeModel.delEmployee)
 routes.post("/employee/changeStatus",employeeModel.changeStatus)
 
 // User Model
-routes.post("/user/login",userController.login)
 routes.post("/user/all",userController.getAll)
 routes.post("/user/single",userController.getSingle)
 routes.post("/user/changePassword",userController.changePassword)
@@ -97,5 +103,13 @@ routes.post("/store/single",storeController.getSingle)
 routes.post("/store/update",storeController.update)
 routes.post("/store/delete",storeController.delStore)
 routes.post("/store/changeStaus",storeController.changeStatus)
+
+// Expense 
+routes.post("/expense/add",expenseController.add)
+routes.post("/expense/all",expenseController.getAll)
+routes.post("/expense/single",expenseController.getSingle)
+routes.post("/expense/update",expenseController.update)
+routes.post("/expense/delete",expenseController.delExpense)
+routes.post("/expense/changeStaus",expenseController.changeStatus)
 
 module.exports=routes
