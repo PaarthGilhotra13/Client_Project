@@ -1,6 +1,6 @@
 const mongoose =require("mongoose")
 
-const zhSchema=new mongoose.Schema({
+const zonalHeadSchema=new mongoose.Schema({
     name:{type:String,default:""},
     email:{type:String,default:""},
     contact:{type:String,default:""},
@@ -11,6 +11,6 @@ const zhSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()},
 })
 
-module.exports=new mongoose.model("Zonal Head",zhSchema)
+module.exports=new mongoose.model("zonalHeadData",zonalHeadSchema)
 
 

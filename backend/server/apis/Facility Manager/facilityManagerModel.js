@@ -1,6 +1,6 @@
 const mongoose =require("mongoose")
 
-const bfSchema=new mongoose.Schema({
+const facilityManagerSchema=new mongoose.Schema({
     name:{type:String,default:""},
     email:{type:String,default:""},
     contact:{type:String,default:""},
@@ -11,6 +11,6 @@ const bfSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()},
 })
 
-module.exports=new mongoose.model("Business Finance",bfSchema)
+module.exports=new mongoose.model("facilityManagerData",facilityMaganerSchema)
 
 

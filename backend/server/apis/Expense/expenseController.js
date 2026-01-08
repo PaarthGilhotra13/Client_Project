@@ -1,3 +1,4 @@
+const { uploadImg } = require("../../utilities/helper")
 const expenseModel = require("./expenseModel")
 
 
@@ -42,7 +43,7 @@ const add = (req, res) => {
     }
     else {
         expenseModel.findOne({ ticketId: req.body.ticketId })
-            .then((expenseData) => {
+            .then(async(expenseData) => {
                 if (expenseData == null) {
                     let expenseObj = new expenseModel()
                     expenseObj.ticketId = req.body.ticketId
@@ -55,6 +56,19 @@ const add = (req, res) => {
                     expenseObj.policyId = req.body.policyId
                     expenseObj.currentApprovalLevel = req.body.currentApprovalLevel
                     expenseObj.attachment = req.body.attachment
+                    if (req.file) {
+                        try {
+                            let url = await uploadImg(req.file.buffer)
+                            expenseObj.attachment = url
+                        }
+                        catch (err) {
+                            res.send({
+                                status: 422,
+                                success: false,
+                                message: "Cloudinary Error"
+                            })
+                        }
+                    }
                     expenseObj.save()
                         .then((expenseData) => {
                             res.send({
@@ -186,7 +200,7 @@ const update = (req, res) => {
                 }
                 else {
                     expenseModel.findOne({ _id: req.body._id })
-                        .then((expenseData) => {
+                        .then(async(expenseData) => {
                             if (expenseData == null) {
                                 res.send({
                                     status: 422,
@@ -232,8 +246,18 @@ const update = (req, res) => {
                                 if (req.body.currentApprovalLevel) {
                                     expenseData.currentApprovalLevel = req.body.currentApprovalLevel
                                 }
-                                if (req.body.attachment) {
-                                    expenseData.attachment = req.body.attachment
+                                if (req.file) {
+                                    try {
+                                        let url = await uploadImg(req.file.buffer)
+                                        expenseData.attachment = url
+                                    }
+                                    catch (err) {
+                                        res.send({
+                                            status: 422,
+                                            success: false,
+                                            message: "Cloudinary Error"
+                                        })
+                                    }
                                 }
                                 expenseData.save()
                                     .then((expenseData) => {

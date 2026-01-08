@@ -1,4 +1,4 @@
-const fmModel = require("./fmModel")
+const zhModel = require("./zonalHeadModel")
 const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 
@@ -41,24 +41,24 @@ const add = (req, res) => {
                     userObj.name = req.body.name
                     userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
-                    userObj.userType = 3
-                    userObj.designation = "FM"
+                    userObj.userType = 5
+                    userObj.designation = "Zonal Head"
                     userObj.save()
                     .then((newUserData) => {
-                        let fmObj = new fmModel()
-                        fmObj.userId = newUserData._id
-                        fmObj.name = req.body.name
-                        fmObj.email = req.body.email
-                        fmObj.contact = req.body.contact
-                        fmObj.designation = "FM"
-                        fmObj.empcode = generateEmployeeCode() 
-                        fmObj.save()
-                            .then((fmData) => {
+                        let zhObj = new zhModel()
+                        zhObj.userId = newUserData._id
+                        zhObj.name = req.body.name
+                        zhObj.email = req.body.email
+                        zhObj.contact = req.body.contact
+                        zhObj.designation = "Zonal Head"
+                        zhObj.empcode = generateEmployeeCode() 
+                        zhObj.save()
+                            .then((zhData) => {
                                 res.send({
                                     status: 200,
                                     success: true,
-                                    message: "FM Register Successfully",
-                                    employeeData: fmData,
+                                    message: "Zonal Head Register Successfully",
+                                    employeeData: zhData,
                                     userData: newUserData
                                 })
                             })
@@ -66,7 +66,7 @@ const add = (req, res) => {
                                 res.send({
                                     status: 500,
                                     success: false,
-                                    message: "FM Not Register!"
+                                    message: "Zonal Head Not Register!"
                                 })
                             })
                     })
@@ -82,7 +82,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "FM Already Exists"
+                        message: "Zonal Head Already Exists"
                     })
                 }
             })
@@ -97,10 +97,10 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    fmModel.find(req.body)
+    zhModel.find(req.body)
         .populate("userId")
-        .then((fmData) => {
-            if (fmData.length == 0) {
+        .then((zhData) => {
+            if (zhData.length == 0) {
                 res.send({
                     status: 422,
                     success: false,
@@ -112,7 +112,7 @@ const getAll = (req, res) => {
                     status: 200,
                     success: true,
                     message: "All Manager Data Found",
-                    data: fmData
+                    data: zhData
                 })
 
             }
@@ -139,9 +139,9 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        fmModel.findOne({ _id: req.body._id })
-            .then((fmData) => {
-                if (fmData == null) {
+        zhModel.findOne({ _id: req.body._id })
+            .then((zhData) => {
+                if (zhData == null) {
                     res.send({
                         status: 422,
                         success: false,
@@ -153,7 +153,7 @@ const getSingle = (req, res) => {
                         status: 200,
                         success: true,
                         message: "Business Finance Data Found",
-                        data: fmData
+                        data: zhData
                     })
                 }
             })
@@ -180,28 +180,28 @@ const update = (req, res) => {
         })
     }
     else {
-        fmModel.findOne({ _id: req.body._id })
-            .then( (fmData) => {
-                if (fmData == null) {
+        zhModel.findOne({ _id: req.body._id })
+            .then( (zhData) => {
+                if (zhData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Facility Manager not Found"
+                        message: "Zonal Head not Found"
                     })
                 }
                 else {
                     if (req.body.name) {
-                        fmData.name = req.body.name
+                        zhData.name = req.body.name
                     }
                     if (req.body.contact) {
-                        fmData.contact = req.body.contact
+                        zhData.contact = req.body.contact
                     }  
                     if (req.body.designation) {
-                        fmData.designation = req.body.designation
+                        zhData.designation = req.body.designation
                     }
-                    fmData.save()
-                        .then((fmData) => {
-                            userModel.findOne({ _id: fmData.userId })
+                    zhData.save()
+                        .then((zhData) => {
+                            userModel.findOne({ _id: zhData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -220,7 +220,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Updated Successfully",
-                                                    data: fmData,
+                                                    data: zhData,
                                                     userData
                                                 })
                                             })
@@ -229,7 +229,7 @@ const update = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Not Updated ",
-                                                    data: fmData
+                                                    data: zhData
                                                 })
                                             })
                                     }
@@ -238,7 +238,7 @@ const update = (req, res) => {
                                     res.send({
                                         status: 422,
                                         success: false,
-                                        message: "Facility Manager Data not Updated"
+                                        message: "Zonal Head Data not Updated"
                                     })
                                 })
                         })
@@ -261,7 +261,7 @@ const update = (req, res) => {
     }
 }
 
-const delfm = (req, res) => {
+const delzh = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -274,19 +274,19 @@ const delfm = (req, res) => {
         })
     }
     else {
-        fmModel.findOne({ _id: req.body._id })
-            .then((fmData) => {
-                if (fmData == null) {
+        zhModel.findOne({ _id: req.body._id })
+            .then((zhData) => {
+                if (zhData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Facility Manager not Found"
+                        message: "Zonal Head not Found"
                     })
                 }
                 else {
-                    fmData.deleteOne()
+                    zhData.deleteOne()
                         .then(() => {
-                            userModel.findOne({ _id: fmData.userId })
+                            userModel.findOne({ _id: zhData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -325,7 +325,7 @@ const delfm = (req, res) => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Facility Manager Not Deleted!!"
+                                message: "Zonal Head Not Deleted!!"
                             })
                         })
                 }
@@ -357,20 +357,20 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        fmModel.findOne({ _id: req.body._id })
-            .then((fmData) => {
-                if (fmData == null) {
+        zhModel.findOne({ _id: req.body._id })
+            .then((zhData) => {
+                if (zhData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Facility Manager not Found"
+                        message: "Zonal Head not Found"
                     })
                 }
                 else {
-                    fmData.status = req.body.status
-                    fmData.save()
-                        .then((fmData) => {
-                            userModel.findOne({ _id: fmData.userId })
+                    zhData.status = req.body.status
+                    zhData.save()
+                        .then((zhData) => {
+                            userModel.findOne({ _id: zhData.userId })
                                 .then((userData) => {
                                     if (userData == null) {
                                         res.send({
@@ -387,7 +387,7 @@ const changeStatus = (req, res) => {
                                                     status: 200,
                                                     success: true,
                                                     message: "Status Updated Successfully",
-                                                    fmData,
+                                                    zhData,
                                                     userData
                                                 })
                                             })
@@ -428,4 +428,4 @@ const changeStatus = (req, res) => {
 }
 
 
-module.exports = { add, getAll, getSingle, update, delfm, changeStatus }
+module.exports = { add, getAll, getSingle, update, delzh, changeStatus }
