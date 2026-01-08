@@ -1,13 +1,14 @@
-const cityModel = require("./cityModel")
+const NatureOfExpenseModel= require("./natuteOfExpenseModel")
+
 
 
 const add = (req, res) => {
     var errMsgs = []
-    if (!req.body.cityName) {
-        errMsgs.push("cityName is required")
+    if (!req.body.name) {
+        errMsgs.push("name is required")
     }
-    if (!req.body.zoneId) {
-        errMsgs.push("zoneId is required")
+    if (!req.body.ExpenseHeadId) {
+        errMsgs.push("ExpenseHeadId is required")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -17,26 +18,26 @@ const add = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ cityName: req.body.cityName })
-            .then((cityData) => {
-                if (cityData == null) {
-                    let cityObj = new cityModel()
-                    cityObj.name = req.body.cityName
-                    cityObj.zoneId = req.body.zoneId
-                    cityObj.save()
-                        .then((cityData) => {
+        NatureOfExpenseModel.findOne({ name: req.body.name })
+            .then((natureOfExpenseData) => {
+                if (natureOfExpenseData == null) {
+                    let NatureOfExpenseObj = new NatureOfExpenseModel()
+                    NatureOfExpenseObj.name = req.body.name
+                    NatureOfExpenseObj.ExpenseHeadId = req.body.ExpenseHeadId
+                    NatureOfExpenseObj.save()
+                        .then((natureOfExpenseData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "City Added Successfully",
-                                data: cityData
+                                message: "Nature of Expense Added Successfully",
+                                data: natureOfExpenseData
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "City Not Added"
+                                message: "Nature of Expense Not Added"
                             })
                         })
                 }
@@ -44,7 +45,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "City Already Exists"
+                        message: "Nature of Expense Already Exists"
                     })
                 }
             })
@@ -60,22 +61,22 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    cityModel.find(req.body)
-        .populate("zoneId")
-        .then((cityData) => {
-            if (cityData.length == 0) {
+    NatureOfExpenseModel.find(req.body)
+        .populate("ExpenseHeadId")
+        .then((natureOfExpenseData) => {
+            if (natureOfExpenseData.length == 0) {
                 res.send({
                     status: 402,
                     success: false,
-                    message: "City is Empty",
+                    message: "Nature of Expense is Empty",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "City Found",
-                    data: cityData
+                    message: "Nature of Expense Found",
+                    data: natureOfExpenseData
                 })
 
             }
@@ -102,22 +103,22 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ _id: req.body._id })
-            .populate("zoneId")
-            .then((cityData) => {
-                if (cityData == null) {
+        NatureOfExpenseModel.findOne({ _id: req.body._id })
+            .populate("ExpenseHeadId")
+            .then((natureOfExpenseData) => {
+                if (natureOfExpenseData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "City not Found"
+                        message: "Nature of Expense not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "City Found",
-                        data: cityData
+                        message: "Nature of Expense Found",
+                        data: natureOfExpenseData
                     })
                 }
             })
@@ -144,46 +145,46 @@ const update = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ cityName: req.body.cityName })
-            .then((cityData) => {
-                if (cityData && cityData._id.toString()  !== req.body._id.toString() ) {
+        NatureOfExpenseModel.findOne({ name: req.body.name })
+            .then((natureOfExpenseData) => {
+                if (natureOfExpenseData && natureOfExpenseData._id.toString()  !== req.body._id.toString() ) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "City Already Exists with same name"
+                        message: "Nature of Expense Already Exists with same name"
                     })
                 }
                 else {
-                    cityModel.findOne({ _id: req.body._id })
-                        .then((cityData) => {
-                            if (cityData == null) {
+                    NatureOfExpenseModel.findOne({ _id: req.body._id })
+                        .then((natureOfExpenseData) => {
+                            if (natureOfExpenseData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
-                                    message: "City not Found"
+                                    message: "Nature of Expense not Found"
                                 })
                             }
                             else {
-                                if (req.body.cityName) {
-                                    cityData.cityName = req.body.cityName
+                                if (req.body.name) {
+                                    natureOfExpenseData.name = req.body.name
                                 }
-                                if (req.body.zoneId) {
-                                    cityData.zoneId = req.body.zoneId
+                                if (req.body.ExpenseHeadId) {
+                                    natureOfExpenseData.ExpenseHeadId = req.body.ExpenseHeadId
                                 }
-                                cityData.save()
-                                    .then((cityData) => {
+                                natureOfExpenseData.save()
+                                    .then((natureOfExpenseData) => {
                                         res.send({
                                             status: 200,
                                             success: true,
-                                            message: "City Updated Successfully",
-                                            data: cityData
+                                            message: "Nature of Expense Updated Successfully",
+                                            data: natureOfExpenseData
                                         })
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
-                                            message: "City not Updated"
+                                            message: "Nature of Expense not Updated"
                                         })
                                     })
                             }
@@ -211,7 +212,7 @@ const update = (req, res) => {
     }
 }
 
-const delCity = (req, res) => {
+const delNoE= (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -224,9 +225,9 @@ const delCity = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ _id: req.body._id })
-            .then((cityData) => {
-                if (cityData == null) {
+        NatureOfExpenseModel.findOne({ _id: req.body._id })
+            .then((natureOfExpenseData) => {
+                if (natureOfExpenseData == null) {
                     res.send({
                         status: 422,
                         success: false,
@@ -234,7 +235,7 @@ const delCity = (req, res) => {
                     })
                 }
                 else {
-                    cityData.deleteOne()
+                    natureOfExpenseData.deleteOne()
                         .then(() => {
                             res.send({
                                 status: 200,
@@ -278,9 +279,9 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ _id: req.body._id })
-            .then((cityData) => {
-                if (cityData == null) {
+        NatureOfExpenseModel.findOne({ _id: req.body._id })
+            .then((natureOfExpenseData) => {
+                if (natureOfExpenseData == null) {
                     res.send({
                         status: 422,
                         success: false,
@@ -288,14 +289,14 @@ const changeStatus = (req, res) => {
                     })
                 }
                 else {
-                    cityData.status = req.body.status
-                    cityData.save()
-                        .then((cityData) => {
+                    natureOfExpenseData.status = req.body.status
+                    natureOfExpenseData.save()
+                        .then((natureOfExpenseData) => {
                             res.send({
                                 status: 200,
                                 success: true,
                                 message: "Status Updated Successfully",
-                                data: cityData
+                                data: natureOfExpenseData
                             })
                         })
                         .catch(() => {
@@ -317,4 +318,4 @@ const changeStatus = (req, res) => {
     }
 }
 
-module.exports = { add, getAll, getSingle, update, delCity, changeStatus }
+module.exports = { add, getAll, getSingle, update, delNoE, changeStatus }

@@ -1,13 +1,13 @@
-const cityModel = require("./cityModel")
+const expenseHeadModel = require("./expenseHeadModel")
 
 
 const add = (req, res) => {
     var errMsgs = []
-    if (!req.body.cityName) {
-        errMsgs.push("cityName is required")
+    if (!req.body.name) {
+        errMsgs.push("Name is required")
     }
-    if (!req.body.zoneId) {
-        errMsgs.push("zoneId is required")
+    if (!req.body.description) {
+        errMsgs.push("Description is required")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -17,26 +17,26 @@ const add = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ cityName: req.body.cityName })
-            .then((cityData) => {
-                if (cityData == null) {
-                    let cityObj = new cityModel()
-                    cityObj.name = req.body.cityName
-                    cityObj.zoneId = req.body.zoneId
-                    cityObj.save()
-                        .then((cityData) => {
+        expenseHeadModel.findOne({ name: req.body.name })
+            .then((expenseHeadData) => {
+                if (expenseHeadData == null) {
+                    let expenseHeadObj = new expenseHeadModel()
+                    expenseHeadObj.name = req.body.name
+                    expenseHeadObj.description = req.body.description
+                    expenseHeadObj.save()
+                        .then((expenseHeadData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "City Added Successfully",
-                                data: cityData
+                                message: "Expense Head Added Successfully",
+                                data: expenseHeadData
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "City Not Added"
+                                message: "Expense Head Not Added"
                             })
                         })
                 }
@@ -44,7 +44,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "City Already Exists"
+                        message: "Expense Head Already Exists"
                     })
                 }
             })
@@ -60,22 +60,21 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    cityModel.find(req.body)
-        .populate("zoneId")
-        .then((cityData) => {
-            if (cityData.length == 0) {
+    expenseHeadModel.find(req.body)
+        .then((expenseHeadData) => {
+            if (expenseHeadData.length == 0) {
                 res.send({
                     status: 402,
                     success: false,
-                    message: "City is Empty",
+                    message: "Expense Headis Empty",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "City Found",
-                    data: cityData
+                    message: "Expense HeadFound",
+                    data: expenseHeadData
                 })
 
             }
@@ -102,22 +101,22 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ _id: req.body._id })
-            .populate("zoneId")
-            .then((cityData) => {
-                if (cityData == null) {
+        expenseHeadModel.findOne({ _id: req.body._id })
+            .populate("description")
+            .then((expenseHeadData) => {
+                if (expenseHeadData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "City not Found"
+                        message: "Expense Headnot Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "City Found",
-                        data: cityData
+                        message: "Expense HeadFound",
+                        data: expenseHeadData
                     })
                 }
             })
@@ -144,46 +143,46 @@ const update = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ cityName: req.body.cityName })
-            .then((cityData) => {
-                if (cityData && cityData._id.toString()  !== req.body._id.toString() ) {
+        expenseHeadModel.findOne({ name: req.body.name })
+            .then((expenseHeadData) => {
+                if (expenseHeadData && expenseHeadData._id.toString()  !== req.body._id.toString() ) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "City Already Exists with same name"
+                        message: "Expense HeadAlready Exists with same name"
                     })
                 }
                 else {
-                    cityModel.findOne({ _id: req.body._id })
-                        .then((cityData) => {
-                            if (cityData == null) {
+                    expenseHeadModel.findOne({ _id: req.body._id })
+                        .then((expenseHeadData) => {
+                            if (expenseHeadData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
-                                    message: "City not Found"
+                                    message: "Expense Headnot Found"
                                 })
                             }
                             else {
-                                if (req.body.cityName) {
-                                    cityData.cityName = req.body.cityName
+                                if (req.body.name) {
+                                    expenseHeadData.name = req.body.name
                                 }
-                                if (req.body.zoneId) {
-                                    cityData.zoneId = req.body.zoneId
+                                if (req.body.description) {
+                                    expenseHeadData.description = req.body.description
                                 }
-                                cityData.save()
-                                    .then((cityData) => {
+                                expenseHeadData.save()
+                                    .then((expenseHeadData) => {
                                         res.send({
                                             status: 200,
                                             success: true,
-                                            message: "City Updated Successfully",
-                                            data: cityData
+                                            message: "Expense HeadUpdated Successfully",
+                                            data: expenseHeadData
                                         })
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
-                                            message: "City not Updated"
+                                            message: "Expense Headnot Updated"
                                         })
                                     })
                             }
@@ -211,7 +210,7 @@ const update = (req, res) => {
     }
 }
 
-const delCity = (req, res) => {
+const delExpenseHead = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -224,9 +223,9 @@ const delCity = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ _id: req.body._id })
-            .then((cityData) => {
-                if (cityData == null) {
+        expenseHeadModel.findOne({ _id: req.body._id })
+            .then((expenseHeadData) => {
+                if (expenseHeadData == null) {
                     res.send({
                         status: 422,
                         success: false,
@@ -234,7 +233,7 @@ const delCity = (req, res) => {
                     })
                 }
                 else {
-                    cityData.deleteOne()
+                    expenseHeadData.deleteOne()
                         .then(() => {
                             res.send({
                                 status: 200,
@@ -278,9 +277,9 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        cityModel.findOne({ _id: req.body._id })
-            .then((cityData) => {
-                if (cityData == null) {
+        expenseHeadModel.findOne({ _id: req.body._id })
+            .then((expenseHeadData) => {
+                if (expenseHeadData == null) {
                     res.send({
                         status: 422,
                         success: false,
@@ -288,14 +287,14 @@ const changeStatus = (req, res) => {
                     })
                 }
                 else {
-                    cityData.status = req.body.status
-                    cityData.save()
-                        .then((cityData) => {
+                    expenseHeadData.status = req.body.status
+                    expenseHeadData.save()
+                        .then((expenseHeadData) => {
                             res.send({
                                 status: 200,
                                 success: true,
                                 message: "Status Updated Successfully",
-                                data: cityData
+                                data: expenseHeadData
                             })
                         })
                         .catch(() => {
@@ -317,4 +316,4 @@ const changeStatus = (req, res) => {
     }
 }
 
-module.exports = { add, getAll, getSingle, update, delCity, changeStatus }
+module.exports = { add, getAll, getSingle, update, delExpenseHead, changeStatus }
