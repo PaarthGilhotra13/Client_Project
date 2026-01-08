@@ -6,4 +6,4 @@ const zoneSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()}
 })
 
-module.exports=new mongoose.model("Zone",zoneSchema)
+module.exports=new mongoose.model("zoneData",zoneSchema)

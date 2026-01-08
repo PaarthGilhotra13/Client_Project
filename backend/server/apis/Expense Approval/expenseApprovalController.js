@@ -1,21 +1,18 @@
-const storeModel = require("./storeModel")
+const expenseApprovalModel = require("./expenseApprovalModel")
 
 const add = (req, res) => {
     var errMsgs = []
-    if (!req.body.storeName) {
-        errMsgs.push("storeName is required")
+    if (!req.body.expenseId) {
+        errMsgs.push("expenseId is required")
     }
-    if (!req.body.storeCode) {
-        errMsgs.push("storeCode is required")
+    if (!req.body.level) {
+        errMsgs.push("level is required")
     }
-    if (!req.body.storeCategoryId) {
-        errMsgs.push("storeCategoryId is required")
+    if (!req.body.approverId) {
+        errMsgs.push("approverId is required")
     }
-    if (!req.body.cityId) {
-        errMsgs.push("cityId is required")
-    }
-    if (!req.body.zoneId) {
-        errMsgs.push("zoneId is required")
+    if (!req.body.comment) {
+        errMsgs.push("comment is required")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -25,29 +22,28 @@ const add = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ storeName: req.body.storeName })
-            .then((storeData) => {
-                if (storeData == null) {
-                    let storeObj = new storeModel()
-                    storeObj.storeName = req.body.storeName
-                    storeObj.storeCode = req.body.storeCode
-                    storeObj.storeCategoryId = req.body.storeCategoryId
-                    storeObj.cityId = req.body.cityId
-                    storeObj.zoneId = req.body.zoneId
+        expenseApprovalModel.findOne({ expenseId: req.body.expenseId })
+            .then((expenseApprovalData) => {
+                if (expenseApprovalData == null) {
+                    let storeObj = new expenseApprovalModel()
+                    storeObj.expenseId = req.body.expenseId
+                    storeObj.level = req.body.level
+                    storeObj.approverId = req.body.approverId
+                    storeObj.comment = req.body.comment
                     storeObj.save()
-                        .then((storeData) => {
+                        .then((expenseApprovalData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Store Added Successfully",
-                                data: storeData
+                                message: "Expense Approval Added Successfully",
+                                data: expenseApprovalData
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Store Not Added"
+                                message: "Expense Approval Not Added"
                             })
                         })
                 }
@@ -55,7 +51,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store Already Exists"
+                        message: "Expense Approval Already Exists"
                     })
                 }
             })
@@ -71,21 +67,21 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    storeModel.find(req.body)
-        .then((storeData) => {
-            if (storeData.length == 0) {
+    expenseApprovalModel.find(req.body)
+        .then((expenseApprovalData) => {
+            if (expenseApprovalData.length == 0) {
                 res.send({
                     status: 402,
                     success: false,
-                    message: "Store is Empty",
+                    message: "Expense Approval is Empty",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "Store Found",
-                    data: storeData
+                    message: "Expense Approval Found",
+                    data: expenseApprovalData
                 })
 
             }
@@ -112,21 +108,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ _id: req.body._id })
-            .then((storeData) => {
-                if (storeData == null) {
+        expenseApprovalModel.findOne({ _id: req.body._id })
+            .then((expenseApprovalData) => {
+                if (expenseApprovalData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store not Found"
+                        message: "Expense Approval not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Store Found",
-                        data: storeData
+                        message: "Expense Approval Found",
+                        data: expenseApprovalData
                     })
                 }
             })
@@ -153,55 +149,52 @@ const update = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ storeName: req.body.storeName })
-            .then((storeData1) => {
-                if (storeData1 && storeData1._id.toString()  !== req.body._id.toString() ) {
+        expenseApprovalModel.findOne({ expenseId: req.body.expenseId })
+            .then((expenseApprovalData1) => {
+                if (expenseApprovalData1 && expenseApprovalData1._id.toString()  !== req.body._id.toString() ) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store Already Exists with same Name"
+                        message: "Expense Approval Already Exists with same Name"
                     })
                 }
                 else {
-                    storeModel.findOne({ _id: req.body._id })
-                        .then((storeData) => {
-                            if (storeData == null) {
+                    expenseApprovalModel.findOne({ _id: req.body._id })
+                        .then((expenseApprovalData) => {
+                            if (expenseApprovalData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
-                                    message: "Store not Found"
+                                    message: "Expense Approval not Found"
                                 })
                             }
                             else {
-                                if (req.body.storeName) {
-                                    storeData.storeName = req.body.storeName
+                                if (req.body.expenseId) {
+                                    expenseApprovalData.expenseId = req.body.expenseId
                                 }
-                                if (req.body.storeCode) {
-                                    storeData.storeCode = req.body.storeCode
+                                if (req.body.level) {
+                                    expenseApprovalData.level = req.body.level
                                 }
-                                if (req.body.storeCategoryId) {
-                                    storeData.storeCategoryId = req.body.storeCategoryId
+                                if (req.body.approverId) {
+                                    expenseApprovalData.approverId = req.body.approverId
                                 }
-                                if (req.body.cityId) {
-                                    storeData.cityId = req.body.cityId
+                                if (req.body.comment) {
+                                    expenseApprovalData.comment = req.body.comment
                                 }
-                                if (req.body.zoneId) {
-                                    storeData.zoneId = req.body.zoneId
-                                }
-                                storeData.save()
-                                    .then((storeData) => {
+                                expenseApprovalData.save()
+                                    .then((expenseApprovalData) => {
                                         res.send({
                                             status: 200,
                                             success: true,
-                                            message: "Store Updated Successfully",
-                                            data: storeData
+                                            message: "Expense Approval Updated Successfully",
+                                            data: expenseApprovalData
                                         })
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
-                                            message: "Store not Updated"
+                                            message: "Expense Approval not Updated"
                                         })
                                     })
                             }
@@ -227,7 +220,7 @@ const update = (req, res) => {
     }
 }
 
-const delStore = (req, res) => {
+const delExpenseApproval = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -240,29 +233,29 @@ const delStore = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ _id: req.body._id })
-            .then((storeData) => {
-                if (storeData == null) {
+        expenseApprovalModel.findOne({ _id: req.body._id })
+            .then((expenseApprovalData) => {
+                if (expenseApprovalData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store not Found"
+                        message: "Expense Approval not Found"
                     })
                 }
                 else {
-                    storeData.deleteOne()
+                    expenseApprovalData.deleteOne()
                         .then(() => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Store Deleted Successfully"
+                                message: "Expense Approval Deleted Successfully"
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Store not Deleted "
+                                message: "Expense Approval not Deleted "
                             })
                         })
                 }
@@ -294,24 +287,24 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ _id: req.body._id })
-            .then((storeData) => {
-                if (storeData == null) {
+        expenseApprovalModel.findOne({ _id: req.body._id })
+            .then((expenseApprovalData) => {
+                if (expenseApprovalData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store not Found"
+                        message: "Expense Approval not Found"
                     })
                 }
                 else {
-                    storeData.status = req.body.status
-                    storeData.save()
-                        .then((storeData) => {
+                    expenseApprovalData.status = req.body.status
+                    expenseApprovalData.save()
+                        .then((expenseApprovalData) => {
                             res.send({
                                 status: 200,
                                 success: true,
                                 message: "Status Successfully",
-                                data: storeData
+                                data: expenseApprovalData
                             })
                         })
                         .catch(() => {
@@ -334,4 +327,4 @@ const changeStatus = (req, res) => {
 }
 
 
-module.exports = { add, getAll, getSingle, update, delStore, changeStatus }
+module.exports = { add, getAll, getSingle, update, delExpenseApproval, changeStatus }

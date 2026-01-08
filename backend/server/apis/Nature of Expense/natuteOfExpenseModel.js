@@ -7,4 +7,4 @@ const natureOfExpenseSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()}
 })
 
-module.exports=new mongoose.model("Nature of Expense",natureOfExpenseSchema)
+module.exports=new mongoose.model("natureOfExpenseData",natureOfExpenseSchema)

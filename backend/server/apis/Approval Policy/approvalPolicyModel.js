@@ -8,4 +8,4 @@ const approvalPolicySchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()}
 })
 
-module.exports=new mongoose.model("Approval Policy",approvalPolicySchema)
+module.exports=new mongoose.model("approvalPolicyData",approvalPolicySchema)

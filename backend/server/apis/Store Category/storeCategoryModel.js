@@ -7,4 +7,4 @@ const storeCategorySchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()}
 })
 
-module.exports=new mongoose.model("Store Category",storeCategorySchema)
+module.exports=new mongoose.model("storeCategoryData",storeCategorySchema)

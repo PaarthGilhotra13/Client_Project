@@ -7,5 +7,5 @@ const citySchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()}
 })
 
-module.exports=new mongoose.model("City",citySchema)
+module.exports=new mongoose.model("cityData",citySchema)
 
