@@ -11,6 +11,6 @@ const facilityManagerSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()},
 })
 
-module.exports=new mongoose.model("facilityManagerData",facilityMaganerSchema)
+module.exports=new mongoose.model("facilityManagerData",facilityManagerSchema)
 
 
