@@ -1,385 +1,217 @@
 const expenseModel = require("./expenseModel")
 
-
+/* ===================== ADD EXPENSE ===================== */
 const add = (req, res) => {
-    var errMsgs = []
-    if (!req.body.ticketId) {
-        errMsgs.push("ticketId is required")
-    }
-    if (!req.body.storeId) {
-        errMsgs.push("storeId is required")
-    }
-    if (!req.body.expenseHeadId) {
-        errMsgs.push("expenseHeadId is required")
-    }
-    if (!req.body.natureOfExpenseId) {
-        errMsgs.push("natureOfExpenseId is required")
-    }
-    if (!req.body.amount) {
-        errMsgs.push("amount is required")
-    }
-    if (!req.body.remark) {
-        errMsgs.push("remark is required")
-    }
-    if (!req.body.rca) {
-        errMsgs.push("rca is required")
-    }
-    if (!req.body.policyId) {
-        errMsgs.push("policyId is required")
-    }
-    if (!req.body.currentApprovalLevel) {
-        errMsgs.push("currentApprovalLevel is required")
-    }
-    if (!req.file) {
-        errMsgs.push("attachment is required")
-    }
+    let errMsgs = []
+
+    if (!req.body.ticketId) errMsgs.push("ticketId is required")
+    if (!req.body.storeId) errMsgs.push("storeId is required")
+    if (!req.body.expenseHeadId) errMsgs.push("expenseHeadId is required")
+    if (!req.body.natureOfExpenseId) errMsgs.push("natureOfExpenseId is required")
+    if (!req.body.amount) errMsgs.push("amount is required")
+    if (!req.body.remark) errMsgs.push("remark is required")
+    if (!req.body.rca) errMsgs.push("rca is required")
+    if (!req.body.policyId) errMsgs.push("policyId is required")
+    if (!req.file) errMsgs.push("attachment is required")
+
     if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        })
+        return res.send({ status: 422, success: false, message: errMsgs })
     }
-    else {
-        expenseModel.findOne({ ticketId: req.body.ticketId })
-            .then((expenseData) => {
-                if (expenseData == null) {
-                    let expenseObj = new expenseModel()
-                    expenseObj.ticketId = req.body.ticketId
-                    expenseObj.storeId = req.body.storeId
-                    expenseObj.expenseHeadId = req.body.expenseHeadId
-                    expenseObj.natureOfExpenseId = req.body.natureOfExpenseId
-                    expenseObj.amount = req.body.amount
-                    expenseObj.remark = req.body.remark
-                    expenseObj.rca = req.body.rca
-                    expenseObj.policyId = req.body.policyId
-                    expenseObj.currentApprovalLevel = req.body.currentApprovalLevel
-                    expenseObj.attachment = req.body.attachment
-                    expenseObj.save()
-                        .then((expenseData) => {
-                            res.send({
-                                status: 200,
-                                success: true,
-                                message: "Expense Added Successfully",
-                                data: expenseData
-                            })
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Expense Not Added"
-                            })
-                        })
-                }
-                else {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Expense Already Exists"
-                    })
-                }
+
+    // same ticketId active expense check
+    expenseModel.findOne({
+        ticketId: req.body.ticketId,
+        status: { $in: ["Pending", "Hold"] }
+    })
+    .then(existing => {
+        if (existing) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Active expense already exists for this ticket"
             })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Something Went Wrong"
-                })
+        }
+
+        let expenseObj = new expenseModel()
+        expenseObj.ticketId = req.body.ticketId
+        expenseObj.storeId = req.body.storeId
+        expenseObj.expenseHeadId = req.body.expenseHeadId
+        expenseObj.natureOfExpenseId = req.body.natureOfExpenseId
+        expenseObj.amount = req.body.amount
+        expenseObj.remark = req.body.remark
+        expenseObj.rca = req.body.rca
+        expenseObj.policyId = req.body.policyId
+        expenseObj.attachment = req.file.path
+
+        // IMPORTANT
+        expenseObj.status = "Pending"
+        expenseObj.currentApprovalLevel = null
+
+        expenseObj.save()
+        .then(data => {
+            res.send({
+                status: 200,
+                success: true,
+                message: "Expense Added Successfully",
+                data
             })
-
-    }
-}
-
-const getAll = (req, res) => {
-    expenseModel.find(req.body)
-        .then((expenseData) => {
-            if (expenseData.length == 0) {
-                res.send({
-                    status: 402,
-                    success: false,
-                    message: "Expense is Empty",
-                })
-            }
-            else {
-                res.send({
-                    status: 200,
-                    success: true,
-                    message: "Expense Found",
-                    data: expenseData
-                })
-
-            }
         })
         .catch(() => {
             res.send({
                 status: 422,
                 success: false,
-                message: "Something Went Wrong",
+                message: "Expense Not Added"
             })
+        })
+    })
+    .catch(() => {
+        res.send({ status: 422, success: false, message: "Something Went Wrong" })
+    })
+}
+
+/* ===================== GET ALL ===================== */
+const getAll = (req, res) => {
+    expenseModel.find({})
+        .then(data => {
+            res.send({
+                status: 200,
+                success: true,
+                message: "Expense List",
+                data
+            })
+        })
+        .catch(() => {
+            res.send({ status: 422, success: false, message: "Something Went Wrong" })
         })
 }
 
+/* ===================== GET SINGLE ===================== */
 const getSingle = (req, res) => {
-    var errMsgs = []
     if (!req.body._id) {
-        errMsgs.push("_id is required")
+        return res.send({ status: 422, success: false, message: "_id is required" })
     }
-    if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
+
+    expenseModel.findOne({ _id: req.body._id })
+        .then(data => {
+            if (!data) {
+                res.send({ status: 422, success: false, message: "Expense not Found" })
+            } else {
+                res.send({ status: 200, success: true, message: "Expense Found", data })
+            }
         })
+        .catch(() => {
+            res.send({ status: 422, success: false, message: "Something Went Wrong" })
+        })
+}
+
+/* ===================== UPDATE ===================== */
+const update = (req, res) => {
+    if (!req.body._id) {
+        return res.send({ status: 422, success: false, message: "_id is required" })
     }
-    else {
-        expenseModel.findOne({ _id: req.body._id })
-            // .populate("description")
-            .then((expenseData) => {
-                if (expenseData == null) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Expense not Found"
-                    })
-                }
-                else {
+
+    expenseModel.findOne({ _id: req.body._id })
+        .then(expense => {
+            if (!expense) {
+                return res.send({ status: 422, success: false, message: "Expense not Found" })
+            }
+
+            // 🔒 LOCK AFTER SUBMIT
+            if (expense.status !== "Draft") {
+                return res.send({
+                    status: 422,
+                    success: false,
+                    message: "Expense cannot be edited after submission"
+                })
+            }
+
+            if (req.body.ticketId) expense.ticketId = req.body.ticketId
+            if (req.body.storeId) expense.storeId = req.body.storeId
+            if (req.body.expenseHeadId) expense.expenseHeadId = req.body.expenseHeadId
+            if (req.body.natureOfExpenseId) expense.natureOfExpenseId = req.body.natureOfExpenseId
+            if (req.body.amount) expense.amount = req.body.amount
+            if (req.body.remark) expense.remark = req.body.remark
+            if (req.body.rca) expense.rca = req.body.rca
+            if (req.body.policyId) expense.policyId = req.body.policyId
+            if (req.file) expense.attachment = req.file.path
+
+            expense.save()
+                .then(data => {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Expense Found",
-                        data: expenseData
+                        message: "Expense Updated Successfully",
+                        data
                     })
-                }
-            })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Somehting Went Wrong"
                 })
-            })
-    }
-}
-
-const update = (req, res) => {
-    var errMsgs = []
-    if (!req.body._id) {
-        errMsgs.push("_id is required")
-    }
-    if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
+                .catch(() => {
+                    res.send({ status: 422, success: false, message: "Expense not Updated" })
+                })
         })
-    }
-    else {
-        expenseModel.findOne({ ticketId: req.body.ticketId })
-            .then((expenseData) => {
-                if (expenseData && expenseData._id.toString()  !== req.body._id.toString() ) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Expense Already Exists with same name"
-                    })
-                }
-                else {
-                    expenseModel.findOne({ _id: req.body._id })
-                        .then((expenseData) => {
-                            if (expenseData == null) {
-                                res.send({
-                                    status: 422,
-                                    success: false,
-                                    message: "Expense not Found"
-                                })
-                            }
-                    //         expenseObj.ticketId = req.body.ticketId
-                    // expenseObj.storeId = req.body.storeId
-                    // expenseObj.expenseHeadId = req.body.expenseHeadId
-                    // expenseObj.natureOfExpenseId = req.body.natureOfExpenseId
-                    // expenseObj.amount = req.body.amount
-                    // expenseObj.remark = req.body.remark
-                    // expenseObj.rca = req.body.rca
-                    // expenseObj.policyId = req.body.policyId
-                    // expenseObj.currentApprovalLevel = req.body.currentApprovalLevel
-                    // expenseObj.attachment = req.body.attachment
-                            else {
-                                if (req.body.ticketId) {
-                                    expenseData.ticketId = req.body.ticketId
-                                }
-                                if (req.body.storeId) {
-                                    expenseData.storeId = req.body.storeId
-                                }
-                                if (req.body.expenseHeadId) {
-                                    expenseData.expenseHeadId = req.body.expenseHeadId
-                                }
-                                if (req.body.natureOfExpenseId) {
-                                    expenseData.natureOfExpenseId = req.body.natureOfExpenseId
-                                }
-                                if (req.body.amount) {
-                                    expenseData.amount = req.body.amount
-                                }
-                                if (req.body.remark) {
-                                    expenseData.remark = req.body.remark
-                                }
-                                if (req.body.rca) {
-                                    expenseData.rca = req.body.rca
-                                }
-                                if (req.body.policyId) {
-                                    expenseData.policyId = req.body.policyId
-                                }
-                                if (req.body.currentApprovalLevel) {
-                                    expenseData.currentApprovalLevel = req.body.currentApprovalLevel
-                                }
-                                if (req.body.attachment) {
-                                    expenseData.attachment = req.body.attachment
-                                }
-                                expenseData.save()
-                                    .then((expenseData) => {
-                                        res.send({
-                                            status: 200,
-                                            success: true,
-                                            message: "Expense Updated Successfully",
-                                            data: expenseData
-                                        })
-                                    })
-                                    .catch(() => {
-                                        res.send({
-                                            status: 422,
-                                            success: false,
-                                            message: "Expense not Updated"
-                                        })
-                                    })
-                            }
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Internal Server Error"
-                            })
-                        })
-
-                }
-            })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Somehting Went Wrong"
-                })
-            })
-
-
-
-    }
+        .catch(() => {
+            res.send({ status: 422, success: false, message: "Something Went Wrong" })
+        })
 }
 
+/* ===================== DELETE (SOFT) ===================== */
 const delExpense = (req, res) => {
-    var errMsgs = []
     if (!req.body._id) {
-        errMsgs.push("_id is required")
+        return res.send({ status: 422, success: false, message: "_id is required" })
     }
-    if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        })
-    }
-    else {
-        expenseModel.findOne({ _id: req.body._id })
-            .then((expenseData) => {
-                if (expenseData == null) {
+
+    expenseModel.findOne({ _id: req.body._id })
+        .then(expense => {
+            if (!expense) {
+                return res.send({ status: 422, success: false, message: "Expense not Found" })
+            }
+
+            expense.status = "Rejected"
+            expense.save()
+                .then(() => {
                     res.send({
-                        status: 422,
-                        success: false,
-                        message: "Data not Found"
+                        status: 200,
+                        success: true,
+                        message: "Expense Rejected Successfully"
                     })
-                }
-                else {
-                    expenseData.deleteOne()
-                        .then(() => {
-                            res.send({
-                                status: 200,
-                                success: true,
-                                message: "Data Deleted Successfully"
-                            })
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Data not Deleted Successfully"
-                            })
-                        })
-                }
-            })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Something Went Wrong"
                 })
-            })
-    }
+        })
+        .catch(() => {
+            res.send({ status: 422, success: false, message: "Something Went Wrong" })
+        })
 }
 
+/* ===================== CHANGE STATUS ===================== */
 const changeStatus = (req, res) => {
-    var errMsgs = []
-    if (!req.body._id) {
-        errMsgs.push("_id is required")
-    }
-    if (!req.body.status) {
-        errMsgs.push("status is required")
+    const allowedStatus = ['Draft', 'Pending', 'Approved', 'Rejected', 'Hold']
 
-    }
-    if (errMsgs.length > 0) {
-        res.send({
+    if (!req.body._id || !allowedStatus.includes(req.body.status)) {
+        return res.send({
             status: 422,
             success: false,
-            message: errMsgs
+            message: "Invalid status or _id"
         })
     }
-    else {
-        expenseModel.findOne({ _id: req.body._id })
-            .then((expenseData) => {
-                if (expenseData == null) {
+
+    expenseModel.findOne({ _id: req.body._id })
+        .then(expense => {
+            if (!expense) {
+                return res.send({ status: 422, success: false, message: "Expense not Found" })
+            }
+
+            expense.status = req.body.status
+            expense.save()
+                .then(data => {
                     res.send({
-                        status: 422,
-                        success: false,
-                        message: "Data not Found"
+                        status: 200,
+                        success: true,
+                        message: "Status Updated Successfully",
+                        data
                     })
-                }
-                else {
-                    expenseData.status = req.body.status
-                    expenseData.save()
-                        .then((expenseData) => {
-                            res.send({
-                                status: 200,
-                                success: true,
-                                message: "Status Updated Successfully",
-                                data: expenseData
-                            })
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Status Not Updated "
-                            })
-                        })
-                }
-            })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Something Went Wrong"
                 })
-            })
-    }
+        })
+        .catch(() => {
+            res.send({ status: 422, success: false, message: "Something Went Wrong" })
+        })
 }
 
 module.exports = { add, getAll, getSingle, update, delExpense, changeStatus }

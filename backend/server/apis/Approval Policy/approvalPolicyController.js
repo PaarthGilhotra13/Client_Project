@@ -2,14 +2,17 @@ const approvalPolicyModel = require("./approvalPolicyModel")
 
 const add = (req, res) => {
     var errMsgs = []
-    if (!req.body.minApproval) {
+    if (!req.body.minAmount) {
         errMsgs.push("Min Approval is required")
     }
-    if (!req.body.maxApproval) {
+    if (!req.body.maxAmount) {
         errMsgs.push("Max Approval is required")
     }
     if (!req.body.approvalLevels) {
         errMsgs.push("Approval Levels is required")
+    }
+    if (req.body.minAmount > req.body.maxAmount) {
+        errMsgs.push("minAmount cannot be greater than maxAmount")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -19,14 +22,18 @@ const add = (req, res) => {
         })
     }
     else {
-        approvalPolicyModel.findOne({ minApproval: req.body.minApproval }) //Doubt
+        approvalPolicyModel.findOne({
+            minAmount: { $lte: req.body.maxAmount },
+            maxAmount: { $gte: req.body.minAmount },
+            status: true
+        })
             .then((approvalPolicyData) => {
                 if (approvalPolicyData == null) {
-                    let storeCategoryObj = new approvalPolicyModel()
-                    storeCategoryObj.minApproval = req.body.minApproval
-                    storeCategoryObj.maxApproval = req.body.maxApproval
-                    storeCategoryObj.ApprovalLevels = req.body.ApprovalLevels
-                    storeCategoryObj.save()
+                    let approvalPolicyObj = new approvalPolicyModel()
+                    approvalPolicyObj.minAmount = req.body.minAmount
+                    approvalPolicyObj.maxAmount = req.body.maxAmount
+                    approvalPolicyObj.approvalLevels = req.body.approvalLevels
+                    approvalPolicyObj.save()
                         .then((approvalPolicyData) => {
                             res.send({
                                 status: 200,
@@ -63,7 +70,7 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    approvalPolicyModel.find(req.body)
+    approvalPolicyModel.find({ status: true })
         .then((approvalPolicyData) => {
             if (approvalPolicyData.length == 0) {
                 res.send({
@@ -145,13 +152,18 @@ const update = (req, res) => {
         })
     }
     else {
-        approvalPolicyModel.findOne({ minApproval: req.body.minApproval })
+        approvalPolicyModel.findOne({
+            _id: { $ne: req.body._id },
+            minAmount: { $lte: req.body.maxAmount },
+            maxAmount: { $gte: req.body.minAmount },
+            status: true
+        })
             .then((approvalPolicyData1) => {
-                if (approvalPolicyData1 && approvalPolicyData1._id.toString()  !== req.body._id.toString() ) {
+                if (approvalPolicyData1 && approvalPolicyData1._id.toString() !== req.body._id.toString()) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Approval Policy Already Exists with same minApproval"
+                        message: "Approval Policy Already Exists with same minAmount"
                     })
                 }
                 else {
@@ -165,11 +177,11 @@ const update = (req, res) => {
                                 })
                             }
                             else {
-                                if (req.body.minApproval) {
-                                    approvalPolicyData.minApproval = req.body.minApproval
+                                if (req.body.minAmount) {
+                                    approvalPolicyData.minAmount = req.body.minAmount
                                 }
-                                if (req.body.maxApproval) {
-                                    approvalPolicyData.maxApproval = req.body.maxApproval
+                                if (req.body.maxAmount) {
+                                    approvalPolicyData.maxAmount = req.body.maxAmount
                                 }
                                 if (req.body.approvalLevels) {
                                     approvalPolicyData.approvalLevels = req.body.approvalLevels

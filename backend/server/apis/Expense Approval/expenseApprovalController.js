@@ -1,330 +1,142 @@
 const expenseApprovalModel = require("./expenseApprovalModel")
+const expenseModel = require("../Expense/expenseModel")
+const approvalPolicyModel = require("../approvalPolicy/approvalPolicyModel")
 
+/* ===================== ADD APPROVAL ===================== */
 const add = (req, res) => {
-    var errMsgs = []
-    if (!req.body.expenseId) {
-        errMsgs.push("expenseId is required")
-    }
-    if (!req.body.level) {
-        errMsgs.push("level is required")
-    }
-    if (!req.body.approverId) {
-        errMsgs.push("approverId is required")
-    }
-    if (!req.body.comment) {
-        errMsgs.push("comment is required")
-    }
+    let errMsgs = []
+
+    if (!req.body.expenseId) errMsgs.push("expenseId is required")
+    if (!req.body.level) errMsgs.push("level is required")
+    if (!req.body.approverId) errMsgs.push("approverId is required")
+    if (!req.body.status) errMsgs.push("status is required")
+
     if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        })
+        return res.send({ status: 422, success: false, message: errMsgs })
     }
-    else {
-        expenseApprovalModel.findOne({ expenseId: req.body.expenseId })
-            .then((expenseApprovalData) => {
-                if (expenseApprovalData == null) {
-                    let storeObj = new expenseApprovalModel()
-                    storeObj.expenseId = req.body.expenseId
-                    storeObj.level = req.body.level
-                    storeObj.approverId = req.body.approverId
-                    storeObj.comment = req.body.comment
-                    storeObj.save()
-                        .then((expenseApprovalData) => {
-                            res.send({
-                                status: 200,
-                                success: true,
-                                message: "Expense Approval Added Successfully",
-                                data: expenseApprovalData
-                            })
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Expense Approval Not Added"
-                            })
-                        })
-                }
-                else {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Expense Approval Already Exists"
-                    })
-                }
-            })
-            .catch(() => {
-                res.send({
+
+    // 1️⃣ Fetch expense
+    expenseModel.findOne({ _id: req.body.expenseId })
+        .then(expense => {
+            if (!expense) {
+                return res.send({
                     status: 422,
                     success: false,
-                    message: "Something Went Wrong"
+                    message: "Expense not found"
                 })
-            })
+            }
 
-    }
-}
-
-const getAll = (req, res) => {
-    expenseApprovalModel.find(req.body)
-        .then((expenseApprovalData) => {
-            if (expenseApprovalData.length == 0) {
-                res.send({
-                    status: 402,
+            // 2️⃣ Check correct approval level
+            if (expense.currentApprovalLevel !== req.body.level) {
+                return res.send({
+                    status: 422,
                     success: false,
-                    message: "Expense Approval is Empty",
+                    message: "You are not authorized to approve at this level"
                 })
             }
-            else {
-                res.send({
-                    status: 200,
-                    success: true,
-                    message: "Expense Approval Found",
-                    data: expenseApprovalData
-                })
 
-            }
+            // 3️⃣ Prevent duplicate approval at same level
+            expenseApprovalModel.findOne({
+                expenseId: req.body.expenseId,
+                level: req.body.level
+            })
+            .then(existing => {
+                if (existing) {
+                    return res.send({
+                        status: 422,
+                        success: false,
+                        message: "Approval already given for this level"
+                    })
+                }
+
+                // 4️⃣ Save approval
+                let approvalObj = new expenseApprovalModel()
+                approvalObj.expenseId = req.body.expenseId
+                approvalObj.level = req.body.level
+                approvalObj.approverId = req.body.approverId
+                approvalObj.comment = req.body.comment || ""
+                approvalObj.status = req.body.status
+
+                approvalObj.save()
+                    .then(() => {
+
+                        // 5️⃣ Handle expense state
+                        if (req.body.status === "Rejected") {
+                            expense.status = "Rejected"
+                            expense.currentApprovalLevel = null
+                        }
+                        else if (req.body.status === "Hold") {
+                            expense.status = "Hold"
+                        }
+                        else {
+                            // Approved → move to next level
+                            approvalPolicyModel.findOne({ _id: expense.policyId })
+                                .then(policy => {
+                                    let levels = policy.approvalLevels
+                                    let currentIndex = levels.indexOf(req.body.level)
+
+                                    if (currentIndex === levels.length - 1) {
+                                        expense.status = "Approved"
+                                        expense.currentApprovalLevel = null
+                                    } else {
+                                        expense.currentApprovalLevel = levels[currentIndex + 1]
+                                        expense.status = "Pending"
+                                    }
+
+                                    expense.save()
+                                })
+                        }
+
+                        res.send({
+                            status: 200,
+                            success: true,
+                            message: "Expense approval processed successfully"
+                        })
+                    })
+            })
         })
         .catch(() => {
             res.send({
                 status: 422,
                 success: false,
-                message: "Something Went Wrong",
+                message: "Something went wrong"
             })
         })
 }
 
+/* ===================== GET ALL ===================== */
+const getAll = (req, res) => {
+    expenseApprovalModel.find({})
+        .then(data => {
+            res.send({
+                status: 200,
+                success: true,
+                message: "Expense Approval List",
+                data
+            })
+        })
+        .catch(() => {
+            res.send({ status: 422, success: false, message: "Something Went Wrong" })
+        })
+}
+
+/* ===================== GET SINGLE ===================== */
 const getSingle = (req, res) => {
-    var errMsgs = []
     if (!req.body._id) {
-        errMsgs.push("_id is required")
+        return res.send({ status: 422, success: false, message: "_id is required" })
     }
-    if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
+
+    expenseApprovalModel.findOne({ _id: req.body._id })
+        .then(data => {
+            if (!data) {
+                res.send({ status: 422, success: false, message: "Expense Approval not Found" })
+            } else {
+                res.send({ status: 200, success: true, message: "Expense Approval Found", data })
+            }
         })
-    }
-    else {
-        expenseApprovalModel.findOne({ _id: req.body._id })
-            .then((expenseApprovalData) => {
-                if (expenseApprovalData == null) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Expense Approval not Found"
-                    })
-                }
-                else {
-                    res.send({
-                        status: 200,
-                        success: true,
-                        message: "Expense Approval Found",
-                        data: expenseApprovalData
-                    })
-                }
-            })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Somehting Went Wrong"
-                })
-            })
-    }
+        .catch(() => {
+            res.send({ status: 422, success: false, message: "Something Went Wrong" })
+        })
 }
 
-const update = (req, res) => {
-    var errMsgs = []
-    if (!req.body._id) {
-        errMsgs.push("_id is required")
-    }
-    if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        })
-    }
-    else {
-        expenseApprovalModel.findOne({ expenseId: req.body.expenseId })
-            .then((expenseApprovalData1) => {
-                if (expenseApprovalData1 && expenseApprovalData1._id.toString()  !== req.body._id.toString() ) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Expense Approval Already Exists with same Name"
-                    })
-                }
-                else {
-                    expenseApprovalModel.findOne({ _id: req.body._id })
-                        .then((expenseApprovalData) => {
-                            if (expenseApprovalData == null) {
-                                res.send({
-                                    status: 422,
-                                    success: false,
-                                    message: "Expense Approval not Found"
-                                })
-                            }
-                            else {
-                                if (req.body.expenseId) {
-                                    expenseApprovalData.expenseId = req.body.expenseId
-                                }
-                                if (req.body.level) {
-                                    expenseApprovalData.level = req.body.level
-                                }
-                                if (req.body.approverId) {
-                                    expenseApprovalData.approverId = req.body.approverId
-                                }
-                                if (req.body.comment) {
-                                    expenseApprovalData.comment = req.body.comment
-                                }
-                                expenseApprovalData.save()
-                                    .then((expenseApprovalData) => {
-                                        res.send({
-                                            status: 200,
-                                            success: true,
-                                            message: "Expense Approval Updated Successfully",
-                                            data: expenseApprovalData
-                                        })
-                                    })
-                                    .catch(() => {
-                                        res.send({
-                                            status: 422,
-                                            success: false,
-                                            message: "Expense Approval not Updated"
-                                        })
-                                    })
-                            }
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Internal Server Error"
-                            })
-                        })
-
-                }
-            })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Something Went Wrong"
-                })
-            })
-
-    }
-}
-
-const delExpenseApproval = (req, res) => {
-    var errMsgs = []
-    if (!req.body._id) {
-        errMsgs.push("_id is required")
-    }
-    if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        })
-    }
-    else {
-        expenseApprovalModel.findOne({ _id: req.body._id })
-            .then((expenseApprovalData) => {
-                if (expenseApprovalData == null) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Expense Approval not Found"
-                    })
-                }
-                else {
-                    expenseApprovalData.deleteOne()
-                        .then(() => {
-                            res.send({
-                                status: 200,
-                                success: true,
-                                message: "Expense Approval Deleted Successfully"
-                            })
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Expense Approval not Deleted "
-                            })
-                        })
-                }
-            })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Something Went Wrong"
-                })
-            })
-    }
-}
-
-const changeStatus = (req, res) => {
-    var errMsgs = []
-    if (!req.body._id) {
-        errMsgs.push("_id is required")
-    }
-    if (!req.body.status) {
-        errMsgs.push("status is required")
-
-    }
-    if (errMsgs.length > 0) {
-        res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        })
-    }
-    else {
-        expenseApprovalModel.findOne({ _id: req.body._id })
-            .then((expenseApprovalData) => {
-                if (expenseApprovalData == null) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Expense Approval not Found"
-                    })
-                }
-                else {
-                    expenseApprovalData.status = req.body.status
-                    expenseApprovalData.save()
-                        .then((expenseApprovalData) => {
-                            res.send({
-                                status: 200,
-                                success: true,
-                                message: "Status Successfully",
-                                data: expenseApprovalData
-                            })
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Status Not Updated "
-                            })
-                        })
-                }
-            })
-            .catch(() => {
-                res.send({
-                    status: 422,
-                    success: false,
-                    message: "Something Went Wrong"
-                })
-            })
-    }
-}
-
-
-module.exports = { add, getAll, getSingle, update, delExpenseApproval, changeStatus }
+module.exports = { add, getAll, getSingle }
