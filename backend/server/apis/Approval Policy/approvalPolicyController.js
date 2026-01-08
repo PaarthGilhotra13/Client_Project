@@ -1,21 +1,15 @@
-const storeModel = require("./storeModel")
+const approvalPolicyModel = require("./approvalPolicyModel")
 
 const add = (req, res) => {
     var errMsgs = []
-    if (!req.body.storeName) {
-        errMsgs.push("storeName is required")
+    if (!req.body.minApproval) {
+        errMsgs.push("Min Approval is required")
     }
-    if (!req.body.storeCode) {
-        errMsgs.push("storeCode is required")
+    if (!req.body.maxApproval) {
+        errMsgs.push("Max Approval is required")
     }
-    if (!req.body.storeCategoryId) {
-        errMsgs.push("storeCategoryId is required")
-    }
-    if (!req.body.cityId) {
-        errMsgs.push("cityId is required")
-    }
-    if (!req.body.zoneId) {
-        errMsgs.push("zoneId is required")
+    if (!req.body.approvalLevels) {
+        errMsgs.push("Approval Levels is required")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -25,29 +19,27 @@ const add = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ storeName: req.body.storeName })
-            .then((storeData) => {
-                if (storeData == null) {
-                    let storeObj = new storeModel()
-                    storeObj.storeName = req.body.storeName
-                    storeObj.storeCode = req.body.storeCode
-                    storeObj.storeCategoryId = req.body.storeCategoryId
-                    storeObj.cityId = req.body.cityId
-                    storeObj.zoneId = req.body.zoneId
-                    storeObj.save()
-                        .then((storeData) => {
+        approvalPolicyModel.findOne({ minApproval: req.body.minApproval }) //Doubt
+            .then((approvalPolicyData) => {
+                if (approvalPolicyData == null) {
+                    let storeCategoryObj = new approvalPolicyModel()
+                    storeCategoryObj.minApproval = req.body.minApproval
+                    storeCategoryObj.maxApproval = req.body.maxApproval
+                    storeCategoryObj.ApprovalLevels = req.body.ApprovalLevels
+                    storeCategoryObj.save()
+                        .then((approvalPolicyData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Store Added Successfully",
-                                data: storeData
+                                message: "Approval Policy Added Successfully",
+                                data: approvalPolicyData
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Store Not Added"
+                                message: "Approval Policy Not Added"
                             })
                         })
                 }
@@ -55,7 +47,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store Already Exists"
+                        message: "Approval Policy Already Exists"
                     })
                 }
             })
@@ -71,21 +63,21 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    storeModel.find(req.body)
-        .then((storeData) => {
-            if (storeData.length == 0) {
+    approvalPolicyModel.find(req.body)
+        .then((approvalPolicyData) => {
+            if (approvalPolicyData.length == 0) {
                 res.send({
                     status: 402,
                     success: false,
-                    message: "Store is Empty",
+                    message: "Approval Policy is Empty",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "Store Found",
-                    data: storeData
+                    message: "Approval Policy Found",
+                    data: approvalPolicyData
                 })
 
             }
@@ -112,21 +104,21 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ _id: req.body._id })
-            .then((storeData) => {
-                if (storeData == null) {
+        approvalPolicyModel.findOne({ _id: req.body._id })
+            .then((approvalPolicyData) => {
+                if (approvalPolicyData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store not Found"
+                        message: "Approval Policy not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Store Found",
-                        data: storeData
+                        message: "Approval Policy Found",
+                        data: approvalPolicyData
                     })
                 }
             })
@@ -153,55 +145,49 @@ const update = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ storeName: req.body.storeName })
-            .then((storeData1) => {
-                if (storeData1 && storeData1._id.toString()  !== req.body._id.toString() ) {
+        approvalPolicyModel.findOne({ minApproval: req.body.minApproval })
+            .then((approvalPolicyData1) => {
+                if (approvalPolicyData1 && approvalPolicyData1._id.toString()  !== req.body._id.toString() ) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store Already Exists with same Name"
+                        message: "Approval Policy Already Exists with same minApproval"
                     })
                 }
                 else {
-                    storeModel.findOne({ _id: req.body._id })
-                        .then((storeData) => {
-                            if (storeData == null) {
+                    approvalPolicyModel.findOne({ _id: req.body._id })
+                        .then((approvalPolicyData) => {
+                            if (approvalPolicyData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
-                                    message: "Store not Found"
+                                    message: "Approval Policy not Found"
                                 })
                             }
                             else {
-                                if (req.body.storeName) {
-                                    storeData.storeName = req.body.storeName
+                                if (req.body.minApproval) {
+                                    approvalPolicyData.minApproval = req.body.minApproval
                                 }
-                                if (req.body.storeCode) {
-                                    storeData.storeCode = req.body.storeCode
+                                if (req.body.maxApproval) {
+                                    approvalPolicyData.maxApproval = req.body.maxApproval
                                 }
-                                if (req.body.storeCategoryId) {
-                                    storeData.storeCategoryId = req.body.storeCategoryId
+                                if (req.body.approvalLevels) {
+                                    approvalPolicyData.approvalLevels = req.body.approvalLevels
                                 }
-                                if (req.body.cityId) {
-                                    storeData.cityId = req.body.cityId
-                                }
-                                if (req.body.zoneId) {
-                                    storeData.zoneId = req.body.zoneId
-                                }
-                                storeData.save()
-                                    .then((storeData) => {
+                                approvalPolicyData.save()
+                                    .then((approvalPolicyData) => {
                                         res.send({
                                             status: 200,
                                             success: true,
-                                            message: "Store Updated Successfully",
-                                            data: storeData
+                                            message: "Approval Policy Updated Successfully",
+                                            data: approvalPolicyData
                                         })
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
-                                            message: "Store not Updated"
+                                            message: "Approval Policy not Updated"
                                         })
                                     })
                             }
@@ -227,7 +213,7 @@ const update = (req, res) => {
     }
 }
 
-const delStore = (req, res) => {
+const delApprovalPolicy = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -240,29 +226,29 @@ const delStore = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ _id: req.body._id })
-            .then((storeData) => {
-                if (storeData == null) {
+        approvalPolicyModel.findOne({ _id: req.body._id })
+            .then((approvalPolicyData) => {
+                if (approvalPolicyData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store not Found"
+                        message: "Approval Policy not Found"
                     })
                 }
                 else {
-                    storeData.deleteOne()
+                    approvalPolicyData.deleteOne()
                         .then(() => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Store Deleted Successfully"
+                                message: "Approval Policy Deleted Successfully"
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Store not Deleted "
+                                message: "Approval Policy not Deleted "
                             })
                         })
                 }
@@ -294,24 +280,24 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ _id: req.body._id })
-            .then((storeData) => {
-                if (storeData == null) {
+        approvalPolicyModel.findOne({ _id: req.body._id })
+            .then((approvalPolicyData) => {
+                if (approvalPolicyData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Store not Found"
+                        message: "Approval Policy not Found"
                     })
                 }
                 else {
-                    storeData.status = req.body.status
-                    storeData.save()
-                        .then((storeData) => {
+                    approvalPolicyData.status = req.body.status
+                    approvalPolicyData.save()
+                        .then((approvalPolicyData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Status Successfully",
-                                data: storeData
+                                message: "Status Updated Successfully",
+                                data: approvalPolicyData
                             })
                         })
                         .catch(() => {
@@ -334,4 +320,4 @@ const changeStatus = (req, res) => {
 }
 
 
-module.exports = { add, getAll, getSingle, update, delStore, changeStatus }
+module.exports = { add, getAll, getSingle, update, delApprovalPolicy, changeStatus }

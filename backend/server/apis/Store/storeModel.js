@@ -10,5 +10,5 @@ const storeSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()}
 })
 
-module.exports=new mongoose.model("Store",storeSchema)
+module.exports=new mongoose.model("storeData",storeSchema)
 
