@@ -1,4 +1,4 @@
-const bfModel = require("./bfModel")
+const bfModel = require("./businessFinanceModel")
 const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 

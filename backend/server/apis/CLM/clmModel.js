@@ -11,6 +11,6 @@ const clmSchema=new mongoose.Schema({
     createdAt:{type:Date,default:Date.now()},
 })
 
-module.exports=new mongoose.model("CLM",clmSchema)
+module.exports=new mongoose.model("CLMData",clmSchema)
 
 

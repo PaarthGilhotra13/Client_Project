@@ -1,6 +1,5 @@
 const cityModel = require("./cityModel")
 
-
 const add = (req, res) => {
     var errMsgs = []
     if (!req.body.cityName) {

@@ -2,16 +2,20 @@ const routes=require("express").Router()
 
 const employeeModel = require("../apis/Employee/employeeController")
 const userController=require("../apis/User/userController")
-const zhController=require("../apis/ZH/zhController")
+const zhController=require("../apis/Zonal Head/zonalHeadController")
 const clmController=require("../apis/CLM/clmController")
-const fmController=require("../apis/FM/fmController")
-const bfController=require("../apis/BF/bfController")
+const fmController=require("../apis/Facility Manager/facilityManagerController")
+const bfController=require("../apis/Business Finance/businessFinanceController")
 const procureController=require("../apis/Procurement/procurementController")
 const zoneController=require("../apis/Zone/zoneController")
 const cityController=require("../apis/City/cityController")
 const storeCategoryController=require("../apis/Store Category/storeCategoryController")
 const storeController=require("../apis/Store/storeController")
 const expenseController=require("../apis/Expense/expenseController")
+
+const multer=require("multer")
+const storage=multer.memoryStorage()
+const upload=multer({storage:storage})
 
 //login
 routes.post("/user/login",userController.login)
