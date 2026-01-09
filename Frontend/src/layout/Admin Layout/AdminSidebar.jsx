@@ -10,7 +10,7 @@ export default function AdminSidebar() {
     <>
       {/* ======= Sidebar ======= */}
       <aside id="sidebar" className="sidebar">
-        <ul className="sidebar-nav" id="sidebar-nav" style={{cursor: "default"}}>
+        <ul className="sidebar-nav" id="sidebar-nav" style={{ cursor: "default" }}>
           {/* Start Dashboard Nav */}
           <li className="nav-item">
             <Link
@@ -32,39 +32,39 @@ export default function AdminSidebar() {
                     </li> */}
           {/* End Dashboard Nav */}
           {/* Start Category Nav */}
-          {/* <li className="nav-item">
-                        <Link
-                            className="nav-link collapsed"
-                            data-bs-target="#category-nav"
-                            data-bs-toggle="collapse"
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#category-nav"
+              data-bs-toggle="collapse"
 
-                        >
-                            <i className="bi bi-folder" />
-                            <span>Department</span>
-                            <i className="bi bi-chevron-down ms-auto" />
-                        </Link>
-                        <ul
-                            id="category-nav"
-                            className="nav-content collapse "
-                            data-bs-parent="#sidebar-nav"
-                        >
-                            <li>
-                                <Link to={"/admin/addDepartment"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-plus fs-5" />
-                                    <span>Add Department</span>
+            >
+              <i className="bi bi-folder" />
+              <span>Zone</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="category-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addZone"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add Zone</span>
 
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/manageDepartment"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-card-list fs-6" />
-                                    <span>Manage Department</span>
-                                </Link>
-                            </li>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageZone"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage Zone</span>
+                </Link>
+              </li>
 
 
-                        </ul>
-                    </li> */}
+            </ul>
+          </li>
           {/* End Category Nav */}
           {/* Start SubCategory Nav */}
           {/* <li className="nav-item">

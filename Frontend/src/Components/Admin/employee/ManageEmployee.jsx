@@ -38,54 +38,62 @@ export default function ManageEmployee() {
   ];
 
   const csvData = filteredData
-  .filter(emp => emp.status) // Only active
-  .map((emp, index) => ({
-    srNo: index + 1,
-    _id: emp._id,
-    name: emp.name,
-    email: emp.email,
-    contact: emp.contact,
-    jobTitle: emp.jobTitle,
-    status: emp.status ? "Active" : "Inactive",
-  }));
+    .filter(emp => emp.status) // Only active
+    .map((emp, index) => ({
+      srNo: index + 1,
+      _id: emp._id,
+      name: emp.name,
+      email: emp.email,
+      contact: emp.contact,
+      jobTitle: emp.jobTitle,
+      status: emp.status ? "Active" : "Inactive",
+    }));
 
   // Fetch employees from backend
-  const fetchEmployees = () => {
-    setLoad(true);
-    ApiServices.GetAllEmployee()
-      .then((res) => {
-        if (res?.data?.success) {
-          setData(res.data.data);
-        } else {
-          setData([]);
-        }
-        setLoad(false);
-      })
-      .catch((err) => {
-        toast.error("Something Went Wrong");
-        console.log("Error is ", err);
-        setLoad(false);
-      });
+  const fetchAllStaff = async () => {
+    try {
+      setLoad(true);
+
+      const responses = await Promise.all([
+        ApiServices.GetAllFm(),
+        ApiServices.GetAllClm(),
+        ApiServices.GetAllZh(),
+        ApiServices.GetAllBf(),
+        ApiServices.GetAllProcurement()
+      ]);
+
+      const allData = responses.flatMap(res =>
+        res?.data?.success ? res.data.data : []
+      );
+
+      setData(allData);
+      setLoad(false);
+
+    } catch (err) {
+      console.log(err);
+      setLoad(false);
+    }
   };
 
+
   useEffect(() => {
-    fetchEmployees();
+    fetchAllStaff();
   }, []);
 
   // Filter data based on search
-useEffect(() => {
-  const filtered = data
-    .filter((el) => el.status) // Only active employees
-    .filter((el) => {
-      const lowerSearch = searchTerm.toLowerCase();
-      return (
-        el.name.toLowerCase().includes(lowerSearch) ||
-        el._id.toLowerCase().includes(lowerSearch)
-      );
-    });
+  useEffect(() => {
+    const filtered = data
+      .filter((el) => el.status) // Only active employees
+      .filter((el) => {
+        const lowerSearch = searchTerm.toLowerCase();
+        return (
+          el.name.toLowerCase().includes(lowerSearch) ||
+          el._id.toLowerCase().includes(lowerSearch)
+        );
+      });
 
-  setFilteredData(filtered);
-}, [searchTerm, data]);
+    setFilteredData(filtered);
+  }, [searchTerm, data]);
   // Toggle employee status
   const toggleStatus = (id, newStatus) => {
     Swal.fire({
@@ -164,7 +172,7 @@ useEffect(() => {
     <main className="main" id="main">
       <PageTitle child="Manage Employee" />
 
-      <div className="container-fluid mb-3" style={{cursor: "default"}}>
+      <div className="container-fluid mb-3" style={{ cursor: "default" }}>
         <div className="row align-items-center">
           {/* Search bar */}
           <div className="col-md-6">
@@ -193,7 +201,7 @@ useEffect(() => {
         </div>
       </div>
 
-      <div className="container-fluid" style={{cursor: "default"}}>
+      <div className="container-fluid" style={{ cursor: "default" }}>
         <div className="row justify-content-center">
           <div className="col-lg-12 mt-3 table-responsive">
             <ScaleLoader
@@ -209,19 +217,25 @@ useEffect(() => {
                   <tr>
                     <th>Sr. No</th>
                     <th>Id</th>
-                    <th>Action</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Contact</th>
-                    <th>Job Title</th>
+                    <th>Designation</th>
                     <th>Status</th>
+                    <th>Action</th>
+
                   </tr>
                 </thead>
                 <tbody>
                   {currentEmployees.map((el, index) => (
                     <tr key={el._id}>
                       <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                      <td>{el._id}</td>
+                      <td>{el.empcode}</td>
+                      <td>{el?.name}</td>
+                      <td>{el?.email}</td>
+                      <td>{el?.contact}</td>
+                      <td>{el?.designation}</td>
+                      <td>{el.status ? "Active" : "Inactive"}</td>
                       <td>
                         <div className="dropdown">
                           <button
@@ -266,11 +280,6 @@ useEffect(() => {
                           </ul>
                         </div>
                       </td>
-                      <td>{el.name}</td>
-                      <td>{el.email}</td>
-                      <td>{el.contact}</td>
-                      <td>{el.jobTitle}</td>
-                      <td>{el.status ? "Active" : "Inactive"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -294,9 +303,8 @@ useEffect(() => {
             (_, idx) => (
               <button
                 key={idx}
-                className={`btn me-1 ${
-                  currentPage === idx + 1 ? "btn-primary" : "btn-light"
-                }`}
+                className={`btn me-1 ${currentPage === idx + 1 ? "btn-primary" : "btn-light"
+                  }`}
                 onClick={() => setCurrentPage(idx + 1)}
               >
                 {idx + 1}

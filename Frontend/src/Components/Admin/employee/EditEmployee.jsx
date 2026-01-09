@@ -9,9 +9,7 @@ import Swal from "sweetalert2"
 export default function EditEmployee() {
     var [name, setName] = useState("")
     var [contact, setContact] = useState("")
-    var [experience, setExperience] = useState("")
     var [jobTitle, setJobTitle] = useState("")
-    var [joiningDate, setJoiningDate] = useState("")
     var [picture, setPicture] = useState("")
     var [load, setLoad] = useState(false)
     var nav = useNavigate()

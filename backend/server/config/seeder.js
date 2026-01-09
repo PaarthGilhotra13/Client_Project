@@ -8,7 +8,7 @@ const adminReg = (req, res) => {
                 let userObj = new userModel()
                 userObj.name = "Admin"
                 userObj.email = "admin@gmail.com"
-                userObj.password = bcrypt.hashSync("123", 10)
+                userObj.password = bcrypt.hashSync("admin@123", 10)
                 userObj.userType = 1
                 userObj.save()
                     .then(() => {

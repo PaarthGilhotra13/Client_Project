@@ -10,9 +10,7 @@ export default function AddEmployee() {
   var [email, setEmail] = useState("");
   var [password, setPassword] = useState("");
   var [contact, setContact] = useState("");
-  var [jobTitle, setJobTitle] = useState("");
-  var [jobTitle, setJobTitle] = useState("");
-  var [picture, setPicture] = useState("");
+  const [designation, setDesignation] = useState("");
   var [load, setLoad] = useState(false);
   var nav = useNavigate();
   const fileInputRef = useRef(null);
@@ -24,25 +22,40 @@ export default function AddEmployee() {
   }, []);
   function handleForm(e) {
     e.preventDefault();
-    if (!picture) {
+    setLoad(true);
+    let data = {
+      name: name,
+      email: email,
+      password: password,
+      contact: contact
+    }
+    let apiCall;
+
+    if (designation === "Facility Manager (FM)") {
+      apiCall = ApiServices.AddFm;
+    }
+    else if (designation === "CLM") {
+      apiCall = ApiServices.AddClm;
+    }
+    else if (designation === "Zonal Head") {
+      apiCall = ApiServices.AddZh;
+    }
+    else if (designation === "Business Finance") {
+      apiCall = ApiServices.AddBf;
+    }
+    else if (designation === "Procurement") {
+      apiCall = ApiServices.AddProcurement;
+    }
+    else {
       Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: "Please select a Picture before submitting.",
-        timer: 3000,
-        timerProgressBar: true,
+        text: "Please select a valid designation",
       });
+      setLoad(false);
       return;
     }
-    setLoad(true);
-    let data = new FormData();
-    data.append("name", name);
-    data.append("email", email);
-    data.append("password", password);
-    data.append("contact", contact);
-    data.append("jobTitle", jobTitle);
-    data.append("picture", picture);
-    ApiServices.AddEmployee(data)
+    apiCall(data)
       .then((res) => {
         var message = res?.data?.message;
         setLoad(true);
@@ -62,7 +75,6 @@ export default function AddEmployee() {
             setEmail("");
             setPassword("");
             setContact("");
-            setJobTitle("");
             fileInputRef.current.value = "";
           }, 3000);
         } else {
@@ -113,7 +125,7 @@ export default function AddEmployee() {
             </div>
           </div>
         </div>
-        <div className={load ? "display-screen" : ""} style={{cursor: "default"}}>
+        <div className={load ? "display-screen" : ""} style={{ cursor: "default" }}>
           <div className="col-lg-6 mx-auto mt-3">
             <div className="card">
               <div className="card-body">
@@ -175,29 +187,67 @@ export default function AddEmployee() {
                     />
                   </div>
                   <div className="col-12">
-                    <label className="form-label">Picture</label>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      className="form-control"
-                      id="inputEmail4"
-                      onChange={(e) => {
-                        setPicture(e.target.files[0]);
-                      }}
-                    />
-                  </div>
-                  <div className="col-12">
-                    <label className="form-label">Job Title</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="inputNanme4"
-                      value={jobTitle}
-                      onChange={(e) => {
-                        setJobTitle(e.target.value);
-                      }}
-                      required
-                    />
+                    <label htmlFor="CategotyName" className="form-label">
+                      Designation
+                    </label>
+                    <div className="dropdown text-center ">
+                      <button
+                        className="form-control text-start dropdown-toggle"
+                        type="button"
+                        id="categoryDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        {designation || "Select a Designation"}
+                      </button>
+                      <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+                        <li >
+                          <button
+                            type="button"
+                            className="dropdown-item"
+                            onClick={() => setDesignation("Facility Manager (FM)")}
+                          >
+                            Facility Manager (FM)
+                          </button>
+                        </li>
+                        <li >
+                          <button
+                            type="button"
+                            className="dropdown-item"
+                            onClick={() => setDesignation("CLM")}
+                          >
+                            CLM
+                          </button>
+                        </li>
+                        <li >
+                          <button
+                            type="button"
+                            className="dropdown-item"
+                            onClick={() => setDesignation("Zonal Head")}
+                          >
+                            Zonal Head
+                          </button>
+                        </li>
+                        <li >
+                          <button
+                            type="button"
+                            className="dropdown-item"
+                            onClick={() => setDesignation("Business Finance")}
+                          >
+                            Business Finance
+                          </button>
+                        </li>
+                        <li >
+                          <button
+                            type="button"
+                            className="dropdown-item"
+                            onClick={() => setDesignation("Procurement")}
+                          >
+                            Procurement
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                   <div className="text-center">
                     <button
