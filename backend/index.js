@@ -6,6 +6,9 @@ const port=3000
 const seeder=require("./server/config/seeder")
 seeder.adminReg()
 
+const cors = require('cors');
+app.use(cors());
+
 app.use(express.urlencoded({extended:true}))
 app.use(express.json({limit:'40mb'}))
 
@@ -27,11 +30,10 @@ app.post('/', (req, res) => {
 });
 
 app.listen(port,(err)=>{
-    if(err){
-        console.log("server is not connected")
-        
-    }
-    else{
-        console.log("server is running on port",port)
-    }
+  if(err){
+    console.log("server is not connected!!")
+  }
+  else{
+    console.log("server is running on port",port)
+  }
 })

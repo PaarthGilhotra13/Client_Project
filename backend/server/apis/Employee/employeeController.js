@@ -42,6 +42,7 @@ const add = (req, res) => {
                     userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
                     userObj.userType = 2
+                    userObj.designation = "Employee"
                     userObj.save()
                     .then((newUserData) => {
                         let employeeObj = new employeeModel()
@@ -49,7 +50,8 @@ const add = (req, res) => {
                         employeeObj.name = req.body.name
                         employeeObj.email = req.body.email
                         employeeObj.contact = req.body.contact
-                        employeeObj.empcode = generateEmployeeCode() 
+                        employeeObj.empcode = generateEmployeeCode()
+                        employeeObj.designation = "Employee"
                         employeeObj.save()
                             .then((employeeData) => {
                                 res.send({
@@ -193,37 +195,9 @@ const update = (req, res) => {
                     }
                     if (req.body.contact) {
                         employeeData.contact = req.body.contact
-                    }
-                    if (req.file) {
-                        try {
-                            let url = await uploadImg(req.file.buffer)
-                            employeeData.picture = url
-                        }
-                        catch (err) {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Cloudinary Error"
-                            })
-                        }
-                    }
-                    if (req.body.experience) {
-                        employeeData.experience = req.body.experience
-                    }
-                    if (req.body.jobTitle) {
-                        employeeData.jobTitle = req.body.jobTitle
-                    }
-                    if (req.body.joiningDate) {
-                        employeeData.joiningDate = req.body.joiningDate
-                    }
-                    if (req.body.linkedin) {
-                        employeeData.linkedin = req.body.linkedin
-                    }
-                    if (req.body.github) {
-                        employeeData.github = req.body.github
-                    }
-                    if (req.body.userId) {
-                        employeeData.userId = req.body.userId
+                    }  
+                    if (req.body.designation) {
+                        employeeData.designation = req.body.designation
                     }
                     employeeData.save()
                         .then((employeeData) => {
