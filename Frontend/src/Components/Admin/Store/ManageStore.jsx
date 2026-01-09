@@ -49,7 +49,7 @@ export default function ManageStore() {
                             _id: id,
                             status: "false"
                         }
-                        ApiServices.ChangeStatusProject(data)
+                        ApiServices.ChangeStatusStore(data)
                             .then((res) => {
                                 setLoad(true)
                                 var message = res?.data?.message
@@ -113,7 +113,7 @@ export default function ManageStore() {
                             _id: id,
                             status: true
                         }
-                        ApiServices.ChangeStatusProject(data)
+                        ApiServices.ChangeStatusStore(data)
                             .then((res) => {
                                 setLoad(true)
                                 var message = res?.data?.message
@@ -158,29 +158,10 @@ export default function ManageStore() {
                     }
                 })
         }
-    let ext;
-    function getFileType(fileName) {
-        if (!fileName) {
-            return "other";
-        }
-        ext = fileName.split('.').pop().toLowerCase();
-        if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" || ext == "bmp" || ext == "webp" || ext == "svg" || ext == "ico") {
-            return "image"
-        }
-        if (ext === "pdf" || ext === "zip" || ext === "doc" || ext === "docx" || ext === "xls" || ext === "xlsx" || ext === "ppt" || ext === "pptx" || ext === "txt" || ext === "rtf") {
-            return "document";
-        }
-    }
-    const getDownloadUrl = (url) => {
-        if (!url) return "";
-        return url.replace("/image/upload/", "/image/upload/fl_attachment/");
-    };
-
-
     return (
         <>
             <main className="main" id="main">
-                <PageTitle child="Manage Project" />
+                <PageTitle child="Manage Store" />
 
                 <div className="container-fluid ">
                     <div className="row">
@@ -208,20 +189,19 @@ export default function ManageStore() {
                                     </thead>
                                     <tbody>
                                         {data?.map((el, index) => {
-                                            const fileType = getFileType(el?.attachment)
                                             return (
                                                 <>
                                                     <tr key={index}>
                                                         <td>{index + 1}</td>
-                                                        <td>{el?.name}</td>
-                                                        <td>{el?.description}</td>
-                                                        <td>{el?.client}</td>
-                                                        <td>{el?.categoryId?.name}</td>
-                                                        <td>{el?.subCategoryId?.name}</td>
+                                                        <td>{el?.storeName}</td>
+                                                        <td>{el?.storeCode}</td>
+                                                        <td>{el?.storeCategoryId?.name}</td>
+                                                        <td>{el?.cityId?.cityName}</td>
+                                                        <td>{el?.zoneId?.zoneName}</td>
                                                         <td>{el?.status == true ? "true" : "false"}</td>
                                                         <td>
                                                             <div className="btn-group">
-                                                                <Link to={"/admin/editPrpject/" + el?._id} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
+                                                                <Link to={"/admin/editStore/" + el?._id} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
                                                                     <i className="bi bi-pen"></i>
                                                                 </Link>
                                                                 {
