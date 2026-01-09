@@ -1,32 +1,47 @@
-import PageTitle from "../../PageTitle";
-import { useEffect, useState } from "react";
-import ApiServices from "../../../ApiServices";
-import { useNavigate } from "react-router-dom";
-import { ScaleLoader } from "react-spinners";
-import Swal from "sweetalert2";
+import { ScaleLoader } from "react-spinners"
+import PageTitle from "../../PageTitle"
+import { useEffect, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import ApiServices from "../../../ApiServices"
+import { toast } from "react-toastify"
+import Swal from "sweetalert2"
 
-export default function AddZone() {
+export default function EditZone() {
     var [zoneName, setZoneName] = useState("")
     var [load, setLoad] = useState(false)
     var nav = useNavigate()
+    var params = useParams()
     useEffect(() => {
-        setLoad(true)
-        setTimeout(() => {
-            setLoad(false)
-        }, 1000)
+        let data = {
+            _id: params.id
+        }
+        ApiServices.GetSingleZone(data)
+            .then((res) => {
+                setLoad(true)
+                setZoneName(res.data.data.zoneName)
+                setTimeout(() => {
+                    setLoad(false)
+                }, 1000)
+
+            })
+            .catch((err) => {
+                console.log("err is", err);
+
+            })
     }, [])
     function handleForm(e) {
         e.preventDefault()
         let data = {
+            _id: params.id,
             zoneName: zoneName,
         }
-        ApiServices.AddZone(data)
+        ApiServices.UpdateZone(data)
             .then((res) => {
                 var message = res?.data?.message
                 setLoad(true)
                 if (res?.data?.success) {
                     Swal.fire({
-                        title: "Zone Added Successfully",
+                        title: "Details Updated Successfully",
                         icon: "success",
                         draggable: true,
                         confirmButtonText: 'Continue',
@@ -35,9 +50,8 @@ export default function AddZone() {
                     });
                     setTimeout(() => {
                         setLoad(false)
-                        nav("/admin/addZone")
-                        setZoneName("")
-                    }, 2000)
+                        nav("/admin/manageZone")
+                    }, 1000)
                 }
                 else {
                     Swal.fire({
@@ -50,8 +64,7 @@ export default function AddZone() {
                     });
                     setTimeout(() => {
                         setLoad(false)
-                        nav("/admin/addZone")
-                    }, 2000)
+                    }, 1000)
                 }
             })
             .catch((err) => {
@@ -67,15 +80,15 @@ export default function AddZone() {
                 setTimeout(() => {
                     setLoad(false)
                 }, 2000)
-                console.log("Error is", err);
+                console.log("Error is ", err);
 
             })
-    }
 
+    }
     return (
         <>
             <main id="main" className="main">
-                <PageTitle child="Add Zone" />
+                <PageTitle child="Edit Zone" />
                 <div className="container-fluid ">
                     <div className="row">
                         <div className="col-md-12">
@@ -96,7 +109,7 @@ export default function AddZone() {
                                         <label className="form-label">
                                             Zone Name
                                         </label>
-                                        <input type="text" className="form-control" id="inputNanme4" value={zoneName} onChange={(e) => { setZoneName(e.target.value) }} required />
+                                        <input type="text" className="form-control" id="inputNanme4" value={zoneName} onChange={(e) => { setZoneName(e.target.value) }} />
                                     </div>
                                     <div className="text-center">
                                         <button type="submit" className="btn" style={{ background: "#6776f4", color: "white" }}>
@@ -111,7 +124,6 @@ export default function AddZone() {
                     </div>
                 </div>
             </main>
-
         </>
     )
 }

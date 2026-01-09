@@ -1,57 +1,66 @@
-import { useEffect, useState } from "react"
-import { ScaleLoader } from "react-spinners"
-import PageTitle from "../../PageTitle"
-import ApiServices from "../../../ApiServices"
-import { toast } from "react-toastify"
-import Swal from "sweetalert2"
+import { ScaleLoader } from "react-spinners";
+import PageTitle from "../../PageTitle";
+import { useEffect, useState } from "react";
+import ApiServices from "../../../ApiServices";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
-export default function AddTechnology() {
-    var [subCatName, setSubCatName] = useState("")
-    var [catName, setCatName] = useState("")
-    var [categories, setcategories] = useState([])
-    var [catId, setCatId] = useState("")
+export default function EditCity() {
+    var [cityName, setCityName] = useState("")
+    var [zoneName, setZoneName] = useState("")
+    var [zones, setZones] = useState([])
+    var [zoneId, setZoneId] = useState("")
     var [load, setLoad] = useState(false)
+    var params = useParams()
+    var nav = useNavigate()
+
 
     useEffect(() => {
         setLoad(true)
-        let data={
-            status:"true"
+        let data1 = {
+            status: "true"
         }
-        ApiServices.GetAllCategory(data)
+        ApiServices.GetAllZone(data1)
             .then((res) => {
-                setcategories(res?.data?.data);
+                setZones(res?.data?.data);
             })
             .catch((err) => {
                 console.log("Error is ", err);
             })
-        setTimeout(() => {
-            setLoad(false)
-        }, 1000)
+
+
+        let data = {
+            _id: params.id
+        }
+        ApiServices.GetSingleCity(data)
+            .then((res) => {
+                setCityName(res?.data?.data?.cityName)
+                setZoneName(res?.data?.data?.zoneId?.zoneName)
+                setTimeout(() => {
+                    setLoad(false)
+                }, 1000)
+
+            })
+            .catch((err) => {
+                console.log("err is", err);
+            })
     }, [])
 
     function handleForm(e) {
         e.preventDefault()
         let data = {
-            name: subCatName,
-            categoryId: catId
+            _id: params.id,
+            cityName: cityName,
+            zoneId: zoneId
         }
-        if (!catId) {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Please select a Department before submitting.",
-                timer: 3000,
-                timerProgressBar: true,
-            });
-            return;
-        }
-        ApiServices.AddSubCategory(data)
+        ApiServices.UpdateCity(data)
             .then((res) => {
                 setLoad(true)
                 var message = res?.data?.message
                 if (res?.data?.success) {
                     Swal.fire({
-                        title: "Technology Added Successfully",
+                        title: message,
                         icon: "success",
                         draggable: true,
                         confirmButtonText: 'Continue',
@@ -60,11 +69,12 @@ export default function AddTechnology() {
                     });
                     setTimeout(() => {
                         setLoad(false)
-                        setSubCatName("")
-                        setCatName("")
-                    }, 2000)
+                        nav("/admin/manageCity")
+                    }, 1000)
                 }
                 else {
+                    console.log(message);
+
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -75,7 +85,7 @@ export default function AddTechnology() {
                     });
                     setTimeout(() => {
                         setLoad(false)
-                    }, 2000)
+                    }, 1000)
                 }
             })
             .catch((err) => {
@@ -92,13 +102,14 @@ export default function AddTechnology() {
                     setLoad(false)
                 }, 2000)
                 console.log("Error is ", err);
+
             })
     }
 
     return (
         <>
             <main id="main" className="main">
-                <PageTitle child="Add Technology" />
+                <PageTitle child="Edit City" />
                 <div className="container-fluid ">
                     <div className="row">
                         <div className="col-md-12">
@@ -112,18 +123,18 @@ export default function AddTechnology() {
                     <div className="col-lg-6 mx-auto mt-3">
                         <div className="card">
                             <div className="card-body">
-                                <h5 className="card-title">Technology Details</h5>
+                                <h5 className="card-title">City Details</h5>
                                 {/* Vertical Form */}
                                 <form className="row g-3" onSubmit={handleForm}>
                                     <div className="col-12">
                                         <label className="form-label">
-                                            Technology Name
+                                            City Name
                                         </label>
-                                        <input type="text" className="form-control" id="inputNanme4" value={subCatName} onChange={(e) => { setSubCatName(e.target.value) }} required />
+                                        <input type="text" className="form-control" id="inputNanme4" value={cityName} onChange={(e) => { setCityName(e.target.value) }} />
                                     </div>
                                     <div className="col-12">
                                         <label htmlFor="CategotyName" className="form-label">
-                                            Department Name
+                                            Zone Name
                                         </label>
                                         <div className="dropdown text-center ">
                                             <button
@@ -133,30 +144,29 @@ export default function AddTechnology() {
                                                 data-bs-toggle="dropdown"
                                                 aria-expanded="false"
                                             >
-                                                {catName || "Select a Department"}
+                                                {zoneName || "Select a Zone"}
                                             </button>
-                                            {categories?.map((el, index) => {
+                                            {zones?.map((el, index) => {
                                                 return (
                                                     <>
                                                         <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
-                                                            {categories.length > 0 ? (
-                                                                categories.map((el) => (
+                                                            {zones.length > 0 ? (
+                                                                zones.map((el) => (
                                                                     <li key={el._id}>
                                                                         <button
                                                                             type="button"
                                                                             className="dropdown-item"
                                                                             onClick={() => {
-                                                                                setCatName(el.name);
-                                                                                setCatId(el._id);
+                                                                                setZoneName(el.zoneName);
+                                                                                setZoneId(el._id);
                                                                             }}
-
                                                                         >
-                                                                            {el.name}
+                                                                            {el.zoneName}
                                                                         </button>
                                                                     </li>
                                                                 ))
                                                             ) : (
-                                                                <li><span className="dropdown-item text-muted">No Department found</span></li>
+                                                                <li><span className="dropdown-item text-muted">No City found</span></li>
                                                             )}
                                                         </ul>
 

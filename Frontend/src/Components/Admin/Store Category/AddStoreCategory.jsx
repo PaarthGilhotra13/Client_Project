@@ -1,50 +1,34 @@
-import { ScaleLoader } from "react-spinners"
-import PageTitle from "../../PageTitle"
-import { useEffect, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
-import ApiServices from "../../../ApiServices"
-import { toast } from "react-toastify"
-import Swal from "sweetalert2"
+import PageTitle from "../../PageTitle";
+import { useEffect, useState } from "react";
+import ApiServices from "../../../ApiServices";
+import { useNavigate } from "react-router-dom";
+import { ScaleLoader } from "react-spinners";
+import Swal from "sweetalert2";
 
-export default function EditDepartment() {
-    var [catName, setCatName] = useState("")
+export default function AddStoreCategory() {
+    var [name, setName] = useState("")
     var [description, setDescription] = useState("")
     var [load, setLoad] = useState(false)
     var nav = useNavigate()
-    var params = useParams()
     useEffect(() => {
-        let data = {
-            _id: params.id
-        }
-        ApiServices.GetSingleCategory(data)
-            .then((res) => {
-                setLoad(true)
-                setCatName(res.data.data.name)
-                setDescription(res.data.data.description)
-                setTimeout(() => {
-                    setLoad(false)
-                }, 1000)
-
-            })
-            .catch((err) => {
-                console.log("err is", err);
-
-            })
+        setLoad(true)
+        setTimeout(() => {
+            setLoad(false)
+        }, 1000)
     }, [])
     function handleForm(e) {
         e.preventDefault()
         let data = {
-            _id: params.id,
-            name: catName,
+            name: name,
             description: description
         }
-        ApiServices.UpdateCategory(data)
+        ApiServices.AddStoreCategory(data)
             .then((res) => {
                 var message = res?.data?.message
                 setLoad(true)
                 if (res?.data?.success) {
                     Swal.fire({
-                        title: "Details Updated Successfully",
+                        title: "Store Category Added Successfully",
                         icon: "success",
                         draggable: true,
                         confirmButtonText: 'Continue',
@@ -53,8 +37,10 @@ export default function EditDepartment() {
                     });
                     setTimeout(() => {
                         setLoad(false)
-                        nav("/admin/manageDepartment")
-                    }, 1000)
+                        nav("/admin/addStoreCategory")
+                        setName("")
+                        setDescription("")
+                    }, 2000)
                 }
                 else {
                     Swal.fire({
@@ -67,7 +53,8 @@ export default function EditDepartment() {
                     });
                     setTimeout(() => {
                         setLoad(false)
-                    }, 1000)
+                        nav("/admin/addStoreCategory")
+                    }, 2000)
                 }
             })
             .catch((err) => {
@@ -83,15 +70,14 @@ export default function EditDepartment() {
                 setTimeout(() => {
                     setLoad(false)
                 }, 2000)
-                console.log("Error is ", err);
-
+                console.log("Error is", err);
             })
-
     }
+
     return (
         <>
             <main id="main" className="main">
-                <PageTitle child="Edit Department" />
+                <PageTitle child="Add Store Categpry" />
                 <div className="container-fluid ">
                     <div className="row">
                         <div className="col-md-12">
@@ -105,20 +91,20 @@ export default function EditDepartment() {
                     <div className="col-lg-6 mx-auto mt-3">
                         <div className="card">
                             <div className="card-body">
-                                <h5 className="card-title">Department Details</h5>
+                                <h5 className="card-title">Store Category Details</h5>
                                 {/* Vertical Form */}
                                 <form className="row g-3" onSubmit={handleForm}>
                                     <div className="col-12">
                                         <label className="form-label">
-                                            Dept. Name
+                                            Name
                                         </label>
-                                        <input type="text" className="form-control" id="inputNanme4" value={catName} onChange={(e) => { setCatName(e.target.value) }} />
+                                        <input type="text" className="form-control" id="inputNanme4" value={name} onChange={(e) => { setName(e.target.value) }} required />
                                     </div>
                                     <div className="col-12">
                                         <label className="form-label">
                                             Description
                                         </label>
-                                        <input type="text" className="form-control" id="inputEmail4" value={description} onChange={(e) => { setDescription(e.target.value) }} />
+                                        <input type="text" className="form-control" id="inputEmail4" value={description} onChange={(e) => { setDescription(e.target.value) }} required />
                                     </div>
                                     <div className="text-center">
                                         <button type="submit" className="btn" style={{ background: "#6776f4", color: "white" }}>
@@ -133,6 +119,7 @@ export default function EditDepartment() {
                     </div>
                 </div>
             </main>
+
         </>
     )
 }

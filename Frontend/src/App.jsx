@@ -27,6 +27,17 @@ import ApprovedComplaint from "./Components/Admin/Complaint/ApprovedComplaint";
 import DeclinedComplaint from "./Components/Admin/Complaint/DeclinedComplaint";
 import AddRequest from "./Components/Admin/Complaint/AddRequest";
 import AddZone from "./Components/Admin/Zone/AddZone"
+import ManageZone from "./Components/Admin/Zone/ManageZone"
+import EditZone from "./Components/Admin/Zone/EditZone"
+import AddCity from "./Components/Admin/City/AddCity"
+import ManageCity from "./Components/Admin/City/ManageCity"
+import EditCity from "./Components/Admin/City/EditCity"
+import AddStoreCategory from "./Components/Admin/Store Category/AddStoreCategory"
+import ManageStoreCategory from "./Components/Admin/Store Category/ManageStoreCategory"
+import EditStoreCategory from "./Components/Admin/Store Category/EditStoreCategory"
+import ManageStore from "./Components/Admin/Store/ManageStore"
+import AddStore from "./Components/Admin/Store/AddStore"
+import EditStore from "./Components/Admin/Store/EditStore"
 
 
 function App() {
@@ -42,10 +53,26 @@ function App() {
             <Route path="/admin/manageEmployee" element={<ManageEmployee />} />
             <Route path="/admin/blockedEmployee" element={<BlockedEmployee />} />
             <Route path="/admin/editEmployee/:id" element={<EditEmployee />} />
-            
+
             {/* Zone */}
             <Route path="/admin/addZone" element={<AddZone />} />
+            <Route path="/admin/manageZone" element={<ManageZone />} />
+            <Route path="/admin/editZone/:id" element={<EditZone />} />
 
+            {/* City */}
+            <Route path="/admin/addCity" element={<AddCity />} />
+            <Route path="/admin/manageCity" element={<ManageCity />} />
+            <Route path="/admin/editCity/:id" element={<EditCity/>} />
+
+            {/* Store Category */}
+            <Route path="/admin/addStoreCategory" element={<AddStoreCategory />} />
+            <Route path="/admin/manageStoreCategory" element={<ManageStoreCategory />} />
+            <Route path="/admin/editStoreCategory/:id" element={<EditStoreCategory/>} />
+
+            {/* Store */}
+            <Route path="/admin/addStore" element={<AddStore />} />
+            <Route path="/admin/manageStore" element={<ManageStore />} />
+            <Route path="/admin/editStore/:id" element={<EditStore/>} />
 
             {/* <Route path="/admin/addTask" element={<AddTask />} />
             <Route path="/admin/manageTask" element={<ManageTask />} />

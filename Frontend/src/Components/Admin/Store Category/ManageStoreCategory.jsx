@@ -1,16 +1,17 @@
-import { Link, useNavigate } from "react-router-dom"
-import { ScaleLoader } from "react-spinners"
-import PageTitle from "../../PageTitle"
-import { useEffect, useState } from "react"
-import ApiServices from "../../../ApiServices"
-import { toast } from "react-toastify"
-import Swal from "sweetalert2"
+import { toast, ToastContainer } from "react-toastify";
+import PageTitle from "../../PageTitle";
+import { useEffect, useState } from "react";
+import ApiServices from "../../../ApiServices";
+import { ScaleLoader } from "react-spinners";
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
-export default function ManageTechnology() {
+export default function ManageStoreCategory() {
     var [data, setData] = useState([])
     var [load, setLoad] = useState(true)
+
     useEffect(() => {
-        ApiServices.GetAllSubCategory()
+        ApiServices.GetAllStoreCategory()
             .then((res) => {
                 if (res?.data?.success) {
                     setData(res?.data?.data)
@@ -47,7 +48,7 @@ export default function ManageTechnology() {
                         _id: id,
                         status: "false"
                     }
-                    ApiServices.ChangeStatusSubCategory(data)
+                    ApiServices.ChangeStatusStoreCategory(data)
                         .then((res) => {
                             setLoad(true)
                             var message = res?.data?.message
@@ -111,7 +112,7 @@ export default function ManageTechnology() {
                         _id: id,
                         status: true
                     }
-                    ApiServices.ChangeStatusSubCategory(data)
+                    ApiServices.ChangeStatusStoreCategory(data)
                         .then((res) => {
                             setLoad(true)
                             var message = res?.data?.message
@@ -159,8 +160,7 @@ export default function ManageTechnology() {
     return (
         <>
             <main className="main" id="main">
-                <PageTitle child="Manage Technology" />
-
+                <PageTitle child="Manage Store Category" />
                 <div className="container-fluid ">
                     <div className="row">
                         <div className="col-md-12">
@@ -176,8 +176,8 @@ export default function ManageTechnology() {
                                     <thead className="table-dark">
                                         <tr>
                                             <th>Sr. No</th>
-                                            <th>Technology</th>
-                                            <th>Department</th>
+                                            <th>Name</th>
+                                            <th>Description</th>
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
@@ -186,14 +186,14 @@ export default function ManageTechnology() {
                                         {data?.map((el, index) => {
                                             return (
                                                 <>
-                                                    <tr key={index}>
+                                                    <tr>
                                                         <td>{index + 1}</td>
                                                         <td>{el?.name}</td>
-                                                        <td>{el?.categoryId?.name}</td>
+                                                        <td>{el?.description}</td>
                                                         <td>{el?.status == true ? "true" : "false"}</td>
                                                         <td>
                                                             <div className="btn-group">
-                                                                <Link to={"/admin/editTechnology/" + el?._id} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
+                                                                <Link to={"/admin/editStoreCategory/" + el?._id} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
                                                                     <i className="bi bi-pen"></i>
                                                                 </Link>
                                                                 {

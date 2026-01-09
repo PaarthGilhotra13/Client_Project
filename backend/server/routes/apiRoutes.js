@@ -58,7 +58,7 @@ routes.post("/fm/all",fmController.getAll)
 routes.post("/fm/single",fmController.getSingle)
 routes.post("/fm/update",fmController.update)
 routes.post("/fm/delete",fmController.delfm)
-routes.post("/fm/changeStaus",fmController.changeStatus)
+routes.post("/fm/changeStatus",fmController.changeStatus)
 
 // Business Finance
 routes.post("/bf/add",bfController.add)
@@ -66,7 +66,7 @@ routes.post("/bf/all",bfController.getAll)
 routes.post("/bf/single",bfController.getSingle)
 routes.post("/bf/update",bfController.update)
 routes.post("/bf/delete",bfController.delbf)
-routes.post("/bf/changeStaus",bfController.changeStatus)
+routes.post("/bf/changeStatus",bfController.changeStatus)
 
 // Procurement
 routes.post("/procure/add",procureController.add)
@@ -74,7 +74,7 @@ routes.post("/procure/all",procureController.getAll)
 routes.post("/procure/single",procureController.getSingle)
 routes.post("/procure/update",procureController.update)
 routes.post("/procure/delete",procureController.delprocure)
-routes.post("/procure/changeStaus",procureController.changeStatus)
+routes.post("/procure/changeStatus",procureController.changeStatus)
 
 // Zone
 routes.post("/zone/add",zoneController.add)
@@ -82,7 +82,7 @@ routes.post("/zone/all",zoneController.getAll)
 routes.post("/zone/single",zoneController.getSingle)
 routes.post("/zone/update",zoneController.update)
 routes.post("/zone/delete",zoneController.delZone)
-routes.post("/zone/changeStaus",zoneController.changeStatus)
+routes.post("/zone/changeStatus",zoneController.changeStatus)
 
 // City
 routes.post("/city/add",cityController.add)
@@ -90,7 +90,7 @@ routes.post("/city/all",cityController.getAll)
 routes.post("/city/single",cityController.getSingle)
 routes.post("/city/update",cityController.update)
 routes.post("/city/delete",cityController.delCity)
-routes.post("/city/changeStaus",cityController.changeStatus)
+routes.post("/city/changeStatus",cityController.changeStatus)
 
 // Store Category
 routes.post("/storeCategory/add",storeCategoryController.add)
@@ -98,7 +98,7 @@ routes.post("/storeCategory/all",storeCategoryController.getAll)
 routes.post("/storeCategory/single",storeCategoryController.getSingle)
 routes.post("/storeCategory/update",storeCategoryController.update)
 routes.post("/storeCategory/delete",storeCategoryController.delStoreCategory)
-routes.post("/storeCategory/changeStaus",storeCategoryController.changeStatus)
+routes.post("/storeCategory/changeStatus",storeCategoryController.changeStatus)
 
 // Store 
 routes.post("/store/add",storeController.add)
@@ -106,7 +106,7 @@ routes.post("/store/all",storeController.getAll)
 routes.post("/store/single",storeController.getSingle)
 routes.post("/store/update",storeController.update)
 routes.post("/store/delete",storeController.delStore)
-routes.post("/store/changeStaus",storeController.changeStatus)
+routes.post("/store/changeStatus",storeController.changeStatus)
 
 // Expense 
 routes.post("/expense/add",expenseController.add)
@@ -114,6 +114,6 @@ routes.post("/expense/all",expenseController.getAll)
 routes.post("/expense/single",expenseController.getSingle)
 routes.post("/expense/update",expenseController.update)
 routes.post("/expense/delete",expenseController.delExpense)
-routes.post("/expense/changeStaus",expenseController.changeStatus)
+routes.post("/expense/changeStatus",expenseController.changeStatus)
 
 module.exports=routes

@@ -3,7 +3,7 @@ const zoneModel = require("./zoneModel")
 const add = (req, res) => {
     var errMsgs = []
     if (!req.body.zoneName) {
-        errMsgs.push("name is required")
+        errMsgs.push("zoneName is required")
     }
     if (errMsgs.length > 0) {
         res.send({

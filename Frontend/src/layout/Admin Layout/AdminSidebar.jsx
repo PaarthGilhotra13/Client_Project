@@ -31,20 +31,21 @@ export default function AdminSidebar() {
                         </Link>
                     </li> */}
           {/* End Dashboard Nav */}
-          {/* Start Category Nav */}
+
+          {/* Start Zone Nav */}
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              data-bs-target="#category-nav"
+              data-bs-target="#zone-nav"
               data-bs-toggle="collapse"
 
             >
-              <i className="bi bi-folder" />
+              <i className="bi bi-geo-alt" />
               <span>Zone</span>
               <i className="bi bi-chevron-down ms-auto" />
             </Link>
             <ul
-              id="category-nav"
+              id="zone-nav"
               className="nav-content collapse "
               data-bs-parent="#sidebar-nav"
             >
@@ -65,7 +66,116 @@ export default function AdminSidebar() {
 
             </ul>
           </li>
-          {/* End Category Nav */}
+          {/* End Zone Nav */}
+
+          {/* Start City Nav */}
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#city-nav"
+              data-bs-toggle="collapse"
+
+            >
+              <i className="bi bi-house" />
+              <span>City</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="city-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addCity"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add City</span>
+
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageCity"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage City</span>
+                </Link>
+              </li>
+
+
+            </ul>
+          </li>
+          {/* End City Nav */}
+
+          {/* Start Store Category Nav */}
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#StoreCategory-nav"
+              data-bs-toggle="collapse"
+
+            >
+              <i className="bi bi-tags" />
+              <span>Store Category</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="StoreCategory-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addStoreCategory"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add Store Category</span>
+
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageStoreCategory"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage Store Category</span>
+                </Link>
+              </li>
+
+
+            </ul>
+          </li>
+          {/* End Store Category Nav */}
+
+          {/* Start Store  Nav */}
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#Store-nav"
+              data-bs-toggle="collapse"
+
+            >
+              <i className="bi bi-shop" />
+              <span>Store</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="Store-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addStore"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add Store</span>
+
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageStore"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage Store</span>
+                </Link>
+              </li>
+
+
+            </ul>
+          </li>
+          {/* End Store Category Nav */}
+
           {/* Start SubCategory Nav */}
           {/* <li className="nav-item">
                         <Link

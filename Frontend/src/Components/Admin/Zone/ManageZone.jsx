@@ -6,12 +6,12 @@ import { ScaleLoader } from "react-spinners";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
-export default function ManageDepartment() {
+export default function ManageZone() {
     var [data, setData] = useState([])
     var [load, setLoad] = useState(true)
 
     useEffect(() => {
-        ApiServices.GetAllCategory()
+        ApiServices.GetAllZone()
             .then((res) => {
                 if (res?.data?.success) {
                     setData(res?.data?.data)
@@ -48,7 +48,7 @@ export default function ManageDepartment() {
                         _id: id,
                         status: "false"
                     }
-                    ApiServices.ChangeStatusCategory(data)
+                    ApiServices.ChangeStatusZone(data)
                         .then((res) => {
                             setLoad(true)
                             var message = res?.data?.message
@@ -112,7 +112,7 @@ export default function ManageDepartment() {
                         _id: id,
                         status: true
                     }
-                    ApiServices.ChangeStatusCategory(data)
+                    ApiServices.ChangeStatusZone(data)
                         .then((res) => {
                             setLoad(true)
                             var message = res?.data?.message
@@ -176,8 +176,7 @@ export default function ManageDepartment() {
                                     <thead className="table-dark">
                                         <tr>
                                             <th>Sr. No</th>
-                                            <th>Dept. Name</th>
-                                            <th>Description</th>
+                                            <th>Zone Name</th>
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
@@ -188,12 +187,11 @@ export default function ManageDepartment() {
                                                 <>
                                                     <tr>
                                                         <td>{index + 1}</td>
-                                                        <td>{el?.name}</td>
-                                                        <td>{el?.description}</td>
+                                                        <td>{el?.zoneName}</td>
                                                         <td>{el?.status == true ? "true" : "false"}</td>
                                                         <td>
                                                             <div className="btn-group">
-                                                                <Link to={"/admin/editDepartment/" + el?._id} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
+                                                                <Link to={"/admin/editZone/" + el?._id} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
                                                                     <i className="bi bi-pen"></i>
                                                                 </Link>
                                                                 {
