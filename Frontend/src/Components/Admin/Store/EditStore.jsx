@@ -7,27 +7,59 @@ import { useNavigate, useParams } from "react-router-dom"
 import Swal from "sweetalert2"
 
 export default function EditStore() {
-    var [name, setName] = useState("")
-    var [description, setDescription] = useState("")
-    var [attachment, setAttachment] = useState("")
-    var [client, setClient] = useState("")
-    var [technology, setTechnology] = useState("")
+    var [storeName, setStoreName] = useState("")
+    var [storeCode, setStoreCode] = useState("")
+
+    var [storeCategoryName, setStoreCategoryName] = useState("")
+    var [storeCategories, setStoreCategories] = useState([])
+    var [storeCategoryId, setStoreCategoryId] = useState("")
+
+    var [cityName, setCityName] = useState("")
+    var [cities, setCities] = useState([])
+    var [CityId, setCityId] = useState("")
+
+    var [zoneName, setZoneName] = useState("")
+    var [zones, setZones] = useState([])
+    var [zoneId, setZoneId] = useState("")
+
     var [load, setLoad] = useState(false)
     var nav = useNavigate()
-    const fileInputRef = useRef(null);
     var params = useParams()
     useEffect(() => {
+        setLoad(true)
+        ApiServices.GetAllStoreCategory()
+            .then((res) => {
+                setStoreCategories(res?.data?.data);
+            })
+            .catch((err) => {
+                console.log("Error is ", err);
+            })
+        ApiServices.GetAllCity()
+            .then((res) => {
+                setCities(res?.data?.data);
+            })
+            .catch((err) => {
+                console.log("Error is ", err);
+            })
+        ApiServices.GetAllZone()
+            .then((res) => {
+                setZones(res?.data?.data);
+            })
+            .catch((err) => {
+                console.log("Error is ", err);
+            })
+
+
         let data = {
             _id: params.id
         }
-        ApiServices.GetSingleProject(data)
+        ApiServices.GetSingleStore(data)
             .then((res) => {
-                setLoad(true)
-                setName(res.data.data.name)
-                setDescription(res.data.data.description)
-                setAttachment(res.data.data.attachment)
-                setClient(res.data.data.client)
-                setTechnology(res.data.data.technology)
+                setStoreName(res?.data?.data?.storeName)
+                setStoreCode(res?.data?.data?.storeCode)
+                setStoreCategoryName(res?.data?.data?.storeCategoryId?.name)
+                setCityName(res?.data?.data?.cityId?.cityName)
+                setZoneName(res?.data?.data?.zoneId?.zoneName)
                 setTimeout(() => {
                     setLoad(false)
                 }, 1000)
@@ -41,14 +73,15 @@ export default function EditStore() {
     function handleForm(e) {
         e.preventDefault()
         setLoad(true)
-        let data = new FormData()
-        data.append("_id", params.id)
-        data.append("name", name)
-        data.append("description", description)
-        data.append("attachment", attachment)
-        data.append("client", client)
-        data.append("technology", technology)
-        ApiServices.UpdateProject(data)
+        let data = {
+            _id: params.id,
+            storeName: storeName,
+            storeCode: storeCode,
+            storeCategoryId: storeCategoryId,
+            cityId: CityId,
+            zoneId: zoneId,
+        }
+        ApiServices.UpdateStore(data)
             .then((res) => {
                 var message = res?.data?.message
                 setLoad(true)
@@ -63,7 +96,7 @@ export default function EditStore() {
                     });
                     setTimeout(() => {
                         setLoad(false)
-                        nav("/admin/manageProject")
+                        nav("/admin/manageStore")
                     }, 3000)
                 }
                 else {
@@ -101,8 +134,8 @@ export default function EditStore() {
     return (
         <>
             <main id="main" className="main">
-                <PageTitle child="Edit Project" />
-                <div className="container-fluid ">
+                <PageTitle child="Edit Store" />
+                <div className="container-fluid">
                     <div className="row">
                         <div className="col-md-12">
                             <ScaleLoader color="#6776f4" cssOverride={{ marginLeft: "45%", marginTop: "20%" }} size={200} loading={load} />
@@ -115,38 +148,152 @@ export default function EditStore() {
                     <div className="col-lg-6 mx-auto mt-3">
                         <div className="card">
                             <div className="card-body">
-                                <h5 className="card-title">Project Details </h5>
+                                <h5 className="card-title">Store Details</h5>
                                 {/* Vertical Form */}
                                 <form className="row g-3" onSubmit={handleForm}>
                                     <div className="col-12">
                                         <label className="form-label">
-                                            Name
+                                            Store Name
                                         </label>
-                                        <input type="text" className="form-control" id="inputNanme4" value={name} onChange={(e) => { setName(e.target.value) }} required />
+                                        <input type="text" className="form-control" id="inputNanme4" value={storeName} onChange={(e) => { setStoreName(e.target.value) }} required />
                                     </div>
                                     <div className="col-12">
                                         <label className="form-label">
-                                            Description
+                                            Store Code
                                         </label>
-                                        <input type="text" className="form-control" id="inputEmail4" value={description} onChange={(e) => { setDescription(e.target.value) }} required />
+                                        <input type="text" className="form-control" id="inputEmail4" value={storeCode} onChange={(e) => { setStoreCode(e.target.value) }} required />
                                     </div>
                                     <div className="col-12">
-                                        <label className="form-label">
-                                            Attachment
+                                        <label htmlFor="CategotyName" className="form-label">
+                                            Store Category
                                         </label>
-                                        <input type="file" ref={fileInputRef} className="form-control" id="inputEmail4" onChange={(e) => { setAttachment(e.target.files[0]) }} />
+                                        <div className="dropdown text-center ">
+                                            <button
+                                                className="form-control text-start dropdown-toggle"
+                                                type="button"
+                                                id="categoryDropdown"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                            >
+                                                {storeCategoryName || "Select a Store Category"}
+                                            </button>
+                                            {storeCategories?.map((el, index) => {
+                                                return (
+                                                    <>
+                                                        <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+                                                            {storeCategories.length > 0 ? (
+                                                                storeCategories.map((el) => (
+                                                                    <li key={el._id}>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="dropdown-item"
+                                                                            onClick={() => {
+                                                                                setStoreCategoryName(el.name);
+                                                                                setStoreCategoryId(el._id);
+                                                                            }}
+
+                                                                        >
+                                                                            {el.name}
+                                                                        </button>
+                                                                    </li>
+                                                                ))
+                                                            ) : (
+                                                                <li><span className="dropdown-item text-muted">No Store Category found</span></li>
+                                                            )}
+                                                        </ul>
+
+                                                    </>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                     <div className="col-12">
-                                        <label className="form-label">
-                                            Client
+                                        <label htmlFor="CategotyName" className="form-label">
+                                            City Name
                                         </label>
-                                        <input type="text" className="form-control" id="inputEmail4" value={client} onChange={(e) => { setClient(e.target.value) }} required />
+                                        <div className="dropdown text-center ">
+                                            <button
+                                                className="form-control text-start dropdown-toggle"
+                                                type="button"
+                                                id="categoryDropdown"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                            >
+                                                {cityName || "Select a City"}
+                                            </button>
+                                            {cities?.map((el, index) => {
+                                                return (
+                                                    <>
+                                                        <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+                                                            {cities.length > 0 ? (
+                                                                cities.map((el) => (
+                                                                    <li key={el._id}>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="dropdown-item"
+                                                                            onClick={() => {
+                                                                                setCityName(el.cityName);
+                                                                                setCityId(el._id);
+                                                                            }}
+
+                                                                        >
+                                                                            {el.cityName}
+                                                                        </button>
+                                                                    </li>
+                                                                ))
+                                                            ) : (
+                                                                <li><span className="dropdown-item text-muted">No City found</span></li>
+                                                            )}
+                                                        </ul>
+
+                                                    </>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                     <div className="col-12">
-                                        <label className="form-label">
-                                            Technology
+                                        <label htmlFor="CategotyName" className="form-label">
+                                            Zone Name
                                         </label>
-                                        <input type="text" className="form-control" id="inputEmail4" value={technology} onChange={(e) => { setTechnology(e.target.value) }} required />
+                                        <div className="dropdown text-center ">
+                                            <button
+                                                className="form-control text-start dropdown-toggle"
+                                                type="button"
+                                                id="categoryDropdown"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                            >
+                                                {zoneName || "Select a Zone"}
+                                            </button>
+                                            {zones?.map((el, index) => {
+                                                return (
+                                                    <>
+                                                        <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+                                                            {zones.length > 0 ? (
+                                                                zones.map((el) => (
+                                                                    <li key={el._id}>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="dropdown-item"
+                                                                            onClick={() => {
+                                                                                setZoneName(el.zoneName);
+                                                                                setZoneId(el._id);
+                                                                            }}
+
+                                                                        >
+                                                                            {el.zoneName}
+                                                                        </button>
+                                                                    </li>
+                                                                ))
+                                                            ) : (
+                                                                <li><span className="dropdown-item text-muted">No Zone found</span></li>
+                                                            )}
+                                                        </ul>
+
+                                                    </>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                     <div className="text-center">
                                         <button type="submit" className="btn" style={{ background: "#6776f4", color: "white" }}>

@@ -72,6 +72,9 @@ const add = (req, res) => {
 
 const getAll = (req, res) => {
     storeModel.find(req.body)
+        .populate("storeCategoryId")
+        .populate("cityId")
+        .populate("zoneId")
         .then((storeData) => {
             if (storeData.length == 0) {
                 res.send({
@@ -113,6 +116,9 @@ const getSingle = (req, res) => {
     }
     else {
         storeModel.findOne({ _id: req.body._id })
+            .populate("storeCategoryId")
+            .populate("cityId")
+            .populate("zoneId")
             .then((storeData) => {
                 if (storeData == null) {
                     res.send({
@@ -155,7 +161,7 @@ const update = (req, res) => {
     else {
         storeModel.findOne({ storeName: req.body.storeName })
             .then((storeData1) => {
-                if (storeData1 && storeData1._id.toString()  !== req.body._id.toString() ) {
+                if (storeData1 && storeData1._id.toString() !== req.body._id.toString()) {
                     res.send({
                         status: 422,
                         success: false,
