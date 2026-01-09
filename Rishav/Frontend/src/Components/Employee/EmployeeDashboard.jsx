@@ -73,7 +73,7 @@ export default function EmployeeDashboard() {
                         </div>
                     </div>
                 </div>
-                <div className={load ? "display-screen" : ""}>
+                <div className={load ? "display-screen" : ""} style={{cursor: "default"}}>
                     <div className="container-fluid my-4">
                         <h3 style={{ color: "#012970" }}> <strong>Welcome back, {profile.name}!</strong></h3>
 

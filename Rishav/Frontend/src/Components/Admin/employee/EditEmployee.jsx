@@ -114,7 +114,7 @@ export default function EditEmployee() {
                         </div>
                     </div>
                 </div>
-                <div className={load ? "display-screen" : ""}>
+                <div className={load ? "display-screen" : ""} style={{cursor: "default"}}>
 
 
                     <div className="col-lg-6 mx-auto mt-3">

@@ -1,34 +1,38 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
 export default function AdminSidebar() {
-    const handleSidebarClose = () => {
-        if (window.innerWidth <= 1024) {
-            document.body.classList.remove('toggle-sidebar'); // if you're toggling class on body
-            document.getElementById("sidebar").classList.remove("active"); // if you're toggling class on sidebar
-        }
+  const handleSidebarClose = () => {
+    if (window.innerWidth <= 1024) {
+      document.body.classList.remove("toggle-sidebar"); // if you're toggling class on body
+      document.getElementById("sidebar").classList.remove("active"); // if you're toggling class on sidebar
     }
-    return (
-        <>
-            {/* ======= Sidebar ======= */}
-            <aside id="sidebar" className="sidebar">
-                <ul className="sidebar-nav" id="sidebar-nav">
-                    {/* Start Dashboard Nav */}
-                    <li className="nav-item">
-                        <Link className="nav-link collapsed" to={"/admin"} onClick={handleSidebarClose}>
-                            <i className="bi bi-grid" />
-                            <span>Dashboard</span>
-                        </Link>
-                    </li>
-                    {/* End Dashboard Nav */}
-                    {/* Start Dashboard Nav */}
-                    {/* <li className="nav-item">
+  };
+  return (
+    <>
+      {/* ======= Sidebar ======= */}
+      <aside id="sidebar" className="sidebar">
+        <ul className="sidebar-nav" id="sidebar-nav" style={{cursor: "default"}}>
+          {/* Start Dashboard Nav */}
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              to={"/admin"}
+              onClick={handleSidebarClose}
+            >
+              <i className="bi bi-grid" />
+              <span>Dashboard</span>
+            </Link>
+          </li>
+          {/* End Dashboard Nav */}
+          {/* Start Dashboard Nav */}
+          {/* <li className="nav-item">
                         <Link className="nav-link collapsed" to={"/admin/announcement"} onClick={handleSidebarClose}>
                             <i className="bi bi-megaphone" />
                             <span>Announcement</span>
                         </Link>
                     </li> */}
-                    {/* End Dashboard Nav */}
-                    {/* Start Category Nav */}
-                    {/* <li className="nav-item">
+          {/* End Dashboard Nav */}
+          {/* Start Category Nav */}
+          {/* <li className="nav-item">
                         <Link
                             className="nav-link collapsed"
                             data-bs-target="#category-nav"
@@ -61,9 +65,9 @@ export default function AdminSidebar() {
 
                         </ul>
                     </li> */}
-                    {/* End Category Nav */}
-                    {/* Start SubCategory Nav */}
-                    {/* <li className="nav-item">
+          {/* End Category Nav */}
+          {/* Start SubCategory Nav */}
+          {/* <li className="nav-item">
                         <Link
                             className="nav-link collapsed"
                             data-bs-target="#subcategory-nav"
@@ -96,9 +100,9 @@ export default function AdminSidebar() {
 
                         </ul>
                     </li> */}
-                    {/* End SubCategory Nav */}
-                    {/* Start Project Nav */}
-                    {/* <li className="nav-item">
+          {/* End SubCategory Nav */}
+          {/* Start Project Nav */}
+          {/* <li className="nav-item">
                         <Link
                             className="nav-link collapsed"
                             data-bs-target="#project-nav"
@@ -131,10 +135,10 @@ export default function AdminSidebar() {
 
                         </ul>
                     </li> */}
-                    {/* End Project Nav */}
+          {/* End Project Nav */}
 
-                    {/* Start Project team Nav */}
-                    {/* <li className="nav-item">
+          {/* Start Project team Nav */}
+          {/* <li className="nav-item">
                         <Link
                             className="nav-link collapsed"
                             data-bs-target="#projectTeam-nav"
@@ -167,50 +171,106 @@ export default function AdminSidebar() {
 
                         </ul>
                     </li> */}
-                    {/* End Project team Nav */}
-                    {/* Start Employee Nav */}
-                    <li className="nav-item">
-                        <Link
-                            className="nav-link collapsed"
-                            data-bs-target="#employee-nav"
-                            data-bs-toggle="collapse"
-
-                        >
-                            <i className="bi bi-person-vcard" />
-                            <span>Employee</span>
-                            <i className="bi bi-chevron-down ms-auto" />
-                        </Link>
-                        <ul
-                            id="employee-nav"
-                            className="nav-content collapse "
-                            data-bs-parent="#sidebar-nav"
-                        >
-                            <li>
+          {/* End Project team Nav */}
+          {/* Start Employee Nav */}
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#employee-nav"
+              data-bs-toggle="collapse"
+            >
+              <i className="bi bi-person-vcard" />
+              <span>Employee</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="employee-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addEmployee"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add Employee</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageEmployee"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage Employee</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to={"/admin/BlockedEmployee"}
+                  onClick={handleSidebarClose}
+                >
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Blocked Employee</span>
+                </Link>
+              </li>
+            </ul>
+          </li>
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#complaint-nav"
+              data-bs-toggle="collapse"
+            >
+              <i className="bi bi-exclamation-circle" />
+              <span>Complaints</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="complaint-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              {/* <li>
                                 <Link to={"/admin/addEmployee"} onClick={handleSidebarClose}>
                                     <i className="bi bi-plus fs-5" />
                                     <span>Add Employee</span>
 
                                 </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/manageEmployee"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-card-list fs-6" />
-                                    <span>Manage Employee</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/BlockedEmployee"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-card-list fs-6" />
-                                    <span>Blocked Employee</span>
-                                </Link>
-                            </li>
-
-
-                        </ul>
-                    </li>
-                    {/* End Employee Nav */}
-                    {/* Start Task Nav */}
-                    {/* <li className="nav-item">
+                            </li> */}
+              <li>
+                <Link
+                  to={"/admin/viewRequest"}
+                  onClick={handleSidebarClose}
+                >
+                  <i className="bi bi-card-list fs-6" />
+                  <span>View Requests</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to={"/admin/approvedComplaint"}
+                  onClick={handleSidebarClose}
+                >
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Approved Requests</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/holdComplaint"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Hold Requests</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to={"/admin/declinedComplaint"}
+                  onClick={handleSidebarClose}
+                >
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Declined Requests</span>
+                </Link>
+              </li>
+            </ul>
+          </li>
+          {/* End Employee Nav */}
+          {/* Start Task Nav */}
+          {/* <li className="nav-item">
                         <Link
                             className="nav-link collapsed"
                             data-bs-target="#task-nav"
@@ -248,9 +308,9 @@ export default function AdminSidebar() {
 
                         </ul>
                     </li> */}
-                    {/* End Task Nav */}
-                    {/* Start Coins Nav */}
-                    {/* <li className="nav-item">
+          {/* End Task Nav */}
+          {/* Start Coins Nav */}
+          {/* <li className="nav-item">
                         <Link
                             className="nav-link collapsed"
                             data-bs-target="#coins-nav"
@@ -282,9 +342,9 @@ export default function AdminSidebar() {
 
                         </ul>
                     </li> */}
-                </ul>
-            </aside>
-            {/* End Sidebar*/}
-        </>
-    );
+        </ul>
+      </aside>
+      {/* End Sidebar*/}
+    </>
+  );
 }

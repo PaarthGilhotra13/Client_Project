@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function PageTitle({child}) {
     return (
         <>
-            <div className="pagetitle">
+            <div className="pagetitle" style={{cursor: "default"}}>
                 <h1>{child}</h1>
                 <nav>
                     <ol className="breadcrumb">

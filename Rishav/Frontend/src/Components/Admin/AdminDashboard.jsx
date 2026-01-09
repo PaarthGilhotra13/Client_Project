@@ -27,7 +27,7 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
-                <div className="row">
+                <div className="row" style={{cursor: "default"}} >
                     <div className="col-xxl-4 col-md-6 mb-4">
                         
                         <div className="card info-card">

@@ -50,9 +50,14 @@ import EditAnnouncement from "./Components/Admin/Announcement/EditAnnouncement"
 import ViewAnnouncement from "./Components/Employee/Announcement/ViewAnnouncement"
 import BlockedEmployee from "./Components/Admin/employee/BlockedEmployee"
 
+import ViewRequest from "./Components/Admin/Complaint/ViewRequest";
+import HoldComplaint from "./Components/Admin/Complaint/HoldComplaint";
+import ApprovedComplaint from "./Components/Admin/Complaint/ApprovedComplaint";
+import DeclinedComplaint from "./Components/Admin/Complaint/DeclinedComplaint";
+import AddRequest from "./Components/Admin/Complaint/AddRequest";
+
 
 function App() {
-
   return (
     <>
       <BrowserRouter>
@@ -61,9 +66,9 @@ function App() {
 
           <Route path="/admin" element={<AdminMaster />}>
             <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/addAnnouncement" element={<AddAnnouncement/>}/>
-            <Route path="/admin/announcement" element={<ManageAnnouncement/>}/>
-            <Route path="/admin/editAnnouncement/:id" element={<EditAnnouncement/>}/>
+            <Route path="/admin/addAnnouncement" element={<AddAnnouncement />} />
+            <Route path="/admin/announcement" element={<ManageAnnouncement />} />
+            <Route path="/admin/editAnnouncement/:id" element={<EditAnnouncement />} />
             <Route path="/admin/addDepartment" element={<AddDepartment />} />
             <Route path="/admin/manageDepartment" element={<ManageDepartment />} />
             <Route path="/admin/editDepartment/:id" element={<EditDepartment />} />
@@ -89,6 +94,13 @@ function App() {
             <Route path="/admin/manageCoins" element={<ManageCoins />} />
             <Route path="/admin/editCoins/:id" element={<EditCoin />} />
             <Route path="/admin/myProfile" element={<AdminProfile />} />
+
+            {/* Complaint Routes */}
+            <Route path="/admin/viewRequest" element={<ViewRequest />} />
+            <Route path="/admin/holdComplaint" element={<HoldComplaint />} />
+            <Route path="/admin/approvedComplaint" element={<ApprovedComplaint />} />
+            <Route path="/admin/declinedComplaint" element={<DeclinedComplaint />} />
+
           </Route>
 
           <Route path="/employee" element={<Master />}>
@@ -103,7 +115,11 @@ function App() {
             <Route path="/employee/dailyProgress" element={<DailyProgress />} />
             <Route path="/employee/myProfile" element={<MyProfile />} />
 
+
+
+            <Route path="/employee/addrequest" element={<AddRequest />} />
           </Route>
+
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
@@ -111,4 +127,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

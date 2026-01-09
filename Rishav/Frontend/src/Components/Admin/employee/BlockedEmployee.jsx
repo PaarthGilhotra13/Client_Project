@@ -276,7 +276,7 @@ function deleteEmployee(id) {
   return (
     <>
       <main className="main" id="main">
-        <PageTitle child="Manage Employee" />
+        <PageTitle child="Blocked Employee" />
         <div className="container-fluid ">
           <div className="row">
             <div className="col-md-12">
@@ -290,7 +290,7 @@ function deleteEmployee(id) {
           </div>
         </div>
         {/* Search bar */}
-        <div className="container-fluid mb-3">
+        <div className="container-fluid mb-3" style={{cursor: "default"}}>
           <div className="row justify-content-end">
             <div className="col-md-4">
               <input

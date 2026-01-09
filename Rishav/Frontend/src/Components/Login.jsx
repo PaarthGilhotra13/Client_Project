@@ -82,7 +82,7 @@ export default function Login() {
 
             {!load ? (
                 <>
-                    <div className="auth-wrapper d-flex justify-content-center align-items-center position-relative">
+                    <div className="auth-wrapper d-flex justify-content-center align-items-center position-relative" style={{cursor: "default"}}>
                         <div
                             className="auth-box d-flex justify-content-center align-items-center position-relative"
                             style={{

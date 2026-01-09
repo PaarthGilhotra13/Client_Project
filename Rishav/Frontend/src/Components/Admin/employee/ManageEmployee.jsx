@@ -164,7 +164,7 @@ useEffect(() => {
     <main className="main" id="main">
       <PageTitle child="Manage Employee" />
 
-      <div className="container-fluid mb-3">
+      <div className="container-fluid mb-3" style={{cursor: "default"}}>
         <div className="row align-items-center">
           {/* Search bar */}
           <div className="col-md-6">
@@ -193,7 +193,7 @@ useEffect(() => {
         </div>
       </div>
 
-      <div className="container-fluid">
+      <div className="container-fluid" style={{cursor: "default"}}>
         <div className="row justify-content-center">
           <div className="col-lg-12 mt-3 table-responsive">
             <ScaleLoader
