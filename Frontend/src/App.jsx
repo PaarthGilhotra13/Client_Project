@@ -28,12 +28,15 @@ import DeclinedComplaint from "./Components/Admin/Complaint/DeclinedComplaint";
 import AddRequest from "./Components/Admin/Complaint/AddRequest";
 import AddZone from "./Components/Admin/Zone/AddZone"
 import ManageZone from "./Components/Admin/Zone/ManageZone"
+import BlockedZone from "./Components/Admin/Zone/BlockedZone"
 import EditZone from "./Components/Admin/Zone/EditZone"
 import AddCity from "./Components/Admin/City/AddCity"
 import ManageCity from "./Components/Admin/City/ManageCity"
+import BlockedCity from "./Components/Admin/City/BlockedCity"
 import EditCity from "./Components/Admin/City/EditCity"
 import AddStoreCategory from "./Components/Admin/Store Category/AddStoreCategory"
 import ManageStoreCategory from "./Components/Admin/Store Category/ManageStoreCategory"
+import BlockedStoreCategory from "./Components/Admin/Store Category/BlockedStoreCategory"
 import EditStoreCategory from "./Components/Admin/Store Category/EditStoreCategory"
 import ManageStore from "./Components/Admin/Store/ManageStore"
 import AddStore from "./Components/Admin/Store/AddStore"
@@ -57,16 +60,19 @@ function App() {
             {/* Zone */}
             <Route path="/admin/addZone" element={<AddZone />} />
             <Route path="/admin/manageZone" element={<ManageZone />} />
+            <Route path="/admin/blockedZone" element={<BlockedZone />} />
             <Route path="/admin/editZone/:id" element={<EditZone />} />
 
             {/* City */}
             <Route path="/admin/addCity" element={<AddCity />} />
             <Route path="/admin/manageCity" element={<ManageCity />} />
+            <Route path="/admin/blockedCity" element={<BlockedCity />} />
             <Route path="/admin/editCity/:id" element={<EditCity/>} />
 
             {/* Store Category */}
             <Route path="/admin/addStoreCategory" element={<AddStoreCategory />} />
             <Route path="/admin/manageStoreCategory" element={<ManageStoreCategory />} />
+            <Route path="/admin/blockedStoreCategory" element={<BlockedStoreCategory />} />
             <Route path="/admin/editStoreCategory/:id" element={<EditStoreCategory/>} />
 
             {/* Store */}
