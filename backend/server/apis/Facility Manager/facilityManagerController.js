@@ -42,6 +42,7 @@ const add = (req, res) => {
                     userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
                     userObj.userType = 3
+                    userObj.storeId=req.body.storeId
                     userObj.designation = "FM"
                     userObj.save()
                     .then((newUserData) => {
@@ -50,6 +51,7 @@ const add = (req, res) => {
                         fmObj.name = req.body.name
                         fmObj.email = req.body.email
                         fmObj.contact = req.body.contact
+                        fmObj.storeId=req.body.storeId
                         fmObj.designation = "FM"
                         fmObj.empcode = generateEmployeeCode() 
                         fmObj.save()

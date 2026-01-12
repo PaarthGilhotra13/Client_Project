@@ -40,6 +40,7 @@ const add = (req, res) => {
                     let userObj = new userModel()
                     userObj.name = req.body.name
                     userObj.email = req.body.email
+                    userObj.email = req.body.email
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
                     userObj.userType = 6
                     userObj.designation = "Business Finance"
