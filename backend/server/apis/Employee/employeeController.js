@@ -1,14 +1,19 @@
 const employeeModel = require("./employeeModel")
+const fmModel = require("../Facility Manager/facilityManagerModel")
+const clmModel = require("../CLM/clmModel")
+const bfModel = require("../Business Finance/businessFinanceModel")
+const procurementModel = require("../Procurement/procureModel")
+const zhModel = require("../Zonal Head/zonalHeadModel")
 const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 
 const generateEmployeeCode = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 5; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
 };
 
 
@@ -40,43 +45,45 @@ const add = (req, res) => {
                     let userObj = new userModel()
                     userObj.name = req.body.name
                     userObj.email = req.body.email
+                    userObj.storeId = req.body.storeId
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
                     userObj.userType = 2
                     userObj.designation = "Employee"
                     userObj.save()
-                    .then((newUserData) => {
-                        let employeeObj = new employeeModel()
-                        employeeObj.userId = newUserData._id
-                        employeeObj.name = req.body.name
-                        employeeObj.email = req.body.email
-                        employeeObj.contact = req.body.contact
-                        employeeObj.empcode = generateEmployeeCode()
-                        employeeObj.designation = "Employee"
-                        employeeObj.save()
-                            .then((employeeData) => {
-                                res.send({
-                                    status: 200,
-                                    success: true,
-                                    message: "Employee Register Successfully",
-                                    employeeData: employeeData,
-                                    userData: newUserData
+                        .then((newUserData) => {
+                            let employeeObj = new employeeModel()
+                            employeeObj.userId = newUserData._id
+                            employeeObj.name = req.body.name
+                            employeeObj.storeId = req.body.storeId
+                            employeeObj.email = req.body.email
+                            employeeObj.contact = req.body.contact
+                            employeeObj.empcode = generateEmployeeCode()
+                            employeeObj.designation = "Employee"
+                            employeeObj.save()
+                                .then((employeeData) => {
+                                    res.send({
+                                        status: 200,
+                                        success: true,
+                                        message: "Employee Register Successfully",
+                                        employeeData: employeeData,
+                                        userData: newUserData
+                                    })
                                 })
-                            })
-                            .catch(() => {
-                                res.send({
-                                    status: 500,
-                                    success: false,
-                                    message: "Employee Not Register!"
+                                .catch(() => {
+                                    res.send({
+                                        status: 500,
+                                        success: false,
+                                        message: "Employee Not Register!"
+                                    })
                                 })
-                            })
-                    })
-                    .catch(() => {
-                        res.send({
-                            status: 500,
-                            success: false,
-                            message: "Internel server error!!",
                         })
-                    })
+                        .catch(() => {
+                            res.send({
+                                status: 500,
+                                success: false,
+                                message: "Internel server error!!",
+                            })
+                        })
                 }
                 else {
                     res.send({
@@ -99,6 +106,7 @@ const add = (req, res) => {
 const getAll = (req, res) => {
     employeeModel.find(req.body)
         .populate("userId")
+        .populate("storeId")
         .then((employeeData) => {
             if (employeeData.length == 0) {
                 res.send({
@@ -122,6 +130,7 @@ const getAll = (req, res) => {
                 status: 422,
                 success: false,
                 message: "Something Went Wrong",
+                Error: err
             })
         })
 }
@@ -140,6 +149,7 @@ const getSingle = (req, res) => {
     }
     else {
         employeeModel.findOne({ _id: req.body._id })
+            .populate("storeId")
             .then((employeeData) => {
                 if (employeeData == null) {
                     res.send({
@@ -167,99 +177,261 @@ const getSingle = (req, res) => {
     }
 }
 
-const update = (req, res) => {
-    var errMsgs = []
+// const update = (req, res) => {
+//     var errMsgs = []
+//     if (!req.body._id) {
+//         errMsgs.push("_id is required")
+//     }
+//     if (errMsgs.length > 0) {
+//         res.send({
+//             status: 422,
+//             success: false,
+//             message: errMsgs
+//         })
+//     }
+//     else {
+//         employeeModel.findOne({ _id: req.body._id })
+//             .then(async (employeeData) => {
+//                 if (employeeData == null) {
+//                     res.send({
+//                         status: 422,
+//                         success: false,
+//                         message: "Employee not Found"
+//                     })
+//                 }
+//                 else {
+//                     if (req.body.designation) {
+//                         const designationModelMap = {
+//                             Employee: employeeModel,
+//                             FM: fmModel,
+//                             CLM: clmModel,
+//                             Zonal_Head: zhModel,
+//                             Business_Finance: bfModel,
+//                             Procurement: procurementModel
+//                         };
+//                         const oldDesignation = employeeData.designation;
+//                         const newDesignation = req.body.designation;
+//                         if (newDesignation && newDesignation !== oldDesignation) {
+
+//                             const OldModel = designationModelMap[oldDesignation];
+//                             const NewModel = designationModelMap[newDesignation];
+
+//                             if (!OldModel || !NewModel) {
+//                                 return res.send({
+//                                     status: 400,
+//                                     success: false,
+//                                     message: "Invalid designation"
+//                                 });
+//                             }
+
+//                             const oldData = employeeData.toObject();
+
+//                             // delete from old collection
+//                             await OldModel.deleteOne({ _id: employeeData._id });
+
+//                             // create in new collection
+//                             oldData.designation = newDesignation;
+//                             delete oldData._id;
+
+//                             const newRecord = await NewModel.create(oldData);
+
+//                             // update user designation
+//                             await userModel.updateOne(
+//                                 { _id: employeeData.userId },
+//                                 { designation: newDesignation }
+//                             );
+
+//                             return res.send({
+//                                 status: 200,
+//                                 success: true,
+//                                 message: "Designation transferred successfully",
+//                                 data: newRecord
+//                             });
+//                         }
+
+
+//                     }
+//                     else {
+//                         if (req.body.storeId) {
+//                             employeeData.storeId = req.body.storeId
+//                         }
+//                         if (req.body.name) {
+//                             employeeData.name = req.body.name
+//                         }
+//                         if (req.body.contact) {
+//                             employeeData.contact = req.body.contact
+//                         }
+//                         employeeData.save()
+//                             .then((employeeData) => {
+//                                 userModel.findOne({ _id: employeeData.userId })
+//                                     .then((userData) => {
+//                                         if (userData == null) {
+//                                             res.send({
+//                                                 status: 422,
+//                                                 success: false,
+//                                                 message: "User not Found"
+//                                             })
+//                                         }
+//                                         else {
+//                                             if (req.body.name) {
+//                                                 userData.name = req.body.name
+//                                             }
+//                                             if (req.body.contact) {
+//                                                 userData.contact = req.body.contact
+//                                             }
+//                                             if (req.body.storeId) {
+//                                                 userData.storeId = req.body.storeId
+//                                             }
+//                                             userData.save()
+//                                                 .then(() => {
+//                                                     res.send({
+//                                                         status: 200,
+//                                                         success: true,
+//                                                         message: "Updated Successfully",
+//                                                         data: employeeData,
+//                                                         userData
+//                                                     })
+//                                                 })
+//                                                 .catch(() => {
+//                                                     res.send({
+//                                                         status: 200,
+//                                                         success: true,
+//                                                         message: "Not Updated ",
+//                                                         data: employeeData
+//                                                     })
+//                                                 })
+//                                         }
+//                                     })
+//                                     .catch(() => {
+//                                         res.send({
+//                                             status: 422,
+//                                             success: false,
+//                                             message: "Employee Data not Updated"
+//                                         })
+//                                     })
+//                             })
+//                             .catch(() => {
+//                                 res.send({
+//                                     status: 422,
+//                                     success: false,
+//                                     message: "Internal Server Error"
+//                                 })
+//                             })
+//                     }
+//                 }
+//             })
+//             .catch(() => {
+//                 res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "Something Went Wrong"
+//                 })
+//             })
+//     }
+// }
+
+const updateEmp = (req, res) => {
+    var errMsgs = [];
+
     if (!req.body._id) {
-        errMsgs.push("_id is required")
+        errMsgs.push("_id is required");
     }
+
     if (errMsgs.length > 0) {
-        res.send({
+        return res.send({
             status: 422,
             success: false,
             message: errMsgs
-        })
+        });
     }
-    else {
-        employeeModel.findOne({ _id: req.body._id })
-            .then(async (employeeData) => {
-                if (employeeData == null) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Employee not Found"
-                    })
-                }
-                else {
-                    if (req.body.name) {
-                        employeeData.name = req.body.name
-                    }
-                    if (req.body.contact) {
-                        employeeData.contact = req.body.contact
-                    }  
-                    if (req.body.designation) {
-                        employeeData.designation = req.body.designation
-                    }
-                    employeeData.save()
-                        .then((employeeData) => {
-                            userModel.findOne({ _id: employeeData.userId })
-                                .then((userData) => {
-                                    if (userData == null) {
-                                        res.send({
-                                            status: 422,
-                                            success: false,
-                                            message: "User not Found"
-                                        })
-                                    }
-                                    else {
-                                        if (req.body.name) {
-                                            userData.name = req.body.name
-                                        }
-                                        userData.save()
-                                            .then(() => {
-                                                res.send({
-                                                    status: 200,
-                                                    success: true,
-                                                    message: "Updated Successfully",
-                                                    data: employeeData,
-                                                    userData
-                                                })
-                                            })
-                                            .catch(() => {
-                                                res.send({
-                                                    status: 200,
-                                                    success: true,
-                                                    message: "Not Updated ",
-                                                    data: employeeData
-                                                })
-                                            })
-                                    }
-                                })
-                                .catch(() => {
-                                    res.send({
-                                        status: 422,
-                                        success: false,
-                                        message: "Employee Data not Updated"
-                                    })
-                                })
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Internal Server Error"
-                            })
-                        })
-                }
-            })
-            .catch(() => {
+
+    employeeModel.findOne({ _id: req.body._id })
+        .then((employeeData) => {
+
+            if (employeeData == null) {
                 res.send({
                     status: 422,
                     success: false,
-                    message: "Something Went Wrong"
-                })
-            })
-    }
-}
+                    message: "Employee not Found"
+                });
+            }
+            else {
+                if (req.body.name) {
+                    employeeData.name = req.body.name;
+                }
+                if (req.body.contact) {
+                    employeeData.contact = req.body.contact;
+                }
+                if (req.body.storeId) {
+                    employeeData.storeId = req.body.storeId;
+                }
+                employeeData.save()
+                    .then((updatedData) => {
+                        userModel.findOne({ _id: updatedData.userId })
+                            .then((userData) => {
+
+                                if (userData == null) {
+                                    res.send({
+                                        status: 422,
+                                        success: false,
+                                        message: "User not Found"
+                                    });
+                                }
+                                else {
+
+                                    if (req.body.name) {
+                                        userData.name = req.body.name;
+                                    }
+                                    if (req.body.contact) {
+                                        userData.contact = req.body.contact;
+                                    }
+                                    if (req.body.storeId) {
+                                        userData.storeId = req.body.storeId;
+                                    }
+
+                                    userData.save()
+                                        .then(() => {
+                                            res.send({
+                                                status: 200,
+                                                success: true,
+                                                message: "Updated Successfully",
+                                                data: updatedData
+                                            });
+                                        })
+                                        .catch(() => {
+                                            res.send({
+                                                status: 422,
+                                                success: false,
+                                                message: "User not updated"
+                                            });
+                                        });
+                                }
+                            })
+                            .catch(() => {
+                                res.send({
+                                    status: 422,
+                                    success: false,
+                                    message: "User fetch error"
+                                });
+                            });
+                    })
+                    .catch(() => {
+                        res.send({
+                            status: 422,
+                            success: false,
+                            message: "Employee not updated"
+                        });
+                    });
+            }
+        })
+        .catch(() => {
+            res.send({
+                status: 422,
+                success: false,
+                message: "Something went wrong"
+            });
+        });
+};
 
 const delEmployee = (req, res) => {
     var errMsgs = []
@@ -427,4 +599,4 @@ const changeStatus = (req, res) => {
     }
 }
 
-module.exports = { add, getAll, getSingle, update, delEmployee, changeStatus }
+module.exports = { add, getAll, getSingle, updateEmp, delEmployee, changeStatus }

@@ -3,12 +3,12 @@ const userModel = require("../User/userModel")
 const bcrypt = require("bcrypt")
 
 const generateEmployeeCode = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "";
-  for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < 5; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
 };
 
 
@@ -40,43 +40,45 @@ const add = (req, res) => {
                     let userObj = new userModel()
                     userObj.name = req.body.name
                     userObj.email = req.body.email
+                    userObj.storeId = req.body.storeId
                     userObj.password = bcrypt.hashSync(req.body.password, 10)
                     userObj.userType = 4
                     userObj.designation = "CLM"
                     userObj.save()
-                    .then((newUserData) => {
-                        let clmObj = new clmModel()
-                        clmObj.userId = newUserData._id
-                        clmObj.name = req.body.name
-                        clmObj.email = req.body.email
-                        clmObj.contact = req.body.contact
-                        clmObj.designation = "CLM"
-                        clmObj.empcode = generateEmployeeCode() 
-                        clmObj.save()
-                            .then((clmData) => {
-                                res.send({
-                                    status: 200,
-                                    success: true,
-                                    message: "CLM Register Successfully",
-                                    employeeData: clmData,
-                                    userData: newUserData
+                        .then((newUserData) => {
+                            let clmObj = new clmModel()
+                            clmObj.userId = newUserData._id
+                            clmObj.name = req.body.name
+                            clmObj.storeId = req.body.storeId
+                            clmObj.email = req.body.email
+                            clmObj.contact = req.body.contact
+                            clmObj.designation = "CLM"
+                            clmObj.empcode = generateEmployeeCode()
+                            clmObj.save()
+                                .then((clmData) => {
+                                    res.send({
+                                        status: 200,
+                                        success: true,
+                                        message: "CLM Register Successfully",
+                                        employeeData: clmData,
+                                        userData: newUserData
+                                    })
                                 })
-                            })
-                            .catch(() => {
-                                res.send({
-                                    status: 500,
-                                    success: false,
-                                    message: "CLM Not Register!"
+                                .catch(() => {
+                                    res.send({
+                                        status: 500,
+                                        success: false,
+                                        message: "CLM Not Register!"
+                                    })
                                 })
-                            })
-                    })
-                    .catch(() => {
-                        res.send({
-                            status: 500,
-                            success: false,
-                            message: "Internel server error!!",
                         })
-                    })
+                        .catch(() => {
+                            res.send({
+                                status: 500,
+                                success: false,
+                                message: "Internel server error!!",
+                            })
+                        })
                 }
                 else {
                     res.send({
@@ -99,6 +101,7 @@ const add = (req, res) => {
 const getAll = (req, res) => {
     clmModel.find(req.body)
         .populate("userId")
+        .populate("storeId")
         .then((clmData) => {
             if (clmData.length == 0) {
                 res.send({
@@ -140,6 +143,7 @@ const getSingle = (req, res) => {
     }
     else {
         clmModel.findOne({ _id: req.body._id })
+            .populate("storeId")
             .then((clmData) => {
                 if (clmData == null) {
                     res.send({
@@ -167,99 +171,218 @@ const getSingle = (req, res) => {
     }
 }
 
-const update = (req, res) => {
-    var errMsgs = []
+// const update = (req, res) => {
+//     var errMsgs = []
+//     if (!req.body._id) {
+//         errMsgs.push("_id is required")
+//     }
+//     if (errMsgs.length > 0) {
+//         res.send({
+//             status: 422,
+//             success: false,
+//             message: errMsgs
+//         })
+//     }
+//     else {
+//         clmModel.findOne({ _id: req.body._id })
+//             .then((clmData) => {
+//                 if (clmData == null) {
+//                     res.send({
+//                         status: 422,
+//                         success: false,
+//                         message: "CLM not Found"
+//                     })
+//                 }
+//                 else {
+//                     if (req.body.name) {
+//                         clmData.name = req.body.name
+//                     }
+//                     if (req.body.contact) {
+//                         clmData.contact = req.body.contact
+//                     }
+//                     if (req.body.designation) {
+//                         clmData.designation = req.body.designation
+//                     }
+//                     if (req.body.storeId) {
+//                         clmData.storeId = req.body.storeId
+//                     }
+//                     clmData.save()
+//                         .then((clmData) => {
+//                             userModel.findOne({ _id: clmData.userId })
+//                                 .then((userData) => {
+//                                     if (userData == null) {
+//                                         res.send({
+//                                             status: 422,
+//                                             success: false,
+//                                             message: "User not Found"
+//                                         })
+//                                     }
+//                                     else {
+//                                         if (req.body.name) {
+//                                             userData.name = req.body.name
+//                                         }
+//                                         if (req.body.contact) {
+//                                             userData.contact = req.body.contact
+//                                         }
+//                                         if (req.body.designation) {
+//                                             userData.designation = req.body.designation
+//                                         }
+//                                         if (req.body.storeId) {
+//                                             userData.storeId = req.body.storeId
+//                                         }
+//                                         userData.save()
+//                                             .then(() => {
+//                                                 res.send({
+//                                                     status: 200,
+//                                                     success: true,
+//                                                     message: "Updated Successfully",
+//                                                     data: clmData,
+//                                                     userData
+//                                                 })
+//                                             })
+//                                             .catch(() => {
+//                                                 res.send({
+//                                                     status: 200,
+//                                                     success: true,
+//                                                     message: "Not Updated ",
+//                                                     data: clmData
+//                                                 })
+//                                             })
+//                                     }
+//                                 })
+//                                 .catch(() => {
+//                                     res.send({
+//                                         status: 422,
+//                                         success: false,
+//                                         message: "CLM Data not Updated"
+//                                     })
+//                                 })
+//                         })
+//                         .catch(() => {
+//                             res.send({
+//                                 status: 422,
+//                                 success: false,
+//                                 message: "Internal Server Error"
+//                             })
+//                         })
+//                 }
+//             })
+//             .catch(() => {
+//                 res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "Something Went Wrong"
+//                 })
+//             })
+//     }
+// }
+
+const updateClm = (req, res) => {
+    var errMsgs = [];
+
     if (!req.body._id) {
-        errMsgs.push("_id is required")
+        errMsgs.push("_id is required");
     }
+
     if (errMsgs.length > 0) {
-        res.send({
+        return res.send({
             status: 422,
             success: false,
             message: errMsgs
-        })
+        });
     }
-    else {
-        clmModel.findOne({ _id: req.body._id })
-            .then( (clmData) => {
-                if (clmData == null) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "CLM not Found"
-                    })
-                }
-                else {
-                    if (req.body.name) {
-                        clmData.name = req.body.name
-                    }
-                    if (req.body.contact) {
-                        clmData.contact = req.body.contact
-                    }  
-                    if (req.body.designation) {
-                        clmData.designation = req.body.designation
-                    }
-                    clmData.save()
-                        .then((clmData) => {
-                            userModel.findOne({ _id: clmData.userId })
-                                .then((userData) => {
-                                    if (userData == null) {
-                                        res.send({
-                                            status: 422,
-                                            success: false,
-                                            message: "User not Found"
-                                        })
-                                    }
-                                    else {
-                                        if (req.body.name) {
-                                            userData.name = req.body.name
-                                        }
-                                        userData.save()
-                                            .then(() => {
-                                                res.send({
-                                                    status: 200,
-                                                    success: true,
-                                                    message: "Updated Successfully",
-                                                    data: clmData,
-                                                    userData
-                                                })
-                                            })
-                                            .catch(() => {
-                                                res.send({
-                                                    status: 200,
-                                                    success: true,
-                                                    message: "Not Updated ",
-                                                    data: clmData
-                                                })
-                                            })
-                                    }
-                                })
-                                .catch(() => {
-                                    res.send({
-                                        status: 422,
-                                        success: false,
-                                        message: "CLM Data not Updated"
-                                    })
-                                })
-                        })
-                        .catch(() => {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Internal Server Error"
-                            })
-                        })
-                }
-            })
-            .catch(() => {
+
+    clmModel.findOne({ _id: req.body._id })
+        .then((clmData) => {
+
+            if (clmData == null) {
                 res.send({
                     status: 422,
                     success: false,
-                    message: "Something Went Wrong"
-                })
-            })
-    }
-}
+                    message: "CLM not Found"
+                });
+            }
+            else {
+
+                if (req.body.name) {
+                    clmData.name = req.body.name;
+                }
+                if (req.body.contact) {
+                    clmData.contact = req.body.contact;
+                }
+                if (req.body.storeId) {
+                    clmData.storeId = req.body.storeId;
+                }
+
+                clmData.save()
+                    .then((updatedData) => {
+
+                        userModel.findOne({ _id: updatedData.userId })
+                            .then((userData) => {
+
+                                if (userData == null) {
+                                    res.send({
+                                        status: 422,
+                                        success: false,
+                                        message: "User not Found"
+                                    });
+                                }
+                                else {
+
+                                    if (req.body.name) {
+                                        userData.name = req.body.name;
+                                    }
+                                    if (req.body.contact) {
+                                        userData.contact = req.body.contact;
+                                    }
+                                    if (req.body.storeId) {
+                                        userData.storeId = req.body.storeId;
+                                    }
+
+                                    userData.save()
+                                        .then(() => {
+                                            res.send({
+                                                status: 200,
+                                                success: true,
+                                                message: "Updated Successfully",
+                                                data: updatedData
+                                            });
+                                        })
+                                        .catch(() => {
+                                            res.send({
+                                                status: 422,
+                                                success: false,
+                                                message: "User not updated"
+                                            });
+                                        });
+                                }
+                            })
+                            .catch(() => {
+                                res.send({
+                                    status: 422,
+                                    success: false,
+                                    message: "User fetch error"
+                                });
+                            });
+                    })
+                    .catch(() => {
+                        res.send({
+                            status: 422,
+                            success: false,
+                            message: "CLM not updated"
+                        });
+                    });
+            }
+        })
+        .catch(() => {
+            res.send({
+                status: 422,
+                success: false,
+                message: "Something went wrong"
+            });
+        });
+};
+
 
 const delclm = (req, res) => {
     var errMsgs = []
@@ -428,4 +551,4 @@ const changeStatus = (req, res) => {
 }
 
 
-module.exports = { add, getAll, getSingle, update, delclm, changeStatus }
+module.exports = { add, getAll, getSingle, updateClm, delclm, changeStatus }

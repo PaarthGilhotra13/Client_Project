@@ -10,15 +10,30 @@ export default function AddEmployee() {
   var [email, setEmail] = useState("");
   var [password, setPassword] = useState("");
   var [contact, setContact] = useState("");
-  const [designation, setDesignation] = useState("");
+  var [designation, setDesignation] = useState("");
+
+  var [storeName, setStoreName] = useState("")
+  var [stores, setStores] = useState([])
+  var [storeId, setStoreId] = useState("")
+
   var [load, setLoad] = useState(false);
   var nav = useNavigate();
-  const fileInputRef = useRef(null);
   useEffect(() => {
     setLoad(true);
     setTimeout(() => {
       setLoad(false);
     }, 1000);
+
+    let data = {
+      status: "true"
+    }
+    ApiServices.GetAllStore(data)
+      .then((res) => {
+        setStores(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log("Error is ", err);
+      })
   }, []);
   function handleForm(e) {
     e.preventDefault();
@@ -27,20 +42,21 @@ export default function AddEmployee() {
       name: name,
       email: email,
       password: password,
-      contact: contact
+      contact: contact,
+      storeId: storeId
     }
     let apiCall;
 
-    if (designation === "Facility Manager (FM)") {
+    if (designation === "FM") {
       apiCall = ApiServices.AddFm;
     }
     else if (designation === "CLM") {
       apiCall = ApiServices.AddClm;
     }
-    else if (designation === "Zonal Head") {
+    else if (designation === "Zonal_Head") {
       apiCall = ApiServices.AddZh;
     }
-    else if (designation === "Business Finance") {
+    else if (designation === "Business_Finance") {
       apiCall = ApiServices.AddBf;
     }
     else if (designation === "Procurement") {
@@ -74,8 +90,9 @@ export default function AddEmployee() {
             setName("");
             setEmail("");
             setPassword("");
+            setStoreName("")
+            setDesignation("")
             setContact("");
-            fileInputRef.current.value = "";
           }, 3000);
         } else {
           Swal.fire({
@@ -205,9 +222,9 @@ export default function AddEmployee() {
                           <button
                             type="button"
                             className="dropdown-item"
-                            onClick={() => setDesignation("Facility Manager (FM)")}
+                            onClick={() => setDesignation("FM")}
                           >
-                            Facility Manager (FM)
+                            FM
                           </button>
                         </li>
                         <li >
@@ -223,18 +240,18 @@ export default function AddEmployee() {
                           <button
                             type="button"
                             className="dropdown-item"
-                            onClick={() => setDesignation("Zonal Head")}
+                            onClick={() => setDesignation("Zonal_Head")}
                           >
-                            Zonal Head
+                            Zonal_Head
                           </button>
                         </li>
                         <li >
                           <button
                             type="button"
                             className="dropdown-item"
-                            onClick={() => setDesignation("Business Finance")}
+                            onClick={() => setDesignation("Business_Finance")}
                           >
-                            Business Finance
+                            Business_Finance
                           </button>
                         </li>
                         <li >
@@ -247,6 +264,50 @@ export default function AddEmployee() {
                           </button>
                         </li>
                       </ul>
+                    </div>
+                  </div>
+                  <div className="col-12">
+                    <label htmlFor="CategotyName" className="form-label">
+                      Store
+                    </label>
+                    <div className="dropdown text-center ">
+                      <button
+                        className="form-control text-start dropdown-toggle"
+                        type="button"
+                        id="categoryDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        {storeName || "Select a Store "}
+                      </button>
+                      {stores?.map((el, index) => {
+                        return (
+                          <>
+                            <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+                              {stores.length > 0 ? (
+                                stores.map((el) => (
+                                  <li key={el._id}>
+                                    <button
+                                      type="button"
+                                      className="dropdown-item"
+                                      onClick={() => {
+                                        setStoreName(el.storeName);
+                                        setStoreId(el._id);
+                                      }}
+
+                                    >
+                                      {el.storeName}
+                                    </button>
+                                  </li>
+                                ))
+                              ) : (
+                                <li><span className="dropdown-item text-muted">No Store found</span></li>
+                              )}
+                            </ul>
+
+                          </>
+                        )
+                      })}
                     </div>
                   </div>
                   <div className="text-center">

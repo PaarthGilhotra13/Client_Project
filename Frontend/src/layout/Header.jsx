@@ -27,13 +27,31 @@ export default function Header() {
 
   useEffect(() => {
     const id = sessionStorage.getItem("userId");
+    const userType = sessionStorage.getItem("userType");
     if (!id) return;
 
     const requestData = { userId: id };
 
+    let apiCall;
+    if(userType=="3"){
+      apiCall=ApiServices.GetAllFm
+    }
+    if(userType=="4"){
+      apiCall=ApiServices.GetAllClm
+    }
+    if(userType=="5"){
+      apiCall=ApiServices.GetAllZh
+    }
+    if(userType=="6"){
+      apiCall=ApiServices.GetAllBf
+    }
+    if(userType=="7"){
+      apiCall=ApiServices.GetAllProcurement
+    }
     // Fetch employee profile
-    ApiServices.GetAllEmployee(requestData)
+    apiCall(requestData)
       .then((res) => {
+        console.log("API response:", res?.data);
         const empProfile = res?.data?.data[0] || null;
         setProfile(empProfile);
         if (empProfile?._id) sessionStorage.setItem("empId", empProfile._id);
@@ -41,9 +59,9 @@ export default function Header() {
       .catch((err) => console.log("Error fetching profile:", err));
 
     // Fetch announcements
-    ApiServices.GetAllAnnouncement()
-      .then((res) => setData(res?.data?.data || []))
-      .catch((err) => console.log("Error fetching announcements:", err));
+    // ApiServices.GetAllAnnouncement()
+    //   .then((res) => setData(res?.data?.data || []))
+    //   .catch((err) => console.log("Error fetching announcements:", err));
   }, []);
 
   function logoutfun() {

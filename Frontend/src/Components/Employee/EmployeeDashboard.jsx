@@ -6,63 +6,63 @@ import { ScaleLoader } from "react-spinners"
 export default function EmployeeDashboard() {
     var [profile, setProfile] = useState([])
     var [tasks, setTasks] = useState([])
-    var [load, setLoad] = useState(true)
+    var [load, setLoad] = useState(false)
     var empId = sessionStorage.getItem("empId")
-    useEffect(() => {
-        const id = sessionStorage.getItem("userId")
-        let data = {
-            userId: id
-        }
-        ApiServices.GetAllEmployee(data)
-            .then((res) => {
-                setProfile(res?.data?.data[0])
-                sessionStorage.setItem("empId", res?.data?.data[0]?._id)
-                setTimeout(() => {
-                    setLoad(false)
-                }, 1000)
-            })
-            .catch((err) => {
-                console.log("Error is ", err);
-                setTimeout(() => {
-                    setLoad(false)
-                }, 1000)
-            })
+    // useEffect(() => {
+    //     const id = sessionStorage.getItem("userId")
+    //     let data = {
+    //         userId: id
+    //     }
+    //     ApiServices.GetAllEmployee(data)
+    //         .then((res) => {
+    //             setProfile(res?.data?.data[0])
+    //             sessionStorage.setItem("empId", res?.data?.data[0]?._id)
+    //             setTimeout(() => {
+    //                 setLoad(false)
+    //             }, 1000)
+    //         })
+    //         .catch((err) => {
+    //             console.log("Error is ", err);
+    //             setTimeout(() => {
+    //                 setLoad(false)
+    //             }, 1000)
+    //         })
 
-    }, [])
-    useEffect(() => {
-        let data = {
-            employeeId: empId
-        }
-        ApiServices.GetAllTask(data)
-            .then((res) => {
-                setTasks(res && res.data && res.data.data ? res.data.data : []);
-                setTimeout(() => {
-                    setLoad(false)
-                }, 1000)
-            })
-            .catch((err) => {
-                console.log("Error fetching tasks:", err);
-                setTimeout(() => {
-                    setLoad(false)
-                }, 1000)
-            });
+    // }, [])
+    // useEffect(() => {
+    //     let data = {
+    //         employeeId: empId
+    //     }
+    //     ApiServices.GetAllTask(data)
+    //         .then((res) => {
+    //             setTasks(res && res.data && res.data.data ? res.data.data : []);
+    //             setTimeout(() => {
+    //                 setLoad(false)
+    //             }, 1000)
+    //         })
+    //         .catch((err) => {
+    //             console.log("Error fetching tasks:", err);
+    //             setTimeout(() => {
+    //                 setLoad(false)
+    //             }, 1000)
+    //         });
 
-    }, []);
-    const today = new Date();
-    const missedDeadlines = tasks.filter(task => {
-        const deadlineDate = new Date(task.deadline);
-        return task.progress !== "Completed" && deadlineDate < today;
-    }).length;
-    const total = tasks.length;
-    const completed = tasks.filter((t) => t.progress === "Completed").length;
-    const inProgress = tasks.filter((t) => t.progress === "In Progress").length;
+    // }, []);
+    // const today = new Date();
+    // const missedDeadlines = tasks.filter(task => {
+    //     const deadlineDate = new Date(task.deadline);
+    //     return task.progress !== "Completed" && deadlineDate < today;
+    // }).length;
+    // const total = tasks.length;
+    // const completed = tasks.filter((t) => t.progress === "Completed").length;
+    // const inProgress = tasks.filter((t) => t.progress === "In Progress").length;
 
 
-    const upcomingTasks = tasks
-        .filter(task => {
-            const deadlineDate = new Date(task.deadline);
-            return task.progress !== "Completed" && deadlineDate > today;
-        })
+    // const upcomingTasks = tasks
+    //     .filter(task => {
+    //         const deadlineDate = new Date(task.deadline);
+    //         return task.progress !== "Completed" && deadlineDate > today;
+    //     })
     return (
         <>
             <main id="main" className="main">
@@ -95,7 +95,7 @@ export default function EmployeeDashboard() {
                                                 <i className="bi bi-kanban-fill fs-4" />
                                             </div>
                                             <div>
-                                                <h6 className="card-title mb-0">{total}</h6>
+                                                <h6 className="card-title mb-0"></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -119,7 +119,7 @@ export default function EmployeeDashboard() {
                                                 <i className="bi bi-clock-history fs-4" />
                                             </div>
                                             <div>
-                                                <h6 className="card-title mb-0">{inProgress}</h6>
+                                                <h6 className="card-title mb-0"></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -143,7 +143,7 @@ export default function EmployeeDashboard() {
                                                 <i className="bi bi-check-circle-fill fs-4" />
                                             </div>
                                             <div>
-                                                <h6 className="card-title mb-0">{completed}</h6>
+                                                <h6 className="card-title mb-0"></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -167,7 +167,7 @@ export default function EmployeeDashboard() {
                                                 <i className="bi bi-coin fs-4" />
                                             </div>
                                             <div>
-                                                <h6 className="card-title mb-0">{profile.coins}</h6>
+                                                <h6 className="card-title mb-0"></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -191,7 +191,7 @@ export default function EmployeeDashboard() {
                                                 <i className="bi bi-bar-chart-fill fs-4" />
                                             </div>
                                             <div>
-                                                <h6 className="card-title mb-0">{profile.experience} </h6>
+                                                <h6 className="card-title mb-0"> </h6>
                                             </div>
                                         </div>
                                     </div>
@@ -215,7 +215,7 @@ export default function EmployeeDashboard() {
                                                 <i className="bi bi-exclamation-circle fs-4" />
                                             </div>
                                             <div>
-                                                <h6 className="card-title mb-0">{missedDeadlines}</h6>
+                                                <h6 className="card-title mb-0"></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -238,7 +238,7 @@ export default function EmployeeDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {upcomingTasks.length > 0 ? (
+                                        {/* {upcomingTasks.length > 0 ? (
                                             upcomingTasks.map((el, index) => (
                                                 <tr key={index}>
                                                     <td>{index + 1}</td>
@@ -257,7 +257,7 @@ export default function EmployeeDashboard() {
                                             <tr>
                                                 <td colSpan="6" className="text-muted text-center">No upcoming tasks</td>
                                             </tr>
-                                        )}
+                                        )} */}
                                     </tbody>
                                 </table>
                             </div>

@@ -3,53 +3,106 @@ import PageTitle from "../../PageTitle"
 import { useEffect, useRef, useState } from "react"
 import ApiServices from "../../../ApiServices"
 import { toast } from "react-toastify"
-import { useNavigate, useParams } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import Swal from "sweetalert2"
 
 export default function EditEmployee() {
     var [name, setName] = useState("")
     var [contact, setContact] = useState("")
-    var [jobTitle, setJobTitle] = useState("")
-    var [picture, setPicture] = useState("")
+    var [email, setEmail] = useState("");
+    var [designation, setDesignation] = useState("");
+    var [storeName, setStoreName] = useState("")
+    var [stores, setStores] = useState([])
+    var [storeId, setStoreId] = useState("")
     var [load, setLoad] = useState(false)
     var nav = useNavigate()
-    const fileInputRef = useRef(null);
     var params = useParams()
+    const location = useLocation();
+    const oldDesignation = location?.state?.designation;
     useEffect(() => {
+        setLoad(true)
         let data = {
             _id: params.id
         }
-        ApiServices.GetSingleEmployee(data)
+        let apiCall;
+        if (oldDesignation === "FM") {
+            apiCall = ApiServices.GetSingleFm;
+        }
+        else if (oldDesignation === "CLM") {
+            apiCall = ApiServices.GetSingleClm;
+        }
+        else if (oldDesignation === "Zonal_Head") {
+            apiCall = ApiServices.GetSingleZh;
+        }
+        else if (oldDesignation === "Business_Finance") {
+            apiCall = ApiServices.GetSingleBf;
+        }
+        else if (oldDesignation === "Procurement") {
+            apiCall = ApiServices.GetSingleProcurement;
+        }
+        else {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Please select a valid designation",
+            });
+            setLoad(false);
+            return;
+        }
+        apiCall(data)
             .then((res) => {
-                setLoad(true)
-                setName(res.data.data.name)
-                setContact(res.data.data.contact)
-                setPicture(res.data.data.picture)
-                setJobTitle(res.data.data.jobTitle)
+                setName(res?.data?.data?.name)
+                setContact(res?.data?.data?.contact)
+                setEmail(res?.data?.data?.email)
+                setDesignation(res?.data?.data?.designation)
+                setStoreName(res?.data?.data?.storeId?.storeName)
                 setTimeout(() => {
                     setLoad(false)
-                }, 2000)
+                }, 1000)
 
             })
             .catch((err) => {
                 console.log("err is", err);
+            })
 
+        let data1 = {
+            status: "true"
+        }
+        ApiServices.GetAllStore(data1)
+            .then((res) => {
+                setStores(res?.data?.data);
+            })
+            .catch((err) => {
+                console.log("Error is ", err);
             })
     }, [])
     function handleForm(e) {
         e.preventDefault()
-        if (!picture) {
-            toast.error("Please select a Picture before submitting.")
-            return;
-        }
         setLoad(true)
-        let data = new FormData()
-        data.append("_id", params.id)
-        data.append("name", name)
-        data.append("contact", contact)
-        data.append("jobTitle", jobTitle)
-        data.append("picture", picture)
-        ApiServices.UpdateEmployee(data)
+        let data = {
+            _id: params.id,
+            name: name,
+            contact: contact,
+            storeId: storeId,
+            newDesignation: designation,
+            oldDesignation: oldDesignation
+        }
+        let apiCall;
+        if (oldDesignation !== designation) {
+            apiCall = ApiServices.ChangeDesignation;
+        }
+        else {
+            const updateApiMap = {
+                FM: ApiServices.UpdateFm,
+                CLM: ApiServices.UpdateClm,
+                Zonal_Head: ApiServices.UpdateZh,
+                Business_Finance: ApiServices.UpdateBf,
+                Procurement: ApiServices.UpdateProcurement
+            };
+
+            apiCall = updateApiMap[oldDesignation];
+        }
+        apiCall(data)
             .then((res) => {
                 var message = res?.data?.message
                 if (res?.data?.success) {
@@ -108,13 +161,16 @@ export default function EditEmployee() {
                 <div className="container-fluid ">
                     <div className="row">
                         <div className="col-md-12">
-                            <ScaleLoader color="#6776f4" cssOverride={{ marginLeft: "45%", marginTop: "20%" }} size={200} loading={load} />
+                            <ScaleLoader
+                                color="#6776f4"
+                                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+                                size={200}
+                                loading={load}
+                            />
                         </div>
                     </div>
                 </div>
-                <div className={load ? "display-screen" : ""} style={{cursor: "default"}}>
-
-
+                <div className={load ? "display-screen" : ""} style={{ cursor: "default" }}>
                     <div className="col-lg-6 mx-auto mt-3">
                         <div className="card">
                             <div className="card-body">
@@ -122,34 +178,161 @@ export default function EditEmployee() {
                                 {/* Vertical Form */}
                                 <form className="row g-3" onSubmit={handleForm}>
                                     <div className="col-12  form-group">
-                                        <label className="form-label">
-                                            Name
-                                        </label>
-                                        <input type="text" className="form-control" id="inputNanme4" value={name} onChange={(e) => { setName(e.target.value) }} required />
+                                        <label className="form-label">Name</label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="inputNanme4"
+                                            value={name}
+                                            onChange={(e) => {
+                                                setName(e.target.value);
+                                            }}
+                                            required
+                                        />
                                     </div>
                                     <div className="col-12">
-                                        <label className="form-label">
-                                            Contact
-                                        </label>
-                                        <input type="tel" pattern="[0-9]{10}" maxLength="10" className="form-control" id="inputNanme4" value={contact} onChange={(e) => { setContact(e.target.value) }} required />
+                                        <label className="form-label">Email</label>
+                                        <input
+                                            type="email"
+                                            className="form-control"
+                                            id="inputNanme4"
+                                            value={email}
+                                            onChange={(e) => {
+                                                setEmail(e.target.value);
+                                            }}
+                                            required disabled
+                                        />
                                     </div>
                                     <div className="col-12">
-                                        <label className="form-label">
-                                            Picture
-                                        </label>
-                                        <input type="file" ref={fileInputRef} className="form-control" id="inputEmail4" onChange={(e) => { setPicture(e.target.files[0]) }} />
+                                        <label className="form-label">Contact</label>
+                                        <input
+                                            type="tel"
+                                            pattern="[0-9]{10}"
+                                            maxLength="10"
+                                            className="form-control"
+                                            id="inputNanme4"
+                                            value={contact}
+                                            onChange={(e) => {
+                                                setContact(e.target.value);
+                                            }}
+                                            required
+                                        />
                                     </div>
                                     <div className="col-12">
-                                        <label className="form-label">
-                                            Job Title
+                                        <label htmlFor="CategotyName" className="form-label">
+                                            Designation
                                         </label>
-                                        <input type="text" className="form-control" id="inputNanme4" value={jobTitle} onChange={(e) => { setJobTitle(e.target.value) }} required />
+                                        <div className="dropdown text-center ">
+                                            <button
+                                                className="form-control text-start dropdown-toggle"
+                                                type="button"
+                                                id="categoryDropdown"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                            >
+                                                {designation || "Select a Designation"}
+                                            </button>
+                                            <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+                                                <li >
+                                                    <button
+                                                        type="button"
+                                                        className="dropdown-item"
+                                                        onClick={() => setDesignation("FM")}
+                                                    >
+                                                        FM
+                                                    </button>
+                                                </li>
+                                                <li >
+                                                    <button
+                                                        type="button"
+                                                        className="dropdown-item"
+                                                        onClick={() => setDesignation("CLM")}
+                                                    >
+                                                        CLM
+                                                    </button>
+                                                </li>
+                                                <li >
+                                                    <button
+                                                        type="button"
+                                                        className="dropdown-item"
+                                                        onClick={() => setDesignation("Zonal_Head")}
+                                                    >
+                                                        Zonal_Head
+                                                    </button>
+                                                </li>
+                                                <li >
+                                                    <button
+                                                        type="button"
+                                                        className="dropdown-item"
+                                                        onClick={() => setDesignation("Business_Finance")}
+                                                    >
+                                                        Business_Finance
+                                                    </button>
+                                                </li>
+                                                <li >
+                                                    <button
+                                                        type="button"
+                                                        className="dropdown-item"
+                                                        onClick={() => setDesignation("Procurement")}
+                                                    >
+                                                        Procurement
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div className="col-12">
+                                        <label htmlFor="CategotyName" className="form-label">
+                                            Store
+                                        </label>
+                                        <div className="dropdown text-center ">
+                                            <button
+                                                className="form-control text-start dropdown-toggle"
+                                                type="button"
+                                                id="categoryDropdown"
+                                                data-bs-toggle="dropdown"
+                                                aria-expanded="false"
+                                            >
+                                                {storeName || "Select a Store "}
+                                            </button>
+                                            {stores?.map((el, index) => {
+                                                return (
+                                                    <>
+                                                        <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
+                                                            {stores.length > 0 ? (
+                                                                stores.map((el) => (
+                                                                    <li key={el._id}>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="dropdown-item"
+                                                                            onClick={() => {
+                                                                                setStoreName(el.storeName);
+                                                                                setStoreId(el._id);
+                                                                            }}
+
+                                                                        >
+                                                                            {el.storeName}
+                                                                        </button>
+                                                                    </li>
+                                                                ))
+                                                            ) : (
+                                                                <li><span className="dropdown-item text-muted">No Store found</span></li>
+                                                            )}
+                                                        </ul>
+
+                                                    </>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                     <div className="text-center">
-                                        <button type="submit" className="btn" style={{ background: "#6776f4", color: "white" }}>
+                                        <button
+                                            type="submit"
+                                            className="btn"
+                                            style={{ background: "#6776f4", color: "white" }}
+                                        >
                                             Submit
                                         </button>
-
                                     </div>
                                 </form>
                                 {/* Vertical Form */}
