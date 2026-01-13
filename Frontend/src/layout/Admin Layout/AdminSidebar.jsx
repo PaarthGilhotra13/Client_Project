@@ -64,7 +64,7 @@ export default function AdminSidebar() {
               </li>
               <li>
                 <Link to={"/admin/blockedZone"} onClick={handleSidebarClose}>
-                  <i className="bi bi-card-list fs-6" />
+                  <i className="bi bi-slash-circle text-danger fs-6" />
                   <span>Blocked Zone</span>
                 </Link>
               </li>
@@ -106,7 +106,7 @@ export default function AdminSidebar() {
               </li>
               <li>
                 <Link to={"/admin/blockedCity"} onClick={handleSidebarClose}>
-                  <i className="bi bi-card-list fs-6" />
+                  <i className="bi bi-slash-circle text-danger  fs-6" />
                   <span>Blocked City</span>
                 </Link>
               </li>
@@ -148,7 +148,7 @@ export default function AdminSidebar() {
               </li>
               <li>
                 <Link to={"/admin/blockedStoreCategory"} onClick={handleSidebarClose}>
-                  <i className="bi bi-card-list fs-6" />
+                  <i className="bi bi-slash-circle text-danger  fs-6" />
                   <span>Blocked Store Category</span>
                 </Link>
               </li>
@@ -333,7 +333,7 @@ export default function AdminSidebar() {
                   to={"/admin/BlockedEmployee"}
                   onClick={handleSidebarClose}
                 >
-                  <i className="bi bi-card-list fs-6" />
+                  <i className="bi bi-slash-circle text-danger  fs-6" />
                   <span>Blocked Employee</span>
                 </Link>
               </li>

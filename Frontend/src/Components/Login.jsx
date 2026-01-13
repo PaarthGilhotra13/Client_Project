@@ -165,7 +165,7 @@ export default function Login() {
                                     </div>
 
                                     <div className="text-center mt-4" >
-                                        Welcome to <b>कर्मIO</b> "From Assignment to Achievement"
+                                        Welcome to <b>R&M Tool</b>
 
                                     </div>
                                 </form>
