@@ -192,7 +192,48 @@ export default function AdminSidebar() {
 
             </ul>
           </li>
-          {/* End Store Category Nav */}
+          {/* End Store  Nav */}
+
+          {/* Start Expense Head  Nav */}
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#ExpenseHead-nav"
+              data-bs-toggle="collapse"
+
+            >
+              <i className="bi bi-shop" />
+              <span>Expense Head</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="ExpenseHead-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addExpenseHead"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add Expense Head</span>
+
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageExpenseHead"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage Expense Head</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/blockedExpenseHead"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Blocked Expense Head</span>
+                </Link>
+              </li>
+
+            </ul>
+          </li>
+          {/* End Expense Head Nav */}
 
           {/* Start SubCategory Nav */}
           {/* <li className="nav-item">

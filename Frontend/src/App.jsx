@@ -15,7 +15,6 @@ import ViewRequest from "./Components/Admin/Complaint/ViewRequest";
 import HoldComplaint from "./Components/Admin/Complaint/HoldComplaint";
 import ApprovedComplaint from "./Components/Admin/Complaint/ApprovedComplaint";
 import DeclinedComplaint from "./Components/Admin/Complaint/DeclinedComplaint";
-import AddRequest from "./Components/Admin/Complaint/AddRequest";
 import AddZone from "./Components/Admin/Zone/AddZone"
 import ManageZone from "./Components/Admin/Zone/ManageZone"
 import BlockedZone from "./Components/Admin/Zone/BlockedZone"
@@ -33,6 +32,11 @@ import AddStore from "./Components/Admin/Store/AddStore"
 import EditStore from "./Components/Admin/Store/EditStore"
 import Redirect from "./layout/Redirect"
 import FmMaster from "./layout/FM/FmMaster"
+import AddRequest from "./Components/Employee/Requests/AddRequest"
+import AddExpenseHead from "./Components/Admin/Expense Head/AddExpenseHead"
+import ManageExpenseHead from "./Components/Admin/Expense Head/ManageExpenseHead"
+import EditExpenseHead from "./Components/Admin/Expense Head/EditExpenseHead"
+import BlockedExpenseHead from "./Components/Admin/Expense Head/BlockedExpenseHead"
 
 
 function App() {
@@ -72,6 +76,12 @@ function App() {
             <Route path="/admin/manageStore" element={<ManageStore />} />
             <Route path="/admin/editStore/:id" element={<EditStore/>} />
 
+            {/* Expense Head */}
+            <Route path="/admin/addExpenseHead" element={<AddExpenseHead />} />
+            <Route path="/admin/manageExpenseHead" element={<ManageExpenseHead />} />
+            <Route path="/admin/blockedExpenseHead" element={<BlockedExpenseHead />} />
+            <Route path="/admin/editExpenseHead/:id" element={<EditExpenseHead/>} />
+
             {/* <Route path="/admin/addTask" element={<AddTask />} />
             <Route path="/admin/manageTask" element={<ManageTask />} />
             <Route path="/admin/viewProgress" element={<ViewProgress />} />
@@ -92,9 +102,9 @@ function App() {
 
           <Route path="/fm" element={<FmMaster />}>
             <Route path="/fm" element={<EmployeeDashboard/>}/>
+            <Route path="/fm/addrequest" element={<AddRequest />} />
 
 
-            {/* <Route path="/employee/addrequest" element={<AddRequest />} /> */}
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

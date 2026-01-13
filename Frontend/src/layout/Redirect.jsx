@@ -9,6 +9,7 @@ export default function Redirect() {
         const userType = sessionStorage.getItem("userType");
 
         const routeMap = {
+            "1":"/admin",
             "3": "/fm",
             "4": "/clm",
             "5": "/ZonalHead",

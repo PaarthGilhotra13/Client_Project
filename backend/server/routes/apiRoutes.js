@@ -12,6 +12,7 @@ const cityController=require("../apis/City/cityController")
 const storeCategoryController=require("../apis/Store Category/storeCategoryController")
 const storeController=require("../apis/Store/storeController")
 const expenseController=require("../apis/Expense/expenseController")
+const expenseHeadController=require("../apis/ExpenseHead/expenseHeadController")
 
 const multer=require("multer")
 const storage=multer.memoryStorage()
@@ -116,5 +117,13 @@ routes.post("/expense/single",expenseController.getSingle)
 routes.post("/expense/update",expenseController.update)
 routes.post("/expense/delete",expenseController.delExpense)
 routes.post("/expense/changeStatus",expenseController.changeStatus)
+
+// Expense Head
+routes.post("/expenseHead/add",expenseHeadController.add)
+routes.post("/expenseHead/all",expenseHeadController.getAll)
+routes.post("/expenseHead/single",expenseHeadController.getSingle)
+routes.post("/expenseHead/update",expenseHeadController.update)
+routes.post("/expenseHead/delete",expenseHeadController.delExpenseHead)
+routes.post("/expenseHead/changeStatus",expenseHeadController.changeStatus)
 
 module.exports=routes

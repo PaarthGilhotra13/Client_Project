@@ -233,6 +233,26 @@ class ApiServices {
       return axios.post(BaseURL + "/apis/expense/changeStatus", data, { headers: getToken() })
    }
 
+   //Expense Head
+   AddExpenseHead(data) {
+      return axios.post(BaseURL + "/apis/expenseHead/add", data, { headers: getToken() })
+   }
+   GetAllExpenseHead(data) {
+      return axios.post(BaseURL + "/apis/expenseHead/all", data, { headers: getToken() })
+   }
+   GetSingleExpenseHead(data) {
+      return axios.post(BaseURL + "/apis/expenseHead/single", data, { headers: getToken() })
+   }
+   UpdateExpenseHead(data) {
+      return axios.post(BaseURL + "/apis/expenseHead/update", data, { headers: getToken() })
+   }
+   DeleteExpenseHead(data) {
+      return axios.post(BaseURL + "/apis/expenseHead/delete", data, { headers: getToken() })
+   }
+   ChangeStatusExpenseHead(data) {
+      return axios.post(BaseURL + "/apis/expenseHead/changeStatus", data, { headers: getToken() })
+   }
+
    //Announcement
    AddAnnouncement(data) {
       return axios.post(BaseURL + "/apis/Announcement/add", data, { headers: getToken() })

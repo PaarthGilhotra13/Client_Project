@@ -12,6 +12,7 @@ const generateEmployeeCode = () => {
 };
 
 
+
 const add = (req, res) => {
     var errMsgs = []
     if (!req.body.name) {

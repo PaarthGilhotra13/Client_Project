@@ -51,7 +51,6 @@ export default function Header() {
     // Fetch employee profile
     apiCall(requestData)
       .then((res) => {
-        console.log("API response:", res?.data);
         const empProfile = res?.data?.data[0] || null;
         setProfile(empProfile);
         if (empProfile?._id) sessionStorage.setItem("empId", empProfile._id);
@@ -88,14 +87,14 @@ export default function Header() {
     });
   }
 
-  // Show loader while profile is null
-  if (!profile) {
-    return (
-      <div className="text-center my-3">
-        <ScaleLoader color="#25353e" loading={true} />
-      </div>
-    );
-  }
+  // // Show loader while profile is null
+  // if (!profile) {
+  //   return (
+  //     <div className="text-center my-3">
+  //       <ScaleLoader color="#25353e" loading={true} />
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

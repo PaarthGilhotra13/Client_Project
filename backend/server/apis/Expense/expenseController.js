@@ -36,7 +36,7 @@ const add = (req, res) => {
         expenseObj.ticketId = req.body.ticketId
         expenseObj.storeId = req.body.storeId
         expenseObj.expenseHeadId = req.body.expenseHeadId
-        expenseObj.natureOfExpenseId = req.body.natureOfExpenseId
+        expenseObj.natureOfExpense = req.body.natureOfExpenseId
         expenseObj.amount = req.body.amount
         expenseObj.remark = req.body.remark
         expenseObj.rca = req.body.rca
@@ -44,7 +44,7 @@ const add = (req, res) => {
         expenseObj.attachment = req.file.path
 
         // IMPORTANT
-        expenseObj.status = "Pending"
+        expenseObj.currentStatus = "Pending"
         expenseObj.currentApprovalLevel = null
 
         expenseObj.save()

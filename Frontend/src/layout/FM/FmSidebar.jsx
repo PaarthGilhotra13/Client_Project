@@ -71,14 +71,14 @@ export default function FmSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/employee/addRequest"} onClick={handleSidebarClose}>
+                <Link to={"/fm/addRequest"} onClick={handleSidebarClose}>
                   <i className="bi bi-plus fs-5" />
                   <span>Add Requests</span>
                 </Link>
               </li>
               <li>
                 <Link
-                  to={"/admin/manageComplaint"}
+                  to={"/fm/manageComplaint"}
                   onClick={handleSidebarClose}
                 >
                   <i className="bi bi-card-list fs-6" />
