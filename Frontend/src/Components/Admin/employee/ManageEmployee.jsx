@@ -94,79 +94,223 @@ export default function ManageEmployee() {
 
     setFilteredData(filtered);
   }, [searchTerm, data]);
-  // Toggle employee status
-  const toggleStatus = (id, newStatus) => {
+
+
+  // Change employee status
+  function changeInactiveStatus(id,designation) {
     Swal.fire({
       title: "Confirm Status Change",
       text: "Are you sure you want to change the status?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        ApiServices.ChangeStatusEmployee({ _id: id, status: newStatus })
-          .then((res) => {
-            if (res.data.success) {
-              Swal.fire({
-                title: res.data.message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              fetchEmployees(); // refresh list
-            } else {
-              Swal.fire({
-                title: res.data.message,
-                icon: "error",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-            }
-          })
-          .catch((err) => {
-            toast.error("Something went wrong");
-            console.log("Error is", err);
-          });
-      }
-    });
-  };
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes"
+    })
+      .then((result) => {
+        if (result.isConfirmed) {
+          let data = {
+            _id: id,
+            status: "false"
+          }
+          let apiCall;
 
-  // Delete employee
-  const deleteEmployee = (id) => {
+          if (designation === "FM") {
+            apiCall = ApiServices.ChangeStatusFm;
+          }
+          else if (designation === "CLM") {
+            apiCall = ApiServices.ChangeStatusClm;
+          }
+          else if (designation === "Zonal_Head") {
+            apiCall = ApiServices.ChangeStatusZh;
+          }
+          else if (designation === "Business_Finance") {
+            apiCall = ApiServices.ChangeStatusBf;
+          }
+          else if (designation === "Procurement") {
+            apiCall = ApiServices.ChangeStatusProcurement;
+          }
+          else {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Please select a valid designation",
+            });
+            setLoad(false);
+            return;
+          }
+          apiCall(data)
+            .then((res) => {
+              setLoad(true)
+              var message = res?.data?.message
+              if (res.data.success) {
+                Swal.fire({
+                  title: message,
+                  icon: "success",
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+                setTimeout(() => {
+                  setLoad(false)
+                }, 1500)
+              }
+              else {
+                Swal.fire({
+                  title: message,
+                  icon: "success",
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+                setTimeout(() => {
+                  setLoad(false)
+                }, 1500)
+              }
+            })
+            .catch((err) => {
+              setLoad(true)
+              Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Something went wrong!",
+                timer: 2000,
+                timerProgressBar: true,
+              });
+              setTimeout(() => {
+                setLoad(false)
+              }, 2000)
+              console.log("Error is", err);
+            })
+        }
+      })
+
+
+  }
+
+  function changeActiveStatus(id, designation) {
     Swal.fire({
-      title: "Confirm Delete",
-      text: "This action cannot be undone!",
+      title: "Confirm Status Change",
+      text: "Are you sure you want to change the status?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Delete",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        ApiServices.DeleteEmployee({ _id: id })
-          .then((res) => {
-            if (res.data.success) {
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes"
+    })
+      .then((result) => {
+        if (result.isConfirmed) {
+
+          let data = {
+            _id: id,
+            status: true
+          }
+          let apiCall;
+
+          if (designation === "FM") {
+            apiCall = ApiServices.ChangeStatusFm;
+          }
+          else if (designation === "CLM") {
+            apiCall = ApiServices.ChangeStatusClm;
+          }
+          else if (designation === "Zonal_Head") {
+            apiCall = ApiServices.ChangeStatusZh;
+          }
+          else if (designation === "Business_Finance") {
+            apiCall = ApiServices.ChangeStatusBf;
+          }
+          else if (designation === "Procurement") {
+            apiCall = ApiServices.ChangeStatusProcurement;
+          }
+          else {
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Please select a valid designation",
+            });
+            setLoad(false);
+            return;
+          }
+          apiCall(data)
+            .then((res) => {
+              setLoad(true)
+              var message = res?.data?.message
+              if (res.data.success) {
+                Swal.fire({
+                  title: message,
+                  icon: "success",
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+                setTimeout(() => {
+                  setLoad(false)
+                }, 1500)
+              }
+              else {
+                Swal.fire({
+                  title: message,
+                  icon: "success",
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+                setTimeout(() => {
+                  setLoad(false)
+                }, 1500)
+              }
+            })
+            .catch((err) => {
+              setLoad(true)
               Swal.fire({
-                title: "Deleted Successfully",
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              fetchEmployees();
-            } else {
-              Swal.fire({
-                title: res.data.message,
                 icon: "error",
-                showConfirmButton: false,
-                timer: 1500,
+                title: "Oops...",
+                text: "Something went wrong!",
+                confirmButtonText: 'Continue',
+                timer: 2000,
+                timerProgressBar: true,
               });
-            }
-          })
-          .catch((err) => {
-            toast.error("Something went wrong");
-            console.log("Error is", err);
-          });
-      }
-    });
-  };
+              setTimeout(() => {
+                setLoad(false)
+              }, 2000)
+              console.log("Error is", err);
+            })
+        }
+      })
+  }
+
+  // Delete employee
+  // const deleteEmployee = (id) => {
+  //   Swal.fire({
+  //     title: "Confirm Delete",
+  //     text: "This action cannot be undone!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Delete",
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       ApiServices.DeleteEmployee({ _id: id })
+  //         .then((res) => {
+  //           if (res.data.success) {
+  //             Swal.fire({
+  //               title: "Deleted Successfully",
+  //               icon: "success",
+  //               showConfirmButton: false,
+  //               timer: 1500,
+  //             });
+  //             fetchEmployees();
+  //           } else {
+  //             Swal.fire({
+  //               title: res.data.message,
+  //               icon: "error",
+  //               showConfirmButton: false,
+  //               timer: 1500,
+  //             });
+  //           }
+  //         })
+  //         .catch((err) => {
+  //           toast.error("Something went wrong");
+  //           console.log("Error is", err);
+  //         });
+  //     }
+  //   });
+  // };
 
   return (
     <main className="main" id="main">
@@ -220,6 +364,7 @@ export default function ManageEmployee() {
                     <th>Name</th>
                     <th>Email</th>
                     <th>Contact</th>
+                    <th>Store Name</th>
                     <th>Designation</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -234,50 +379,28 @@ export default function ManageEmployee() {
                       <td>{el?.name}</td>
                       <td>{el?.email}</td>
                       <td>{el?.contact}</td>
+                      <td>{el?.storeId?.storeName}</td>
                       <td>{el?.designation}</td>
                       <td>{el.status ? "Active" : "Inactive"}</td>
                       <td>
-                        <div className="dropdown">
-                          <button
-                            className="btn p-0"
-                            type="button"
-                            id="dropdownMenuButton"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            &#x22EE;
-                          </button>
-                          <ul
-                            className="dropdown-menu dropdown-menu-start"
-                            aria-labelledby="dropdownMenuButton"
-                          >
-                            <li>
-                              <Link
-                                className="dropdown-item"
-                                to={"/admin/editEmployee/" + el._id}
-                              >
-                                Edit
+                        <div className="btn-group">
+                          <Link to={"/admin/editEmployee/" + el?._id} state={{ designation: el.designation }} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
+                            <i className="bi bi-pen"></i>
+                          </Link>
+                          {
+                            el.status ?
+                              <>
+                                <Link className="btn ms-2" style={{ background: "#6c757d", color: "white" }} onClick={() => { changeInactiveStatus(el._id, el.designation) }}>
+                                  <i className="bi bi-x-circle " ></i>
+                                  {/* Inactive  */}
+                                </Link>
+                              </>
+                              :
+                              <Link className="btn btn-success ms-2" onClick={() => { changeActiveStatus(el._id) }}>
+                                <i className="bi bi-check-circle"></i>
+                                {/* Active */}
                               </Link>
-                            </li>
-                            <li>
-                              <button
-                                className="dropdown-item"
-                                onClick={() =>
-                                  toggleStatus(el._id, !el.status)
-                                }
-                              >
-                                {el.status ? "Block" : "Unblock"}
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                className="dropdown-item"
-                                onClick={() => deleteEmployee(el._id)}
-                              >
-                                Delete
-                              </button>
-                            </li>
-                          </ul>
+                          }
                         </div>
                       </td>
                     </tr>

@@ -39,15 +39,9 @@ export default function Login() {
                     sessionStorage.setItem("email", res?.data?.data?.email);
                     sessionStorage.setItem("userType", res?.data?.data?.userType);
 
-                    if (res?.data?.data?.userType === 1) {
-                        setTimeout(() => {
-                            nav("/admin");
-                        }, 2000);
-                    } else {
-                        setTimeout(() => {
-                            nav("/employee");
-                        }, 2000);
-                    }
+                    setTimeout(() => {
+                        nav("/redirect");  
+                    }, 1000);
                 } else {
                     Swal.fire({
                         title: "Login Failed",
@@ -82,7 +76,7 @@ export default function Login() {
 
             {!load ? (
                 <>
-                    <div className="auth-wrapper d-flex justify-content-center align-items-center position-relative" style={{cursor: "default"}}>
+                    <div className="auth-wrapper d-flex justify-content-center align-items-center position-relative" style={{ cursor: "default" }}>
                         <div
                             className="auth-box d-flex justify-content-center align-items-center position-relative"
                             style={{

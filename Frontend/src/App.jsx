@@ -8,19 +8,9 @@ import NotFoundPage from "./Components/NotFoundPage"
 import AddEmployee from "./Components/Admin/employee/AddEmployee"
 import ManageEmployee from "./Components/Admin/employee/ManageEmployee"
 import EditEmployee from "./Components/Admin/employee/EditEmployee"
-import MyProjects from "./Components/Employee/My Projects/MyProjects"
-import ViewProjectDetails from "./Components/Employee/My Projects/ViewProjectDetails"
-import MyTasks from "./Components/Employee/My Tasks/MyTasks"
-import ViewTaskDetails from "./Components/Employee/My Tasks/ViewTaskDetails"
-import ManageTasks from "./Components/Employee/My Tasks/ManageTasks"
-import EditSubmitTask from "./Components/Employee/My Tasks/EditSubmitTask"
-import DailyProgress from "./Components/Employee/Progress/DailyProgress"
-import MyProfile from "./Components/Employee/Profile/MyProfile"
 import AdminDashboard from "./Components/Admin/AdminDashboard"
 import EmployeeDashboard from "./Components/Employee/EmployeeDashboard"
-import ViewAnnouncement from "./Components/Employee/Announcement/ViewAnnouncement"
 import BlockedEmployee from "./Components/Admin/employee/BlockedEmployee"
-
 import ViewRequest from "./Components/Admin/Complaint/ViewRequest";
 import HoldComplaint from "./Components/Admin/Complaint/HoldComplaint";
 import ApprovedComplaint from "./Components/Admin/Complaint/ApprovedComplaint";
@@ -41,6 +31,8 @@ import EditStoreCategory from "./Components/Admin/Store Category/EditStoreCatego
 import ManageStore from "./Components/Admin/Store/ManageStore"
 import AddStore from "./Components/Admin/Store/AddStore"
 import EditStore from "./Components/Admin/Store/EditStore"
+import Redirect from "./layout/Redirect"
+import FmMaster from "./layout/FM/FmMaster"
 
 
 function App() {
@@ -49,7 +41,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
-
+          <Route path="/redirect" element={<Redirect/>}/>
           <Route path="/admin" element={<AdminMaster />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/addEmployee" element={<AddEmployee />} />
@@ -98,21 +90,11 @@ function App() {
 
           </Route>
 
-          <Route path="/employee" element={<Master />}>
-            <Route path="/employee" element={<EmployeeDashboard />} />
-            <Route path="/employee/viewAnnouncement" element={<ViewAnnouncement />} />
-            <Route path="/employee/myProjects" element={<MyProjects />} />
-            <Route path="/employee/viewProjectDetails/:id" element={<ViewProjectDetails />} />
-            <Route path="/employee/myTasks" element={<MyTasks />} />
-            <Route path="/employee/viewTaskDetails/:id" element={<ViewTaskDetails />} />
-            <Route path="/employee/manageTasks" element={<ManageTasks />} />
-            <Route path="/employee/editSubmitTask/:id" element={<EditSubmitTask />} />
-            <Route path="/employee/dailyProgress" element={<DailyProgress />} />
-            <Route path="/employee/myProfile" element={<MyProfile />} />
+          <Route path="/fm" element={<FmMaster />}>
+            <Route path="/fm" element={<EmployeeDashboard/>}/>
 
 
-
-            <Route path="/employee/addrequest" element={<AddRequest />} />
+            {/* <Route path="/employee/addrequest" element={<AddRequest />} /> */}
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

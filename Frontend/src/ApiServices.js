@@ -49,6 +49,9 @@ class ApiServices {
    ChangeStatusFm(data) {
       return axios.post(BaseURL + "/apis/fm/changeStatus", data, { headers: getToken() })
    }
+   ChangeDesignation(data) {
+      return axios.post(BaseURL + "/apis/fm/changeDesignation", data, { headers: getToken() })
+   }
 
    //CLM
    AddClm(data) {
