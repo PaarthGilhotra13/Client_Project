@@ -120,7 +120,7 @@ export default function ManageExpenseHead() {
                   </thead>
                   <tbody>
                     {data
-                      ?.filter((el) => el.status === true) // 👈 only active
+                      ?.filter((el) => el.status === true) 
                       ?.map((el, index) => {
                         return (
                           <tr key={el._id}>

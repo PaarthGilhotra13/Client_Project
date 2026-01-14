@@ -15,21 +15,21 @@ export default function AdminHeader() {
     const addSidebar = () => {
         document.body.classList.toggle('toggle-sidebar');
     }
-    useEffect(() => {
-        const id = sessionStorage.getItem("userId")
-        let data = {
-            _id: id
-        }
-        ApiServices.GetAllUser(data)
-            .then((res) => {
-                setProfile(res?.data?.data[0])
-                sessionStorage.setItem("empId", res?.data?.data[0]?._id)
-            })
-            .catch((err) => {
-                console.log("Error is ", err);
-            })
+    // useEffect(() => {
+    //     const id = sessionStorage.getItem("userId")
+    //     let data = {
+    //         _id: id
+    //     }
+    //     ApiServices.GetAllUser(data)
+    //         .then((res) => {
+    //             setProfile(res?.data?.data[0])
+    //             sessionStorage.setItem("empId", res?.data?.data[0]?._id)
+    //         })
+    //         .catch((err) => {
+    //             console.log("Error is ", err);
+    //         })
 
-    }, [])
+    // }, [])
     function logoutfun() {
         Swal.fire({
             title: "Are you sure?",
@@ -88,7 +88,7 @@ export default function AdminHeader() {
                                     className="rounded-circle profile-img"
                                 />
                                 <span className="d-none d-md-block dropdown-toggle ps-2">
-                                    {profile?.name}
+                                    {profile?.name||"Admin"} 
                                 </span>
                             </Link>
 
@@ -100,7 +100,7 @@ export default function AdminHeader() {
                                         className="rounded-circle mb-2"
                                         style={{ width: "60px", height: "60px", objectFit: "cover" }}
                                     />
-                                    <h6>{profile?.name}</h6>
+                                    <h6>{profile?.name||"Admin"}</h6>
                                     <span>{profile?.jobTitle}</span>
                                 </li>
                                 <li>

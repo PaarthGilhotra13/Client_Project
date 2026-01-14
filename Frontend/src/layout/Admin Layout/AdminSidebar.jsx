@@ -33,7 +33,7 @@ export default function AdminSidebar() {
           {/* End Dashboard Nav */}
 
           {/* Start Zone Nav */}
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
               data-bs-target="#zone-nav"
@@ -71,11 +71,11 @@ export default function AdminSidebar() {
 
 
             </ul>
-          </li>
+          </li> */}
           {/* End Zone Nav */}
 
           {/* Start City Nav */}
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
               data-bs-target="#city-nav"
@@ -113,8 +113,49 @@ export default function AdminSidebar() {
 
 
             </ul>
-          </li>
+          </li> */}
           {/* End City Nav */}
+          {/* Start Location Nav */}
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#location-nav"
+              data-bs-toggle="collapse"
+
+            >
+              <i className="bi bi-geo-alt" />
+              <span>Location</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="location-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addLocation"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add Location</span>
+
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageLocation"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage Location</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/blockedLocation"} onClick={handleSidebarClose}>
+                  <i className="bi bi-slash-circle text-danger  fs-6" />
+                  <span>Blocked Location</span>
+                </Link>
+              </li>
+
+
+            </ul>
+          </li>
+          {/* End Location Nav */}
 
           {/* Start Store Category Nav */}
           <li className="nav-item">
@@ -202,7 +243,7 @@ export default function AdminSidebar() {
               data-bs-toggle="collapse"
 
             >
-              <i className="bi bi-shop" />
+              <i className="bi bi-receipt" />
               <span>Expense Head</span>
               <i className="bi bi-chevron-down ms-auto" />
             </Link>
@@ -226,7 +267,7 @@ export default function AdminSidebar() {
               </li>
               <li>
                 <Link to={"/admin/blockedExpenseHead"} onClick={handleSidebarClose}>
-                  <i className="bi bi-card-list fs-6" />
+                  <i className="bi bi-slash-circle text-danger  fs-6" />
                   <span>Blocked Expense Head</span>
                 </Link>
               </li>
@@ -234,113 +275,48 @@ export default function AdminSidebar() {
             </ul>
           </li>
           {/* End Expense Head Nav */}
+          {/* Start Approval Policy  Nav */}
+          {/* paarth */}
+          <li className="nav-item"> 
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#ApprovalPolicy-nav"
+              data-bs-toggle="collapse"
 
-          {/* Start SubCategory Nav */}
-          {/* <li className="nav-item">
-                        <Link
-                            className="nav-link collapsed"
-                            data-bs-target="#subcategory-nav"
-                            data-bs-toggle="collapse"
+            >
+              <i className="bi bi-check-circle" />
+              <span>Approval Policy</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="ApprovalPolicy-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addApprovalPolicy"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add Approval Policy</span>
 
-                        >
-                            <i className="bi bi-code-slash" />
-                            <span>Technology</span>
-                            <i className="bi bi-chevron-down ms-auto" />
-                        </Link>
-                        <ul
-                            id="subcategory-nav"
-                            className="nav-content collapse "
-                            data-bs-parent="#sidebar-nav"
-                        >
-                            <li>
-                                <Link to={"/admin/addTechnology"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-plus fs-5" />
-                                    <span>Add Technology</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageApprovalPolicy"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage Approval Policy</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/blockedApprovalPolicy"} onClick={handleSidebarClose}>
+                  <i className="bi bi-slash-circle text-danger  fs-6" />
+                  <span>Blocked Approval Policy</span>
+                </Link>
+              </li>
 
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/manageTechnology"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-card-list fs-6" />
-                                    <span>Manage Technology</span>
-                                </Link>
-                            </li>
+            </ul>
+          </li>
+          {/* End Approval Policy Nav */}
 
-
-                        </ul>
-                    </li> */}
-          {/* End SubCategory Nav */}
-          {/* Start Project Nav */}
-          {/* <li className="nav-item">
-                        <Link
-                            className="nav-link collapsed"
-                            data-bs-target="#project-nav"
-                            data-bs-toggle="collapse"
-
-                        >
-                            <i className="bi bi-graph-up" />
-                            <span>Project</span>
-                            <i className="bi bi-chevron-down ms-auto" />
-                        </Link>
-                        <ul
-                            id="project-nav"
-                            className="nav-content collapse "
-                            data-bs-parent="#sidebar-nav"
-                        >
-                            <li>
-                                <Link to={"/admin/addProject"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-plus fs-5" />
-                                    <span>Add Project</span>
-
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/manageProject"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-card-list fs-6" />
-                                    <span>Manage Project</span>
-                                </Link>
-                            </li>
-
-
-                        </ul>
-                    </li> */}
-          {/* End Project Nav */}
-
-          {/* Start Project team Nav */}
-          {/* <li className="nav-item">
-                        <Link
-                            className="nav-link collapsed"
-                            data-bs-target="#projectTeam-nav"
-                            data-bs-toggle="collapse"
-
-                        >
-                            <i className="bi bi-people" />
-                            <span>Project Team</span>
-                            <i className="bi bi-chevron-down ms-auto" />
-                        </Link>
-                        <ul
-                            id="projectTeam-nav"
-                            className="nav-content collapse "
-                            data-bs-parent="#sidebar-nav"
-                        >
-                            <li>
-                                <Link to={"/admin/addProjectTeam"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-plus fs-5" />
-                                    <span>Add Team</span>
-
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/manageProjectTeam"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-card-list fs-6" />
-                                    <span>Manage Team</span>
-                                </Link>
-                            </li>
-
-
-                        </ul>
-                    </li> */}
-          {/* End Project team Nav */}
           {/* Start Employee Nav */}
           <li className="nav-item">
             <Link
@@ -395,13 +371,7 @@ export default function AdminSidebar() {
               className="nav-content collapse "
               data-bs-parent="#sidebar-nav"
             >
-              {/* <li>
-                                <Link to={"/admin/addEmployee"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-plus fs-5" />
-                                    <span>Add Employee</span>
 
-                                </Link>
-                            </li> */}
               <li>
                 <Link
                   to={"/admin/viewRequest"}

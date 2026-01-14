@@ -37,6 +37,15 @@ import AddExpenseHead from "./Components/Admin/Expense Head/AddExpenseHead"
 import ManageExpenseHead from "./Components/Admin/Expense Head/ManageExpenseHead"
 import EditExpenseHead from "./Components/Admin/Expense Head/EditExpenseHead"
 import BlockedExpenseHead from "./Components/Admin/Expense Head/BlockedExpenseHead"
+import ClmMaster from "./layout/CLM/ClmMaster"
+import AddApprovalPolicy from "./Components/Admin/Approval Policy/AddApprovalPolicy"
+import ManageApprovalPolicy from "./Components/Admin/Approval Policy/ManageApprovalPolicy"
+import EditApprovalPolicy from "./Components/Admin/Approval Policy/EditApprovalPolicy"
+import BlockedAppovalPolicy from "./Components/Admin/Approval Policy/BlockedApprovalPolicy"
+import AddLocation from "./Components/Admin/Location/AddLocation"
+import ManageLocation from "./Components/Admin/Location/ManageLocation"
+import BlockedLocation from "./Components/Admin/Location/BlockedLocation"
+import EditLocation from "./Components/Admin/Location/EditLocation"
 
 
 function App() {
@@ -65,6 +74,12 @@ function App() {
             <Route path="/admin/blockedCity" element={<BlockedCity />} />
             <Route path="/admin/editCity/:id" element={<EditCity/>} />
 
+            {/* Location */}
+            <Route path="/admin/addLocation" element={<AddLocation />} />
+            <Route path="/admin/manageLocation" element={<ManageLocation />} />
+            <Route path="/admin/blockedLocation" element={<BlockedLocation />} />
+            <Route path="/admin/editLocation/:id" element={<EditLocation/>} />
+
             {/* Store Category */}
             <Route path="/admin/addStoreCategory" element={<AddStoreCategory />} />
             <Route path="/admin/manageStoreCategory" element={<ManageStoreCategory />} />
@@ -82,15 +97,11 @@ function App() {
             <Route path="/admin/blockedExpenseHead" element={<BlockedExpenseHead />} />
             <Route path="/admin/editExpenseHead/:id" element={<EditExpenseHead/>} />
 
-            {/* <Route path="/admin/addTask" element={<AddTask />} />
-            <Route path="/admin/manageTask" element={<ManageTask />} />
-            <Route path="/admin/viewProgress" element={<ViewProgress />} />
-            <Route path="/admin/viewSubmitTask/:id" element={<ViewSubmitTask />} />
-            <Route path="/admin/editTask/:id" element={<EditTask />} />
-            <Route path="/admin/addCoins" element={<AddCoin />} />
-            <Route path="/admin/manageCoins" element={<ManageCoins />} />
-            <Route path="/admin/editCoins/:id" element={<EditCoin />} />
-            <Route path="/admin/myProfile" element={<AdminProfile />} /> */}
+            {/* Approval Policy */}
+            <Route path="/admin/addApprovalPolicy" element={<AddApprovalPolicy />} />
+            <Route path="/admin/manageApprovalPolicy" element={<ManageApprovalPolicy />} />
+            <Route path="/admin/editApprovalPolicy/:id" element={<EditApprovalPolicy/>} />
+            <Route path="/admin/blockedApprovalPolicy" element={<BlockedAppovalPolicy/>} />
 
             {/* Complaint Routes */}
             <Route path="/admin/viewRequest" element={<ViewRequest />} />
@@ -103,7 +114,8 @@ function App() {
           <Route path="/fm" element={<FmMaster />}>
             <Route path="/fm" element={<EmployeeDashboard/>}/>
             <Route path="/fm/addrequest" element={<AddRequest />} />
-
+          </Route>
+          <Route path="/clm" element={<ClmMaster/>}>
 
           </Route>
 

@@ -159,8 +159,8 @@ export default function Login() {
                                     </div>
 
                                     <div className="text-center mt-4" >
-                                        Welcome to <b>R&M Tool</b>
-
+                                        Welcome to <b>R&M Tool, </b>
+                                        Contact Admin For password reset
                                     </div>
                                 </form>
                             </div>

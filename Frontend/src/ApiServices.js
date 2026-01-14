@@ -173,6 +173,34 @@ class ApiServices {
       return axios.post(BaseURL + "/apis/city/changeStatus", data, { headers: getToken() })
    }
 
+   //Location
+   AddLocation(data) {
+      return axios.post(BaseURL + "/apis/location/add", data, { headers: getToken() })
+   }
+   GetAllLocation(data) {
+      return axios.post(BaseURL + "/apis/location/all", data, { headers: getToken() })
+   }
+   GetSingleLocation(data) {
+      return axios.post(BaseURL + "/apis/location/single", data, { headers: getToken() })
+   }
+   UpdateLocation(data) {
+      return axios.post(BaseURL + "/apis/location/update", data, { headers: getToken() })
+   }
+   DeleteLocation(data) {
+      return axios.post(BaseURL + "/apis/location/delete", data, { headers: getToken() })
+   }
+   ChangeStatusLocation(data) {
+      return axios.post(BaseURL + "/apis/location/changeStatus", data, { headers: getToken() })
+   }
+
+   //All States and Cities Api
+   GetAllStates(){
+      return axios.get("https://www.india-location-hub.in/api/locations/states")
+   }
+   GetAllCities(){
+      return axios.get("https://www.india-location-hub.in/api/locations/districts")
+   }
+
    //Store Category
    AddStoreCategory(data) {
       return axios.post(BaseURL + "/apis/storeCategory/add", data, { headers: getToken() })
@@ -251,6 +279,26 @@ class ApiServices {
    }
    ChangeStatusExpenseHead(data) {
       return axios.post(BaseURL + "/apis/expenseHead/changeStatus", data, { headers: getToken() })
+   }
+   
+   //Approval Policy
+   AddApprovalPolicy(data) {
+      return axios.post(BaseURL + "/apis/approvalPolicy/add", data, { headers: getToken() })
+   }
+   GetAllApprovalPolicy(data) {
+      return axios.post(BaseURL + "/apis/approvalPolicy/all", data, { headers: getToken() })
+   }
+   GetSingleApprovalPolicy(data) {
+      return axios.post(BaseURL + "/apis/approvalPolicy/single", data, { headers: getToken() })
+   }
+   UpdateApprovalPolicy(data) {
+      return axios.post(BaseURL + "/apis/approvalPolicy/update", data, { headers: getToken() })
+   }
+   DeleteApprovalPolicy(data) {
+      return axios.post(BaseURL + "/apis/approvalPolicy/delete", data, { headers: getToken() })
+   }
+   ChangeStatusApprovalPolicy(data) {
+      return axios.post(BaseURL + "/apis/approvalPolicy/changeStatus", data, { headers: getToken() })
    }
 
    //Announcement

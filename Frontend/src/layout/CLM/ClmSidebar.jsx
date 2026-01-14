@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-export default function FmSidebar() {
+export default function ClmSidebar() {
   const handleSidebarClose = () => {
     if (window.innerWidth <= 1024) {
       document.body.classList.remove("toggle-sidebar"); // if you're toggling class on body
@@ -15,7 +15,7 @@ export default function FmSidebar() {
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={"/fm"}
+              to={"/employee"}
               onClick={handleSidebarClose}
             >
               <i className="bi bi-grid" />
@@ -25,7 +25,7 @@ export default function FmSidebar() {
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={"/fm/viewAnnouncement"}
+              to={"/employee/viewAnnouncement"}
               onClick={handleSidebarClose}
             >
               <i className="bi bi-megaphone" />
@@ -33,8 +33,28 @@ export default function FmSidebar() {
             </Link>
           </li>
           {/* End Dashboard Nav */}
-      
-          {/* Start Complaints Nav */}
+          {/* Start Category Nav */}
+          {/* <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              to={"/employee/myProjects"}
+              onClick={handleSidebarClose}
+            >
+              <i className="bi bi-graph-up" />
+              <span>My Projects</span>
+            </Link>
+          </li> */}
+          {/* End Category Nav */}
+          {/* Start SubCategory Nav */}
+          {/* <li className="nav-item">
+                        <Link className="nav-link collapsed" to={"/employee/myProjectTeam"}>
+                            <i className="bi bi-people" />
+                            <span>My Project Team</span>
+                        </Link>
+                    </li> */}
+          {/* End SubCategory Nav */}
+
+          {/* Start Task Nav */}
           <li className="nav-item">
             <Link
               className="nav-link collapsed"

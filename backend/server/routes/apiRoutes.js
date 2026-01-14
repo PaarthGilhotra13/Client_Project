@@ -13,6 +13,8 @@ const storeCategoryController=require("../apis/Store Category/storeCategoryContr
 const storeController=require("../apis/Store/storeController")
 const expenseController=require("../apis/Expense/expenseController")
 const expenseHeadController=require("../apis/ExpenseHead/expenseHeadController")
+const approvalPolicyController=require("../apis/Approval Policy/approvalPolicyController")
+const locationController=require("../apis/Location/locationController")
 
 const multer=require("multer")
 const storage=multer.memoryStorage()
@@ -94,6 +96,14 @@ routes.post("/city/update",cityController.update)
 routes.post("/city/delete",cityController.delCity)
 routes.post("/city/changeStatus",cityController.changeStatus)
 
+// Location
+routes.post("/location/add",locationController.add)
+routes.post("/location/all",locationController.getAll)
+routes.post("/location/single",locationController.getSingle)
+routes.post("/location/update",locationController.update)
+routes.post("/location/delete",locationController.delLocation)
+routes.post("/location/changeStatus",locationController.changeStatus)
+
 // Store Category
 routes.post("/storeCategory/add",storeCategoryController.add)
 routes.post("/storeCategory/all",storeCategoryController.getAll)
@@ -114,8 +124,6 @@ routes.post("/store/changeStatus",storeController.changeStatus)
 routes.post("/expense/add",expenseController.add)
 routes.post("/expense/all",expenseController.getAll)
 routes.post("/expense/single",expenseController.getSingle)
-routes.post("/expense/update",expenseController.update)
-routes.post("/expense/delete",expenseController.delExpense)
 routes.post("/expense/changeStatus",expenseController.changeStatus)
 
 // Expense Head
@@ -125,5 +133,13 @@ routes.post("/expenseHead/single",expenseHeadController.getSingle)
 routes.post("/expenseHead/update",expenseHeadController.update)
 routes.post("/expenseHead/delete",expenseHeadController.delExpenseHead)
 routes.post("/expenseHead/changeStatus",expenseHeadController.changeStatus)
+
+// Approval policy
+routes.post("/approvalPolicy/add",approvalPolicyController.add)
+routes.post("/approvalPolicy/all",approvalPolicyController.getAll)
+routes.post("/approvalPolicy/single",approvalPolicyController.getSingle)
+routes.post("/approvalPolicy/update",approvalPolicyController.update)
+routes.post("/approvalPolicy/delete",approvalPolicyController.delApprovalPolicy)
+routes.post("/approvalPolicy/changeStatus",approvalPolicyController.changeStatus)
 
 module.exports=routes
