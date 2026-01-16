@@ -45,6 +45,7 @@ import AddState from "./Components/Admin/State/AddState"
 import ManageState from "./Components/Admin/State/ManageState"
 import BlockedState from "./Components/Admin/State/BlockedState"
 import EditState from "./Components/Admin/State/EditState"
+import BlockedStore from "./Components/Admin/Store/BlockedStore"
 
 
 function App() {
@@ -87,6 +88,7 @@ function App() {
             {/* Store */}
             <Route path="/admin/addStore" element={<AddStore />} />
             <Route path="/admin/manageStore" element={<ManageStore />} />
+            <Route path="/admin/blockedStore" element={<BlockedStore />} />
             <Route path="/admin/editStore/:id" element={<EditStore/>} />
 
             {/* Expense Head */}

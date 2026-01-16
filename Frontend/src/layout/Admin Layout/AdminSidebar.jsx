@@ -230,7 +230,12 @@ export default function AdminSidebar() {
                   <span>Manage Store</span>
                 </Link>
               </li>
-
+              <li>
+                <Link to={"/admin/blockedStore"} onClick={handleSidebarClose}>
+                  <i className="bi bi-slash-circle text-danger  fs-6" />
+                  <span>Blocked Store </span>
+                </Link>
+              </li>
 
             </ul>
           </li>
@@ -278,7 +283,7 @@ export default function AdminSidebar() {
           {/* End Expense Head Nav */}
           {/* Start Approval Policy  Nav */}
           {/* paarth */}
-          <li className="nav-item"> 
+          <li className="nav-item">
             <Link
               className="nav-link collapsed"
               data-bs-target="#ApprovalPolicy-nav"
