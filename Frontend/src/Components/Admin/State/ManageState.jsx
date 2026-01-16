@@ -42,7 +42,7 @@ export default function ManageState() {
       if (result.isConfirmed) {
         let data = {
           _id: id,
-          status: false,
+          status: "false",
         };
         ApiServices.ChangeStatusState(data)
           .then((res) => {

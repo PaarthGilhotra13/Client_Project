@@ -52,7 +52,7 @@ export default function BlockedState() {
                             });
 
                             setTimeout(() => {
-                                navigate("/admin/manageCity");
+                                navigate("/admin/manageState");
                             }, 1200);
                         }
                     })
@@ -92,7 +92,7 @@ export default function BlockedState() {
                                 </thead>
 
                                 <tbody>
-                                    {data.length == 0 ? (
+                                    {data.length !== 0 ? (
                                         data
                                             ?.filter(el => el.status === false)
                                             ?.map((el, index) => (
