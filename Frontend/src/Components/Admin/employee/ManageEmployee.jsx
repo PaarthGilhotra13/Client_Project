@@ -67,12 +67,13 @@ export default function ManageEmployee() {
       );
 
       setData(allData);
-      setLoad(false);
 
     } catch (err) {
       console.log(err);
-      setLoad(false);
     }
+    setTimeout(() => {
+      setLoad(false)
+    }, 1000)
   };
 
 
@@ -97,7 +98,7 @@ export default function ManageEmployee() {
 
 
   // Change employee status
-  function changeInactiveStatus(id,designation) {
+  function changeInactiveStatus(id, designation) {
     Swal.fire({
       title: "Confirm Status Change",
       text: "Are you sure you want to change the status?",
@@ -105,212 +106,178 @@ export default function ManageEmployee() {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes"
-    })
-      .then((result) => {
-        if (result.isConfirmed) {
-          let data = {
-            _id: id,
-            status: "false"
-          }
-          let apiCall;
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let data = {
+          _id: id,
+          status: "false",
+        };
+        let apiCall;
+        console.log(id)
+        console.log(designation)
+        if (designation === "FM") {
+          apiCall = ApiServices.ChangeStatusFm;
+        }
+        else if (designation === "CLM") {
+          apiCall = ApiServices.ChangeStatusClm;
+        }
+        else if (designation === "Zonal_Head") {
+          apiCall = ApiServices.ChangeStatusZh;
+        }
+        else if (designation === "Business_Finance") {
+          apiCall = ApiServices.ChangeStatusBf;
+        }
+        else if (designation === "Procurement") {
+          apiCall = ApiServices.ChangeStatusProcurement;
+        }
+        else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Please select a valid designation",
+          });
+          setLoad(false);
+          return;
+        }
+        apiCall(data)
+          .then((res) => {
+            setLoad(true);
+            var message = res?.data?.message;
+            if (res.data.success) {
+              Swal.fire({
+                title: message,
+                icon: "success",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              setTimeout(() => {
+                setLoad(false);
+              }, 1500);
+              
+            } else {
+              Swal.fire({
+                title: message,
+                icon: "error",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              setTimeout(() => {
+                setLoad(false);
+              }, 1500);
+              console.log(message);
 
-          if (designation === "FM") {
-            apiCall = ApiServices.ChangeStatusFm;
-          }
-          else if (designation === "CLM") {
-            apiCall = ApiServices.ChangeStatusClm;
-          }
-          else if (designation === "Zonal_Head") {
-            apiCall = ApiServices.ChangeStatusZh;
-          }
-          else if (designation === "Business_Finance") {
-            apiCall = ApiServices.ChangeStatusBf;
-          }
-          else if (designation === "Procurement") {
-            apiCall = ApiServices.ChangeStatusProcurement;
-          }
-          else {
+            }
+          })
+          .catch((err) => {
+            setLoad(true);
             Swal.fire({
               icon: "error",
               title: "Oops...",
-              text: "Please select a valid designation",
+              text: "Something went wrong!",
+              timer: 2000,
+              timerProgressBar: true,
             });
-            setLoad(false);
-            return;
-          }
-          apiCall(data)
-            .then((res) => {
-              setLoad(true)
-              var message = res?.data?.message
-              if (res.data.success) {
-                Swal.fire({
-                  title: message,
-                  icon: "success",
-                  showConfirmButton: false,
-                  timer: 1500
-                });
-                setTimeout(() => {
-                  setLoad(false)
-                }, 1500)
-              }
-              else {
-                Swal.fire({
-                  title: message,
-                  icon: "success",
-                  showConfirmButton: false,
-                  timer: 1500
-                });
-                setTimeout(() => {
-                  setLoad(false)
-                }, 1500)
-              }
-            })
-            .catch((err) => {
-              setLoad(true)
-              Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Something went wrong!",
-                timer: 2000,
-                timerProgressBar: true,
-              });
-              setTimeout(() => {
-                setLoad(false)
-              }, 2000)
-              console.log("Error is", err);
-            })
-        }
-      })
-
-
+            setTimeout(() => {
+              setLoad(false);
+            }, 2000);
+            console.log("Error is", err);
+          });
+      }
+    });
   }
 
-  function changeActiveStatus(id, designation) {
-    Swal.fire({
-      title: "Confirm Status Change",
-      text: "Are you sure you want to change the status?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes"
-    })
-      .then((result) => {
-        if (result.isConfirmed) {
-
-          let data = {
-            _id: id,
-            status: true
-          }
-          let apiCall;
-
-          if (designation === "FM") {
-            apiCall = ApiServices.ChangeStatusFm;
-          }
-          else if (designation === "CLM") {
-            apiCall = ApiServices.ChangeStatusClm;
-          }
-          else if (designation === "Zonal_Head") {
-            apiCall = ApiServices.ChangeStatusZh;
-          }
-          else if (designation === "Business_Finance") {
-            apiCall = ApiServices.ChangeStatusBf;
-          }
-          else if (designation === "Procurement") {
-            apiCall = ApiServices.ChangeStatusProcurement;
-          }
-          else {
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: "Please select a valid designation",
-            });
-            setLoad(false);
-            return;
-          }
-          apiCall(data)
-            .then((res) => {
-              setLoad(true)
-              var message = res?.data?.message
-              if (res.data.success) {
-                Swal.fire({
-                  title: message,
-                  icon: "success",
-                  showConfirmButton: false,
-                  timer: 1500
-                });
-                setTimeout(() => {
-                  setLoad(false)
-                }, 1500)
-              }
-              else {
-                Swal.fire({
-                  title: message,
-                  icon: "success",
-                  showConfirmButton: false,
-                  timer: 1500
-                });
-                setTimeout(() => {
-                  setLoad(false)
-                }, 1500)
-              }
-            })
-            .catch((err) => {
-              setLoad(true)
-              Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Something went wrong!",
-                confirmButtonText: 'Continue',
-                timer: 2000,
-                timerProgressBar: true,
-              });
-              setTimeout(() => {
-                setLoad(false)
-              }, 2000)
-              console.log("Error is", err);
-            })
-        }
-      })
-  }
-
-  // Delete employee
-  // const deleteEmployee = (id) => {
+  // function changeActiveStatus(id, designation) {
   //   Swal.fire({
-  //     title: "Confirm Delete",
-  //     text: "This action cannot be undone!",
+  //     title: "Confirm Status Change",
+  //     text: "Are you sure you want to change the status?",
   //     icon: "warning",
   //     showCancelButton: true,
-  //     confirmButtonText: "Delete",
-  //   }).then((result) => {
-  //     if (result.isConfirmed) {
-  //       ApiServices.DeleteEmployee({ _id: id })
-  //         .then((res) => {
-  //           if (res.data.success) {
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes"
+  //   })
+  //     .then((result) => {
+  //       if (result.isConfirmed) {
+  //         console.log("hii");
+
+  //         let data = {
+  //           _id: id,
+  //           status: false
+  //         }
+  //         let apiCall;
+  //         console.log(id)
+  //         console.log(designation)
+  //         if (designation === "FM") {
+  //           apiCall = ApiServices.ChangeStatusFm;
+  //         }
+  //         else if (designation === "CLM") {
+  //           apiCall = ApiServices.ChangeStatusClm;
+  //         }
+  //         else if (designation === "Zonal_Head") {
+  //           apiCall = ApiServices.ChangeStatusZh;
+  //         }
+  //         else if (designation === "Business_Finance") {
+  //           apiCall = ApiServices.ChangeStatusBf;
+  //         }
+  //         else if (designation === "Procurement") {
+  //           apiCall = ApiServices.ChangeStatusProcurement;
+  //         }
+  //         else {
+  //           Swal.fire({
+  //             icon: "error",
+  //             title: "Oops...",
+  //             text: "Please select a valid designation",
+  //           });
+  //           setLoad(false);
+  //           return;
+  //         }
+  //         apiCall(data)
+  //           .then((res) => {
+  //             setLoad(true)
+  //             var message = res?.data?.message
+  //             if (res.data.success) {
+  //               Swal.fire({
+  //                 title: message,
+  //                 icon: "success",
+  //                 showConfirmButton: false,
+  //                 timer: 1500
+  //               });
+  //               setTimeout(() => {
+  //                 setLoad(false)
+  //               }, 1500)
+  //             }
+  //             else {
+  //               Swal.fire({
+  //                 title: message,
+  //                 icon: "success",
+  //                 showConfirmButton: false,
+  //                 timer: 1500
+  //               });
+  //               setTimeout(() => {
+  //                 setLoad(false)
+  //               }, 1500)
+  //             }
+  //           })
+  //           .catch((err) => {
+  //             setLoad(true)
   //             Swal.fire({
-  //               title: "Deleted Successfully",
-  //               icon: "success",
-  //               showConfirmButton: false,
-  //               timer: 1500,
-  //             });
-  //             fetchEmployees();
-  //           } else {
-  //             Swal.fire({
-  //               title: res.data.message,
   //               icon: "error",
-  //               showConfirmButton: false,
-  //               timer: 1500,
+  //               title: "Oops...",
+  //               text: "Something went wrong!",
+  //               confirmButtonText: 'Continue',
+  //               timer: 2000,
+  //               timerProgressBar: true,
   //             });
-  //           }
-  //         })
-  //         .catch((err) => {
-  //           toast.error("Something went wrong");
-  //           console.log("Error is", err);
-  //         });
-  //     }
-  //   });
-  // };
+  //             setTimeout(() => {
+  //               setLoad(false)
+  //             }, 2000)
+  //             console.log("Error is", err);
+  //           })
+  //       }
+  //     })
+  // }
+
 
   return (
     <main className="main" id="main">
@@ -384,23 +351,27 @@ export default function ManageEmployee() {
                       <td>{el.status ? "Active" : "Inactive"}</td>
                       <td>
                         <div className="btn-group">
-                          <Link to={"/admin/editEmployee/" + el?._id} state={{ designation: el.designation }} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
+                          <Link
+                            to={"/admin/editState/" + el._id}
+                            className="btn"
+                            style={{
+                              background: "#197ce6ff",
+                              color: "white",
+                            }}
+                          >
                             <i className="bi bi-pen"></i>
                           </Link>
-                          {
-                            el.status ?
-                              <>
-                                <Link className="btn ms-2" style={{ background: "#6c757d", color: "white" }} onClick={() => { changeInactiveStatus(el._id, el.designation) }}>
-                                  <i className="bi bi-x-circle " ></i>
-                                  {/* Inactive  */}
-                                </Link>
-                              </>
-                              :
-                              <Link className="btn btn-success ms-2" onClick={() => { changeActiveStatus(el._id) }}>
-                                <i className="bi bi-check-circle"></i>
-                                {/* Active */}
-                              </Link>
-                          }
+
+                          <button
+                            className="btn ms-2"
+                            style={{
+                              background: "#6c757d",
+                              color: "white",
+                            }}
+                            onClick={() => changeInactiveStatus(el._id, el.designation)}
+                          >
+                            <i className="bi bi-x-circle"></i>
+                          </button>
                         </div>
                       </td>
                     </tr>

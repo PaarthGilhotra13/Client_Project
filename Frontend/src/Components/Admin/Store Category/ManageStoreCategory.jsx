@@ -89,65 +89,6 @@ export default function ManageStoreCategory() {
     });
   }
 
-  function changeActiveStatus(id) {
-    Swal.fire({
-      title: "Confirm Status Change",
-      text: "Are you sure you want to change the status?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        let data = {
-          _id: id,
-          status: true,
-        };
-        ApiServices.ChangeStatusStoreCategory(data)
-          .then((res) => {
-            setLoad(true);
-            var message = res?.data?.message;
-            if (res.data.success) {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            } else {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            }
-          })
-          .catch((err) => {
-            setLoad(true);
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: "Something went wrong!",
-              confirmButtonText: "Continue",
-              timer: 2000,
-              timerProgressBar: true,
-            });
-            setTimeout(() => {
-              setLoad(false);
-            }, 2000);
-            console.log("Error is", err);
-          });
-      }
-    });
-  }
   return (
     <>
       <main className="main" id="main">

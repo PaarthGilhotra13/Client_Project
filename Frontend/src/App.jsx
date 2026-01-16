@@ -22,7 +22,6 @@ import EditZone from "./Components/Admin/Zone/EditZone"
 import AddCity from "./Components/Admin/City/AddCity"
 import ManageCity from "./Components/Admin/City/ManageCity"
 import BlockedCity from "./Components/Admin/City/BlockedCity"
-import EditCity from "./Components/Admin/City/EditCity"
 import AddStoreCategory from "./Components/Admin/Store Category/AddStoreCategory"
 import ManageStoreCategory from "./Components/Admin/Store Category/ManageStoreCategory"
 import BlockedStoreCategory from "./Components/Admin/Store Category/BlockedStoreCategory"
@@ -78,7 +77,6 @@ function App() {
             <Route path="/admin/addCity" element={<AddCity />} />
             <Route path="/admin/manageCity" element={<ManageCity />} />
             <Route path="/admin/blockedCity" element={<BlockedCity />} />
-            <Route path="/admin/editCity/:id" element={<EditCity/>} />
 
             {/* Store Category */}
             <Route path="/admin/addStoreCategory" element={<AddStoreCategory />} />

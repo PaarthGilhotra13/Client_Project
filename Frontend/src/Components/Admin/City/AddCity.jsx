@@ -17,7 +17,7 @@ export default function AddCity() {
     const [cities, setCities] = useState([]);
 
     const [load, setLoad] = useState(false);
-    const [cityLoading, setCityLoading] = useState(false); // ✅ NEW
+    const [cityLoading, setCityLoading] = useState(false); 
 
     useEffect(() => {
         ApiServices.GetAllZone({ status: "true" })
@@ -35,10 +35,9 @@ export default function AddCity() {
             .catch(() => setStates([]));
     };
 
-    // ✅ FIXED CITY LOADER
     const loadCities = (sName) => {
-        setCityLoading(true);      // ✅ start loading
-        setCities([]);             // clear old cities
+        setCityLoading(true);      
+        setCities([]);             
 
         ApiServices.GetCitiesByState(sName)
             .then((res) => {
@@ -46,7 +45,7 @@ export default function AddCity() {
             })
             .catch(() => setCities([]))
             .finally(() => {
-                setCityLoading(false); // ✅ stop loading
+                setCityLoading(false); 
             });
     };
 
