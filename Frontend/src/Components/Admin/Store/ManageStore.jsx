@@ -32,132 +32,133 @@ export default function ManageStore() {
 
             })
     }, [load])
+    const UnBlockedStore = data.filter(el => el.status === true);
 
     function changeInactiveStatus(id) {
-            Swal.fire({
-                title: "Confirm Status Change",
-                text: "Are you sure you want to change the status?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes"
-            })
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        let data = {
-                            _id: id,
-                            status: "false"
-                        }
-                        ApiServices.ChangeStatusStore(data)
-                            .then((res) => {
-                                setLoad(true)
-                                var message = res?.data?.message
-                                if (res.data.success) {
-                                    Swal.fire({
-                                        title: message,
-                                        icon: "success",
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    setTimeout(() => {
-                                        setLoad(false)
-                                    }, 1500)
-                                }
-                                else {
-                                    Swal.fire({
-                                        title: message,
-                                        icon: "success",
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    setTimeout(() => {
-                                        setLoad(false)
-                                    }, 1500)
-                                }
-                            })
-                            .catch((err) => {
-                                setLoad(true)
+        Swal.fire({
+            title: "Confirm Status Change",
+            text: "Are you sure you want to change the status?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes"
+        })
+            .then((result) => {
+                if (result.isConfirmed) {
+                    let data = {
+                        _id: id,
+                        status: "false"
+                    }
+                    ApiServices.ChangeStatusStore(data)
+                        .then((res) => {
+                            setLoad(true)
+                            var message = res?.data?.message
+                            if (res.data.success) {
                                 Swal.fire({
-                                    icon: "error",
-                                    title: "Oops...",
-                                    text: "Something went wrong!",
-                                    timer: 2000,
-                                    timerProgressBar: true,
+                                    title: message,
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    timer: 1500
                                 });
                                 setTimeout(() => {
                                     setLoad(false)
-                                }, 2000)
-                                console.log("Error is", err);
-                            })
-                    }
-                })
-    
-    
-        }
-    
-        function changeActiveStatus(id) {
-            Swal.fire({
-                title: "Confirm Status Change",
-                text: "Are you sure you want to change the status?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes"
-            })
-                .then((result) => {
-                    if (result.isConfirmed) {
-    
-                        let data = {
-                            _id: id,
-                            status: true
-                        }
-                        ApiServices.ChangeStatusStore(data)
-                            .then((res) => {
-                                setLoad(true)
-                                var message = res?.data?.message
-                                if (res.data.success) {
-                                    Swal.fire({
-                                        title: message,
-                                        icon: "success",
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    setTimeout(() => {
-                                        setLoad(false)
-                                    }, 1500)
-                                }
-                                else {
-                                    Swal.fire({
-                                        title: message,
-                                        icon: "success",
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    setTimeout(() => {
-                                        setLoad(false)
-                                    }, 1500)
-                                }
-                            })
-                            .catch((err) => {
-                                setLoad(true)
+                                }, 1500)
+                            }
+                            else {
                                 Swal.fire({
-                                    icon: "error",
-                                    title: "Oops...",
-                                    text: "Something went wrong!",
-                                    confirmButtonText: 'Continue',
-                                    timer: 2000,
-                                    timerProgressBar: true,
+                                    title: message,
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    timer: 1500
                                 });
                                 setTimeout(() => {
                                     setLoad(false)
-                                }, 2000)
-                                console.log("Error is", err);
-                            })
+                                }, 1500)
+                            }
+                        })
+                        .catch((err) => {
+                            setLoad(true)
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Something went wrong!",
+                                timer: 2000,
+                                timerProgressBar: true,
+                            });
+                            setTimeout(() => {
+                                setLoad(false)
+                            }, 2000)
+                            console.log("Error is", err);
+                        })
+                }
+            })
+
+
+    }
+
+    function changeActiveStatus(id) {
+        Swal.fire({
+            title: "Confirm Status Change",
+            text: "Are you sure you want to change the status?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes"
+        })
+            .then((result) => {
+                if (result.isConfirmed) {
+
+                    let data = {
+                        _id: id,
+                        status: true
                     }
-                })
-        }
+                    ApiServices.ChangeStatusStore(data)
+                        .then((res) => {
+                            setLoad(true)
+                            var message = res?.data?.message
+                            if (res.data.success) {
+                                Swal.fire({
+                                    title: message,
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                setTimeout(() => {
+                                    setLoad(false)
+                                }, 1500)
+                            }
+                            else {
+                                Swal.fire({
+                                    title: message,
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                setTimeout(() => {
+                                    setLoad(false)
+                                }, 1500)
+                            }
+                        })
+                        .catch((err) => {
+                            setLoad(true)
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Something went wrong!",
+                                confirmButtonText: 'Continue',
+                                timer: 2000,
+                                timerProgressBar: true,
+                            });
+                            setTimeout(() => {
+                                setLoad(false)
+                            }, 2000)
+                            console.log("Error is", err);
+                        })
+                }
+            })
+    }
     return (
         <>
             <main className="main" id="main">
@@ -182,13 +183,14 @@ export default function ManageStore() {
                                             <th>Store Code</th>
                                             <th>Store Category</th>
                                             <th>City Name</th>
+                                            <th>State Name</th>
                                             <th>Zone Name</th>
-                                            <th>Status</th>
+                                            <th>Addresss</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data?.map((el, index) => {
+                                        {UnBlockedStore?.map((el, index) => {
                                             return (
                                                 <>
                                                     <tr key={index}>
@@ -197,27 +199,19 @@ export default function ManageStore() {
                                                         <td>{el?.storeCode}</td>
                                                         <td>{el?.storeCategoryId?.name}</td>
                                                         <td>{el?.cityId?.cityName}</td>
+                                                        <td>{el?.stateId?.stateName}</td>
                                                         <td>{el?.zoneId?.zoneName}</td>
-                                                        <td>{el?.status == true ? "true" : "false"}</td>
+                                                        <td>{el?.address}</td>
                                                         <td>
                                                             <div className="btn-group">
                                                                 <Link to={"/admin/editStore/" + el?._id} className="btn" style={{ background: '#197ce6ff', color: "white" }}>
                                                                     <i className="bi bi-pen"></i>
                                                                 </Link>
-                                                                {
-                                                                    el.status ?
-                                                                        <>
-                                                                            <Link className="btn ms-2" style={{ background: "#6c757d", color: "white" }} onClick={() => { changeInactiveStatus(el._id) }}>
-                                                                                <i className="bi bi-x-circle " ></i>
-                                                                                {/* Inactive  */}
-                                                                            </Link>
-                                                                        </>
-                                                                        :
-                                                                        <Link className="btn btn-success ms-2" onClick={() => { changeActiveStatus(el._id) }}>
-                                                                            <i className="bi bi-check-circle"></i>
-                                                                            {/* Active */}
-                                                                        </Link>
-                                                                }
+
+                                                                <Link className="btn ms-2" style={{ background: "#6c757d", color: "white" }} onClick={() => { changeInactiveStatus(el._id) }}>
+                                                                    <i className="bi bi-x-circle " ></i>
+                                                                    {/* Inactive  */}
+                                                                </Link>
                                                             </div>
                                                         </td>
                                                     </tr>

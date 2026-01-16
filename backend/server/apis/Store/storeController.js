@@ -332,7 +332,7 @@ const changeStatus = (req, res) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Status Successfully",
+                                message: "Status Successfully Updated",
                                 data: storeData
                             })
                         })
