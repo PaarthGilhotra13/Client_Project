@@ -25,7 +25,7 @@ const add = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ storeName: req.body.storeName })
+        storeModel.findOne({ storeCode: req.body.storeCode })
             .then((storeData) => {
                 if (storeData == null) {
                     let storeObj = new storeModel()
@@ -159,7 +159,7 @@ const update = (req, res) => {
         })
     }
     else {
-        storeModel.findOne({ storeName: req.body.storeName })
+        storeModel.findOne({ storeCode: req.body.storeCode })
             .then((storeData1) => {
                 if (storeData1 && storeData1._id.toString() !== req.body._id.toString()) {
                     res.send({

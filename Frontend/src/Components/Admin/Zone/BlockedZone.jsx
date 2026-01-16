@@ -15,14 +15,19 @@ export default function BlockedZone() {
         ApiServices.GetAllZone()
             .then((res) => {
                 if (res?.data?.success) {
-                    setData(res.data.data);
+                    setData(res.data.data || []);
                 } else {
                     setData([]);
                 }
                 setLoad(false);
             })
-            .catch(() => setLoad(false));
+            .catch(() => {
+                setData([]);
+                setLoad(false);
+            });
     }, []);
+
+    const blockedZones = data.filter(el => el.status === false);
 
     function changeActiveStatus(id) {
         Swal.fire({
@@ -91,9 +96,8 @@ export default function BlockedZone() {
                                 </thead>
 
                                 <tbody>
-                                    {data
-                                        ?.filter(el => el.status === false)
-                                        ?.map((el, index) => (
+                                    {blockedZones.length !== 0 ? (
+                                        blockedZones.map((el, index) => (
                                             <tr key={el._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{el.zoneName}</td>
@@ -111,7 +115,14 @@ export default function BlockedZone() {
                                                     </button>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={4} className="text-center text-muted">
+                                                No Blocked Zone Found
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
 

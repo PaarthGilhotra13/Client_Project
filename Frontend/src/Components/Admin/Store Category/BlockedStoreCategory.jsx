@@ -2,7 +2,7 @@ import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 export default function BlockedStoreCategory() {
@@ -15,7 +15,7 @@ export default function BlockedStoreCategory() {
         ApiServices.GetAllStoreCategory()
             .then((res) => {
                 if (res?.data?.success) {
-                    setData(res?.data?.data);
+                    setData(res?.data?.data || []);
                 } else {
                     setData([]);
                 }
@@ -23,9 +23,12 @@ export default function BlockedStoreCategory() {
             })
             .catch((err) => {
                 console.log("Error is ", err);
+                setData([]);
                 setLoad(false);
             });
     }, []);
+
+    const blockedCategories = data.filter(el => el.status === false);
 
     function changeActiveStatus(id) {
         Swal.fire({
@@ -100,9 +103,8 @@ export default function BlockedStoreCategory() {
                                 </thead>
 
                                 <tbody>
-                                    {data
-                                        ?.filter(el => el.status === false)
-                                        ?.map((el, index) => (
+                                    {blockedCategories.length !== 0 ? (
+                                        blockedCategories.map((el, index) => (
                                             <tr key={el._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{el.name}</td>
@@ -122,7 +124,13 @@ export default function BlockedStoreCategory() {
                                                 </td>
                                             </tr>
                                         ))
-                                    }
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={5} className="text-center text-muted">
+                                                No Blocked Store Category Found
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
 

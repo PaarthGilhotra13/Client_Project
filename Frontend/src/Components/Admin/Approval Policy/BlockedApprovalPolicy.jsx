@@ -2,7 +2,7 @@ import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 export default function BlockedAppovalPolicy() {
@@ -15,7 +15,7 @@ export default function BlockedAppovalPolicy() {
         ApiServices.GetAllApprovalPolicy()
             .then((res) => {
                 if (res?.data?.success) {
-                    setData(res?.data?.data);
+                    setData(res?.data?.data || []);
                 } else {
                     setData([]);
                 }
@@ -23,9 +23,12 @@ export default function BlockedAppovalPolicy() {
             })
             .catch((err) => {
                 console.log("Error is ", err);
+                setData([]);
                 setLoad(false);
             });
     }, []);
+
+    const blockedPolicies = data.filter(el => el.status === false);
 
     function changeActiveStatus(id) {
         Swal.fire({
@@ -99,11 +102,10 @@ export default function BlockedAppovalPolicy() {
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                             
+
                                 <tbody>
-                                    {data
-                                        ?.filter(el => el.status === false)
-                                        ?.map((el, index) => (
+                                    {blockedPolicies.length !== 0 ? (
+                                        blockedPolicies.map((el, index) => (
                                             <tr key={el._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{el.minAmount}</td>
@@ -126,7 +128,13 @@ export default function BlockedAppovalPolicy() {
                                                 </td>
                                             </tr>
                                         ))
-                                    }
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={6} className="text-center text-muted">
+                                                No Blocked Approval Policy Found
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
 
