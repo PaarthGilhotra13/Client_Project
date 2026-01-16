@@ -7,7 +7,7 @@ const storeSchema=new mongoose.Schema({
     cityId:{type:mongoose.Schema.Types.ObjectId,ref:"cityData"},
     stateId:{type:mongoose.Schema.Types.ObjectId,ref:"stateData"},
     zoneId:{type:mongoose.Schema.Types.ObjectId,ref:"zoneData"},
-    Address:{type:String,default:""},
+    address:{type:String,default:""},
     status:{type:Boolean,default:true},
     createdAt:{type:Date,default:Date.now()}
 })

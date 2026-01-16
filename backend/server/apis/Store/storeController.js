@@ -14,8 +14,14 @@ const add = (req, res) => {
     if (!req.body.cityId) {
         errMsgs.push("cityId is required")
     }
+    if (!req.body.stateId) {
+        errMsgs.push("stateId is required")
+    }
     if (!req.body.zoneId) {
         errMsgs.push("zoneId is required")
+    }
+    if (!req.body.address) {
+        errMsgs.push("address is required")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -33,7 +39,9 @@ const add = (req, res) => {
                     storeObj.storeCode = req.body.storeCode
                     storeObj.storeCategoryId = req.body.storeCategoryId
                     storeObj.cityId = req.body.cityId
+                    storeObj.stateId = req.body.stateId
                     storeObj.zoneId = req.body.zoneId
+                    storeObj.address = req.body.address
                     storeObj.save()
                         .then((storeData) => {
                             res.send({
@@ -74,6 +82,7 @@ const getAll = (req, res) => {
     storeModel.find(req.body)
         .populate("storeCategoryId")
         .populate("cityId")
+        .populate("stateId")
         .populate("zoneId")
         .then((storeData) => {
             if (storeData.length == 0) {
@@ -118,6 +127,7 @@ const getSingle = (req, res) => {
         storeModel.findOne({ _id: req.body._id })
             .populate("storeCategoryId")
             .populate("cityId")
+            .populate("stateId")
             .populate("zoneId")
             .then((storeData) => {
                 if (storeData == null) {
@@ -191,8 +201,14 @@ const update = (req, res) => {
                                 if (req.body.cityId) {
                                     storeData.cityId = req.body.cityId
                                 }
+                                if (req.body.stateId) {
+                                    storeData.stateId = req.body.stateId
+                                }
                                 if (req.body.zoneId) {
                                     storeData.zoneId = req.body.zoneId
+                                }
+                                if (req.body.address) {
+                                    storeData.address = req.body.address
                                 }
                                 storeData.save()
                                     .then((storeData) => {
