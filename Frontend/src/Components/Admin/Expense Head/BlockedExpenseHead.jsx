@@ -31,7 +31,6 @@ export default function BlockedExpenseHead() {
 
   const blockedExpenseHeads = data.filter((el) => el.status === false);
 
-  // Truncate description like ManageExpenseHead
   const truncateText = (text, limit = 50) => {
     if (!text) return "";
     if (text.length <= limit) return text;
@@ -100,7 +99,6 @@ export default function BlockedExpenseHead() {
                       <th>Sr. No</th>
                       <th>Name</th>
                       <th>Description</th>
-                      <th>Status</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -131,9 +129,6 @@ export default function BlockedExpenseHead() {
                             )}
                           </td>
                           <td>
-                            <span className="badge bg-danger">Blocked</span>
-                          </td>
-                          <td>
                             <button
                               className="btn btn-success btn-sm"
                               onClick={() => changeActiveStatus(el._id)}
@@ -145,7 +140,7 @@ export default function BlockedExpenseHead() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5} className="text-center text-muted">
+                        <td colSpan={4} className="text-center text-muted">
                           No Blocked Expense Head Found
                         </td>
                       </tr>
