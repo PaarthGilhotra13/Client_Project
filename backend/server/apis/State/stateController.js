@@ -1,9 +1,12 @@
-const locationModel = require("./locationModel")
+const stateModel = require("./stateModel")
 
 const add = (req, res) => {
     var errMsgs = []
-    if (!req.body.zoneName) {
-        errMsgs.push("zoneName is required")
+    if (!req.body.stateName) {
+        errMsgs.push("stateName is required")
+    }
+    if (!req.body.zoneId) {
+        errMsgs.push("zoneId is required")
     }
     if (errMsgs.length > 0) {
         res.send({
@@ -13,27 +16,26 @@ const add = (req, res) => {
         })
     }
     else {
-        locationModel.findOne({ cityName: req.body.cityName })
-            .then((locationData) => {
-                if (locationData == null) {
-                    let locationObj = new locationModel()
-                    locationObj.zoneName = req.body.zoneName
-                    locationObj.cityName = req.body.cityName
-                    locationObj.stateName = req.body.stateName
-                    locationObj.save()
-                        .then((locationData) => {
+        stateModel.findOne({ stateName: req.body.stateName })
+            .then((stateData) => {
+                if (stateData == null) {
+                    let stateObj = new stateModel()
+                    stateObj.stateName = req.body.stateName
+                    stateObj.zoneId = req.body.zoneId
+                    stateObj.save()
+                        .then((stateData) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Location Added Successfully",
-                                data: locationData
+                                message: "State Added Successfully",
+                                data: stateData
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Location Not Added"
+                                message: "State Not Added"
                             })
                         })
                 }
@@ -41,7 +43,7 @@ const add = (req, res) => {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Location Already Exists"
+                        message: "State Already Exists"
                     })
                 }
             })
@@ -57,22 +59,22 @@ const add = (req, res) => {
 }
 
 const getAll = (req, res) => {
-    locationModel.find(req.body)
-        .then((locationData) => {
-            if (locationData.length == 0) {
+    stateModel.find(req.body)
+        .populate("zoneId")
+        .then((stateData) => {
+            if (stateData.length == 0) {
                 res.send({
                     status: 402,
                     success: false,
-                    message: "Location is Empty",
-                    data: locationData
+                    message: "State is Empty",
                 })
             }
             else {
                 res.send({
                     status: 200,
                     success: true,
-                    message: "Location Found",
-                    data: locationData
+                    message: "State Found",
+                    data: stateData
                 })
 
             }
@@ -99,21 +101,22 @@ const getSingle = (req, res) => {
         })
     }
     else {
-        locationModel.findOne({ _id: req.body._id })
-            .then((locationData) => {
-                if (locationData == null) {
+        stateModel.findOne({ _id: req.body._id })
+            .populate("zoneId")
+            .then((stateData) => {
+                if (stateData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Location not Found"
+                        message: "State not Found"
                     })
                 }
                 else {
                     res.send({
                         status: 200,
                         success: true,
-                        message: "Location Found",
-                        data: locationData
+                        message: "State Found",
+                        data: stateData
                     })
                 }
             })
@@ -140,49 +143,46 @@ const update = (req, res) => {
         })
     }
     else {
-        locationModel.findOne({ cityName: req.body.cityName })
-            .then((locationData1) => {
-                if (locationData1 && locationData1._id.toString()  !== req.body._id.toString() ) {
+        stateModel.findOne({ stateName: req.body.stateName })
+            .then((stateData) => {
+                if (stateData && stateData._id.toString()  !== req.body._id.toString() ) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Location Already Exists with same Name"
+                        message: "State Already Exists with same name"
                     })
                 }
                 else {
-                    locationModel.findOne({ _id: req.body._id })
-                        .then((locationData) => {
-                            if (locationData == null) {
+                    stateModel.findOne({ _id: req.body._id })
+                        .then((stateData) => {
+                            if (stateData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
-                                    message: "Location not Found"
+                                    message: "State not Found"
                                 })
                             }
                             else {
-                                if (req.body.zoneName) {
-                                    locationData.zoneName = req.body.zoneName
-                                }
-                                if (req.body.cityName) {
-                                    locationData.cityName = req.body.cityName
-                                }
                                 if (req.body.stateName) {
-                                    locationData.stateName = req.body.stateName
+                                    stateData.stateName = req.body.stateName
                                 }
-                                locationData.save()
-                                    .then((locationData) => {
+                                if (req.body.zoneId) {
+                                    stateData.zoneId = req.body.zoneId
+                                }
+                                stateData.save()
+                                    .then((stateData) => {
                                         res.send({
                                             status: 200,
                                             success: true,
-                                            message: "Location Updated Successfully",
-                                            data: locationData
+                                            message: "State Updated Successfully",
+                                            data: stateData
                                         })
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
-                                            message: "Location not Updated"
+                                            message: "State not Updated"
                                         })
                                     })
                             }
@@ -201,14 +201,16 @@ const update = (req, res) => {
                 res.send({
                     status: 422,
                     success: false,
-                    message: "Something Went Wrong"
+                    message: "Somehting Went Wrong"
                 })
             })
+
+
 
     }
 }
 
-const delLocation = (req, res) => {
+const delState = (req, res) => {
     var errMsgs = []
     if (!req.body._id) {
         errMsgs.push("_id is required")
@@ -221,29 +223,29 @@ const delLocation = (req, res) => {
         })
     }
     else {
-        locationModel.findOne({ _id: req.body._id })
-            .then((locationData) => {
-                if (locationData == null) {
+        stateModel.findOne({ _id: req.body._id })
+            .then((stateData) => {
+                if (stateData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Location not Found"
+                        message: "Data not Found"
                     })
                 }
                 else {
-                    locationData.deleteOne()
+                    stateData.deleteOne()
                         .then(() => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Location Deleted Successfully"
+                                message: "Data Deleted Successfully"
                             })
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Location not Deleted "
+                                message: "Data not Deleted Successfully"
                             })
                         })
                 }
@@ -275,24 +277,24 @@ const changeStatus = (req, res) => {
         })
     }
     else {
-        locationModel.findOne({ _id: req.body._id })
-            .then((locationData) => {
-                if (locationData == null) {
+        stateModel.findOne({ _id: req.body._id })
+            .then((stateData) => {
+                if (stateData == null) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "Location not Found"
+                        message: "Data not Found"
                     })
                 }
                 else {
-                    locationData.status = req.body.status
-                    locationData.save()
-                        .then((locationData) => {
+                    stateData.status = req.body.status
+                    stateData.save()
+                        .then((stateData) => {
                             res.send({
                                 status: 200,
                                 success: true,
                                 message: "Status Updated Successfully",
-                                data: locationData
+                                data: stateData
                             })
                         })
                         .catch(() => {
@@ -314,5 +316,4 @@ const changeStatus = (req, res) => {
     }
 }
 
-
-module.exports = { add, getAll, getSingle, update, delLocation, changeStatus }
+module.exports = { add, getAll, getSingle, update, delState, changeStatus }

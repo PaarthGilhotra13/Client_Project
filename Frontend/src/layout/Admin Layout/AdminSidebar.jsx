@@ -33,14 +33,14 @@ export default function AdminSidebar() {
           {/* End Dashboard Nav */}
 
           {/* Start Zone Nav */}
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <Link
               className="nav-link collapsed"
               data-bs-target="#zone-nav"
               data-bs-toggle="collapse"
 
             >
-              <i className="bi bi-geo-alt" />
+              <i className="bi bi-globe" />
               <span>Zone</span>
               <i className="bi bi-chevron-down ms-auto" />
             </Link>
@@ -71,18 +71,60 @@ export default function AdminSidebar() {
 
 
             </ul>
-          </li> */}
+          </li>
           {/* End Zone Nav */}
 
+          {/* Start State Nav */}
+          <li className="nav-item">
+            <Link
+              className="nav-link collapsed"
+              data-bs-target="#state-nav"
+              data-bs-toggle="collapse"
+
+            >
+              <i className="bi bi-map" />
+              <span>State</span>
+              <i className="bi bi-chevron-down ms-auto" />
+            </Link>
+            <ul
+              id="state-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
+            >
+              <li>
+                <Link to={"/admin/addState"} onClick={handleSidebarClose}>
+                  <i className="bi bi-plus fs-5" />
+                  <span>Add State</span>
+
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/manageState"} onClick={handleSidebarClose}>
+                  <i className="bi bi-card-list fs-6" />
+                  <span>Manage State</span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/admin/blockedState"} onClick={handleSidebarClose}>
+                  <i className="bi bi-slash-circle text-danger fs-6" />
+                  <span>Blocked State</span>
+                </Link>
+              </li>
+
+
+            </ul>
+          </li>
+          {/* End State Nav */}
+
           {/* Start City Nav */}
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <Link
               className="nav-link collapsed"
               data-bs-target="#city-nav"
               data-bs-toggle="collapse"
 
             >
-              <i className="bi bi-house" />
+              <i className="bi bi-geo-alt" />
               <span>City</span>
               <i className="bi bi-chevron-down ms-auto" />
             </Link>
@@ -113,49 +155,8 @@ export default function AdminSidebar() {
 
 
             </ul>
-          </li> */}
-          {/* End City Nav */}
-          {/* Start Location Nav */}
-          <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              data-bs-target="#location-nav"
-              data-bs-toggle="collapse"
-
-            >
-              <i className="bi bi-geo-alt" />
-              <span>Location</span>
-              <i className="bi bi-chevron-down ms-auto" />
-            </Link>
-            <ul
-              id="location-nav"
-              className="nav-content collapse "
-              data-bs-parent="#sidebar-nav"
-            >
-              <li>
-                <Link to={"/admin/addLocation"} onClick={handleSidebarClose}>
-                  <i className="bi bi-plus fs-5" />
-                  <span>Add Location</span>
-
-                </Link>
-              </li>
-              <li>
-                <Link to={"/admin/manageLocation"} onClick={handleSidebarClose}>
-                  <i className="bi bi-card-list fs-6" />
-                  <span>Manage Location</span>
-                </Link>
-              </li>
-              <li>
-                <Link to={"/admin/blockedLocation"} onClick={handleSidebarClose}>
-                  <i className="bi bi-slash-circle text-danger  fs-6" />
-                  <span>Blocked Location</span>
-                </Link>
-              </li>
-
-
-            </ul>
           </li>
-          {/* End Location Nav */}
+          {/* End City Nav */}
 
           {/* Start Store Category Nav */}
           <li className="nav-item">

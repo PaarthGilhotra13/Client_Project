@@ -173,33 +173,42 @@ class ApiServices {
       return axios.post(BaseURL + "/apis/city/changeStatus", data, { headers: getToken() })
    }
 
-   //Location
-   AddLocation(data) {
-      return axios.post(BaseURL + "/apis/location/add", data, { headers: getToken() })
+   //State
+   AddState(data) {
+      return axios.post(BaseURL + "/apis/state/add", data, { headers: getToken() })
    }
-   GetAllLocation(data) {
-      return axios.post(BaseURL + "/apis/location/all", data, { headers: getToken() })
+   GetAllState(data) {
+      return axios.post(BaseURL + "/apis/state/all", data, { headers: getToken() })
    }
-   GetSingleLocation(data) {
-      return axios.post(BaseURL + "/apis/location/single", data, { headers: getToken() })
+   GetSingleState(data) {
+      return axios.post(BaseURL + "/apis/state/single", data, { headers: getToken() })
    }
-   UpdateLocation(data) {
-      return axios.post(BaseURL + "/apis/location/update", data, { headers: getToken() })
+   UpdateState(data) {
+      return axios.post(BaseURL + "/apis/state/update", data, { headers: getToken() })
    }
-   DeleteLocation(data) {
-      return axios.post(BaseURL + "/apis/location/delete", data, { headers: getToken() })
+   DeleteState(data) {
+      return axios.post(BaseURL + "/apis/state/delete", data, { headers: getToken() })
    }
-   ChangeStatusLocation(data) {
-      return axios.post(BaseURL + "/apis/location/changeStatus", data, { headers: getToken() })
+   ChangeStatusState(data) {
+      return axios.post(BaseURL + "/apis/state/changeStatus", data, { headers: getToken() })
    }
 
    //All States and Cities Api
-   GetAllStates(){
-      return axios.get("https://www.india-location-hub.in/api/locations/states")
+   GetAllStates() {
+      return axios.get("http://localhost:3000/apis/states", {
+         headers: getToken(),
+      });
    }
-   GetAllCities(){
-      return axios.get("https://www.india-location-hub.in/api/locations/districts")
+
+   GetCitiesByState(stateName) {
+      return axios.post(
+         "http://localhost:3000/apis/cities",
+         { stateName },
+         { headers: getToken() }
+      );a
    }
+
+
 
    //Store Category
    AddStoreCategory(data) {
@@ -280,7 +289,7 @@ class ApiServices {
    ChangeStatusExpenseHead(data) {
       return axios.post(BaseURL + "/apis/expenseHead/changeStatus", data, { headers: getToken() })
    }
-   
+
    //Approval Policy
    AddApprovalPolicy(data) {
       return axios.post(BaseURL + "/apis/approvalPolicy/add", data, { headers: getToken() })

@@ -1,5 +1,4 @@
 const routes=require("express").Router()
-
 const employeeModel = require("../apis/Employee/employeeController")
 const userController=require("../apis/User/userController")
 const zhController=require("../apis/Zonal Head/zonalHeadController")
@@ -14,8 +13,8 @@ const storeController=require("../apis/Store/storeController")
 const expenseController=require("../apis/Expense/expenseController")
 const expenseHeadController=require("../apis/ExpenseHead/expenseHeadController")
 const approvalPolicyController=require("../apis/Approval Policy/approvalPolicyController")
-const locationController=require("../apis/Location/locationController")
-
+const stateController=require("../apis/State/stateController")
+const locationController=require("../apis/City/locationController")
 const multer=require("multer")
 const storage=multer.memoryStorage()
 const upload=multer({storage:storage})
@@ -88,6 +87,14 @@ routes.post("/zone/update",zoneController.update)
 routes.post("/zone/delete",zoneController.delZone)
 routes.post("/zone/changeStatus",zoneController.changeStatus)
 
+// State
+routes.post("/state/add",stateController.add)
+routes.post("/state/all",stateController.getAll)
+routes.post("/state/single",stateController.getSingle)
+routes.post("/state/update",stateController.update)
+routes.post("/city/delete",stateController.delState)
+routes.post("/state/changeStatus",stateController.changeStatus)
+
 // City
 routes.post("/city/add",cityController.add)
 routes.post("/city/all",cityController.getAll)
@@ -96,13 +103,9 @@ routes.post("/city/update",cityController.update)
 routes.post("/city/delete",cityController.delCity)
 routes.post("/city/changeStatus",cityController.changeStatus)
 
-// Location
-routes.post("/location/add",locationController.add)
-routes.post("/location/all",locationController.getAll)
-routes.post("/location/single",locationController.getSingle)
-routes.post("/location/update",locationController.update)
-routes.post("/location/delete",locationController.delLocation)
-routes.post("/location/changeStatus",locationController.changeStatus)
+//state and city api
+routes.get("/states", locationController.getStatesOfIndia);
+routes.post("/cities", locationController.getCitiesByState);
 
 // Store Category
 routes.post("/storeCategory/add",storeCategoryController.add)

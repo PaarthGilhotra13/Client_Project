@@ -173,6 +173,7 @@ export default function ManageCity() {
                     <tr>
                       <th>Sr. No</th>
                       <th>City</th>
+                      <th>State</th>
                       <th>Zone</th>
                       <th>Status</th>
                       <th>Action</th>
@@ -180,19 +181,20 @@ export default function ManageCity() {
                   </thead>
                   <tbody>
                     {data
-                      ?.filter((el) => el.status === true) // ✅ only active
+                      ?.filter((el) => el.status === true)
                       ?.map((el, index) => (
-                        <tr key={el._id}>
+                        <tr key={el?._id}>
                           <td>{index + 1}</td>
-                          <td>{el.cityName}</td>
-                          <td>{el.zoneId?.zoneName}</td>
+                          <td>{el?.cityName}</td>
+                          <td>{el?.stateId?.stateName}</td>
+                          <td>{el?.zoneId?.zoneName}</td>
                           <td>
                             <span className="badge bg-success">Active</span>
                           </td>
                           <td>
                             <div className="btn-group">
                               <Link
-                                to={"/admin/editCity/" + el._id}
+                                to={"/admin/editCity/" + el?._id}
                                 className="btn"
                                 style={{
                                   background: "#197ce6ff",
@@ -208,7 +210,7 @@ export default function ManageCity() {
                                   background: "#6c757d",
                                   color: "white",
                                 }}
-                                onClick={() => changeInactiveStatus(el._id)}
+                                onClick={() => changeInactiveStatus(el?._id)}
                               >
                                 <i className="bi bi-x-circle"></i>
                               </button>

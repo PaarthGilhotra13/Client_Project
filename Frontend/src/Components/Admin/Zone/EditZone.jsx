@@ -12,12 +12,12 @@ export default function EditZone() {
     var nav = useNavigate()
     var params = useParams()
     useEffect(() => {
+        setLoad(true)
         let data = {
             _id: params.id
         }
         ApiServices.GetSingleZone(data)
             .then((res) => {
-                setLoad(true)
                 setZoneName(res.data.data.zoneName)
                 setTimeout(() => {
                     setLoad(false)

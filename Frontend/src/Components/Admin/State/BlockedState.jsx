@@ -5,14 +5,14 @@ import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
 import Swal from "sweetalert2";
 
-export default function BlockedLocation() {
+export default function BlockedState() {
 
     const [data, setData] = useState([]);
     const [load, setLoad] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        ApiServices.GetAllCity()
+        ApiServices.GetAllState()
             .then((res) => {
                 if (res?.data?.success) {
                     setData(res.data.data);
@@ -41,7 +41,7 @@ export default function BlockedLocation() {
                     status: true
                 };
 
-                ApiServices.ChangeStatusCity(payload)
+                ApiServices.ChangeStatusState(payload)
                     .then((res) => {
                         if (res?.data?.success) {
                             Swal.fire({
@@ -66,7 +66,7 @@ export default function BlockedLocation() {
     return (
         <main className="main" id="main">
 
-            <PageTitle child="Blocked City" />
+            <PageTitle child="Blocked State" />
 
             {load &&
                 <ScaleLoader
@@ -84,7 +84,7 @@ export default function BlockedLocation() {
                                 <thead className="table-dark">
                                     <tr>
                                         <th>Sr. No</th>
-                                        <th>City</th>
+                                        <th>State</th>
                                         <th>Zone</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -92,28 +92,37 @@ export default function BlockedLocation() {
                                 </thead>
 
                                 <tbody>
-                                    {data
-                                        ?.filter(el => el.status === false)
-                                        ?.map((el, index) => (
-                                            <tr key={el._id}>
-                                                <td>{index + 1}</td>
-                                                <td>{el.cityName}</td>
-                                                <td>{el.zoneId?.zoneName}</td>
-                                                <td>
-                                                    <span className="badge bg-danger">
-                                                        Blocked
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <button
-                                                        className="btn btn-success btn-sm"
-                                                        onClick={() => changeActiveStatus(el._id)}
-                                                    >
-                                                        <i className="bi bi-check-circle"></i> Unblock
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                    {data.length == 0 ? (
+                                        data
+                                            ?.filter(el => el.status === false)
+                                            ?.map((el, index) => (
+                                                <tr key={el._id}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{el.stateName}</td>
+                                                    <td>{el.zoneId?.zoneName}</td>
+                                                    <td>
+                                                        <span className="badge bg-danger">
+                                                            Blocked
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            className="btn btn-success btn-sm"
+                                                            onClick={() => changeActiveStatus(el._id)}
+                                                        >
+                                                            <i className="bi bi-check-circle"></i> Unblock
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={5} className="text-center text-muted">
+                                                No Blocked State Found
+                                            </td>
+                                        </tr>
+
+                                    )}
                                 </tbody>
                             </table>
 

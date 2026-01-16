@@ -42,10 +42,10 @@ import AddApprovalPolicy from "./Components/Admin/Approval Policy/AddApprovalPol
 import ManageApprovalPolicy from "./Components/Admin/Approval Policy/ManageApprovalPolicy"
 import EditApprovalPolicy from "./Components/Admin/Approval Policy/EditApprovalPolicy"
 import BlockedAppovalPolicy from "./Components/Admin/Approval Policy/BlockedApprovalPolicy"
-import AddLocation from "./Components/Admin/Location/AddLocation"
-import ManageLocation from "./Components/Admin/Location/ManageLocation"
-import BlockedLocation from "./Components/Admin/Location/BlockedLocation"
-import EditLocation from "./Components/Admin/Location/EditLocation"
+import AddState from "./Components/Admin/State/AddState"
+import ManageState from "./Components/Admin/State/ManageState"
+import BlockedState from "./Components/Admin/State/BlockedState"
+import EditState from "./Components/Admin/State/EditState"
 
 
 function App() {
@@ -68,17 +68,17 @@ function App() {
             <Route path="/admin/blockedZone" element={<BlockedZone />} />
             <Route path="/admin/editZone/:id" element={<EditZone />} />
 
+            {/* State */}
+            <Route path="/admin/addState" element={<AddState />} />
+            <Route path="/admin/manageState" element={<ManageState />} />
+            <Route path="/admin/blockedState" element={<BlockedState />} />
+            <Route path="/admin/editState/:id" element={<EditState />} />
+
             {/* City */}
             <Route path="/admin/addCity" element={<AddCity />} />
             <Route path="/admin/manageCity" element={<ManageCity />} />
             <Route path="/admin/blockedCity" element={<BlockedCity />} />
             <Route path="/admin/editCity/:id" element={<EditCity/>} />
-
-            {/* Location */}
-            <Route path="/admin/addLocation" element={<AddLocation />} />
-            <Route path="/admin/manageLocation" element={<ManageLocation />} />
-            <Route path="/admin/blockedLocation" element={<BlockedLocation />} />
-            <Route path="/admin/editLocation/:id" element={<EditLocation/>} />
 
             {/* Store Category */}
             <Route path="/admin/addStoreCategory" element={<AddStoreCategory />} />

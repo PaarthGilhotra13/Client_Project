@@ -1,184 +1,250 @@
-import { useEffect, useState } from "react"
-import { ScaleLoader } from "react-spinners"
-import PageTitle from "../../PageTitle"
-import ApiServices from "../../../ApiServices"
-import { toast } from "react-toastify"
-import Swal from "sweetalert2"
+import { useEffect, useState } from "react";
+import { ScaleLoader } from "react-spinners";
+import PageTitle from "../../PageTitle";
+import ApiServices from "../../../ApiServices";
+import Swal from "sweetalert2";
 
 export default function AddCity() {
-    var [cityName, setCityName] = useState("")
-    var [zoneName, setZoneName] = useState("")
-    var [zones, setZones] = useState([])
-    var [zoneId, setZoneId] = useState("")
-    var [load, setLoad] = useState(false)
+    const [zoneName, setZoneName] = useState("");
+    const [zoneId, setZoneId] = useState("");
+    const [zones, setZones] = useState([]);
+
+    const [stateName, setStateName] = useState("");
+    const [stateId, setStateId] = useState("");
+    const [states, setStates] = useState([]);
+
+    const [cityName, setCityName] = useState("");
+    const [cities, setCities] = useState([]);
+
+    const [load, setLoad] = useState(false);
+    const [cityLoading, setCityLoading] = useState(false); // ✅ NEW
 
     useEffect(() => {
-        setLoad(true)
-        let data={
-            status:"true"
-        }
-        ApiServices.GetAllZone(data)
+        ApiServices.GetAllZone({ status: "true" })
             .then((res) => {
-                setZones(res?.data?.data);
+                setZones(res?.data?.data || []);
             })
-            .catch((err) => {
-                console.log("Error is ", err);
-            })
-        setTimeout(() => {
-            setLoad(false)
-        }, 1000)
-    }, [])
+            .catch((err) => console.log("Zone Error", err));
+    }, []);
 
-    function handleForm(e) {
-        e.preventDefault()
-        let data = {
-            cityName: cityName,
-            zoneId: zoneId
-        }
-        if (!zoneId) {
+    const loadStatesByZone = (zId) => {
+        ApiServices.GetAllState({ zoneId: zId })
+            .then((res) => {
+                setStates(res?.data?.data || []);
+            })
+            .catch(() => setStates([]));
+    };
+
+    // ✅ FIXED CITY LOADER
+    const loadCities = (sName) => {
+        setCityLoading(true);      // ✅ start loading
+        setCities([]);             // clear old cities
+
+        ApiServices.GetCitiesByState(sName)
+            .then((res) => {
+                setCities(res?.data?.data || []);
+            })
+            .catch(() => setCities([]))
+            .finally(() => {
+                setCityLoading(false); // ✅ stop loading
+            });
+    };
+
+    const handleForm = (e) => {
+        e.preventDefault();
+
+        if (!zoneId || !stateId || !cityName) {
             Swal.fire({
                 icon: "error",
-                title: "Oops...",
-                text: "Please select a Zone before submitting.",
-                timer: 3000,
-                timerProgressBar: true,
+                title: "Missing Fields",
+                text: "Please select Zone, State and City",
+                timer: 2000,
             });
             return;
         }
-        ApiServices.AddCity(data)
+
+        setLoad(true);
+
+        ApiServices.AddCity({
+            zoneId,
+            stateId,
+            cityName,
+        })
             .then((res) => {
-                setLoad(true)
-                var message = res?.data?.message
                 if (res?.data?.success) {
                     Swal.fire({
-                        title: "City Added Successfully",
                         icon: "success",
-                        draggable: true,
-                        confirmButtonText: 'Continue',
+                        title: "City Added Successfully",
                         timer: 2000,
-                        timerProgressBar: true,
                     });
-                    setTimeout(() => {
-                        setLoad(false)
-                        setCityName("")
-                        setZoneName("")
-                    }, 2000)
-                }
-                else {
+
+                    setZoneName("");
+                    setZoneId("");
+                    setStateName("");
+                    setStateId("");
+                    setCityName("");
+                    setStates([]);
+                    setCities([]);
+                } else {
                     Swal.fire({
                         icon: "error",
-                        title: "Oops...",
-                        text: message,
-                        confirmButtonText: 'Continue',
-                        timer: 2000,
-                        timerProgressBar: true,
+                        title: "Error",
+                        text: res?.data?.message || "Failed",
                     });
-                    setTimeout(() => {
-                        setLoad(false)
-                    }, 2000)
                 }
             })
-            .catch((err) => {
-                setLoad(true)
+            .catch(() => {
                 Swal.fire({
                     icon: "error",
-                    title: "Oops...",
-                    text: "Something went wrong!",
-                    confirmButtonText: 'Continue',
-                    timer: 2000,
-                    timerProgressBar: true,
+                    title: "Server Error",
                 });
-                setTimeout(() => {
-                    setLoad(false)
-                }, 2000)
-                console.log("Error is ", err);
             })
-    }
+            .finally(() => setLoad(false));
+    };
 
     return (
-        <>
-            <main id="main" className="main">
-                <PageTitle child="Add City" />
-                <div className="container-fluid ">
+        <main id="main" className="main">
+            <PageTitle child="Add City" />
+
+            {load && (
+                <div className="container-fluid">
                     <div className="row">
                         <div className="col-md-12">
-                            <ScaleLoader color="#6776f4" cssOverride={{ marginLeft: "45%", marginTop: "20%" }} size={200} loading={load} />
+                            <ScaleLoader
+                                color="#6776f4"
+                                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+                                size={200}
+                                loading={load}
+                            />
                         </div>
                     </div>
                 </div>
-                <div className={load ? "display-screen" : ""}>
+            )}
 
+            <div className={load ? "d-none" : ""}>
+                <div className="col-lg-6 mx-auto mt-3">
+                    <div className="card">
+                        <div className="card-body">
+                            <h5 className="card-title">City Details</h5>
 
-                    <div className="col-lg-6 mx-auto mt-3">
-                        <div className="card">
-                            <div className="card-body">
-                                <h5 className="card-title">City Details</h5>
-                                {/* Vertical Form */}
-                                <form className="row g-3" onSubmit={handleForm}>
-                                    <div className="col-12">
-                                        <label className="form-label">
-                                            City Name
-                                        </label>
-                                        <input type="text" className="form-control" id="inputNanme4" value={cityName} onChange={(e) => { setCityName(e.target.value) }} required />
-                                    </div>
-                                    <div className="col-12">
-                                        <label htmlFor="CategotyName" className="form-label">
-                                            Zone Name
-                                        </label>
-                                        <div className="dropdown text-center ">
-                                            <button
-                                                className="form-control text-start dropdown-toggle"
-                                                type="button"
-                                                id="categoryDropdown"
-                                                data-bs-toggle="dropdown"
-                                                aria-expanded="false"
-                                            >
-                                                {zoneName || "Select a Zone"}
-                                            </button>
-                                            {zones?.map((el, index) => {
-                                                return (
-                                                    <>
-                                                        <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
-                                                            {zones.length > 0 ? (
-                                                                zones.map((el) => (
-                                                                    <li key={el._id}>
-                                                                        <button
-                                                                            type="button"
-                                                                            className="dropdown-item"
-                                                                            onClick={() => {
-                                                                                setZoneName(el.zoneName);
-                                                                                setZoneId(el._id);
-                                                                            }}
+                            <form className="row g-3" onSubmit={handleForm}>
 
-                                                                        >
-                                                                            {el.zoneName}
-                                                                        </button>
-                                                                    </li>
-                                                                ))
-                                                            ) : (
-                                                                <li><span className="dropdown-item text-muted">No Zones found</span></li>
-                                                            )}
-                                                        </ul>
-
-                                                    </>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                    <div className="text-center">
-                                        <button type="submit" className="btn" style={{ background: "#6776f4", color: "white" }}>
-                                            Submit
+                                {/* ZONE */}
+                                <div className="col-12">
+                                    <label className="form-label">Zone Name</label>
+                                    <div className="dropdown">
+                                        <button className="form-control text-start dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            {zoneName || "Select a Zone"}
                                         </button>
 
+                                        <ul className="dropdown-menu w-100" style={{ maxHeight: 200, overflowY: "auto" }}>
+                                            {zones.length > 0 ? zones.map((el) => (
+                                                <li key={el._id}>
+                                                    <button
+                                                        type="button"
+                                                        className="dropdown-item"
+                                                        onClick={() => {
+                                                            setZoneName(el.zoneName);
+                                                            setZoneId(el._id);
+                                                            setStateName("");
+                                                            setStateId("");
+                                                            setCityName("");
+                                                            setCities([]);
+                                                            loadStatesByZone(el._id);
+                                                        }}
+                                                    >
+                                                        {el.zoneName}
+                                                    </button>
+                                                </li>
+                                            )) : (
+                                                <li className="dropdown-item text-muted">No Zones Found</li>
+                                            )}
+                                        </ul>
                                     </div>
-                                </form>
-                                {/* Vertical Form */}
-                            </div>
+                                </div>
+
+                                {/* STATE */}
+                                <div className="col-12">
+                                    <label className="form-label">State Name</label>
+                                    <div className="dropdown">
+                                        <button
+                                            className="form-control text-start dropdown-toggle"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            disabled={!zoneId}
+                                        >
+                                            {stateName || "Select a State"}
+                                        </button>
+
+                                        <ul className="dropdown-menu w-100" style={{ maxHeight: 200, overflowY: "auto" }}>
+                                            {states.length > 0 ? states.map((el) => (
+                                                <li key={el._id}>
+                                                    <button
+                                                        type="button"
+                                                        className="dropdown-item"
+                                                        onClick={() => {
+                                                            setStateName(el.stateName);
+                                                            setStateId(el._id);
+                                                            setCityName("");
+                                                            loadCities(el.stateName);
+                                                        }}
+                                                    >
+                                                        {el.stateName}
+                                                    </button>
+                                                </li>
+                                            )) : (
+                                                <li className="dropdown-item text-muted">No States Found</li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* CITY */}
+                                <div className="col-12">
+                                    <label className="form-label">City Name</label>
+                                    <div className="dropdown">
+                                        <button
+                                            className="form-control text-start dropdown-toggle"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            disabled={!stateId || cityLoading} 
+                                        >
+                                            {cityLoading ? "Loading cities..." : (cityName || "Select a City")}
+                                        </button>
+
+                                        <ul className="dropdown-menu w-100" style={{ maxHeight: 200, overflowY: "auto" }}>
+                                            {cityLoading ? (
+                                                <li className="dropdown-item text-muted">Loading cities...</li>
+                                            ) : cities.length > 0 ? (
+                                                cities.map((el, index) => (
+                                                    <li key={index}>
+                                                        <button
+                                                            type="button"
+                                                            className="dropdown-item"
+                                                            onClick={() => setCityName(el)}
+                                                        >
+                                                            {el}
+                                                        </button>
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <li className="dropdown-item text-muted">No Cities Found</li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <button type="submit" className="btn" style={{ background: "#6776f4", color: "white" }}>
+                                        Submit
+                                    </button>
+                                </div>
+
+                            </form>
                         </div>
                     </div>
                 </div>
-            </main>
-
-        </>
-    )
+            </div>
+        </main>
+    );
 }

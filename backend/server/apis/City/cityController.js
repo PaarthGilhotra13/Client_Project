@@ -5,6 +5,9 @@ const add = (req, res) => {
     if (!req.body.cityName) {
         errMsgs.push("cityName is required")
     }
+    if (!req.body.stateId) {
+        errMsgs.push("stateId is required")
+    }
     if (!req.body.zoneId) {
         errMsgs.push("zoneId is required")
     }
@@ -21,6 +24,7 @@ const add = (req, res) => {
                 if (cityData == null) {
                     let cityObj = new cityModel()
                     cityObj.cityName = req.body.cityName
+                    cityObj.stateId = req.body.stateId
                     cityObj.zoneId = req.body.zoneId
                     cityObj.save()
                         .then((cityData) => {
@@ -61,6 +65,7 @@ const add = (req, res) => {
 const getAll = (req, res) => {
     cityModel.find(req.body)
         .populate("zoneId")
+        .populate("stateId")
         .then((cityData) => {
             if (cityData.length == 0) {
                 res.send({
@@ -103,6 +108,7 @@ const getSingle = (req, res) => {
     else {
         cityModel.findOne({ _id: req.body._id })
             .populate("zoneId")
+            .populate("stateId")
             .then((cityData) => {
                 if (cityData == null) {
                     res.send({
@@ -165,6 +171,9 @@ const update = (req, res) => {
                             else {
                                 if (req.body.cityName) {
                                     cityData.cityName = req.body.cityName
+                                }
+                                if (req.body.stateId) {
+                                    cityData.stateId = req.body.stateId
                                 }
                                 if (req.body.zoneId) {
                                     cityData.zoneId = req.body.zoneId

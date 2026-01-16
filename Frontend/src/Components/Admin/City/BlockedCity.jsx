@@ -85,6 +85,7 @@ export default function BlockedCity() {
                                     <tr>
                                         <th>Sr. No</th>
                                         <th>City</th>
+                                        <th>State</th>
                                         <th>Zone</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -95,10 +96,11 @@ export default function BlockedCity() {
                                     {data
                                         ?.filter(el => el.status === false)
                                         ?.map((el, index) => (
-                                            <tr key={el._id}>
+                                            <tr key={el?._id}>
                                                 <td>{index + 1}</td>
-                                                <td>{el.cityName}</td>
-                                                <td>{el.zoneId?.zoneName}</td>
+                                                <td>{el?.cityName}</td>
+                                                <td>{el?.stateId?.stateName}</td>
+                                                <td>{el?.zoneId?.zoneName}</td>
                                                 <td>
                                                     <span className="badge bg-danger">
                                                         Blocked
@@ -107,7 +109,7 @@ export default function BlockedCity() {
                                                 <td>
                                                     <button
                                                         className="btn btn-success btn-sm"
-                                                        onClick={() => changeActiveStatus(el._id)}
+                                                        onClick={() => changeActiveStatus(el?._id)}
                                                     >
                                                         <i className="bi bi-check-circle"></i> Unblock
                                                     </button>
