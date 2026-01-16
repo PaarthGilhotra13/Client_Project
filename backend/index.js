@@ -1,6 +1,6 @@
 console.log("hello Backend!!")
-const express=require("express")
-const app=express()
+const express = require("express")
+const app = express()
 const port=3000
 
 const seeder=require("./server/config/seeder")
@@ -15,6 +15,7 @@ app.use(express.json({limit:'40mb'}))
 const db=require("./server/config/db")
 
 const apiRoutes=require("./server/routes/apiRoutes")
+const { request } = require("express")
 app.use("/apis",apiRoutes)
 
 app.get('/', (req, res) => {
