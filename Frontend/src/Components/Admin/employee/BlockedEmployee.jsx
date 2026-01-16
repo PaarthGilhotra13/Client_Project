@@ -87,29 +87,20 @@ export default function BlockedEmployee() {
           status: true
         }
         let apiCall;
-        console.log(id);
-        console.log(designation);
-
         if (designation === "FM") {
           apiCall = ApiServices.ChangeStatusFm;
-          console.log("api call fm");
-          
         }
         else if (designation === "CLM") {
           apiCall = ApiServices.ChangeStatusClm;
-          console.log("api call clm");
         }
         else if (designation === "Zonal_Head") {
           apiCall = ApiServices.ChangeStatusZh;
-          console.log("api call zh");
         }
         else if (designation === "Business_Finance") {
           apiCall = ApiServices.ChangeStatusBf;
-          console.log("api call bf");
         }
         else if (designation === "Procurement") {
           apiCall = ApiServices.ChangeStatusProcurement;
-          console.log("api call pr");
         }
         else {
           Swal.fire({

@@ -114,8 +114,6 @@ export default function ManageEmployee() {
           status: "false",
         };
         let apiCall;
-        console.log(id)
-        console.log(designation)
         if (designation === "FM") {
           apiCall = ApiServices.ChangeStatusFm;
         }
