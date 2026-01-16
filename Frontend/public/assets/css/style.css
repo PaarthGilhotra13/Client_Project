@@ -1357,4 +1357,39 @@ h6 {
   }
 }
 
-/* Cursor */
+/* description  Blur background when modal is open */
+/* Blur background when modal is open */
+.blur-background {
+  filter: blur(5px);
+  pointer-events: none; /* Disable clicks on the blurred content */
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Modal box */
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  z-index: 10000;
+}
+
+/* View more link */
+.view-more:hover {
+  text-decoration: underline;
+}

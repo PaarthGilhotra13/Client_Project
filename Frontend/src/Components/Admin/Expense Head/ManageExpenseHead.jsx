@@ -1,14 +1,15 @@
-import { toast, ToastContainer } from "react-toastify";
-import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
-import ApiServices from "../../../ApiServices";
-import { ScaleLoader } from "react-spinners";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import { ScaleLoader } from "react-spinners";
+import PageTitle from "../../PageTitle";
+import ApiServices from "../../../ApiServices";
 
 export default function ManageExpenseHead() {
-  var [data, setData] = useState([]);
-  var [load, setLoad] = useState(true);
+  const [data, setData] = useState([]);
+  const [load, setLoad] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
 
   useEffect(() => {
     ApiServices.GetAllExpenseHead()
@@ -18,15 +19,11 @@ export default function ManageExpenseHead() {
         } else {
           setData([]);
         }
-        setTimeout(() => {
-          setLoad(false);
-        }, 500);
+        setTimeout(() => setLoad(false), 500);
       })
       .catch((err) => {
         console.log("Error is ", err);
-        setTimeout(() => {
-          setLoad(false);
-        }, 1000);
+        setTimeout(() => setLoad(false), 1000);
       });
   }, [load]);
 
@@ -41,35 +38,17 @@ export default function ManageExpenseHead() {
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        let data = {
-          _id: id,
-          status: "false",
-        };
-        ApiServices.ChangeStatusExpenseHead(data)
+        let payload = { _id: id, status: "false" };
+        ApiServices.ChangeStatusExpenseHead(payload)
           .then((res) => {
             setLoad(true);
-            var message = res?.data?.message;
-            if (res.data.success) {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            } else {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            }
+            Swal.fire({
+              title: res?.data?.message,
+              icon: res.data.success ? "success" : "error",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            setTimeout(() => setLoad(false), 1500);
           })
           .catch((err) => {
             setLoad(true);
@@ -80,19 +59,25 @@ export default function ManageExpenseHead() {
               timer: 2000,
               timerProgressBar: true,
             });
-            setTimeout(() => {
-              setLoad(false);
-            }, 2000);
+            setTimeout(() => setLoad(false), 2000);
             console.log("Error is", err);
           });
       }
     });
   }
+
+  // Function to truncate description
+  const truncateText = (text, limit = 50) => {
+    if (!text) return "";
+    if (text.length <= limit) return text;
+    return text.slice(0, limit) + "...";
+  };
+
   return (
     <>
-      <main className="main" id="main">
+      <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
         <PageTitle child="Manage Expense Head" />
-        <div className="container-fluid ">
+        <div className="container-fluid">
           <div className="row">
             <div className="col-md-12">
               <ScaleLoader
@@ -104,67 +89,80 @@ export default function ManageExpenseHead() {
             </div>
           </div>
         </div>
+
         <div className="container-fluid">
           <div className="row justify-content-center">
             <div className="col-lg-12 mt-5 table-responsive">
-              {!load ? (
+              {!load && (
                 <table className="table table-hover table-striped">
                   <thead className="table-dark">
                     <tr>
                       <th>Sr. No</th>
                       <th>Name</th>
                       <th>Description</th>
-                      <th>Status</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data
-                      ?.filter((el) => el.status === true) 
-                      ?.map((el, index) => {
-                        return (
-                          <tr key={el._id}>
-                            <td>{index + 1}</td>
-                            <td>{el?.name}</td>
-                            <td>{el?.description}</td>
-                            <td>Active</td>
-                            <td>
-                              <div className="btn-group">
-                                <Link
-                                  to={"/admin/editExpenseHead/" + el?._id}
-                                  className="btn"
-                                  style={{
-                                    background: "#197ce6ff",
-                                    color: "white",
-                                  }}
-                                >
-                                  <i className="bi bi-pen"></i>
-                                </Link>
-
-                                <Link
-                                  className="btn ms-2"
-                                  style={{
-                                    background: "#6c757d",
-                                    color: "white",
-                                  }}
-                                  onClick={() => changeInactiveStatus(el._id)}
-                                >
-                                  <i className="bi bi-x-circle"></i>
-                                </Link>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                    {data?.filter((el) => el.status === true)?.map((el, index) => (
+                      <tr key={el._id}>
+                        <td>{index + 1}</td>
+                        <td>{el?.name}</td>
+                        <td>
+                          {truncateText(el?.description, 50)}
+                          {el?.description?.length > 50 && (
+                            <span
+                              className="view-more"
+                              onClick={() => {
+                                setModalContent(el?.description);
+                                setModalOpen(true);
+                              }}
+                              style={{ color: "blue", cursor: "pointer", marginLeft: "5px" }}
+                            >
+                              View More
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          <div className="btn-group">
+                            <Link
+                              to={"/admin/editExpenseHead/" + el?._id}
+                              className="btn"
+                              style={{ background: "#197ce6ff", color: "white" }}
+                            >
+                              <i className="bi bi-pen"></i>
+                            </Link>
+                            <button
+                              className="btn ms-2"
+                              style={{ background: "#6c757d", color: "white" }}
+                              onClick={() => changeInactiveStatus(el._id)}
+                            >
+                              <i className="bi bi-x-circle"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
-              ) : (
-                ""
               )}
             </div>
           </div>
         </div>
       </main>
+
+      {/* Modal for full description */}
+      {modalOpen && (
+        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h5>Description</h5>
+            <p>{modalContent}</p>
+            <button className="btn btn-primary mt-2" onClick={() => setModalOpen(false)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
