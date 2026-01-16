@@ -29,24 +29,25 @@ export default function ManageEmployee() {
   // CSV headers
   const csvHeaders = [
     { label: "Sr No", key: "srNo" },
-    { label: "Employee ID", key: "_id" },
+    { label: "ID", key: "empcode" },
     { label: "Name", key: "name" },
     { label: "Email", key: "email" },
     { label: "Contact", key: "contact" },
-    { label: "Job Title", key: "jobTitle" },
-    { label: "Status", key: "status" },
+    { label: "Store Name", key: "storeName" },
+    { label: "Designation", key: "jobDesignation" },
   ];
 
+  // CSV data mapping
   const csvData = filteredData
-    .filter(emp => emp.status) // Only active
+    .filter(emp => emp.status) // Only active employees
     .map((emp, index) => ({
       srNo: index + 1,
-      _id: emp._id,
+      empcode: emp.empcode, // Correct ID
       name: emp.name,
       email: emp.email,
       contact: emp.contact,
-      jobTitle: emp.jobTitle,
-      status: emp.status ? "Active" : "Inactive",
+      storeName: emp?.storeId?.storeName || "", // Correct Store Name
+      jobDesignation: emp.designation,
     }));
 
   // Fetch employees from backend
@@ -89,7 +90,7 @@ export default function ManageEmployee() {
         const lowerSearch = searchTerm.toLowerCase();
         return (
           el?.name?.toLowerCase().includes(lowerSearch) ||
-          el?._id?.toLowerCase().includes(lowerSearch)
+          el?.empcode?.toLowerCase().includes(lowerSearch)
         );
       });
 
@@ -138,7 +139,7 @@ export default function ManageEmployee() {
               timer: 1500,
             });
 
-            // ✅ MAIN FIX: refetch data after status change
+            // Refetch data after status change
             fetchAllStaff();
           })
           .catch((err) => {
@@ -176,9 +177,7 @@ export default function ManageEmployee() {
             <CSVLink
               data={csvData}
               headers={csvHeaders}
-              filename={`Employee_Report_${new Date()
-                .toISOString()
-                .slice(0, 10)}.csv`}
+              filename={`Employee_Report_${new Date().toISOString().slice(0, 10)}.csv`}
               className="btn btn-sm btn-primary"
             >
               Download CSV
