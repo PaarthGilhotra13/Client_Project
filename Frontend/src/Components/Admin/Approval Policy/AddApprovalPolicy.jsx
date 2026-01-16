@@ -1,6 +1,3 @@
-// 
-
-
 import { useState } from "react";
 import { ScaleLoader } from "react-spinners";
 import PageTitle from "../../PageTitle";
@@ -110,19 +107,37 @@ export default function AddApprovalPolicy() {
                                     <div className="col-12">
                                         <label className="form-label">Approval Levels</label>
                                         <div className="border rounded p-2">
-                                            {roles.map(role => (
-                                                <div key={role} className="form-check">
-                                                    <input
-                                                        className="form-check-input"
-                                                        type="checkbox"
-                                                        checked={approvalLevels.includes(role)}
-                                                        onChange={() => handleRoleToggle(role)}
-                                                    />
-                                                    <label className="form-check-label">
-                                                        {role}
-                                                    </label>
-                                                </div>
-                                            ))}
+
+                                            {roles.map(role => {
+                                                const index = approvalLevels.indexOf(role);
+
+                                                return (
+                                                    <div
+                                                        key={role}
+                                                        className="form-check d-flex align-items-center gap-2"
+                                                    >
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            checked={index !== -1}
+                                                            onChange={() => handleRoleToggle(role)}
+                                                        />
+
+                                                        <label className="form-check-label">
+                                                            {role}
+                                                            {index !== -1 && (
+                                                                <span
+                                                                    className="badge ms-2"
+                                                                    style={{ background: "#6776f4" }}
+                                                                >
+                                                                    {index + 1}
+                                                                </span>
+                                                            )}
+                                                        </label>
+                                                    </div>
+                                                );
+                                            })}
+
                                         </div>
                                     </div>
 
