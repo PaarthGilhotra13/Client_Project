@@ -15,19 +15,24 @@ export default function BlockedState() {
         ApiServices.GetAllState()
             .then((res) => {
                 if (res?.data?.success) {
-                    setData(res.data.data);
+                    setData(res.data.data || []);
                 } else {
                     setData([]);
                 }
                 setLoad(false);
             })
-            .catch(() => setLoad(false));
+            .catch(() => {
+                setData([]);
+                setLoad(false);
+            });
     }, []);
+
+    const blockedStates = data.filter(el => el.status === false);
 
     function changeActiveStatus(id) {
         Swal.fire({
-            title: "Unblock City?",
-            text: "Do you want to unblock this city?",
+            title: "Unblock State?",
+            text: "Do you want to unblock this state?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#198754",
@@ -92,36 +97,33 @@ export default function BlockedState() {
                                 </thead>
 
                                 <tbody>
-                                    {data.length !== 0 ? (
-                                        data
-                                            ?.filter(el => el.status === false)
-                                            ?.map((el, index) => (
-                                                <tr key={el._id}>
-                                                    <td>{index + 1}</td>
-                                                    <td>{el.stateName}</td>
-                                                    <td>{el.zoneId?.zoneName}</td>
-                                                    <td>
-                                                        <span className="badge bg-danger">
-                                                            Blocked
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <button
-                                                            className="btn btn-success btn-sm"
-                                                            onClick={() => changeActiveStatus(el._id)}
-                                                        >
-                                                            <i className="bi bi-check-circle"></i> Unblock
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))
+                                    {blockedStates.length !== 0 ? (
+                                        blockedStates.map((el, index) => (
+                                            <tr key={el._id}>
+                                                <td>{index + 1}</td>
+                                                <td>{el.stateName}</td>
+                                                <td>{el.zoneId?.zoneName}</td>
+                                                <td>
+                                                    <span className="badge bg-danger">
+                                                        Blocked
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button
+                                                        className="btn btn-success btn-sm"
+                                                        onClick={() => changeActiveStatus(el._id)}
+                                                    >
+                                                        <i className="bi bi-check-circle"></i> Unblock
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
                                     ) : (
                                         <tr>
                                             <td colSpan={5} className="text-center text-muted">
                                                 No Blocked State Found
                                             </td>
                                         </tr>
-
                                     )}
                                 </tbody>
                             </table>

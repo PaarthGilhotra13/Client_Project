@@ -36,7 +36,7 @@ export default function AddZone() {
                     setTimeout(() => {
                         setLoad(false)
                         nav("/admin/addZone")
-                        setZoneName("")
+                        setZoneaName("")
                     }, 2000)
                 }
                 else {

@@ -15,14 +15,19 @@ export default function BlockedCity() {
         ApiServices.GetAllCity()
             .then((res) => {
                 if (res?.data?.success) {
-                    setData(res.data.data);
+                    setData(res.data.data || []);
                 } else {
                     setData([]);
                 }
                 setLoad(false);
             })
-            .catch(() => setLoad(false));
+            .catch(() => {
+                setData([]);
+                setLoad(false);
+            });
     }, []);
+
+    const blockedCities = data.filter(el => el.status === false);
 
     function changeActiveStatus(id) {
         Swal.fire({
@@ -93,9 +98,8 @@ export default function BlockedCity() {
                                 </thead>
 
                                 <tbody>
-                                    {data
-                                        ?.filter(el => el.status === false)
-                                        ?.map((el, index) => (
+                                    {blockedCities.length !== 0 ? (
+                                        blockedCities.map((el, index) => (
                                             <tr key={el?._id}>
                                                 <td>{index + 1}</td>
                                                 <td>{el?.cityName}</td>
@@ -115,7 +119,14 @@ export default function BlockedCity() {
                                                     </button>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={6} className="text-center text-muted">
+                                                No Blocked City Found
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
 

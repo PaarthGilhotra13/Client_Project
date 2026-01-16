@@ -11,6 +11,7 @@ export default function BlockedEmployee() {
   var [load, setLoad] = useState(true);
   const [searchTerm, setSearchTerm] = useState(""); // search input
   const [filteredData, setFilteredData] = useState([]);
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 40;
@@ -19,6 +20,7 @@ export default function BlockedEmployee() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const showPagination = filteredData.length > itemsPerPage;
+
   // This will be mapped in <tbody> instead of filteredData
   const currentEmployees = filteredData.slice(
     indexOfFirstItem,
@@ -32,11 +34,12 @@ export default function BlockedEmployee() {
     const filtered = data.filter((el) => {
       const lowerSearch = searchTerm.toLowerCase();
       return (
-        el.name.toLowerCase().includes(lowerSearch) ||
-        el._id.toLowerCase().includes(lowerSearch)
+        el?.name?.toLowerCase().includes(lowerSearch) ||
+        el?._id?.toLowerCase().includes(lowerSearch)
       );
     });
     setFilteredData(filtered);
+    setCurrentPage(1); // reset page on search
   }, [searchTerm, data]);
 
   // Fetch employees from backend
@@ -60,12 +63,12 @@ export default function BlockedEmployee() {
 
     } catch (err) {
       console.log(err);
+      setData([]);
     }
     setTimeout(() => {
-      setLoad(false)
-    }, 1000)
+      setLoad(false);
+    }, 1000);
   };
-
 
   useEffect(() => {
     fetchAllStaff();
@@ -85,31 +88,23 @@ export default function BlockedEmployee() {
         let data = {
           _id: id,
           status: true
-        }
-        let apiCall;
-        console.log(id);
-        console.log(designation);
+        };
 
+        let apiCall;
         if (designation === "FM") {
           apiCall = ApiServices.ChangeStatusFm;
-          console.log("api call fm");
-          
         }
         else if (designation === "CLM") {
           apiCall = ApiServices.ChangeStatusClm;
-          console.log("api call clm");
         }
         else if (designation === "Zonal_Head") {
           apiCall = ApiServices.ChangeStatusZh;
-          console.log("api call zh");
         }
         else if (designation === "Business_Finance") {
           apiCall = ApiServices.ChangeStatusBf;
-          console.log("api call bf");
         }
         else if (designation === "Procurement") {
           apiCall = ApiServices.ChangeStatusProcurement;
-          console.log("api call pr");
         }
         else {
           Swal.fire({
@@ -117,90 +112,36 @@ export default function BlockedEmployee() {
             title: "Oops...",
             text: "Please select a valid designation",
           });
-          setLoad(false);
           return;
         }
+
         apiCall(data)
           .then((res) => {
-            setLoad(true);
-            var message = res?.data?.message;
-            if (res.data.success) {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            } else {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            }
+            Swal.fire({
+              title: res?.data?.message,
+              icon: "success",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            fetchAllStaff(); // refresh list
           })
           .catch((err) => {
-            setLoad(true);
             Swal.fire({
               icon: "error",
               title: "Oops...",
               text: "Something went wrong!",
-              confirmButtonText: "Continue",
-              timer: 2000,
-              timerProgressBar: true,
             });
-            setTimeout(() => {
-              setLoad(false);
-            }, 2000);
             console.log("Error is", err);
           });
       }
     });
   }
-  let ext;
-  function getFileType(fileName) {
-    if (!fileName) {
-      return "other";
-    }
-    ext = fileName.split(".").pop().toLowerCase();
-    if (
-      ext == "jpg" ||
-      ext == "jpeg" ||
-      ext == "png" ||
-      ext == "gif" ||
-      ext == "bmp" ||
-      ext == "webp" ||
-      ext == "svg" ||
-      ext == "ico"
-    ) {
-      return "image";
-    }
-    if (
-      ext === "pdf" ||
-      ext === "zip" ||
-      ext === "doc" ||
-      ext === "docx" ||
-      ext === "xls" ||
-      ext === "xlsx" ||
-      ext === "ppt" ||
-      ext === "pptx" ||
-      ext === "txt" ||
-      ext === "rtf"
-    ) {
-      return "document";
-    }
-  }
+
   return (
     <>
       <main className="main" id="main">
         <PageTitle child="Blocked Employee" />
+
         <div className="container-fluid ">
           <div className="row">
             <div className="col-md-12">
@@ -213,6 +154,7 @@ export default function BlockedEmployee() {
             </div>
           </div>
         </div>
+
         {/* Search bar */}
         {!load && (
           <div className="container-fluid mb-3" style={{ cursor: "default" }}>
@@ -229,6 +171,7 @@ export default function BlockedEmployee() {
             </div>
           </div>
         )}
+
         {/* table starts */}
         <div className="container-fluid">
           <div className="row justify-content-center">
@@ -246,38 +189,51 @@ export default function BlockedEmployee() {
                       <th>Designation</th>
                       <th>Status</th>
                       <th>Action</th>
-
                     </tr>
                   </thead>
+
                   <tbody>
-                    {currentEmployees.map((el, index) => (
-                      <tr key={el._id}>
-                        <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                        <td>{el.empcode}</td>
-                        <td>{el?.name}</td>
-                        <td>{el?.email}</td>
-                        <td>{el?.contact}</td>
-                        <td>{el?.storeId?.storeName}</td>
-                        <td>{el?.designation}</td>
-                        <td>{el.status ? "Active" : "Inactive"}</td>
-                        <td>
-                          <div className="btn-group">
-
-                            <Link className="btn btn-success ms-2" onClick={() => { changeActiveStatus(el?._id, el?.designation) }}>
-                              <i className="bi bi-check-circle"></i>
-                              {/* Active */}
-                            </Link>
-
-                          </div>
+                    {currentEmployees.length !== 0 ? (
+                      currentEmployees.map((el, index) => (
+                        <tr key={el._id}>
+                          <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                          <td>{el.empcode}</td>
+                          <td>{el?.name}</td>
+                          <td>{el?.email}</td>
+                          <td>{el?.contact}</td>
+                          <td>{el?.storeId?.storeName}</td>
+                          <td>{el?.designation}</td>
+                          <td>{el.status ? "Active" : "Inactive"}</td>
+                          <td>
+                            <div className="btn-group">
+                              <Link
+                                className="btn btn-success ms-2"
+                                onClick={() => {
+                                  changeActiveStatus(el?._id, el?.designation);
+                                }}
+                              >
+                                <i className="bi bi-check-circle"></i>
+                                {/* Active */}
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={9} className="text-center text-muted">
+                          No Blocked Employee Found
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               )}
             </div>
           </div>
         </div>
+
+        {/* Pagination */}
         {showPagination && (
           <div className="d-flex justify-content-center mt-3">
             <button
@@ -291,8 +247,9 @@ export default function BlockedEmployee() {
             {[...Array(totalPages)].map((_, idx) => (
               <button
                 key={idx}
-                className={`btn me-1 ${currentPage === idx + 1 ? "btn-primary" : "btn-light"
-                  }`}
+                className={`btn me-1 ${
+                  currentPage === idx + 1 ? "btn-primary" : "btn-light"
+                }`}
                 onClick={() => setCurrentPage(idx + 1)}
               >
                 {idx + 1}

@@ -70,12 +70,12 @@ export default function ManageEmployee() {
 
     } catch (err) {
       console.log(err);
+      setData([]);
     }
     setTimeout(() => {
-      setLoad(false)
-    }, 1000)
+      setLoad(false);
+    }, 500);
   };
-
 
   useEffect(() => {
     fetchAllStaff();
@@ -84,20 +84,20 @@ export default function ManageEmployee() {
   // Filter data based on search
   useEffect(() => {
     const filtered = data
-      .filter((el) => el.status) // Only active employees
+      .filter(el => el.status) // Only active employees
       .filter((el) => {
         const lowerSearch = searchTerm.toLowerCase();
         return (
-          el.name.toLowerCase().includes(lowerSearch) ||
-          el._id.toLowerCase().includes(lowerSearch)
+          el?.name?.toLowerCase().includes(lowerSearch) ||
+          el?._id?.toLowerCase().includes(lowerSearch)
         );
       });
 
     setFilteredData(filtered);
+    setCurrentPage(1);
   }, [searchTerm, data]);
 
-
-  // Change employee status
+  // Change employee status (Active → Inactive)
   function changeInactiveStatus(id, designation) {
     Swal.fire({
       title: "Confirm Status Change",
@@ -109,175 +109,50 @@ export default function ManageEmployee() {
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        let data = {
+        let payload = {
           _id: id,
           status: "false",
         };
+
         let apiCall;
-        console.log(id)
-        console.log(designation)
-        if (designation === "FM") {
-          apiCall = ApiServices.ChangeStatusFm;
-        }
-        else if (designation === "CLM") {
-          apiCall = ApiServices.ChangeStatusClm;
-        }
-        else if (designation === "Zonal_Head") {
-          apiCall = ApiServices.ChangeStatusZh;
-        }
-        else if (designation === "Business_Finance") {
-          apiCall = ApiServices.ChangeStatusBf;
-        }
-        else if (designation === "Procurement") {
-          apiCall = ApiServices.ChangeStatusProcurement;
-        }
+        if (designation === "FM") apiCall = ApiServices.ChangeStatusFm;
+        else if (designation === "CLM") apiCall = ApiServices.ChangeStatusClm;
+        else if (designation === "Zonal_Head") apiCall = ApiServices.ChangeStatusZh;
+        else if (designation === "Business_Finance") apiCall = ApiServices.ChangeStatusBf;
+        else if (designation === "Procurement") apiCall = ApiServices.ChangeStatusProcurement;
         else {
           Swal.fire({
             icon: "error",
             title: "Oops...",
             text: "Please select a valid designation",
           });
-          setLoad(false);
           return;
         }
-        apiCall(data)
-          .then((res) => {
-            setLoad(true);
-            var message = res?.data?.message;
-            if (res.data.success) {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-              
-            } else {
-              Swal.fire({
-                title: message,
-                icon: "error",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-              console.log(message);
 
-            }
+        apiCall(payload)
+          .then((res) => {
+            Swal.fire({
+              title: res?.data?.message,
+              icon: res?.data?.success ? "success" : "error",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+
+            // ✅ MAIN FIX: refetch data after status change
+            fetchAllStaff();
           })
           .catch((err) => {
-            setLoad(true);
             Swal.fire({
               icon: "error",
               title: "Oops...",
               text: "Something went wrong!",
               timer: 2000,
-              timerProgressBar: true,
             });
-            setTimeout(() => {
-              setLoad(false);
-            }, 2000);
             console.log("Error is", err);
           });
       }
     });
   }
-
-  // function changeActiveStatus(id, designation) {
-  //   Swal.fire({
-  //     title: "Confirm Status Change",
-  //     text: "Are you sure you want to change the status?",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#3085d6",
-  //     cancelButtonColor: "#d33",
-  //     confirmButtonText: "Yes"
-  //   })
-  //     .then((result) => {
-  //       if (result.isConfirmed) {
-  //         console.log("hii");
-
-  //         let data = {
-  //           _id: id,
-  //           status: false
-  //         }
-  //         let apiCall;
-  //         console.log(id)
-  //         console.log(designation)
-  //         if (designation === "FM") {
-  //           apiCall = ApiServices.ChangeStatusFm;
-  //         }
-  //         else if (designation === "CLM") {
-  //           apiCall = ApiServices.ChangeStatusClm;
-  //         }
-  //         else if (designation === "Zonal_Head") {
-  //           apiCall = ApiServices.ChangeStatusZh;
-  //         }
-  //         else if (designation === "Business_Finance") {
-  //           apiCall = ApiServices.ChangeStatusBf;
-  //         }
-  //         else if (designation === "Procurement") {
-  //           apiCall = ApiServices.ChangeStatusProcurement;
-  //         }
-  //         else {
-  //           Swal.fire({
-  //             icon: "error",
-  //             title: "Oops...",
-  //             text: "Please select a valid designation",
-  //           });
-  //           setLoad(false);
-  //           return;
-  //         }
-  //         apiCall(data)
-  //           .then((res) => {
-  //             setLoad(true)
-  //             var message = res?.data?.message
-  //             if (res.data.success) {
-  //               Swal.fire({
-  //                 title: message,
-  //                 icon: "success",
-  //                 showConfirmButton: false,
-  //                 timer: 1500
-  //               });
-  //               setTimeout(() => {
-  //                 setLoad(false)
-  //               }, 1500)
-  //             }
-  //             else {
-  //               Swal.fire({
-  //                 title: message,
-  //                 icon: "success",
-  //                 showConfirmButton: false,
-  //                 timer: 1500
-  //               });
-  //               setTimeout(() => {
-  //                 setLoad(false)
-  //               }, 1500)
-  //             }
-  //           })
-  //           .catch((err) => {
-  //             setLoad(true)
-  //             Swal.fire({
-  //               icon: "error",
-  //               title: "Oops...",
-  //               text: "Something went wrong!",
-  //               confirmButtonText: 'Continue',
-  //               timer: 2000,
-  //               timerProgressBar: true,
-  //             });
-  //             setTimeout(() => {
-  //               setLoad(false)
-  //             }, 2000)
-  //             console.log("Error is", err);
-  //           })
-  //       }
-  //     })
-  // }
-
 
   return (
     <main className="main" id="main">
@@ -335,47 +210,51 @@ export default function ManageEmployee() {
                     <th>Designation</th>
                     <th>Status</th>
                     <th>Action</th>
-
                   </tr>
                 </thead>
-                <tbody>
-                  {currentEmployees.map((el, index) => (
-                    <tr key={el._id}>
-                      <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                      <td>{el.empcode}</td>
-                      <td>{el?.name}</td>
-                      <td>{el?.email}</td>
-                      <td>{el?.contact}</td>
-                      <td>{el?.storeId?.storeName}</td>
-                      <td>{el?.designation}</td>
-                      <td>{el.status ? "Active" : "Inactive"}</td>
-                      <td>
-                        <div className="btn-group">
-                          <Link
-                            to={"/admin/editState/" + el._id}
-                            className="btn"
-                            style={{
-                              background: "#197ce6ff",
-                              color: "white",
-                            }}
-                          >
-                            <i className="bi bi-pen"></i>
-                          </Link>
 
-                          <button
-                            className="btn ms-2"
-                            style={{
-                              background: "#6c757d",
-                              color: "white",
-                            }}
-                            onClick={() => changeInactiveStatus(el._id, el.designation)}
-                          >
-                            <i className="bi bi-x-circle"></i>
-                          </button>
-                        </div>
+                <tbody>
+                  {currentEmployees.length !== 0 ? (
+                    currentEmployees.map((el, index) => (
+                      <tr key={el._id}>
+                        <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                        <td>{el.empcode}</td>
+                        <td>{el?.name}</td>
+                        <td>{el?.email}</td>
+                        <td>{el?.contact}</td>
+                        <td>{el?.storeId?.storeName}</td>
+                        <td>{el?.designation}</td>
+                        <td>{el.status ? "Active" : "Inactive"}</td>
+                        <td>
+                          <div className="btn-group">
+                            <Link
+                              to={"/admin/editState/" + el._id}
+                              className="btn"
+                              style={{ background: "#197ce6ff", color: "white" }}
+                            >
+                              <i className="bi bi-pen"></i>
+                            </Link>
+
+                            <button
+                              className="btn ms-2"
+                              style={{ background: "#6c757d", color: "white" }}
+                              onClick={() =>
+                                changeInactiveStatus(el._id, el.designation)
+                              }
+                            >
+                              <i className="bi bi-x-circle"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={9} className="text-center text-muted">
+                        No Active Employee Found
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             )}
@@ -393,18 +272,21 @@ export default function ManageEmployee() {
           >
             Previous
           </button>
+
           {[...Array(Math.ceil(filteredData.length / itemsPerPage))].map(
             (_, idx) => (
               <button
                 key={idx}
-                className={`btn me-1 ${currentPage === idx + 1 ? "btn-primary" : "btn-light"
-                  }`}
+                className={`btn me-1 ${
+                  currentPage === idx + 1 ? "btn-primary" : "btn-light"
+                }`}
                 onClick={() => setCurrentPage(idx + 1)}
               >
                 {idx + 1}
               </button>
             )
           )}
+
           <button
             className="btn btn-secondary ms-2"
             onClick={() =>
@@ -412,7 +294,9 @@ export default function ManageEmployee() {
                 Math.min(prev + 1, Math.ceil(filteredData.length / itemsPerPage))
               )
             }
-            disabled={currentPage === Math.ceil(filteredData.length / itemsPerPage)}
+            disabled={
+              currentPage === Math.ceil(filteredData.length / itemsPerPage)
+            }
           >
             Next
           </button>
