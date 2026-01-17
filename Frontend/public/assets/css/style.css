@@ -1417,7 +1417,7 @@ h6 {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(4px);
+    backdrop-filter : blur(4px);
     z-index: 1040;
 }
 
@@ -1461,4 +1461,28 @@ h6 {
 .btn-close-large {
   width: 32px;   /* default 16px */
   height: 32px;  /* default 16px */
+}
+
+/* Approval ki css */
+.expense-card {
+  border-radius: 16px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.25s ease;
+}
+
+.expense-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
+}
+
+.ticket-id {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.amount-text {
+  color: #2563eb;
+  font-weight: 600;
 }

@@ -1,268 +1,159 @@
-// ExpenseTracking.jsx
-// import { useEffect, useState } from "react";
-// import ApiServices from "../../../ApiServices";
-// import Swal from "sweetalert2";
-// import { ScaleLoader } from "react-spinners";
-// import PageTitle from "../../PageTitle";
-
-// const STEPS = ["Pending", "Approved", "Hold", "Declined"];
-
-// export default function ExpenseTracking() {
-//   const [data, setData] = useState([]);
-//   const [load, setLoad] = useState(true);
-
-//   useEffect(() => {
-//     const userId = sessionStorage.getItem("userId");
-
-//     if (!userId) {
-//       Swal.fire("Error", "User not logged in", "error");
-//       setLoad(false);
-//       return;
-//     }
-
-//     ApiServices.MyExpenses({ userId })
-//       .then((res) => {
-//         if (res?.data?.success) {
-//           setData(res.data.data || []);
-//         } else {
-//           setData([]);
-//         }
-//         setTimeout(() => setLoad(false), 500);
-//       })
-//       .catch(() => {
-//         setData([]);
-//         setTimeout(() => setLoad(false), 500);
-//       });
-//   }, []);
-
-//   return (
-//     <main className="main" id="main">
-//       <PageTitle child="Track Approval" />
-
-//       {/* Loader */}
-//       {load && (
-//         <div className="container-fluid">
-//           <ScaleLoader
-//             color="#6776f4"
-//             cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-//             loading={load}
-//           />
-//         </div>
-//       )}
-
-//       {/* Content */}
-//       {!load && (
-//         <div className="container-fluid mt-3">
-//           {data.length === 0 && (
-//             <div className="text-center text-muted">
-//               No Expenses Found
-//             </div>
-//           )}
-
-//           {data.map((el) => {
-//             const activeIndex = STEPS.indexOf(el.statusName || "Pending");
-
-//             return (
-//               <div
-//                 key={el._id}
-//                 className="card shadow-sm mb-3"
-//                 style={{ maxWidth: "520px" }}
-//               >
-//                 <div className="card-body">
-
-//                   {/* Optional heading */}
-//                   <h6 className="mb-3">
-//                     Ticket ID: {el.ticketId}
-//                   </h6>
-
-//                   {/* Status Tracking */}
-//                   {STEPS.map((step, index) => {
-//                     const active = index <= activeIndex;
-
-//                     return (
-//                       <div
-//                         key={step}
-//                         style={{ display: "flex", gap: 14 }}
-//                       >
-//                         <div
-//                           style={{
-//                             display: "flex",
-//                             flexDirection: "column",
-//                             alignItems: "center",
-//                           }}
-//                         >
-//                           <div
-//                             style={{
-//                               width: 14,
-//                               height: 14,
-//                               borderRadius: "50%",
-//                               background: active ? "#22c55e" : "#d1d5db",
-//                             }}
-//                           />
-//                           {index !== STEPS.length - 1 && (
-//                             <div
-//                               style={{
-//                                 width: 2,
-//                                 height: 30,
-//                                 background: active ? "#22c55e" : "#d1d5db",
-//                               }}
-//                             />
-//                           )}
-//                         </div>
-
-//                         <div
-//                           style={{
-//                             fontWeight:
-//                               index === activeIndex ? 600 : 400,
-//                             color: active ? "#000" : "#9ca3af",
-//                           }}
-//                         >
-//                           {step}
-//                         </div>
-//                       </div>
-//                     );
-//                   })}
-//                 </div>
-//               </div>
-//             );
-//           })}
-//         </div>
-//       )}
-//     </main>
-//   );
-// }
-
+// final
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import ApiServices from "../../../ApiServices";
-import Swal from "sweetalert2";
-import { ScaleLoader } from "react-spinners";
-import PageTitle from "../../PageTitle";
 
-const STEPS = ["Pending", "Approved", "Hold", "Declined"];
+const STEPS = ["Pending", "Approved", "Rejected"];
 
-export default function ExpenseTracking() {
-  const [data, setData] = useState([]);
-  const [load, setLoad] = useState(true);
+// 🎨 Status based colors
+const STATUS_COLORS = {
+  Pending: "#facc15",   // yellow
+  Approved: "#22c55e",  // green
+  Rejected: "#ef4444",  // red
+};
+
+export default function TrackExpenses() {
+  const { id } = useParams(); // _id aa rahi hai
+  const navigate = useNavigate();
+
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const userId = sessionStorage.getItem("userId");
+    if (!id) return;
 
-    if (!userId) {
-      Swal.fire("Error", "User not logged in", "error");
-      setLoad(false);
-      return;
-    }
+    setLoading(true);
 
-    ApiServices.GetAllExpense({ raisedBy:userId })
+    ApiServices.GetSingleExpense({ _id: id })
       .then((res) => {
-        if (res?.data?.success) {
-          setData(res.data.data || []);
-          console.log(res.data.data);
+        const result = res?.data?.data;
+
+        if (Array.isArray(result)) {
+          setData(result[0] || null);
         } else {
-          setData([]);
+          setData(result || null);
         }
-        setTimeout(() => setLoad(false), 500);
+
+        setLoading(false);
       })
       .catch(() => {
-        setData([]);
-        setTimeout(() => setLoad(false), 500);
+        setData(null);
+        setLoading(false);
       });
-  }, []);
+  }, [id]);
+
+  if (!id) return null;
+
+  // ✅ SAFE currentStatus handling
+  const status = data?.currentStatus?.toString()?.trim() || "Pending";
+  const activeIndex = STEPS.indexOf(status);
 
   return (
-    <main className="main" id="main">
-      <PageTitle child="Track Approval" />
-
-      {/* Loader — SAME AS WORKING */}
-      {load && (
-        <div className="container-fluid">
-          <ScaleLoader
-            color="#6776f4"
-            cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-            loading={load}
-          />
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.4)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 999,
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          padding: 24,
+          width: "420px",
+        }}
+      >
+        {/* Header */}
+        <div className="d-flex justify-content-between mb-3">
+          <h6 className="mb-0">Track Expense</h6>
+          <button
+            className="btn btn-sm btn-danger"
+            onClick={() => navigate(-1)}
+          >
+            ✕
+          </button>
         </div>
-      )}
 
-      {/* Content */}
-      {!load && (
-        <div className="container-fluid mt-3">
-          {data.length === 0 && (
-            <div className="text-center text-muted">
-              No Expenses Found
+        {/* Body */}
+        {loading && <p>Loading...</p>}
+
+        {!loading && !data && (
+          <p className="text-danger">
+            No data found for this expense.
+          </p>
+        )}
+
+        {!loading && data && (
+          <>
+            <p><b>Ticket ID:</b> {data.ticketId}</p>
+            <p><b>Store:</b> {data.storeId?.storeName}</p>
+            <p><b>Expense:</b> {data.expenseHeadId?.name}</p>
+            <p><b>Amount:</b> ₹ {data.amount}</p>
+            <p>
+              <b>Date:</b>{" "}
+              {new Date(data.createdAt).toLocaleDateString()}
+            </p>
+
+            {/* STATUS TIMELINE */}
+            <div className="mt-3">
+              {STEPS.map((step, index) => {
+                const completed = index < activeIndex;
+                const active = index === activeIndex;
+
+                const color =
+                  active || completed
+                    ? STATUS_COLORS[step]
+                    : "#d1d5db";
+
+                return (
+                  <div key={step} style={{ display: "flex", gap: 14 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 14,
+                          height: 14,
+                          borderRadius: "50%",
+                          background: color,
+                        }}
+                      />
+                      {index !== STEPS.length - 1 && (
+                        <div
+                          style={{
+                            width: 2,
+                            height: 30,
+                            background: completed ? color : "#d1d5db",
+                          }}
+                        />
+                      )}
+                    </div>
+
+                    <div
+                      style={{
+                        fontWeight: active ? 600 : 400,
+                        color: active ? "#000" : "#9ca3af",
+                      }}
+                    >
+                      {step}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          )}
-
-          {data.map((el) => {
-            // ✅ FIX 1: correct status field
-            const activeIndex = STEPS.indexOf(el.status || "Pending");
-
-            return (
-              <div
-                key={el._id}
-                className="card shadow-sm mb-3"
-                style={{ maxWidth: "520px" }}
-              >
-                <div className="card-body">
-                  <h6 className="mb-3">
-                    Ticket ID: {el.ticketId}
-                  </h6>
-
-                  {STEPS.map((step, index) => {
-                    // ✅ FIX 2: correct active logic
-                    const completed = index < activeIndex;
-                    const active = index === activeIndex;
-
-                    return (
-                      <div key={step} style={{ display: "flex", gap: 14 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: 14,
-                              height: 14,
-                              borderRadius: "50%",
-                              background:
-                                active || completed
-                                  ? "#22c55e"
-                                  : "#d1d5db",
-                            }}
-                          />
-                          {index !== STEPS.length - 1 && (
-                            <div
-                              style={{
-                                width: 2,
-                                height: 30,
-                                background: completed
-                                  ? "#22c55e"
-                                  : "#d1d5db",
-                              }}
-                            />
-                          )}
-                        </div>
-
-                        <div
-                          style={{
-                            fontWeight: active ? 600 : 400,
-                            color: active ? "#000" : "#9ca3af",
-                          }}
-                        >
-                          {step}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </main>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
+
