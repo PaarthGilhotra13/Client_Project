@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Header from "../Header";
 import FmSidebar from "./FmSidebar";
+import FmHeader from "./FmHeader";
 
 export default function FmMaster() {
     // var nav = useNavigate()
@@ -24,7 +24,7 @@ export default function FmMaster() {
     // }, [])
     return (
         <>
-            <Header />
+            <FmHeader />
             <FmSidebar />
             <Outlet />
             {/* <Footer /> */}
