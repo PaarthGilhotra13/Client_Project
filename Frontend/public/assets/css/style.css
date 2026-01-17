@@ -1447,3 +1447,18 @@ h6 {
     border-radius: 50%;
     padding: 0 4px;
 }
+
+/* Description close button */
+.btn-close-red {
+  filter: invert(18%) sepia(96%) saturate(7493%) hue-rotate(357deg) brightness(98%) contrast(119%);
+}
+
+.btn-close-red:hover {
+  filter: invert(23%) sepia(100%) saturate(6000%) hue-rotate(0deg) brightness(95%) contrast(120%);
+}
+
+/* Bigger size */
+.btn-close-large {
+  width: 32px;   /* default 16px */
+  height: 32px;  /* default 16px */
+}
