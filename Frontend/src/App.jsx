@@ -46,6 +46,10 @@ import BlockedState from "./Components/Admin/State/BlockedState"
 import EditState from "./Components/Admin/State/EditState"
 import BlockedStore from "./Components/Admin/Store/BlockedStore"
 import AddExpenses from "./Components/FM/Expenses/AddExpenses"
+import PendingExpenses from "./Components/FM/Expenses/PendingExpenses"
+import ApprovedExpenses from "./Components/FM/Expenses/ApprovedExpenses"
+import HoldExpenses from "./Components/FM/Expenses/HoldExpenses"
+import RejectedExpenses from "./Components/FM/Expenses/RejectedExpenses"
 
 
 function App() {
@@ -114,7 +118,10 @@ function App() {
           <Route path="/fm" element={<FmMaster />}>
             <Route path="/fm" element={<EmployeeDashboard/>}/>
             <Route path="/fm/addExpenses" element={<AddExpenses />} />
-            <Route path="/fm/myExpenses" element={<AddExpenses />} />
+            <Route path="/fm/approvedExpenses" element={<ApprovedExpenses />} />
+            <Route path="/fm/holdExpenses" element={<HoldExpenses />} />
+            <Route path="/fm/pendingExpenses" element={<PendingExpenses />} />
+            <Route path="/fm/rejectedExpenses" element={<RejectedExpenses />} />
           </Route>
           <Route path="/clm" element={<ClmMaster/>}>
 

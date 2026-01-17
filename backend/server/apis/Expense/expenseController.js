@@ -163,7 +163,7 @@ const add = (req, res) => {
                 maxAmount: { $gte: req.body.amount },
                 status: true
             })
-                .then(async(policyData) => {
+                .then(async (policyData) => {
 
                     if (!policyData) {
                         return res.send({
@@ -445,7 +445,7 @@ const myExpenses = (req, res) => {
     var errMsgs = [];
 
     if (!req.body.userId) errMsgs.push("userId is required");
-
+    
     if (errMsgs.length > 0) {
         return res.send({
             status: 422,
@@ -453,11 +453,18 @@ const myExpenses = (req, res) => {
             message: errMsgs
         });
     }
-
-    expenseModel.find({
+    // base filter
+    let filter = {
         raisedBy: req.body.userId,
         status: true
-    })
+    };
+
+    // OPTIONAL status filter (Pending / Approved / Hold / Declined)
+    if (req.body.currentStatus) {
+        filter.currentStatus = req.body.currentStatus.trim();
+    }
+
+    expenseModel.find(filter)
         .populate("storeId expenseHeadId policyId")
         .sort({ createdAt: -1 })
         .then(data => {
@@ -476,6 +483,7 @@ const myExpenses = (req, res) => {
             });
         });
 };
+
 
 const approve = (req, res) => {
     var errMsgs = [];

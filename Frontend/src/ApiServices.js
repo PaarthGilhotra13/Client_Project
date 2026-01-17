@@ -260,14 +260,23 @@ class ApiServices {
    GetSingleExpense(data) {
       return axios.post(BaseURL + "/apis/expense/single", data, { headers: getToken() })
    }
-   UpdateExpense(data) {
-      return axios.post(BaseURL + "/apis/expense/update", data, { headers: getToken() })
-   }
-   DeleteExpense(data) {
-      return axios.post(BaseURL + "/apis/expense/delete", data, { headers: getToken() })
-   }
    ChangeStatusExpense(data) {
       return axios.post(BaseURL + "/apis/expense/changeStatus", data, { headers: getToken() })
+   }
+   MyExpenses(data) {
+      return axios.post(BaseURL + "/apis/expense/myExpenses", data, { headers: getToken() })
+   }
+   ApprovedExpense(data) {
+      return axios.post(BaseURL + "/apis/expense/approved", data, { headers: getToken() })
+   }
+   PendingExpense(data) {
+      return axios.post(BaseURL + "/apis/expense/pending", data, { headers: getToken() })
+   }
+   RejectExpense(data) {
+      return axios.post(BaseURL + "/apis/expense/reject", data, { headers: getToken() })
+   }
+   HoldExpense(data) {
+      return axios.post(BaseURL + "/apis/expense/hold", data, { headers: getToken() })
    }
 
    //Expense Head
