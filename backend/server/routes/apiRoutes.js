@@ -124,10 +124,16 @@ routes.post("/store/delete",storeController.delStore)
 routes.post("/store/changeStatus",storeController.changeStatus)
 
 // Expense 
+// add, getAll, getSingle, pendingReq, myExpenses, changeStatus, approve, hold, reject
 routes.post("/expense/add",upload.single("attachment"),expenseController.add)
 routes.post("/expense/all",expenseController.getAll)
 routes.post("/expense/single",expenseController.getSingle)
 routes.post("/expense/changeStatus",expenseController.changeStatus)
+routes.post("/expense/myExpenses",expenseController.myExpenses)
+routes.post("/expense/pending",expenseController.pendingReq)
+routes.post("/expense/approved",expenseController.approve)
+routes.post("/expense/hold",expenseController.hold)
+routes.post("/expense/reject",expenseController.reject)
 
 // Expense Head
 routes.post("/expenseHead/add",expenseHeadController.add)
