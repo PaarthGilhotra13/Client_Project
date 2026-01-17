@@ -10,12 +10,13 @@ export default function ManageExpenseHead() {
   const [load, setLoad] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
+  const [modalTitle, setModalTitle] = useState("");
 
   useEffect(() => {
     ApiServices.GetAllExpenseHead()
       .then((res) => {
         if (res?.data?.success) {
-          setData(res?.data?.data);
+          setData(res?.data?.data || []);
         } else {
           setData([]);
         }
@@ -66,28 +67,26 @@ export default function ManageExpenseHead() {
     });
   }
 
-  // Function to truncate description
   const truncateText = (text, limit = 50) => {
     if (!text) return "";
     if (text.length <= limit) return text;
     return text.slice(0, limit) + "...";
   };
 
+  const activeData = data.filter((el) => el.status === true);
+
   return (
     <>
       <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
         <PageTitle child="Manage Expense Head" />
+
         <div className="container-fluid">
-          <div className="row">
-            <div className="col-md-12">
-              <ScaleLoader
-                color="#6776f4"
-                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-                size={200}
-                loading={load}
-              />
-            </div>
-          </div>
+          <ScaleLoader
+            color="#6776f4"
+            cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+            size={200}
+            loading={load}
+          />
         </div>
 
         <div className="container-fluid">
@@ -104,45 +103,57 @@ export default function ManageExpenseHead() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data?.filter((el) => el.status === true)?.map((el, index) => (
-                      <tr key={el._id}>
-                        <td>{index + 1}</td>
-                        <td>{el?.name}</td>
-                        <td>
-                          {truncateText(el?.description, 50)}
-                          {el?.description?.length > 50 && (
-                            <span
-                              className="view-more"
-                              onClick={() => {
-                                setModalContent(el?.description);
-                                setModalOpen(true);
-                              }}
-                              style={{ color: "blue", cursor: "pointer", marginLeft: "5px" }}
-                            >
-                              View More
-                            </span>
-                          )}
-                        </td>
-                        <td>
-                          <div className="btn-group">
-                            <Link
-                              to={"/admin/editExpenseHead/" + el?._id}
-                              className="btn"
-                              style={{ background: "#197ce6ff", color: "white" }}
-                            >
-                              <i className="bi bi-pen"></i>
-                            </Link>
-                            <button
-                              className="btn ms-2"
-                              style={{ background: "#6c757d", color: "white" }}
-                              onClick={() => changeInactiveStatus(el._id)}
-                            >
-                              <i className="bi bi-x-circle"></i>
-                            </button>
-                          </div>
+                    {activeData.length ? (
+                      activeData.map((el, index) => (
+                        <tr key={el._id}>
+                          <td>{index + 1}</td>
+                          <td>{el?.name}</td>
+                          <td>
+                            {truncateText(el?.description, 50)}
+                            {el?.description?.length > 50 && (
+                              <span
+                                style={{
+                                  color: "blue",
+                                  cursor: "pointer",
+                                  marginLeft: "5px",
+                                }}
+                                onClick={() => {
+                                  setModalTitle(el?.name);
+                                  setModalContent(el?.description);
+                                  setModalOpen(true);
+                                }}
+                              >
+                                View More
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            <div className="btn-group">
+                              <Link
+                                to={`/admin/editExpenseHead/${el?._id}`}
+                                className="btn"
+                                style={{ background: "#197ce6ff", color: "white" }}
+                              >
+                                <i className="bi bi-pen"></i>
+                              </Link>
+                              <button
+                                className="btn ms-2"
+                                style={{ background: "#6c757d", color: "white" }}
+                                onClick={() => changeInactiveStatus(el._id)}
+                              >
+                                <i className="bi bi-x-circle"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="text-center text-muted">
+                          No Active Expense Head Found
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               )}
@@ -151,15 +162,21 @@ export default function ManageExpenseHead() {
         </div>
       </main>
 
-      {/* Modal for full description */}
       {modalOpen && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <h5>Description</h5>
-            <p>{modalContent}</p>
-            <button className="btn btn-primary mt-2" onClick={() => setModalOpen(false)}>
-              Close
-            </button>
+          <div
+            className="modal-box position-relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="btn-close btn-close-red btn-close-large position-absolute top-0 end-0 m-2"
+              aria-label="Close"
+              onClick={() => setModalOpen(false)}
+            ></button>
+
+            <h5 className="pe-4">{modalTitle}</h5>
+            <p style={{ textAlign: "justify" }}>{modalContent}</p>
           </div>
         </div>
       )}

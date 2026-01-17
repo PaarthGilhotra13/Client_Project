@@ -14,7 +14,7 @@ export default function ManageZone() {
     ApiServices.GetAllZone()
       .then((res) => {
         if (res?.data?.success) {
-          setData(res?.data?.data);
+          setData(res?.data?.data || []);
         } else {
           setData([]);
         }
@@ -49,27 +49,13 @@ export default function ManageZone() {
           .then((res) => {
             setLoad(true);
             var message = res?.data?.message;
-            if (res.data.success) {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            } else {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            }
+            Swal.fire({
+              title: message,
+              icon: res.data.success ? "success" : "error",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            setTimeout(() => setLoad(false), 1500);
           })
           .catch((err) => {
             setLoad(true);
@@ -80,14 +66,14 @@ export default function ManageZone() {
               timer: 2000,
               timerProgressBar: true,
             });
-            setTimeout(() => {
-              setLoad(false);
-            }, 2000);
+            setTimeout(() => setLoad(false), 2000);
             console.log("Error is", err);
           });
       }
     });
   }
+
+  const activeZones = data?.filter((el) => el.status === true);
 
   return (
     <>
@@ -108,7 +94,7 @@ export default function ManageZone() {
         <div className="container-fluid">
           <div className="row justify-content-center">
             <div className="col-lg-12 mt-5 table-responsive">
-              {!load ? (
+              {!load && (
                 <table className="table table-hover table-striped">
                   <thead className="table-dark">
                     <tr>
@@ -119,9 +105,8 @@ export default function ManageZone() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data
-                      ?.filter((el) => el.status === true) // ✅ only active
-                      ?.map((el, index) => (
+                    {activeZones?.length ? (
+                      activeZones.map((el, index) => (
                         <tr key={el._id}>
                           <td>{index + 1}</td>
                           <td>{el.zoneName}</td>
@@ -154,11 +139,16 @@ export default function ManageZone() {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="text-center text-muted">
+                          No Active Zone Found
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
-              ) : (
-                ""
               )}
             </div>
           </div>

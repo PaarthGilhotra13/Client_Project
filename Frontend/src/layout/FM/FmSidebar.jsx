@@ -34,64 +34,64 @@ export default function FmSidebar() {
           </li>
           {/* End Dashboard Nav */}
 
-          {/* Start Add Expenses Nav */}
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
               to={"/fm/addExpenses"}
               onClick={handleSidebarClose}
             >
-              <i className="bi bi-plus" />
+              <i className="bi bi-plus " />
               <span>Add Expenses</span>
             </Link>
           </li>
-          {/* End Add Expenses Nav */}
-          {/* Start My Expenses Nav */}
+
+          {/* Start Complaints Nav */}
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              data-bs-target="#my-expense-nav"
+              data-bs-target="#complaint-nav"
               data-bs-toggle="collapse"
             >
               <i className="bi bi-wallet2" />
-              <span>My Expenses</span>
+              <span>Expenses</span>
               <i className="bi bi-chevron-down ms-auto" />
             </Link>
-
             <ul
-              id="my-expense-nav"
-              className="nav-content collapse show"
+              id="complaint-nav"
+              className="nav-content collapse "
+              data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to="/fm/myExpenses/pending">
-                  <i className="bi bi-clock fs-6" />
-                  <span>Pending</span>
-                </Link>
-              </li>
-
-              <li>
-                <Link to="/fm/myExpenses/approved">
+                <Link to={"/fm/approvedExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-check-circle fs-6" />
-                  <span>Approved</span>
+                  <span>Approved </span>
                 </Link>
               </li>
-
               <li>
-                <Link to="/fm/myExpenses/hold">
+                <Link to={"/fm/holdExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-pause-circle fs-6" />
-                  <span>Hold</span>
+                  <span>Hold </span>
                 </Link>
               </li>
-
               <li>
-                <Link to="/fm/myExpenses/declined">
+                <Link to={"/fm/pendingExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-clock fs-6" />
+                  <span>Pending </span>
+                </Link>
+              </li>
+              
+              <li>
+                <Link
+                  to={"/fm/rejectedExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-x-circle fs-6" />
-                  <span>Declined</span>
+                  <span>Rejected</span>
                 </Link>
               </li>
             </ul>
           </li>
-          {/* End My Expenses Nav */}
+          {/* End Task Nav */}
           {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
@@ -102,16 +102,16 @@ export default function FmSidebar() {
               <span>History</span>
             </Link>
           </li> */}
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={"/employee/myProfile"}
+              to={""}
               onClick={handleSidebarClose}
             >
-              <i className="bi bi-person" />
-              <span>My Profile</span>
+              <i className="bi bi-hourglass-split text-warning" />
+              <span>Track Approval</span>
             </Link>
-          </li> */}
+          </li>
         </ul>
       </aside>
       {/* End Sidebar*/}
