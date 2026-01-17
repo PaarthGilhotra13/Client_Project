@@ -101,6 +101,7 @@ const add = (req, res) => {
 const getAll = (req, res) => {
     zhModel.find(req.body)
         .populate("userId")
+        .populate("storeId")
         .then((zhData) => {
             if (zhData.length == 0) {
                 res.send({

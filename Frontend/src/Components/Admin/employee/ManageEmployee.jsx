@@ -227,7 +227,8 @@ export default function ManageEmployee() {
                         <td>
                           <div className="btn-group">
                             <Link
-                              to={"/admin/editState/" + el._id}
+                              to={"/admin/editEmployee/" + el._id}
+                              state={{ designation: el.designation }}
                               className="btn"
                               style={{ background: "#197ce6ff", color: "white" }}
                             >
@@ -276,9 +277,8 @@ export default function ManageEmployee() {
             (_, idx) => (
               <button
                 key={idx}
-                className={`btn me-1 ${
-                  currentPage === idx + 1 ? "btn-primary" : "btn-light"
-                }`}
+                className={`btn me-1 ${currentPage === idx + 1 ? "btn-primary" : "btn-light"
+                  }`}
                 onClick={() => setCurrentPage(idx + 1)}
               >
                 {idx + 1}
