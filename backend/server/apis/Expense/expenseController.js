@@ -2,6 +2,7 @@
 const expenseModel = require("./expenseModel");
 const approvalPolicyModel = require("../Approval Policy/approvalPolicyModel");
 const userModel = require("../User/userModel");
+const { uploadImg } = require("../../utilities/helper");
 
 // const add = (req, res) => {
 //     var errMsgs = [];
@@ -162,7 +163,7 @@ const add = (req, res) => {
                 maxAmount: { $gte: req.body.amount },
                 status: true
             })
-                .then(policyData => {
+                .then(async(policyData) => {
 
                     if (!policyData) {
                         return res.send({
@@ -192,7 +193,19 @@ const add = (req, res) => {
                     expenseObj.policy = req.body.policy;      // string only
                     expenseObj.policyId = policyData._id;     // internal reference
 
-                    expenseObj.attachment = req.file.path;
+                    if (req.file) {
+                        try {
+                            let url = await uploadImg(req.file.buffer)
+                            expenseObj.attachment = url
+                        }
+                        catch (err) {
+                            res.send({
+                                status: 422,
+                                success: false,
+                                message: "Cloudinary Error"
+                            })
+                        }
+                    }
 
                     expenseObj.currentApprovalLevel = nextApprovalLevel;
                     expenseObj.currentStatus = "Pending";

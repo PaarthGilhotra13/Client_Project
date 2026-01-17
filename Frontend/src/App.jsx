@@ -31,7 +31,6 @@ import AddStore from "./Components/Admin/Store/AddStore"
 import EditStore from "./Components/Admin/Store/EditStore"
 import Redirect from "./layout/Redirect"
 import FmMaster from "./layout/FM/FmMaster"
-import AddRequest from "./Components/Employee/Requests/AddRequest"
 import AddExpenseHead from "./Components/Admin/Expense Head/AddExpenseHead"
 import ManageExpenseHead from "./Components/Admin/Expense Head/ManageExpenseHead"
 import EditExpenseHead from "./Components/Admin/Expense Head/EditExpenseHead"
@@ -46,6 +45,7 @@ import ManageState from "./Components/Admin/State/ManageState"
 import BlockedState from "./Components/Admin/State/BlockedState"
 import EditState from "./Components/Admin/State/EditState"
 import BlockedStore from "./Components/Admin/Store/BlockedStore"
+import AddExpenses from "./Components/FM/Expenses/AddExpenses"
 
 
 function App() {
@@ -113,7 +113,8 @@ function App() {
 
           <Route path="/fm" element={<FmMaster />}>
             <Route path="/fm" element={<EmployeeDashboard/>}/>
-            <Route path="/fm/addrequest" element={<AddRequest />} />
+            <Route path="/fm/addExpenses" element={<AddExpenses />} />
+            <Route path="/fm/myExpenses" element={<AddExpenses />} />
           </Route>
           <Route path="/clm" element={<ClmMaster/>}>
 
