@@ -50,6 +50,7 @@ import PendingExpenses from "./Components/FM/Expenses/PendingExpenses"
 import ApprovedExpenses from "./Components/FM/Expenses/ApprovedExpenses"
 import HoldExpenses from "./Components/FM/Expenses/HoldExpenses"
 import RejectedExpenses from "./Components/FM/Expenses/RejectedExpenses"
+import ExpenseTracking from "./Components/FM/Expenses/ExpenseTrackingCard"
 
 
 function App() {
@@ -122,6 +123,7 @@ function App() {
             <Route path="/fm/holdExpenses" element={<HoldExpenses />} />
             <Route path="/fm/pendingExpenses" element={<PendingExpenses />} />
             <Route path="/fm/rejectedExpenses" element={<RejectedExpenses />} />
+            <Route path="/fm/expenseTrackingCard" element={<ExpenseTracking />} />
           </Route>
           <Route path="/clm" element={<ClmMaster/>}>
 

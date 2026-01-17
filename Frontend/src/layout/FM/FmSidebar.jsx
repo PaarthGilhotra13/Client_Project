@@ -105,7 +105,7 @@ export default function FmSidebar() {
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={""}
+              to={"/fm/expenseTrackingCard"}
               onClick={handleSidebarClose}
             >
               <i className="bi bi-hourglass-split text-warning" />
