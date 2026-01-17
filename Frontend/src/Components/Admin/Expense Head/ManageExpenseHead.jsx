@@ -16,7 +16,7 @@ export default function ManageExpenseHead() {
     ApiServices.GetAllExpenseHead()
       .then((res) => {
         if (res?.data?.success) {
-          setData(res?.data?.data);
+          setData(res?.data?.data || []);
         } else {
           setData([]);
         }
@@ -73,6 +73,8 @@ export default function ManageExpenseHead() {
     return text.slice(0, limit) + "...";
   };
 
+  const activeData = data.filter((el) => el.status === true);
+
   return (
     <>
       <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
@@ -101,9 +103,8 @@ export default function ManageExpenseHead() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data
-                      ?.filter((el) => el.status === true)
-                      ?.map((el, index) => (
+                    {activeData.length ? (
+                      activeData.map((el, index) => (
                         <tr key={el._id}>
                           <td>{index + 1}</td>
                           <td>{el?.name}</td>
@@ -131,19 +132,13 @@ export default function ManageExpenseHead() {
                               <Link
                                 to={`/admin/editExpenseHead/${el?._id}`}
                                 className="btn"
-                                style={{
-                                  background: "#197ce6ff",
-                                  color: "white",
-                                }}
+                                style={{ background: "#197ce6ff", color: "white" }}
                               >
                                 <i className="bi bi-pen"></i>
                               </Link>
                               <button
                                 className="btn ms-2"
-                                style={{
-                                  background: "#6c757d",
-                                  color: "white",
-                                }}
+                                style={{ background: "#6c757d", color: "white" }}
                                 onClick={() => changeInactiveStatus(el._id)}
                               >
                                 <i className="bi bi-x-circle"></i>
@@ -151,7 +146,14 @@ export default function ManageExpenseHead() {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="text-center text-muted">
+                          No Active Expense Head Found
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               )}

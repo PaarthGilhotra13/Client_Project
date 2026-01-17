@@ -3,29 +3,25 @@ import { ScaleLoader } from "react-spinners";
 import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
-import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 export default function ManageState() {
   var [data, setData] = useState([]);
   var [load, setLoad] = useState(true);
+
   useEffect(() => {
     ApiServices.GetAllState()
       .then((res) => {
         if (res?.data?.success) {
-          setData(res?.data?.data);
+          setData(res?.data?.data || []);
         } else {
           setData([]);
         }
-        setTimeout(() => {
-          setLoad(false);
-        }, 500);
+        setTimeout(() => setLoad(false), 500);
       })
       .catch((err) => {
         console.log("Error is ", err);
-        setTimeout(() => {
-          setLoad(false);
-        }, 1000);
+        setTimeout(() => setLoad(false), 1000);
       });
   }, [load]);
 
@@ -40,35 +36,21 @@ export default function ManageState() {
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        let data = {
+        let payload = {
           _id: id,
           status: "false",
         };
-        ApiServices.ChangeStatusState(data)
+        ApiServices.ChangeStatusState(payload)
           .then((res) => {
             setLoad(true);
             var message = res?.data?.message;
-            if (res.data.success) {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            } else {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            }
+            Swal.fire({
+              title: message,
+              icon: res.data.success ? "success" : "error",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            setTimeout(() => setLoad(false), 1500);
           })
           .catch((err) => {
             setLoad(true);
@@ -79,20 +61,21 @@ export default function ManageState() {
               timer: 2000,
               timerProgressBar: true,
             });
-            setTimeout(() => {
-              setLoad(false);
-            }, 2000);
+            setTimeout(() => setLoad(false), 2000);
             console.log("Error is", err);
           });
       }
     });
   }
+
+  const activeStates = data?.filter((el) => el.status === true);
+
   return (
     <>
       <main className="main" id="main">
         <PageTitle child="Manage State" />
 
-        <div className="container-fluid ">
+        <div className="container-fluid">
           <div className="row">
             <div className="col-md-12">
               <ScaleLoader
@@ -104,10 +87,11 @@ export default function ManageState() {
             </div>
           </div>
         </div>
+
         <div className="container-fluid">
           <div className="row justify-content-center">
             <div className="col-lg-12 mt-5 table-responsive">
-              {!load ? (
+              {!load && (
                 <table className="table table-hover table-striped">
                   <thead className="table-dark">
                     <tr>
@@ -119,9 +103,8 @@ export default function ManageState() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data
-                      ?.filter((el) => el.status === true) 
-                      ?.map((el, index) => (
+                    {activeStates?.length ? (
+                      activeStates.map((el, index) => (
                         <tr key={el._id}>
                           <td>{index + 1}</td>
                           <td>{el.stateName}</td>
@@ -155,11 +138,16 @@ export default function ManageState() {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="text-center text-muted">
+                          No Active State Found
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
-              ) : (
-                ""
               )}
             </div>
           </div>
