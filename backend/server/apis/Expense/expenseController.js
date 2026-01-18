@@ -265,105 +265,85 @@ const getAll = (req, res) => {
         })
 }
 
-/* ===================== GET PENDING EXPENSES ===================== */
-const pendingReq = (req, res) => {
-    var errMsgs = [];
+// const pendingReq = (req, res) => {
+//     var errMsgs = [];
 
-    if (!req.body.userId) errMsgs.push("userId is required");
-    if (!req.body.storeId) errMsgs.push("storeId is required");
+//     if (!req.body.userId) errMsgs.push("userId is required");
+//     if (!req.body.storeId) errMsgs.push("storeId is required");
 
-    if (errMsgs.length > 0) {
-        return res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        });
-    }
-
-    /* ===== GET USER ROLE ===== */
-    userModel.findOne({ _id: req.body.userId })
-        .then(user => {
-
-            if (!user) {
-                return res.send({
-                    status: 422,
-                    success: false,
-                    message: "User not Found"
-                });
-            }
-
-            // userType → role mapping
-            const roleMap = {
-                3: "FM",
-                4: "CLM",
-                5: "ZONAL_HEAD",
-                6: "BUSINESS_FINANCE",
-                7: "PROCUREMENT"
-            };
-
-            const userRole = roleMap[user.userType];
-
-            if (!userRole) {
-                return res.send({
-                    status: 422,
-                    success: false,
-                    message: "Invalid user role"
-                });
-            }
-
-            /* ===== FIND PENDING EXPENSES ===== */
-            expenseModel.find({
-                currentApprovalLevel: userRole,
-                storeId: req.body.storeId,
-                currentStatus: "Pending",
-                status: true
-            })
-                .populate("storeId expenseHeadId raisedBy")
-                .then(data => {
-                    res.send({
-                        status: 200,
-                        success: true,
-                        message: "Pending Expense List",
-                        data
-                    });
-                })
-                .catch(() => {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Something Went Wrong"
-                    });
-                });
-
-        })
-        .catch(() => {
-            res.send({
-                status: 422,
-                success: false,
-                message: "Something Went Wrong"
-            });
-        });
-};
-
-
-/* ===================== GET SINGLE ===================== */
-// const getSingle = (req, res) => {
-//     if (!req.body._id) {
-//         return res.send({ status: 422, success: false, message: "_id is required" })
+//     if (errMsgs.length > 0) {
+//         return res.send({
+//             status: 422,
+//             success: false,
+//             message: errMsgs
+//         });
 //     }
 
-//     expenseModel.findOne({ _id: req.body._id })
-//         .then(data => {
-//             if (!data) {
-//                 res.send({ status: 422, success: false, message: "Expense not Found" })
-//             } else {
-//                 res.send({ status: 200, success: true, message: "Expense Found", data })
+//     /* ===== GET USER ROLE ===== */
+//     userModel.findOne({ _id: req.body.userId })
+//         .then(user => {
+
+//             if (!user) {
+//                 return res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "User not Found"
+//                 });
 //             }
+
+//             // userType → role mapping
+//             const roleMap = {
+//                 3: "FM",
+//                 4: "CLM",
+//                 5: "ZONAL_HEAD",
+//                 6: "BUSINESS_FINANCE",
+//                 7: "PROCUREMENT"
+//             };
+
+//             const userRole = roleMap[user.userType];
+
+//             if (!userRole) {
+//                 return res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "Invalid user role"
+//                 });
+//             }
+
+//             /* ===== FIND PENDING EXPENSES ===== */
+//             expenseModel.find({
+//                 currentApprovalLevel: userRole,
+//                 storeId: req.body.storeId,
+//                 currentStatus: "Pending",
+//                 status: true
+//             })
+//                 .populate("storeId expenseHeadId raisedBy")
+//                 .then(data => {
+//                     res.send({
+//                         status: 200,
+//                         success: true,
+//                         message: "Pending Expense List",
+//                         data
+//                     });
+//                 })
+//                 .catch(() => {
+//                     res.send({
+//                         status: 422,
+//                         success: false,
+//                         message: "Something Went Wrong"
+//                     });
+//                 });
+
 //         })
 //         .catch(() => {
-//             res.send({ status: 422, success: false, message: "Something Went Wrong" })
-//         })
-// }
+//             res.send({
+//                 status: 422,
+//                 success: false,
+//                 message: "Something Went Wrong"
+//             });
+//         });
+// };
+
 
 const getSingle = (req, res) => {
 
@@ -406,40 +386,38 @@ const getSingle = (req, res) => {
 };
 
 /* ===================== CHANGE STATUS ===================== */
-const changeStatus = (req, res) => {
-    const allowedStatus = ['Draft', 'Pending', 'Approved', 'Rejected', 'Hold']
+// const changeStatus = (req, res) => {
+//     const allowedStatus = ['Draft', 'Pending', 'Approved', 'Rejected', 'Hold']
 
-    if (!req.body._id || !allowedStatus.includes(req.body.status)) {
-        return res.send({
-            status: 422,
-            success: false,
-            message: "Invalid status or _id"
-        })
-    }
+//     if (!req.body._id || !allowedStatus.includes(req.body.status)) {
+//         return res.send({
+//             status: 422,
+//             success: false,
+//             message: "Invalid status or _id"
+//         })
+//     }
 
-    expenseModel.findOne({ _id: req.body._id })
-        .then(expense => {
-            if (!expense) {
-                return res.send({ status: 422, success: false, message: "Expense not Found" })
-            }
+//     expenseModel.findOne({ _id: req.body._id })
+//         .then(expense => {
+//             if (!expense) {
+//                 return res.send({ status: 422, success: false, message: "Expense not Found" })
+//             }
 
-            expense.status = req.body.status
-            expense.save()
-                .then(data => {
-                    res.send({
-                        status: 200,
-                        success: true,
-                        message: "Status Updated Successfully",
-                        data
-                    })
-                })
-        })
-        .catch(() => {
-            res.send({ status: 422, success: false, message: "Something Went Wrong" })
-        })
-}
-
-
+//             expense.status = req.body.status
+//             expense.save()
+//                 .then(data => {
+//                     res.send({
+//                         status: 200,
+//                         success: true,
+//                         message: "Status Updated Successfully",
+//                         data
+//                     })
+//                 })
+//         })
+//         .catch(() => {
+//             res.send({ status: 422, success: false, message: "Something Went Wrong" })
+//         })
+// }
 
 const myExpenses = (req, res) => {
     var errMsgs = [];
@@ -485,188 +463,188 @@ const myExpenses = (req, res) => {
 };
 
 
-const approve = (req, res) => {
-    var errMsgs = [];
+// const approve = (req, res) => {
+//     var errMsgs = [];
 
-    if (!req.body._id) errMsgs.push("_id is required");
-    if (!req.body.userRole) errMsgs.push("userRole is required");
+//     if (!req.body._id) errMsgs.push("_id is required");
+//     if (!req.body.userRole) errMsgs.push("userRole is required");
 
-    if (errMsgs.length > 0) {
-        return res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        });
-    }
+//     if (errMsgs.length > 0) {
+//         return res.send({
+//             status: 422,
+//             success: false,
+//             message: errMsgs
+//         });
+//     }
 
-    expenseModel.findOne({ _id: req.body._id, status: true })
-        .then(expense => {
+//     expenseModel.findOne({ _id: req.body._id, status: true })
+//         .then(expense => {
 
-            if (!expense) {
-                return res.send({
-                    status: 422,
-                    success: false,
-                    message: "Expense not Found"
-                });
-            }
+//             if (!expense) {
+//                 return res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "Expense not Found"
+//                 });
+//             }
 
-            // role check
-            if (expense.currentApprovalLevel !== req.body.userRole) {
-                return res.send({
-                    status: 422,
-                    success: false,
-                    message: "You are not authorized to approve this expense"
-                });
-            }
+//             // role check
+//             if (expense.currentApprovalLevel !== req.body.userRole) {
+//                 return res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "You are not authorized to approve this expense"
+//                 });
+//             }
 
-            approvalPolicyModel.findOne({ _id: expense.policyId })
-                .then(policy => {
+//             approvalPolicyModel.findOne({ _id: expense.policyId })
+//                 .then(policy => {
 
-                    const levels = policy.approvalLevels;
-                    const currentIndex = levels.indexOf(req.body.userRole);
+//                     const levels = policy.approvalLevels;
+//                     const currentIndex = levels.indexOf(req.body.userRole);
 
-                    // last approval
-                    if (currentIndex === levels.length - 1) {
-                        expense.currentApprovalLevel = null;
-                        expense.currentStatus = "Approved";
-                    } else {
-                        expense.currentApprovalLevel = levels[currentIndex + 1];
-                        expense.currentStatus = "Pending";
-                    }
+//                     // last approval
+//                     if (currentIndex === levels.length - 1) {
+//                         expense.currentApprovalLevel = null;
+//                         expense.currentStatus = "Approved";
+//                     } else {
+//                         expense.currentApprovalLevel = levels[currentIndex + 1];
+//                         expense.currentStatus = "Pending";
+//                     }
 
-                    expense.save()
-                        .then(data => {
-                            res.send({
-                                status: 200,
-                                success: true,
-                                message: "Expense Approved Successfully",
-                                data
-                            });
-                        });
-                });
+//                     expense.save()
+//                         .then(data => {
+//                             res.send({
+//                                 status: 200,
+//                                 success: true,
+//                                 message: "Expense Approved Successfully",
+//                                 data
+//                             });
+//                         });
+//                 });
 
-        })
-        .catch(() => {
-            res.send({
-                status: 422,
-                success: false,
-                message: "Something Went Wrong"
-            });
-        });
-};
+//         })
+//         .catch(() => {
+//             res.send({
+//                 status: 422,
+//                 success: false,
+//                 message: "Something Went Wrong"
+//             });
+//         });
+// };
 
-const hold = (req, res) => {
-    var errMsgs = [];
+// const hold = (req, res) => {
+//     var errMsgs = [];
 
-    if (!req.body._id) errMsgs.push("_id is required");
-    if (!req.body.userRole) errMsgs.push("userRole is required");
-    if (!req.body.remark) errMsgs.push("remark is required");
+//     if (!req.body._id) errMsgs.push("_id is required");
+//     if (!req.body.userRole) errMsgs.push("userRole is required");
+//     if (!req.body.remark) errMsgs.push("remark is required");
 
-    if (errMsgs.length > 0) {
-        return res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        });
-    }
+//     if (errMsgs.length > 0) {
+//         return res.send({
+//             status: 422,
+//             success: false,
+//             message: errMsgs
+//         });
+//     }
 
-    expenseModel.findOne({ _id: req.body._id, status: true })
-        .then(expense => {
+//     expenseModel.findOne({ _id: req.body._id, status: true })
+//         .then(expense => {
 
-            if (!expense) {
-                return res.send({
-                    status: 422,
-                    success: false,
-                    message: "Expense not Found"
-                });
-            }
+//             if (!expense) {
+//                 return res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "Expense not Found"
+//                 });
+//             }
 
-            if (expense.currentApprovalLevel !== req.body.userRole) {
-                return res.send({
-                    status: 422,
-                    success: false,
-                    message: "You are not authorized to hold this expense"
-                });
-            }
+//             if (expense.currentApprovalLevel !== req.body.userRole) {
+//                 return res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "You are not authorized to hold this expense"
+//                 });
+//             }
 
-            expense.currentStatus = "Hold";
-            expense.remark = req.body.remark;
+//             expense.currentStatus = "Hold";
+//             expense.remark = req.body.remark;
 
-            expense.save()
-                .then(data => {
-                    res.send({
-                        status: 200,
-                        success: true,
-                        message: "Expense Put On Hold",
-                        data
-                    });
-                });
-        })
-        .catch(() => {
-            res.send({
-                status: 422,
-                success: false,
-                message: "Something Went Wrong"
-            });
-        });
-};
+//             expense.save()
+//                 .then(data => {
+//                     res.send({
+//                         status: 200,
+//                         success: true,
+//                         message: "Expense Put On Hold",
+//                         data
+//                     });
+//                 });
+//         })
+//         .catch(() => {
+//             res.send({
+//                 status: 422,
+//                 success: false,
+//                 message: "Something Went Wrong"
+//             });
+//         });
+// };
 
 /* ===================== REJECT EXPENSE ===================== */
-const reject = (req, res) => {
-    var errMsgs = [];
+// const reject = (req, res) => {
+//     var errMsgs = [];
 
-    if (!req.body._id) errMsgs.push("_id is required");
-    if (!req.body.userRole) errMsgs.push("userRole is required");
-    if (!req.body.remark) errMsgs.push("remark is required");
+//     if (!req.body._id) errMsgs.push("_id is required");
+//     if (!req.body.userRole) errMsgs.push("userRole is required");
+//     if (!req.body.remark) errMsgs.push("remark is required");
 
-    if (errMsgs.length > 0) {
-        return res.send({
-            status: 422,
-            success: false,
-            message: errMsgs
-        });
-    }
+//     if (errMsgs.length > 0) {
+//         return res.send({
+//             status: 422,
+//             success: false,
+//             message: errMsgs
+//         });
+//     }
 
-    expenseModel.findOne({ _id: req.body._id, status: true })
-        .then(expense => {
+//     expenseModel.findOne({ _id: req.body._id, status: true })
+//         .then(expense => {
 
-            if (!expense) {
-                return res.send({
-                    status: 422,
-                    success: false,
-                    message: "Expense not Found"
-                });
-            }
+//             if (!expense) {
+//                 return res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "Expense not Found"
+//                 });
+//             }
 
-            if (expense.currentApprovalLevel !== req.body.userRole) {
-                return res.send({
-                    status: 422,
-                    success: false,
-                    message: "You are not authorized to reject this expense"
-                });
-            }
+//             if (expense.currentApprovalLevel !== req.body.userRole) {
+//                 return res.send({
+//                     status: 422,
+//                     success: false,
+//                     message: "You are not authorized to reject this expense"
+//                 });
+//             }
 
-            expense.currentStatus = "Rejected";
-            expense.currentApprovalLevel = null;
-            expense.remark = req.body.remark;
+//             expense.currentStatus = "Rejected";
+//             expense.currentApprovalLevel = null;
+//             expense.remark = req.body.remark;
 
-            expense.save()
-                .then(data => {
-                    res.send({
-                        status: 200,
-                        success: true,
-                        message: "Expense Rejected Successfully",
-                        data
-                    });
-                });
-        })
-        .catch(() => {
-            res.send({
-                status: 422,
-                success: false,
-                message: "Something Went Wrong"
-            });
-        });
-};
+//             expense.save()
+//                 .then(data => {
+//                     res.send({
+//                         status: 200,
+//                         success: true,
+//                         message: "Expense Rejected Successfully",
+//                         data
+//                     });
+//                 });
+//         })
+//         .catch(() => {
+//             res.send({
+//                 status: 422,
+//                 success: false,
+//                 message: "Something Went Wrong"
+//             });
+//         });
+// };
 
-module.exports = { add, getAll, getSingle, pendingReq, myExpenses, changeStatus, approve, hold, reject }
+module.exports = { add, getAll, getSingle, myExpenses }

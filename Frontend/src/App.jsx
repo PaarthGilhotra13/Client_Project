@@ -50,6 +50,10 @@ import PendingExpenses from "./Components/FM/Expenses/PendingExpenses"
 import ApprovedExpenses from "./Components/FM/Expenses/ApprovedExpenses"
 import HoldExpenses from "./Components/FM/Expenses/HoldExpenses"
 import RejectedExpenses from "./Components/FM/Expenses/RejectedExpenses"
+import ClmApprovedExpenses from "./Components/CLM/Clm Expenses/ClmApprovedExpenses"
+import ClmHoldExpenses from "./Components/CLM/Clm Expenses/ClmHoldExpenses"
+import ClmPendingExpense from "./Components/CLM/Clm Expenses/ClmPendingExpense"
+import ClmRejectedExpenses from "./Components/CLM/Clm Expenses/ClmRejectedExpenses"
 
 
 function App() {
@@ -58,7 +62,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/redirect" element={<Redirect/>}/>
+          <Route path="/redirect" element={<Redirect />} />
           <Route path="/admin" element={<AdminMaster />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/addEmployee" element={<AddEmployee />} />
@@ -87,25 +91,25 @@ function App() {
             <Route path="/admin/addStoreCategory" element={<AddStoreCategory />} />
             <Route path="/admin/manageStoreCategory" element={<ManageStoreCategory />} />
             <Route path="/admin/blockedStoreCategory" element={<BlockedStoreCategory />} />
-            <Route path="/admin/editStoreCategory/:id" element={<EditStoreCategory/>} />
+            <Route path="/admin/editStoreCategory/:id" element={<EditStoreCategory />} />
 
             {/* Store */}
             <Route path="/admin/addStore" element={<AddStore />} />
             <Route path="/admin/manageStore" element={<ManageStore />} />
             <Route path="/admin/blockedStore" element={<BlockedStore />} />
-            <Route path="/admin/editStore/:id" element={<EditStore/>} />
+            <Route path="/admin/editStore/:id" element={<EditStore />} />
 
             {/* Expense Head */}
             <Route path="/admin/addExpenseHead" element={<AddExpenseHead />} />
             <Route path="/admin/manageExpenseHead" element={<ManageExpenseHead />} />
             <Route path="/admin/blockedExpenseHead" element={<BlockedExpenseHead />} />
-            <Route path="/admin/editExpenseHead/:id" element={<EditExpenseHead/>} />
+            <Route path="/admin/editExpenseHead/:id" element={<EditExpenseHead />} />
 
             {/* Approval Policy */}
             <Route path="/admin/addApprovalPolicy" element={<AddApprovalPolicy />} />
             <Route path="/admin/manageApprovalPolicy" element={<ManageApprovalPolicy />} />
-            <Route path="/admin/editApprovalPolicy/:id" element={<EditApprovalPolicy/>} />
-            <Route path="/admin/blockedApprovalPolicy" element={<BlockedAppovalPolicy/>} />
+            <Route path="/admin/editApprovalPolicy/:id" element={<EditApprovalPolicy />} />
+            <Route path="/admin/blockedApprovalPolicy" element={<BlockedAppovalPolicy />} />
 
             {/* Complaint Routes */}
             <Route path="/admin/viewRequest" element={<ViewRequest />} />
@@ -116,15 +120,19 @@ function App() {
           </Route>
 
           <Route path="/fm" element={<FmMaster />}>
-            <Route path="/fm" element={<EmployeeDashboard/>}/>
+            <Route path="/fm" element={<EmployeeDashboard />} />
             <Route path="/fm/addExpenses" element={<AddExpenses />} />
             <Route path="/fm/approvedExpenses" element={<ApprovedExpenses />} />
             <Route path="/fm/holdExpenses" element={<HoldExpenses />} />
             <Route path="/fm/pendingExpenses" element={<PendingExpenses />} />
             <Route path="/fm/rejectedExpenses" element={<RejectedExpenses />} />
           </Route>
-          <Route path="/clm" element={<ClmMaster/>}>
-
+          <Route path="/clm" element={<ClmMaster />}>
+            <Route path="/clm" element={<EmployeeDashboard />} />
+            <Route path="/clm/approvedExpenses" element={<ClmApprovedExpenses />} />
+            <Route path="/clm/holdExpenses" element={<ClmHoldExpenses />} />
+            <Route path="/clm/pendingExpenses" element={<ClmPendingExpense />} />
+            <Route path="/clm/rejectedExpenses" element={<ClmRejectedExpenses />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

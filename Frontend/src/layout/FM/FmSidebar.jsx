@@ -45,7 +45,7 @@ export default function FmSidebar() {
             </Link>
           </li>
 
-          {/* Start Complaints Nav */}
+          {/* Start Expense Nav */}
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
@@ -91,7 +91,7 @@ export default function FmSidebar() {
               </li>
             </ul>
           </li>
-          {/* End Task Nav */}
+          {/* End Expenses Nav */}
           {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"

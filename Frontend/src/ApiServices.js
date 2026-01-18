@@ -205,7 +205,7 @@ class ApiServices {
          "http://localhost:3000/apis/cities",
          { stateName },
          { headers: getToken() }
-      );a
+      ); a
    }
 
 
@@ -266,18 +266,6 @@ class ApiServices {
    MyExpenses(data) {
       return axios.post(BaseURL + "/apis/expense/myExpenses", data, { headers: getToken() })
    }
-   ApprovedExpense(data) {
-      return axios.post(BaseURL + "/apis/expense/approved", data, { headers: getToken() })
-   }
-   PendingExpense(data) {
-      return axios.post(BaseURL + "/apis/expense/pending", data, { headers: getToken() })
-   }
-   RejectExpense(data) {
-      return axios.post(BaseURL + "/apis/expense/reject", data, { headers: getToken() })
-   }
-   HoldExpense(data) {
-      return axios.post(BaseURL + "/apis/expense/hold", data, { headers: getToken() })
-   }
 
    //Expense Head
    AddExpenseHead(data) {
@@ -318,6 +306,39 @@ class ApiServices {
    ChangeStatusApprovalPolicy(data) {
       return axios.post(BaseURL + "/apis/approvalPolicy/changeStatus", data, { headers: getToken() })
    }
+
+   //Expense Approval
+   ApproveExpense(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/approve", data, { headers: getToken() })
+   }
+   HoldExpense(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/hold", data, { headers: getToken() })
+   }
+   RejectExpense(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/reject", data, { headers: getToken() })
+   }
+   ExpenseHistory(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/history", data, { headers: getToken() })
+   }
+   GetClmPendingExpenses(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/clm/pending", data, { headers: getToken() })
+   }
+   GetZhPendingExpenses(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/zh/pending", data, { headers: getToken() })
+   }
+   GetBfPendingExpenses(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/bf/pending", data, { headers: getToken() })
+   }
+   GetProcurementPendingExpenses(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/procure/pending", data, { headers: getToken() })
+   }
+   ExpenseAction(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/action", data, { headers: getToken() })
+   }
+   MyApprovalActions(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/myApprovedAction", data, { headers: getToken() })
+   }
+   
 
    //Announcement
    AddAnnouncement(data) {

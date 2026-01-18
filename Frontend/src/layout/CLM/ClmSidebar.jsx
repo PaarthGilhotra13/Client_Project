@@ -15,7 +15,7 @@ export default function ClmSidebar() {
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={"/employee"}
+              to={"/clm"}
               onClick={handleSidebarClose}
             >
               <i className="bi bi-grid" />
@@ -25,7 +25,7 @@ export default function ClmSidebar() {
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={"/employee/viewAnnouncement"}
+              to={"/clm/viewAnnouncement"}
               onClick={handleSidebarClose}
             >
               <i className="bi bi-megaphone" />
@@ -33,36 +33,17 @@ export default function ClmSidebar() {
             </Link>
           </li>
           {/* End Dashboard Nav */}
-          {/* Start Category Nav */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/myProjects"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-graph-up" />
-              <span>My Projects</span>
-            </Link>
-          </li> */}
-          {/* End Category Nav */}
-          {/* Start SubCategory Nav */}
-          {/* <li className="nav-item">
-                        <Link className="nav-link collapsed" to={"/employee/myProjectTeam"}>
-                            <i className="bi bi-people" />
-                            <span>My Project Team</span>
-                        </Link>
-                    </li> */}
-          {/* End SubCategory Nav */}
 
-          {/* Start Task Nav */}
+
+          {/* Start Expense Nav */}
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
               data-bs-target="#complaint-nav"
               data-bs-toggle="collapse"
             >
-              <i className="bi bi-exclamation-circle" />
-              <span>Complaints</span>
+              <i className="bi bi-wallet2" />
+              <span>Expenses</span>
               <i className="bi bi-chevron-down ms-auto" />
             </Link>
             <ul
@@ -71,47 +52,35 @@ export default function ClmSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/fm/addRequest"} onClick={handleSidebarClose}>
-                  <i className="bi bi-plus fs-5" />
-                  <span>Add Requests</span>
+                <Link to={"/clm/pendingExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-clock fs-6" />
+                  <span>Pending </span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/clm/approvedExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-check-circle fs-6" />
+                  <span>Approved </span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/clm/holdExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-pause-circle fs-6" />
+                  <span>Hold </span>
                 </Link>
               </li>
               <li>
                 <Link
-                  to={"/fm/manageComplaint"}
+                  to={"/clm/rejectedExpenses"}
                   onClick={handleSidebarClose}
                 >
-                  <i className="bi bi-card-list fs-6" />
-                  <span>View Requests</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to={"/admin/approvedComplaint"}
-                  onClick={handleSidebarClose}
-                >
-                  <i className="bi bi-card-list fs-6" />
-                  <span>Approved Requests</span>
-                </Link>
-              </li>
-              <li>
-                <Link to={"/admin/holdComplaint"} onClick={handleSidebarClose}>
-                  <i className="bi bi-card-list fs-6" />
-                  <span>Hold Requests</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to={"/admin/declinedComplaint"}
-                  onClick={handleSidebarClose}
-                >
-                  <i className="bi bi-card-list fs-6" />
-                  <span>Declined Requests</span>
+                  <i className="bi bi-x-circle fs-6" />
+                  <span>Rejected</span>
                 </Link>
               </li>
             </ul>
           </li>
-          {/* End Task Nav */}
+          {/* End Expenses Nav */}
           {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"

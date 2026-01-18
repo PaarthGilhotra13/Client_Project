@@ -117,7 +117,7 @@ export default function AddExpenses() {
             timer: 2000,
             timerProgressBar: true,
           });
-          nav("/fm/myExpenses");
+          nav("/fm/addExpenses");
         } else {
           Swal.fire({
             icon: "error",

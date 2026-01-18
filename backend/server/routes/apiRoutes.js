@@ -15,6 +15,7 @@ const expenseHeadController=require("../apis/ExpenseHead/expenseHeadController")
 const approvalPolicyController=require("../apis/Approval Policy/approvalPolicyController")
 const stateController=require("../apis/State/stateController")
 const locationController=require("../apis/City/locationController")
+const expenseApprovalController=require("../apis/Expense Approval/expenseApprovalController")
 const multer=require("multer")
 const storage=multer.memoryStorage()
 const upload=multer({storage:storage})
@@ -124,16 +125,15 @@ routes.post("/store/delete",storeController.delStore)
 routes.post("/store/changeStatus",storeController.changeStatus)
 
 // Expense 
-// add, getAll, getSingle, pendingReq, myExpenses, changeStatus, approve, hold, reject
 routes.post("/expense/add",upload.single("attachment"),expenseController.add)
 routes.post("/expense/all",expenseController.getAll)
 routes.post("/expense/single",expenseController.getSingle)
-routes.post("/expense/changeStatus",expenseController.changeStatus)
+// routes.post("/expense/changeStatus",expenseController.changeStatus)
 routes.post("/expense/myExpenses",expenseController.myExpenses)
-routes.post("/expense/pending",expenseController.pendingReq)
-routes.post("/expense/approved",expenseController.approve)
-routes.post("/expense/hold",expenseController.hold)
-routes.post("/expense/reject",expenseController.reject)
+// routes.post("/expense/pending",expenseController.pendingReq)
+// routes.post("/expense/approved",expenseController.approve)
+// routes.post("/expense/hold",expenseController.hold)
+// routes.post("/expense/reject",expenseController.reject)
 
 // Expense Head
 routes.post("/expenseHead/add",expenseHeadController.add)
@@ -150,5 +150,18 @@ routes.post("/approvalPolicy/single",approvalPolicyController.getSingle)
 routes.post("/approvalPolicy/update",approvalPolicyController.update)
 routes.post("/approvalPolicy/delete",approvalPolicyController.delApprovalPolicy)
 routes.post("/approvalPolicy/changeStatus",approvalPolicyController.changeStatus)
+
+//Expense Approval
+routes.post("/expense-approval/approve",expenseApprovalController.approveExpense)
+routes.post("/expense-approval/hold",expenseApprovalController.holdExpense)
+routes.post("/expense-approval/reject",expenseApprovalController.rejectExpense)
+routes.post("/expense-approval/history",expenseApprovalController.approvalHistory)
+routes.post("/expense-approval/clm/pending",expenseApprovalController.clmPendingExpenses)
+routes.post("/expense-approval/zh/pending",expenseApprovalController.pendingForZH)
+routes.post("/expense-approval/bf/pending",expenseApprovalController.pendingForBF)
+routes.post("/expense-approval/procure/pending",expenseApprovalController.pendingForProcurement)
+routes.post("/expense-approval/action",expenseApprovalController.expenseAction)
+routes.post("/expense-approval/myApprovedAction",expenseApprovalController.myApprovalActions)
+
 
 module.exports=routes

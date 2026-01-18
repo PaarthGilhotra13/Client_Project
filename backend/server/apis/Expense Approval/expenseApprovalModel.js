@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
 const expenseApprovalSchema = new mongoose.Schema({
     expenseId: {
@@ -6,28 +6,33 @@ const expenseApprovalSchema = new mongoose.Schema({
         ref: "expenseData",
         required: true
     },
+
     level: {
         type: String,
-        required: true   // FM / CLM / FINANCE
+        required: true   // FM / CLM / ZH / BF/ Procurement
     },
+
     approverId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "userData",   // ❗ approver is USER, not policy
+        ref: "userData",
         required: true
     },
-    comment: {
-        type: String,
-        default: ""
-    },
-    status: {
+
+    action: {
         type: String,
         enum: ["Approved", "Rejected", "Hold"],
         required: true
     },
+
+    comment: {
+        type: String,
+        default: ""
+    },
+
     actionAt: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     }
-})
+});
 
-module.exports = new mongoose.model("expenseApprovalData", expenseApprovalSchema)
+module.exports = mongoose.model("expenseApprovalData", expenseApprovalSchema);
