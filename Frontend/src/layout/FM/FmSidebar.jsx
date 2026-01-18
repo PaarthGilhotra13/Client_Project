@@ -102,16 +102,16 @@ export default function FmSidebar() {
               <span>History</span>
             </Link>
           </li> */}
-          {/* <li className="nav-item">
+          <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={"/employee/myProfile"}
+              to={"/fm/trackApproval"}
               onClick={handleSidebarClose}
             >
-              <i className="bi bi-person" />
-              <span>My Profile</span>
+              <i className="bi bi-hourglass-split text-warning" />
+              <span>Track Approval</span>
             </Link>
-          </li> */}
+          </li>
         </ul>
       </aside>
       {/* End Sidebar*/}

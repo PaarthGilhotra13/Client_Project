@@ -205,7 +205,11 @@ class ApiServices {
          "http://localhost:3000/apis/cities",
          { stateName },
          { headers: getToken() }
+<<<<<<< HEAD
       ); a
+=======
+      );
+>>>>>>> 62651a36d4d11402a501ae654349998910a73e4d
    }
 
 

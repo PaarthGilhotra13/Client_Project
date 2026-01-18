@@ -3,29 +3,25 @@ import { ScaleLoader } from "react-spinners";
 import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
-import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 export default function ManageCity() {
   var [data, setData] = useState([]);
   var [load, setLoad] = useState(true);
+
   useEffect(() => {
     ApiServices.GetAllCity()
       .then((res) => {
         if (res?.data?.success) {
-          setData(res?.data?.data);
+          setData(res?.data?.data || []);
         } else {
           setData([]);
         }
-        setTimeout(() => {
-          setLoad(false);
-        }, 500);
+        setTimeout(() => setLoad(false), 500);
       })
       .catch((err) => {
         console.log("Error is ", err);
-        setTimeout(() => {
-          setLoad(false);
-        }, 1000);
+        setTimeout(() => setLoad(false), 1000);
       });
   }, [load]);
 
@@ -40,35 +36,17 @@ export default function ManageCity() {
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        let data = {
-          _id: id,
-          status: "false",
-        };
-        ApiServices.ChangeStatusCity(data)
+        let payload = { _id: id, status: "false" };
+        ApiServices.ChangeStatusCity(payload)
           .then((res) => {
             setLoad(true);
-            var message = res?.data?.message;
-            if (res.data.success) {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            } else {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            }
+            Swal.fire({
+              title: res?.data?.message,
+              icon: res?.data?.success ? "success" : "error",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            setTimeout(() => setLoad(false), 1500);
           })
           .catch((err) => {
             setLoad(true);
@@ -79,9 +57,7 @@ export default function ManageCity() {
               timer: 2000,
               timerProgressBar: true,
             });
-            setTimeout(() => {
-              setLoad(false);
-            }, 2000);
+            setTimeout(() => setLoad(false), 2000);
             console.log("Error is", err);
           });
       }
@@ -99,35 +75,17 @@ export default function ManageCity() {
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        let data = {
-          _id: id,
-          status: true,
-        };
-        ApiServices.ChangeStatusCity(data)
+        let payload = { _id: id, status: true };
+        ApiServices.ChangeStatusCity(payload)
           .then((res) => {
             setLoad(true);
-            var message = res?.data?.message;
-            if (res.data.success) {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            } else {
-              Swal.fire({
-                title: message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              setTimeout(() => {
-                setLoad(false);
-              }, 1500);
-            }
+            Swal.fire({
+              title: res?.data?.message,
+              icon: res?.data?.success ? "success" : "error",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            setTimeout(() => setLoad(false), 1500);
           })
           .catch((err) => {
             setLoad(true);
@@ -135,18 +93,18 @@ export default function ManageCity() {
               icon: "error",
               title: "Oops...",
               text: "Something went wrong!",
-              confirmButtonText: "Continue",
               timer: 2000,
               timerProgressBar: true,
             });
-            setTimeout(() => {
-              setLoad(false);
-            }, 2000);
+            setTimeout(() => setLoad(false), 2000);
             console.log("Error is", err);
           });
       }
     });
   }
+
+  const activeCities = data?.filter((el) => el.status === true);
+
   return (
     <>
       <main className="main" id="main">
@@ -164,10 +122,11 @@ export default function ManageCity() {
             </div>
           </div>
         </div>
+
         <div className="container-fluid">
           <div className="row justify-content-center">
             <div className="col-lg-12 mt-5 table-responsive">
-              {!load ? (
+              {!load && (
                 <table className="table table-hover table-striped">
                   <thead className="table-dark">
                     <tr>
@@ -180,9 +139,8 @@ export default function ManageCity() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data
-                      ?.filter((el) => el.status === true)
-                      ?.map((el, index) => (
+                    {activeCities?.length ? (
+                      activeCities.map((el, index) => (
                         <tr key={el?._id}>
                           <td>{index + 1}</td>
                           <td>{el?.cityName}</td>
@@ -217,11 +175,16 @@ export default function ManageCity() {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="text-center text-muted">
+                          No Active City Found
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
-              ) : (
-                ""
               )}
             </div>
           </div>

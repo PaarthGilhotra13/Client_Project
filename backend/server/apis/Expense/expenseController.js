@@ -251,7 +251,7 @@ const add = (req, res) => {
 
 
 const getAll = (req, res) => {
-    expenseModel.find({})
+    expenseModel.find(req.body)
         .then(data => {
             res.send({
                 status: 200,
