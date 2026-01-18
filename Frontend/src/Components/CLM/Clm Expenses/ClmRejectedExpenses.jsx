@@ -19,7 +19,7 @@ export default function ClmRejectedExpense() {
             return;
         }
 
-        ApiServices.ClmActionExpenses({
+        ApiServices.MyApprovalActions({
             userId: userId,
             action: "Rejected",
             level:"CLM"
