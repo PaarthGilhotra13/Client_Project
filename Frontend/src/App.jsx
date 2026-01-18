@@ -50,15 +50,15 @@ import PendingExpenses from "./Components/FM/Expenses/PendingExpenses"
 import ApprovedExpenses from "./Components/FM/Expenses/ApprovedExpenses"
 import HoldExpenses from "./Components/FM/Expenses/HoldExpenses"
 import RejectedExpenses from "./Components/FM/Expenses/RejectedExpenses"
-<<<<<<< HEAD
+
 import ClmApprovedExpenses from "./Components/CLM/Clm Expenses/ClmApprovedExpenses"
 import ClmHoldExpenses from "./Components/CLM/Clm Expenses/ClmHoldExpenses"
 import ClmPendingExpense from "./Components/CLM/Clm Expenses/ClmPendingExpense"
 import ClmRejectedExpenses from "./Components/CLM/Clm Expenses/ClmRejectedExpenses"
-=======
+
 import ExpenseTracking from "./Components/FM/Expenses/ExpenseTrackingCard"
 import TrackApproval from "./Components/FM/Expenses/TrackApproval"
->>>>>>> 62651a36d4d11402a501ae654349998910a73e4d
+
 
 
 function App() {
