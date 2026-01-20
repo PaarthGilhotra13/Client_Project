@@ -8,6 +8,8 @@ export default function ApprovedExpenses() {
 
     const [data, setData] = useState([]);
     const [load, setLoad] = useState(true);
+    const [selectedExpense, setSelectedExpense] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const userId = sessionStorage.getItem("userId");
@@ -36,6 +38,27 @@ export default function ApprovedExpenses() {
             });
 
     }, []);
+
+    /* ================= MODAL HANDLERS ================= */
+    const handleViewClick = (expense) => {
+        setSelectedExpense(expense);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedExpense(null);
+        setShowModal(false);
+    };
+
+    /* ================= DOWNLOAD HANDLER ================= */
+    const handleDownload = (url) => {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = url.split("/").pop();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     return (
         <>
@@ -72,6 +95,7 @@ export default function ApprovedExpenses() {
                                             <th>Amount</th>
                                             <th>Status</th>
                                             <th>Created At</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
 
@@ -85,18 +109,24 @@ export default function ApprovedExpenses() {
                                                     <td>{el.expenseHeadId?.name}</td>
                                                     <td>₹ {el.amount}</td>
                                                     <td>
-                                                        <span className="badge bg-success">
-                                                            Approved
-                                                        </span>
+                                                        <span className="badge bg-success">Approved</span>
                                                     </td>
                                                     <td>
                                                         {new Date(el.createdAt).toLocaleDateString()}
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            className="btn btn-sm btn-primary"
+                                                            onClick={() => handleViewClick(el)}
+                                                        >
+                                                            View
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="7" className="text-center text-muted">
+                                                <td colSpan="8" className="text-center text-muted">
                                                     No Approved Expenses Found
                                                 </td>
                                             </tr>
@@ -104,6 +134,89 @@ export default function ApprovedExpenses() {
                                     </tbody>
                                 </table>
 
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ================= MODAL ================= */}
+                {showModal && selectedExpense && (
+                    <div
+                        className="modal show d-block"
+                        tabIndex="-1"
+                        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+                    >
+                        <div className="modal-dialog modal-lg">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title">Expense Details</h5>
+                                    <button
+                                        type="button"
+                                        onClick={handleCloseModal}
+                                        style={{
+                                            width: "30px",
+                                            height: "30px",
+                                            borderRadius: "50%",
+                                            backgroundColor: "red",
+                                            color: "white",
+                                            fontWeight: "bold",
+                                            border: "none",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            cursor: "pointer",
+                                            fontSize: "18px",
+                                        }}
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+
+                                <div className="modal-body px-4">
+                                    <div className="row g-3">
+                                        <div className="col-md-6">
+                                            <strong>Ticket ID:</strong>
+                                            <p>{selectedExpense.ticketId}</p>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <strong>Store:</strong>
+                                            <p>{selectedExpense.storeId?.storeName}</p>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <strong>Expense Head:</strong>
+                                            <p>{selectedExpense.expenseHeadId?.name}</p>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <strong>Amount:</strong>
+                                            <p>₹ {selectedExpense.amount}</p>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <strong>Status:</strong>
+                                            <p>
+                                                <span className="badge bg-success">Approved</span>
+                                            </p>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <strong>Created At:</strong>
+                                            <p>{new Date(selectedExpense.createdAt).toLocaleDateString()}</p>
+                                        </div>
+                                        <div className="col-12">
+                                            <strong>Attachment:</strong>
+                                            <p>
+                                                {selectedExpense.attachment ? (
+                                                    <button
+                                                        className="btn btn-sm btn-primary"
+                                                        onClick={() => handleDownload(selectedExpense.attachment)}
+                                                    >
+                                                        Download Attachment
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-muted">No Attachment</span>
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

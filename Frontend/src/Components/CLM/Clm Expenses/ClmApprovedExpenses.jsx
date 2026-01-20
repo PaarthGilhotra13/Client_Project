@@ -5,107 +5,221 @@ import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 
 export default function ClmApprovedExpense() {
+  const [data, setData] = useState([]);
+  const [load, setLoad] = useState(true);
+  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-    const [data, setData] = useState([]);
-    const [load, setLoad] = useState(true);
+  const userId = sessionStorage.getItem("userId");
 
-    const userId = sessionStorage.getItem("userId");
-
-    /* ================= FETCH APPROVED ================= */
-    const fetchApproved = () => {
-        if (!userId) {
-            Swal.fire("Error", "User not logged in", "error");
-            setLoad(false);
-            return;
+  /* ================= FETCH APPROVED ================= */
+  const fetchApproved = () => {
+    if (!userId) {
+      Swal.fire("Error", "User not logged in", "error");
+      setLoad(false);
+      return;
+    }
+    ApiServices.MyApprovalActions({
+      userId: userId,
+      action: "Approved",
+      level: "CLM",
+    })
+      .then((res) => {
+        if (res?.data?.success) {
+          setData(res.data.data || []);
+        } else {
+          setData([]);
         }
-        ApiServices.MyApprovalActions({
-            userId: userId,
-            action: "Approved",
-            level:"CLM"
-        })
-            .then((res) => {
-                if (res?.data?.success) {
-                    setData(res.data.data || []);
-                } else {
-                    setData([]);
-                }
-                setTimeout(() => setLoad(false), 500);
-            })
-            .catch(() => {
-                setData([]);
-                setTimeout(() => setLoad(false), 500);
-            });
-    };
+        setTimeout(() => setLoad(false), 500);
+      })
+      .catch(() => {
+        setData([]);
+        setTimeout(() => setLoad(false), 500);
+      });
+  };
 
-    useEffect(() => {
-        fetchApproved();
-    }, []);
+  useEffect(() => {
+    fetchApproved();
+  }, []);
 
-    return (
-        <>
-            <main className="main" id="main">
-                <PageTitle child="Approved Expenses (CLM)" />
+  /* ================= MODAL HANDLERS ================= */
+  const handleViewClick = (expense) => {
+    setSelectedExpense(expense);
+    setShowModal(true);
+  };
 
-                {/* Loader */}
-                <ScaleLoader
-                    color="#6776f4"
-                    cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-                    size={200}
-                    loading={load}
-                />
+  const handleCloseModal = () => {
+    setSelectedExpense(null);
+    setShowModal(false);
+  };
 
-                {!load && (
-                    <div className="container-fluid">
-                        <div className="row justify-content-center">
-                            <div className="col-lg-12 mt-4 table-responsive">
+  /* ================= DOWNLOAD HANDLER ================= */
+  const handleDownload = (url) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = url.split("/").pop(); // filename from URL
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-                                <table className="table table-hover table-striped">
-                                    <thead className="table-dark">
-                                        <tr>
-                                            <th>Sr. No</th>
-                                            <th>Ticket ID</th>
-                                            <th>Store</th>
-                                            <th>Expense Head</th>
-                                            <th>Amount</th>
-                                            <th>Status</th>
-                                            <th>Approved On</th>
-                                        </tr>
-                                    </thead>
+  return (
+    <>
+      <main className="main" id="main">
+        <PageTitle child="Approved Expenses (CLM)" />
 
-                                    <tbody>
-                                        {data.length > 0 ? (
-                                            data.map((el, index) => (
-                                                <tr key={el._id}>
-                                                    <td>{index + 1}</td>
-                                                    <td>{el.expenseId?.ticketId}</td>
-                                                    <td>{el.expenseId?.storeId?.storeName}</td>
-                                                    <td>{el.expenseId?.expenseHeadId?.name}</td>
-                                                    <td>₹ {el.expenseId?.amount}</td>
-                                                    <td>
-                                                        <span className="badge bg-success">
-                                                            Approved
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        {new Date(el.actionAt).toLocaleDateString()}
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="7" className="text-center text-muted">
-                                                    No Approved Expenses Found
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+        {/* Loader */}
+        <ScaleLoader
+          color="#6776f4"
+          cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+          size={200}
+          loading={load}
+        />
 
-                            </div>
-                        </div>
+        {!load && (
+          <div className="container-fluid">
+            <div className="row justify-content-center">
+              <div className="col-lg-12 mt-4 table-responsive">
+                <table className="table table-hover table-striped">
+                  <thead className="table-dark">
+                    <tr>
+                      <th>Sr. No</th>
+                      <th>Ticket ID</th>
+                      <th>Store</th>
+                      <th>Expense Head</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Approved On</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {data.length > 0 ? (
+                      data.map((el, index) => (
+                        <tr key={el._id}>
+                          <td>{index + 1}</td>
+                          <td>{el.expenseId?.ticketId}</td>
+                          <td>{el.expenseId?.storeId?.storeName}</td>
+                          <td>{el.expenseId?.expenseHeadId?.name}</td>
+                          <td>₹ {el.expenseId?.amount}</td>
+                          <td>
+                            <span className="badge bg-success">Approved</span>
+                          </td>
+                          <td>{new Date(el.actionAt).toLocaleDateString()}</td>
+                          <td>
+                            <button
+                              className="btn btn-sm btn-primary"
+                              onClick={() => handleViewClick(el)}
+                            >
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="8" className="text-center text-muted">
+                          No Approved Expenses Found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= MODAL ================= */}
+        {showModal && selectedExpense && (
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Expense Details</h5>
+                  {/* Red Circular Close Button */}
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "50%",
+                      backgroundColor: "red",
+                      color: "white",
+                      fontWeight: "bold",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      fontSize: "18px",
+                    }}
+                  >
+                    &times;
+                  </button>
+                </div>
+
+                {/* Modal Body */}
+                <div className="modal-body px-4">
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <strong>Ticket ID:</strong>
+                      <p>{selectedExpense.expenseId?.ticketId}</p>
                     </div>
-                )}
-            </main>
-        </>
-    );
+                    <div className="col-md-6">
+                      <strong>Store:</strong>
+                      <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Expense Head:</strong>
+                      <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Amount:</strong>
+                      <p>₹ {selectedExpense.expenseId?.amount}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Status:</strong>
+                      <p>
+                        <span className="badge bg-success">Approved</span>
+                      </p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Approved On:</strong>
+                      <p>
+                        {new Date(selectedExpense.actionAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="col-12">
+                      <strong>Attachment:</strong>
+                      <p>
+                        {selectedExpense.expenseId?.attachment ? (
+                          <button
+                            className="btn btn-sm btn-primary"
+                            onClick={() =>
+                              handleDownload(selectedExpense.expenseId.attachment)
+                            }
+                          >
+                            Download Attachment
+                          </button>
+                        ) : (
+                          <span className="text-muted">No Attachment</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </>
+  );
 }
