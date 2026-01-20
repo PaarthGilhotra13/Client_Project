@@ -23,6 +23,9 @@ const add = (req, res) => {
     if (!req.body.password) {
         errMsgs.push("password is required")
     }
+    if (!req.body.zoneId) {
+        errMsgs.push("zoneId is required")
+    }
     if (!req.body.contact) {
         errMsgs.push("contact is required")
     }
@@ -52,6 +55,7 @@ const add = (req, res) => {
                             zhObj.email = req.body.email
                             zhObj.storeId = req.body.storeId
                             zhObj.contact = req.body.contact
+                            zhObj.zoneId = req.body.zoneId
                             zhObj.designation = "Zonal_Head"
                             zhObj.empcode = generateEmployeeCode()
                             zhObj.save()
@@ -308,6 +312,9 @@ const updateZh = (req, res) => {
                 }
                 if (req.body.contact) {
                     zhData.contact = req.body.contact;
+                }
+                if (req.body.zoneId) {
+                    zhData.zoneId = req.body.zoneId;
                 }
                 if (req.body.storeId) {
                     zhData.storeId = req.body.storeId;

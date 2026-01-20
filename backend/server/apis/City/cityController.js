@@ -1,54 +1,59 @@
 const cityModel = require("./cityModel")
 
 const add = (req, res) => {
-    var errMsgs = []
-    if (!req.body.cityName) {
-        errMsgs.push("cityName is required")
+    var errMsgs = [];
+    if (!req.body.cityName || !Array.isArray(req.body.cityName) || req.body.cityName.length === 0) {
+        errMsgs.push("cityName array is required");
     }
     if (!req.body.stateId) {
-        errMsgs.push("stateId is required")
+        errMsgs.push("stateId is required");
     }
     if (!req.body.zoneId) {
-        errMsgs.push("zoneId is required")
+        errMsgs.push("zoneId is required");
     }
     if (errMsgs.length > 0) {
         res.send({
             status: 422,
             success: false,
             message: errMsgs
-        })
+        });
     }
     else {
-        cityModel.findOne({ cityName: req.body.cityName })
-            .then((cityData) => {
-                if (cityData == null) {
-                    let cityObj = new cityModel()
-                    cityObj.cityName = req.body.cityName
-                    cityObj.stateId = req.body.stateId
-                    cityObj.zoneId = req.body.zoneId
-                    cityObj.save()
-                        .then((cityData) => {
+        cityModel.findOne({
+            stateName: { $in: req.body.stateName }
+        })
+            .then((existingCity) => {
+
+                if (existingCity) {
+                    res.send({
+                        status: 422,
+                        success: false,
+                        message: "One or more cities already exist"
+                    });
+                }
+                else {
+                    const cityDocs = req.body.cityName.map((city) => ({
+                        cityName: city,
+                        stateId: req.body.stateId,
+                        zoneId: req.body.zoneId
+                    }));
+
+                    cityModel.insertMany(cityDocs)
+                        .then((savedCities) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "City Added Successfully",
-                                data: cityData
-                            })
+                                message: "Cities Added Successfully",
+                                data: savedCities
+                            });
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "City Not Added"
-                            })
-                        })
-                }
-                else {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "City Already Exists"
-                    })
+                                message: "Cities Not Added"
+                            });
+                        });
                 }
             })
             .catch(() => {
@@ -56,11 +61,11 @@ const add = (req, res) => {
                     status: 422,
                     success: false,
                     message: "Something Went Wrong"
-                })
-            })
-
+                });
+            });
     }
-}
+};
+
 
 const getAll = (req, res) => {
     cityModel.find(req.body)
@@ -137,63 +142,79 @@ const getSingle = (req, res) => {
 }
 
 const update = (req, res) => {
-    var errMsgs = []
+    var errMsgs = [];
+
     if (!req.body._id) {
-        errMsgs.push("_id is required")
+        errMsgs.push("_id is required");
     }
+
+    if (!req.body.cityName || !Array.isArray(req.body.cityName) || req.body.cityName.length === 0) {
+        errMsgs.push("cityName array is required");
+    }
+
+    if (!req.body.stateId) {
+        errMsgs.push("stateId is required");
+    }
+
+    if (!req.body.zoneId) {
+        errMsgs.push("zoneId is required");
+    }
+
     if (errMsgs.length > 0) {
         res.send({
             status: 422,
             success: false,
             message: errMsgs
-        })
+        });
     }
     else {
-        cityModel.findOne({ cityName: req.body.cityName })
-            .then((cityData) => {
-                if (cityData && cityData._id.toString()  !== req.body._id.toString() ) {
+
+        /* 🔴 DUPLICATE CHECK (GLOBAL) */
+        cityModel.findOne({
+            cityName: { $in: req.body.cityName },
+            _id: { $ne: req.body._id }
+        })
+            .then((duplicateCity) => {
+
+                if (duplicateCity) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "City Already Exists with same name"
-                    })
+                        message: "One or more cities already exist"
+                    });
                 }
                 else {
                     cityModel.findOne({ _id: req.body._id })
                         .then((cityData) => {
+
                             if (cityData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
                                     message: "City not Found"
-                                })
+                                });
                             }
                             else {
-                                if (req.body.cityName) {
-                                    cityData.cityName = req.body.cityName
-                                }
-                                if (req.body.stateId) {
-                                    cityData.stateId = req.body.stateId
-                                }
-                                if (req.body.zoneId) {
-                                    cityData.zoneId = req.body.zoneId
-                                }
+                                cityData.cityName = req.body.cityName;
+                                cityData.stateId = req.body.stateId;
+                                cityData.zoneId = req.body.zoneId;
+
                                 cityData.save()
-                                    .then((cityData) => {
+                                    .then((updatedCity) => {
                                         res.send({
                                             status: 200,
                                             success: true,
                                             message: "City Updated Successfully",
-                                            data: cityData
-                                        })
+                                            data: updatedCity
+                                        });
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
                                             message: "City not Updated"
-                                        })
-                                    })
+                                        });
+                                    });
                             }
                         })
                         .catch(() => {
@@ -201,23 +222,20 @@ const update = (req, res) => {
                                 status: 422,
                                 success: false,
                                 message: "Internal Server Error"
-                            })
-                        })
-
+                            });
+                        });
                 }
             })
             .catch(() => {
                 res.send({
                     status: 422,
                     success: false,
-                    message: "Somehting Went Wrong"
-                })
-            })
-
-
-
+                    message: "Something Went Wrong"
+                });
+            });
     }
-}
+};
+
 
 const delCity = (req, res) => {
     var errMsgs = []

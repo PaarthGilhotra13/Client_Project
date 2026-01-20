@@ -1,7 +1,7 @@
 const mongoose=require("mongoose")
 
 const citySchema=new mongoose.Schema({
-    cityName:{type:String,default:""},
+    cityName:[{type:String,default:""}],
     stateId:{type:mongoose.Schema.Types.ObjectId,ref:"stateData"},
     zoneId:{type:mongoose.Schema.Types.ObjectId,ref:"zoneData"},
     status:{type:Boolean,default:true},

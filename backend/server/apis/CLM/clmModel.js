@@ -5,7 +5,7 @@ const clmSchema = new mongoose.Schema({
     email: { type: String, default: "" },
     contact: { type: String, default: "" },
     empcode: { type: String, unique: true },
-    storeId: { type: mongoose.Schema.Types.ObjectId, ref: "storeData" },
+    storeId: [{ type: mongoose.Schema.Types.ObjectId, ref: "storeData" }],
     userId: { type: String, default: "" },
     designation: { type: String, default: "" },
     status: { type: Boolean, default: true },

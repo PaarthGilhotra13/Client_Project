@@ -13,50 +13,64 @@ export default function AddCity() {
     const [stateId, setStateId] = useState("");
     const [states, setStates] = useState([]);
 
-    const [cityName, setCityName] = useState("");
     const [cities, setCities] = useState([]);
+    const [selectedCities, setSelectedCities] = useState([]);
 
     const [load, setLoad] = useState(false);
-    const [cityLoading, setCityLoading] = useState(false); 
+    const [cityLoading, setCityLoading] = useState(false);
 
+    /* ================= LOAD ZONES ================= */
     useEffect(() => {
         ApiServices.GetAllZone({ status: "true" })
-            .then((res) => {
-                setZones(res?.data?.data || []);
-            })
-            .catch((err) => console.log("Zone Error", err));
+            .then(res => setZones(res?.data?.data || []))
+            .catch(() => { });
     }, []);
 
+    /* ================= LOAD STATES BY ZONE ================= */
     const loadStatesByZone = (zId) => {
         ApiServices.GetAllState({ zoneId: zId })
-            .then((res) => {
-                setStates(res?.data?.data || []);
-            })
+            .then(res => setStates(res?.data?.data || []))
             .catch(() => setStates([]));
     };
 
+    /* ================= LOAD CITIES BY STATE ================= */
     const loadCities = (sName) => {
-        setCityLoading(true);      
-        setCities([]);             
+        setCityLoading(true);
+        setCities([]);
+        setSelectedCities([]);
 
         ApiServices.GetCitiesByState(sName)
-            .then((res) => {
-                setCities(res?.data?.data || []);
-            })
+            .then(res => setCities(res?.data?.data || []))
             .catch(() => setCities([]))
-            .finally(() => {
-                setCityLoading(false); 
-            });
+            .finally(() => setCityLoading(false));
     };
 
+    /* ================= CITY TOGGLE ================= */
+    const toggleCity = (city) => {
+        setSelectedCities(prev =>
+            prev.includes(city)
+                ? prev.filter(c => c !== city)
+                : [...prev, city]
+        );
+    };
+
+    /* ================= BUTTON TEXT ================= */
+    const cityButtonText =
+        selectedCities.length === 0
+            ? "Select City"
+            : selectedCities.length <= 2
+                ? selectedCities.join(", ")
+                : `${selectedCities.slice(0, 2).join(", ")} +${selectedCities.length - 2} more`;
+
+    /* ================= SUBMIT ================= */
     const handleForm = (e) => {
         e.preventDefault();
 
-        if (!zoneId || !stateId || !cityName) {
+        if (!zoneId || !stateId || selectedCities.length === 0) {
             Swal.fire({
                 icon: "error",
                 title: "Missing Fields",
-                text: "Please select Zone, State and City",
+                text: "Please select Zone, State and City(s)",
                 timer: 2000,
             });
             return;
@@ -67,37 +81,24 @@ export default function AddCity() {
         ApiServices.AddCity({
             zoneId,
             stateId,
-            cityName,
+            cityName: selectedCities   // ✅ array
         })
-            .then((res) => {
+            .then(res => {
                 if (res?.data?.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "City Added Successfully",
-                        timer: 2000,
-                    });
+                    Swal.fire("Success", "City Added Successfully", "success");
 
                     setZoneName("");
                     setZoneId("");
                     setStateName("");
                     setStateId("");
-                    setCityName("");
                     setStates([]);
                     setCities([]);
+                    setSelectedCities([]);
                 } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: res?.data?.message || "Failed",
-                    });
+                    Swal.fire("Error", res?.data?.message || "Failed", "error");
                 }
             })
-            .catch(() => {
-                Swal.fire({
-                    icon: "error",
-                    title: "Server Error",
-                });
-            })
+            .catch(() => Swal.fire("Error", "Server Error", "error"))
             .finally(() => setLoad(false));
     };
 
@@ -106,21 +107,14 @@ export default function AddCity() {
             <PageTitle child="Add City" />
 
             {load && (
-                <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-md-12">
-                            <ScaleLoader
-                                color="#6776f4"
-                                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-                                size={200}
-                                loading={load}
-                            />
-                        </div>
-                    </div>
-                </div>
+                <ScaleLoader
+                    color="#6776f4"
+                    cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+                    loading={load}
+                />
             )}
 
-            <div className={load ? "d-none" : ""}>
+            {!load && (
                 <div className="col-lg-6 mx-auto mt-3">
                     <div className="card">
                         <div className="card-body">
@@ -128,31 +122,34 @@ export default function AddCity() {
 
                             <form className="row g-3" onSubmit={handleForm}>
 
-                                {/* ZONE */}
+                                {/* ================= ZONE ================= */}
                                 <div className="col-12">
                                     <label className="form-label">Zone Name</label>
                                     <div className="dropdown">
-                                        <button className="form-control text-start dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <button
+                                            className="form-control text-start dropdown-toggle"
+                                            data-bs-toggle="dropdown"
+                                        >
                                             {zoneName || "Select a Zone"}
                                         </button>
-
-                                        <ul className="dropdown-menu w-100" style={{ maxHeight: 200, overflowY: "auto" }}>
-                                            {zones.length > 0 ? zones.map((el) => (
-                                                <li key={el._id}>
+                                        <ul className="dropdown-menu w-100">
+                                            {zones.length > 0 ? zones.map(z => (
+                                                <li key={z._id}>
                                                     <button
                                                         type="button"
                                                         className="dropdown-item"
                                                         onClick={() => {
-                                                            setZoneName(el.zoneName);
-                                                            setZoneId(el._id);
+                                                            setZoneName(z.zoneName);
+                                                            setZoneId(z._id);
                                                             setStateName("");
                                                             setStateId("");
-                                                            setCityName("");
+                                                            setStates([]);
                                                             setCities([]);
-                                                            loadStatesByZone(el._id);
+                                                            setSelectedCities([]);
+                                                            loadStatesByZone(z._id);
                                                         }}
                                                     >
-                                                        {el.zoneName}
+                                                        {z.zoneName}
                                                     </button>
                                                 </li>
                                             )) : (
@@ -162,33 +159,30 @@ export default function AddCity() {
                                     </div>
                                 </div>
 
-                                {/* STATE */}
+                                {/* ================= STATE (SINGLE) ================= */}
                                 <div className="col-12">
                                     <label className="form-label">State Name</label>
                                     <div className="dropdown">
                                         <button
                                             className="form-control text-start dropdown-toggle"
-                                            type="button"
                                             data-bs-toggle="dropdown"
                                             disabled={!zoneId}
                                         >
                                             {stateName || "Select a State"}
                                         </button>
-
-                                        <ul className="dropdown-menu w-100" style={{ maxHeight: 200, overflowY: "auto" }}>
-                                            {states.length > 0 ? states.map((el) => (
-                                                <li key={el._id}>
+                                        <ul className="dropdown-menu w-100">
+                                            {states.length > 0 ? states.map(s => (
+                                                <li key={s._id}>
                                                     <button
                                                         type="button"
                                                         className="dropdown-item"
                                                         onClick={() => {
-                                                            setStateName(el.stateName);
-                                                            setStateId(el._id);
-                                                            setCityName("");
-                                                            loadCities(el.stateName);
+                                                            setStateName(s.stateName);
+                                                            setStateId(s._id);
+                                                            loadCities(s.stateName);
                                                         }}
                                                     >
-                                                        {el.stateName}
+                                                        {s.stateName}
                                                     </button>
                                                 </li>
                                             )) : (
@@ -198,43 +192,65 @@ export default function AddCity() {
                                     </div>
                                 </div>
 
-                                {/* CITY */}
+                                {/* ================= CITY (STATE STYLE + CHECKBOX + NUMBERING) ================= */}
                                 <div className="col-12">
                                     <label className="form-label">City Name</label>
                                     <div className="dropdown">
                                         <button
                                             className="form-control text-start dropdown-toggle"
-                                            type="button"
                                             data-bs-toggle="dropdown"
-                                            disabled={!stateId || cityLoading} 
+                                            disabled={!stateId || cityLoading}
                                         >
-                                            {cityLoading ? "Loading cities..." : (cityName || "Select a City")}
+                                            {cityLoading ? "Loading cities..." : cityButtonText}
                                         </button>
 
-                                        <ul className="dropdown-menu w-100" style={{ maxHeight: 200, overflowY: "auto" }}>
-                                            {cityLoading ? (
-                                                <li className="dropdown-item text-muted">Loading cities...</li>
-                                            ) : cities.length > 0 ? (
-                                                cities.map((el, index) => (
-                                                    <li key={index}>
-                                                        <button
-                                                            type="button"
-                                                            className="dropdown-item"
-                                                            onClick={() => setCityName(el)}
-                                                        >
-                                                            {el}
-                                                        </button>
-                                                    </li>
-                                                ))
+                                        <ul
+                                            className="dropdown-menu w-100 p-2"
+                                            style={{ maxHeight: "220px", overflowY: "auto" }}
+                                        >
+                                            {cities.length > 0 ? (
+                                                cities.map((city, index) => {
+                                                    const idx = selectedCities.indexOf(city);
+                                                    return (
+                                                        <li key={index}>
+                                                            <div className="d-flex justify-content-between align-items-center form-check">
+                                                                <label className="form-check-label">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="form-check-input me-2"
+                                                                        checked={idx !== -1}
+                                                                        onChange={() => toggleCity(city)}
+                                                                    />
+                                                                    {city}
+                                                                </label>
+
+                                                                {idx !== -1 && (
+                                                                    <span
+                                                                        className="badge"
+                                                                        style={{ background: "#6776f4" }}
+                                                                    >
+                                                                        {idx + 1}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </li>
+                                                    );
+                                                })
                                             ) : (
-                                                <li className="dropdown-item text-muted">No Cities Found</li>
+                                                <li className="dropdown-item text-muted">
+                                                    No Cities Found
+                                                </li>
                                             )}
                                         </ul>
                                     </div>
                                 </div>
 
                                 <div className="text-center">
-                                    <button type="submit" className="btn" style={{ background: "#6776f4", color: "white" }}>
+                                    <button
+                                        type="submit"
+                                        className="btn"
+                                        style={{ background: "#6776f4", color: "white" }}
+                                    >
                                         Submit
                                     </button>
                                 </div>
@@ -243,7 +259,7 @@ export default function AddCity() {
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </main>
     );
 }
