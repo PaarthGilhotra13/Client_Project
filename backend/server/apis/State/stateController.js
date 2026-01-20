@@ -136,10 +136,18 @@ const getSingle = (req, res) => {
 }
 
 const update = (req, res) => {
-    var errMsgs = []
+    var errMsgs = [];
 
     if (!req.body._id) {
-        errMsgs.push("_id is required")
+        errMsgs.push("_id is required");
+    }
+
+    if (!req.body.zoneId) {
+        errMsgs.push("zoneId is required");
+    }
+
+    if (!req.body.stateName || !Array.isArray(req.body.stateName) || req.body.stateName.length === 0) {
+        errMsgs.push("At least one state is required");
     }
 
     if (errMsgs.length > 0) {
@@ -147,56 +155,53 @@ const update = (req, res) => {
             status: 422,
             success: false,
             message: errMsgs
-        })
+        });
     }
     else {
         stateModel.findOne({
-            stateName: { $in: req.body.stateName || [] },
+            stateName: { $in: req.body.stateName },
             _id: { $ne: req.body._id }
         })
             .then((duplicateState) => {
+
                 if (duplicateState) {
                     res.send({
                         status: 422,
                         success: false,
-                        message: "State Already Exists with same name"
-                    })
+                        message: "One or more states already exist in another zone"
+                    });
                 }
                 else {
                     stateModel.findOne({ _id: req.body._id })
                         .then((stateData) => {
+
                             if (stateData == null) {
                                 res.send({
                                     status: 422,
                                     success: false,
                                     message: "State not Found"
-                                })
+                                });
                             }
                             else {
-                                if (req.body.stateName && Array.isArray(req.body.stateName)) {
-                                    stateData.stateName = req.body.stateName   
-                                }
-
-                                if (req.body.zoneId) {
-                                    stateData.zoneId = req.body.zoneId
-                                }
+                                stateData.stateName = req.body.stateName;
+                                stateData.zoneId = req.body.zoneId;
 
                                 stateData.save()
-                                    .then((stateData) => {
+                                    .then((updatedData) => {
                                         res.send({
                                             status: 200,
                                             success: true,
                                             message: "State Updated Successfully",
-                                            data: stateData
-                                        })
+                                            data: updatedData
+                                        });
                                     })
                                     .catch(() => {
                                         res.send({
                                             status: 422,
                                             success: false,
                                             message: "State not Updated"
-                                        })
-                                    })
+                                        });
+                                    });
                             }
                         })
                         .catch(() => {
@@ -204,8 +209,8 @@ const update = (req, res) => {
                                 status: 422,
                                 success: false,
                                 message: "Internal Server Error"
-                            })
-                        })
+                            });
+                        });
                 }
             })
             .catch(() => {
@@ -213,10 +218,11 @@ const update = (req, res) => {
                     status: 422,
                     success: false,
                     message: "Something Went Wrong"
-                })
-            })
+                });
+            });
     }
-}
+};
+
 
 
 const delState = (req, res) => {

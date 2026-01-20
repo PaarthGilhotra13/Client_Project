@@ -1,347 +1,256 @@
-import { ScaleLoader } from "react-spinners"
-import PageTitle from "../../PageTitle"
-import { useEffect, useRef, useState } from "react"
-import ApiServices from "../../../ApiServices"
-import { toast } from "react-toastify"
-import { useLocation, useNavigate, useParams } from "react-router-dom"
-import Swal from "sweetalert2"
+import { ScaleLoader } from "react-spinners";
+import PageTitle from "../../PageTitle";
+import { useEffect, useState } from "react";
+import ApiServices from "../../../ApiServices";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function EditEmployee() {
-    var [name, setName] = useState("")
-    var [contact, setContact] = useState("")
-    var [email, setEmail] = useState("");
-    var [designation, setDesignation] = useState("");
-    var [storeName, setStoreName] = useState("")
-    var [stores, setStores] = useState([])
-    var [storeId, setStoreId] = useState("")
-    var [load, setLoad] = useState(false)
-    var nav = useNavigate()
-    var params = useParams()
+    const [name, setName] = useState("");
+    const [contact, setContact] = useState("");
+    const [email, setEmail] = useState("");
+    const [designation, setDesignation] = useState("");
+
+    // STORE (ARRAY + ORDER)
+    const [stores, setStores] = useState([]);
+    const [storeIds, setStoreIds] = useState([]);
+    const [storeOrder, setStoreOrder] = useState([]);
+
+    // ZONE
+    const [zones, setZones] = useState([]);
+    const [zoneId, setZoneId] = useState("");
+
+    const [load, setLoad] = useState(false);
+    const nav = useNavigate();
+    const params = useParams();
     const location = useLocation();
     const oldDesignation = location?.state?.designation;
+
+    // ================= LOAD =================
     useEffect(() => {
-        setLoad(true)
-        let data = {
-            _id: params.id
-        }
+        setLoad(true);
+
         let apiCall;
-        if (oldDesignation === "FM") {
-            apiCall = ApiServices.GetSingleFm;
-        }
-        else if (oldDesignation === "CLM") {
-            apiCall = ApiServices.GetSingleClm;
-        }
-        else if (oldDesignation === "Zonal_Head") {
-            apiCall = ApiServices.GetSingleZh;
-        }
-        else if (oldDesignation === "Business_Finance") {
-            apiCall = ApiServices.GetSingleBf;
-        }
-        else if (oldDesignation === "Procurement") {
-            apiCall = ApiServices.GetSingleProcurement;
-        }
-        else {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Please select a valid designation",
-            });
-            setLoad(false);
-            return;
-        }
-        apiCall(data)
-            .then((res) => {
-                setName(res?.data?.data?.name)
-                setContact(res?.data?.data?.contact)
-                setEmail(res?.data?.data?.email)
-                setDesignation(res?.data?.data?.designation)
-                setStoreName(res?.data?.data?.storeId?.storeName)
-                setTimeout(() => {
-                    setLoad(false)
-                }, 1000)
+        if (oldDesignation === "FM") apiCall = ApiServices.GetSingleFm;
+        else if (oldDesignation === "CLM") apiCall = ApiServices.GetSingleClm;
+        else if (oldDesignation === "Zonal_Head") apiCall = ApiServices.GetSingleZh;
+        else if (oldDesignation === "Business_Finance") apiCall = ApiServices.GetSingleBf;
+        else if (oldDesignation === "Procurement") apiCall = ApiServices.GetSingleProcurement;
+        else return;
 
-            })
-            .catch((err) => {
-                console.log("err is", err);
-            })
+        apiCall({ _id: params.id }).then((res) => {
+            const emp = res?.data?.data;
+            setName(emp?.name);
+            setContact(emp?.contact);
+            setEmail(emp?.email);
+            setDesignation(emp?.designation);
 
-        let data1 = {
-            status: "true"
+            // ✅ STORE ARRAY PREFILL
+            const ids = emp?.storeId?.map(s => s._id) || [];
+            setStoreIds(ids);
+            setStoreOrder(ids);
+
+            // ✅ ZONE PREFILL
+            if (emp?.zoneId) setZoneId(emp.zoneId);
+
+            setTimeout(() => setLoad(false), 800);
+        });
+
+        ApiServices.GetAllStore({ status: "true" })
+            .then(res => setStores(res?.data?.data || []))
+            .catch(() => { });
+
+        ApiServices.GetAllZone?.({ status: "true" })
+            .then(res => setZones(res?.data?.data || []))
+            .catch(() => { });
+    }, []);
+
+    // ================= STORE TOGGLE =================
+    const handleStoreToggle = (store) => {
+        let ids = [...storeIds];
+        let order = [...storeOrder];
+
+        if (ids.includes(store._id)) {
+            ids = ids.filter(id => id !== store._id);
+            order = order.filter(id => id !== store._id);
+        } else {
+            ids.push(store._id);
+            order.push(store._id);
         }
-        ApiServices.GetAllStore(data1)
-            .then((res) => {
-                setStores(res?.data?.data);
-            })
-            .catch((err) => {
-                console.log("Error is ", err);
-            })
-    }, [])
+
+        setStoreIds(ids);
+        setStoreOrder(order);
+    };
+
+    const getStoreNumber = (id) => {
+        const index = storeOrder.indexOf(id);
+        return index !== -1 ? index + 1 : null;
+    };
+
+    // ================= SUBMIT =================
     function handleForm(e) {
-        e.preventDefault()
-        setLoad(true)
-        let data = {
+        e.preventDefault();
+        setLoad(true);
+
+        let payload = {
             _id: params.id,
-            name: name,
-            contact: contact,
-            storeId: storeId,
+            name,
+            contact,
+            storeId: storeIds, // ARRAY
             newDesignation: designation,
-            oldDesignation: oldDesignation
+            oldDesignation,
+        };
+
+        if (designation === "Zonal_Head") {
+            payload.zoneId = zoneId;
         }
+
         let apiCall;
         if (oldDesignation !== designation) {
             apiCall = ApiServices.ChangeDesignation;
-        }
-        else {
-            const updateApiMap = {
+        } else {
+            const updateMap = {
                 FM: ApiServices.UpdateFm,
                 CLM: ApiServices.UpdateClm,
                 Zonal_Head: ApiServices.UpdateZh,
                 Business_Finance: ApiServices.UpdateBf,
-                Procurement: ApiServices.UpdateProcurement
+                Procurement: ApiServices.UpdateProcurement,
             };
-
-            apiCall = updateApiMap[oldDesignation];
+            apiCall = updateMap[oldDesignation];
         }
-        apiCall(data)
+
+        apiCall(payload)
             .then((res) => {
-                var message = res?.data?.message
-                if (res?.data?.success) {
-                    Swal.fire({
-                        title: message,
-                        icon: "success",
-                        draggable: true,
-                        confirmButtonText: 'Continue',
-                        timer: 2000,
-                        timerProgressBar: true,
-                    });
-                    setTimeout(() => {
-                        setLoad(false)
-                        nav("/admin/manageEmployee")
-                    }, 2000)
-                }
-                else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: message,
-                        confirmButtonText: 'Continue',
-                        timer: 2000,
-                        timerProgressBar: true,
-                    });
-                    setTimeout(() => {
-                        setLoad(false)
-                        nav("/admin/manageEmployee")
-                    }, 2000)
-                }
-
-            })
-            .catch((err) => {
-                setLoad(true)
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: "Something went wrong!",
-                    confirmButtonText: 'Continue',
-                    timer: 2000,
-                    timerProgressBar: true,
-                });
+                Swal.fire("Success", res.data.message, "success");
                 setTimeout(() => {
-                    setLoad(false)
-                }, 2000)
-                console.log("Error is", err)
+                    setLoad(false);
+                    nav("/admin/manageEmployee");
+                }, 2000);
             })
-
-
+            .catch(() => {
+                Swal.fire("Error", "Something went wrong", "error");
+                setLoad(false);
+            });
     }
 
     return (
-        <>
-            <main id="main" className="main">
-                <PageTitle child="Edit Employee" />
-                <div className="container-fluid ">
-                    <div className="row">
-                        <div className="col-md-12">
-                            <ScaleLoader
-                                color="#6776f4"
-                                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-                                size={200}
-                                loading={load}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div className={load ? "display-screen" : ""} style={{ cursor: "default" }}>
-                    <div className="col-lg-6 mx-auto mt-3">
-                        <div className="card">
-                            <div className="card-body">
-                                <h5 className="card-title">Employee Details</h5>
-                                {/* Vertical Form */}
-                                <form className="row g-3" onSubmit={handleForm}>
-                                    <div className="col-12  form-group">
-                                        <label className="form-label">Name</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            id="inputNanme4"
-                                            value={name}
-                                            onChange={(e) => {
-                                                setName(e.target.value);
-                                            }}
-                                            required
-                                        />
+        <main id="main" className="main">
+            <PageTitle child="Edit Employee" />
+
+            <ScaleLoader
+                color="#6776f4"
+                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+                loading={load}
+            />
+
+            <div className={load ? "display-screen" : ""}>
+                <div className="col-lg-6 mx-auto mt-3">
+                    <div className="card">
+                        <div className="card-body">
+                            <h5 className="card-title">Employee Details</h5>
+
+                            <form className="row g-3" onSubmit={handleForm}>
+                                <div className="col-12">
+                                    <label>Name</label>
+                                    <input className="form-control" value={name} onChange={e => setName(e.target.value)} required />
+                                </div>
+
+                                <div className="col-12">
+                                    <label>Email</label>
+                                    <input className="form-control" value={email} disabled />
+                                </div>
+
+                                <div className="col-12">
+                                    <label>Contact</label>
+                                    <input className="form-control" value={contact} onChange={e => setContact(e.target.value)} required />
+                                </div>
+
+                                {/* DESIGNATION */}
+                                <div className="col-12">
+                                    <label>Designation</label>
+                                    <div className="dropdown">
+                                        <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                                            {designation}
+                                        </button>
+                                        <ul className="dropdown-menu w-100">
+                                            {["FM", "CLM", "Zonal_Head", "Business_Finance", "Procurement"].map(d => (
+                                                <li key={d}>
+                                                    <button className="dropdown-item" type="button" onClick={() => setDesignation(d)}>
+                                                        {d}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
-                                    <div className="col-12">
-                                        <label className="form-label">Email</label>
-                                        <input
-                                            type="email"
-                                            className="form-control"
-                                            id="inputNanme4"
-                                            value={email}
-                                            onChange={(e) => {
-                                                setEmail(e.target.value);
-                                            }}
-                                            required disabled
-                                        />
+                                </div>
+
+                                {/* STORE MULTI SELECT */}
+                                <div className="col-12">
+                                    <label>Store</label>
+                                    <div className="dropdown">
+                                        <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                                            {storeIds.length > 0
+                                                ? `${storeIds.length} Store${storeIds.length > 1 ? "s" : ""} Selected`
+                                                : "Select Store"}
+                                        </button>
+
+                                        <ul className="dropdown-menu w-100">
+                                            {stores.map(el => (
+                                                <li key={el._id} className="dropdown-item d-flex justify-content-between">
+                                                    <div className="form-check">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="form-check-input me-2"
+                                                            checked={storeIds.includes(el._id)}
+                                                            onChange={() => handleStoreToggle(el)}
+                                                        />
+                                                        {el.storeName}
+                                                    </div>
+                                                    {getStoreNumber(el._id) && (
+                                                        <span className="badge bg-primary">
+                                                            {getStoreNumber(el._id)}
+                                                        </span>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
+                                </div>
+
+                                {/* ZONE */}
+                                {designation === "Zonal_Head" && (
                                     <div className="col-12">
-                                        <label className="form-label">Contact</label>
-                                        <input
-                                            type="tel"
-                                            pattern="[0-9]{10}"
-                                            maxLength="10"
-                                            className="form-control"
-                                            id="inputNanme4"
-                                            value={contact}
-                                            onChange={(e) => {
-                                                setContact(e.target.value);
-                                            }}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="col-12">
-                                        <label htmlFor="CategotyName" className="form-label">
-                                            Designation
-                                        </label>
-                                        <div className="dropdown text-center ">
-                                            <button
-                                                className="form-control text-start dropdown-toggle"
-                                                type="button"
-                                                id="categoryDropdown"
-                                                data-bs-toggle="dropdown"
-                                                aria-expanded="false"
-                                            >
-                                                {designation || "Select a Designation"}
+                                        <label>Zone</label>
+                                        <div className="dropdown">
+                                            <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                                                {zoneId
+                                                    ? zones.find(z => z._id === zoneId)?.zoneName
+                                                    : "Select Zone"}
                                             </button>
-                                            <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
-                                                <li >
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-item"
-                                                        onClick={() => setDesignation("FM")}
-                                                    >
-                                                        FM
-                                                    </button>
-                                                </li>
-                                                <li >
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-item"
-                                                        onClick={() => setDesignation("CLM")}
-                                                    >
-                                                        CLM
-                                                    </button>
-                                                </li>
-                                                <li >
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-item"
-                                                        onClick={() => setDesignation("Zonal_Head")}
-                                                    >
-                                                        Zonal_Head
-                                                    </button>
-                                                </li>
-                                                <li >
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-item"
-                                                        onClick={() => setDesignation("Business_Finance")}
-                                                    >
-                                                        Business_Finance
-                                                    </button>
-                                                </li>
-                                                <li >
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-item"
-                                                        onClick={() => setDesignation("Procurement")}
-                                                    >
-                                                        Procurement
-                                                    </button>
-                                                </li>
+                                            <ul className="dropdown-menu w-100">
+                                                {zones.map(z => (
+                                                    <li key={z._id}>
+                                                        <button className="dropdown-item" type="button" onClick={() => setZoneId(z._id)}>
+                                                            {z.zoneName}
+                                                        </button>
+                                                    </li>
+                                                ))}
                                             </ul>
                                         </div>
                                     </div>
-                                    <div className="col-12">
-                                        <label htmlFor="CategotyName" className="form-label">
-                                            Store
-                                        </label>
-                                        <div className="dropdown text-center ">
-                                            <button
-                                                className="form-control text-start dropdown-toggle"
-                                                type="button"
-                                                id="categoryDropdown"
-                                                data-bs-toggle="dropdown"
-                                                aria-expanded="false"
-                                            >
-                                                {storeName || "Select a Store "}
-                                            </button>
-                                            {stores?.map((el, index) => {
-                                                return (
-                                                    <>
-                                                        <ul className="dropdown-menu w-100" aria-labelledby="categoryDropdown">
-                                                            {stores.length > 0 ? (
-                                                                stores.map((el) => (
-                                                                    <li key={el._id}>
-                                                                        <button
-                                                                            type="button"
-                                                                            className="dropdown-item"
-                                                                            onClick={() => {
-                                                                                setStoreName(el.storeName);
-                                                                                setStoreId(el._id);
-                                                                            }}
+                                )}
 
-                                                                        >
-                                                                            {el.storeName}
-                                                                        </button>
-                                                                    </li>
-                                                                ))
-                                                            ) : (
-                                                                <li><span className="dropdown-item text-muted">No Store found</span></li>
-                                                            )}
-                                                        </ul>
+                                <div className="text-center">
+                                    <button className="btn" style={{ background: "#6776f4", color: "white" }}>
+                                        Submit
+                                    </button>
+                                </div>
+                            </form>
 
-                                                    </>
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                    <div className="text-center">
-                                        <button
-                                            type="submit"
-                                            className="btn"
-                                            style={{ background: "#6776f4", color: "white" }}
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
-                                </form>
-                                {/* Vertical Form */}
-                            </div>
                         </div>
                     </div>
                 </div>
-            </main>
-
-        </>
-    )
+            </div>
+        </main>
+    );
 }

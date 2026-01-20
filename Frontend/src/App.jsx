@@ -58,6 +58,11 @@ import ClmRejectedExpenses from "./Components/CLM/Clm Expenses/ClmRejectedExpens
 
 import ExpenseTracking from "./Components/FM/Expenses/ExpenseTrackingCard"
 import TrackApproval from "./Components/FM/Expenses/TrackApproval"
+import ZhMaster from "./layout/Zonal Head/ZhMaster"
+import ZhApprovedExpenses from "./Components/Zonal_Head/Expenses/ZhApprovedExpenses"
+import ZhHoldExpenses from "./Components/Zonal_Head/Expenses/ZhHoldExpenses"
+import ZhPendingExpenses from "./Components/Zonal_Head/Expenses/ZhPendingExpense"
+import ZhRejectedExpenses from "./Components/Zonal_Head/Expenses/ZhRejectedExpenses"
 
 
 
@@ -140,6 +145,13 @@ function App() {
             <Route path="/clm/holdExpenses" element={<ClmHoldExpenses />} />
             <Route path="/clm/pendingExpenses" element={<ClmPendingExpense />} />
             <Route path="/clm/rejectedExpenses" element={<ClmRejectedExpenses />} />
+          </Route>
+          <Route path="/ZonalHead" element={<ZhMaster />}>
+            <Route path="/ZonalHead" element={<EmployeeDashboard />} />
+            <Route path="/ZonalHead/approvedExpenses" element={<ZhApprovedExpenses />} />
+            <Route path="/ZonalHead/holdExpenses" element={<ZhHoldExpenses />} />
+            <Route path="/ZonalHead/pendingExpenses" element={<ZhPendingExpenses />} />
+            <Route path="/ZonalHead/rejectedExpenses" element={<ZhRejectedExpenses />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

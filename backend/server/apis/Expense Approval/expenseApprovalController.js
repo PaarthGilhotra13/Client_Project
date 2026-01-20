@@ -2,6 +2,8 @@ const expenseApprovalModel = require("./expenseApprovalModel");
 const expenseModel = require("../Expense/expenseModel");
 const approvalPolicyModel = require("../Approval Policy/approvalPolicyModel");
 const userModel = require("../User/userModel")
+const storeModel = require("../Store/storeModel")
+const zhModel = require("../Zonal Head/zonalHeadModel")
 /* ================= APPROVE EXPENSE ================= */
 const approveExpense = async (req, res) => {
     try {
@@ -233,88 +235,155 @@ const clmPendingExpenses = async (req, res) => {
     try {
         const clmId = req.body.userId;
 
-        // console.log(clmId)
-        // 1️⃣ CLM ka store mapping nikaalo
+        // 1️⃣ CLM user fetch
         const clmUser = await userModel.findById(clmId);
-        // console.log(clmUser);
-        // console.log(clmUser.storeIds?.length);
-        // console.log(clmUser.storeId,);
 
-        if (!clmUser || !clmUser.storeId) {
+        if (!clmUser || !Array.isArray(clmUser.storeId) || clmUser.storeId.length === 0) {
             return res.send({
                 success: false,
-                message: "No store mapping found for CLM"
+                message: "No store mapping found for CLM",
+                data: []
             });
         }
-        // 2️⃣ Sirf wahi expenses lao jo
-        // - CLM ke stores ke ho
-        // - Pending ho
-        // - CLM level pe ho
+
+        // 2️⃣ Expenses fetch (CLM ke stores + Pending + CLM level)
         const expenses = await expenseModel.find({
-            storeId: clmUser.storeId,
+            storeId: { $in: clmUser.storeId },
             currentStatus: "Pending",
             currentApprovalLevel: "CLM",
             status: true
         })
             .populate("storeId expenseHeadId raisedBy");
 
-        res.send({
+        return res.send({
             success: true,
             data: expenses
         });
 
     } catch (err) {
-        res.send({
+        console.error("CLM Pending Expense Error:", err);
+        return res.send({
             success: false,
-            message: "CLM pending fetch failed"
+            message: "CLM pending fetch failed",
+            error: err.message
         });
     }
 };
+
+
+// const pendingForZH = async (req, res) => {
+//     try {
+//         if (!req.body.userId) {
+//             return res.send({
+//                 status: 422,
+//                 success: false,
+//                 message: "userId is required"
+//             });
+//         }
+
+//         const zhUser = await userModel.findById(req.body.userId);
+
+//         if (!zhUser) {
+//             return res.send({
+//                 status: 404,
+//                 success: false,
+//                 message: "User not found"
+//             });
+//         }
+
+//         const expenses = await expenseModel.find({
+//             currentApprovalLevel: "ZH",
+//             currentStatus: "Pending",
+//             storeId: { $in: zhUser.storeIds },
+//             status: true
+//         })
+//             .populate("storeId expenseHeadId raisedBy policyId")
+//             .sort({ createdAt: -1 });
+
+//         res.send({
+//             status: 200,
+//             success: true,
+//             message: "ZH Pending Expenses",
+//             data: expenses
+//         });
+
+//     } catch (err) {
+//         res.send({
+//             status: 500,
+//             success: false,
+//             message: "ZH pending fetch failed"
+//         });
+//     }
+// };
 
 const pendingForZH = async (req, res) => {
-    try {
-        if (!req.body.userId) {
-            return res.send({
-                status: 422,
-                success: false,
-                message: "userId is required"
-            });
-        }
+  try {
+    const { userId } = req.body;
 
-        const zhUser = await userModel.findById(req.body.userId);
-
-        if (!zhUser) {
-            return res.send({
-                status: 404,
-                success: false,
-                message: "User not found"
-            });
-        }
-
-        const expenses = await expenseModel.find({
-            currentApprovalLevel: "ZH",
-            currentStatus: "Pending",
-            storeId: { $in: zhUser.storeIds },
-            status: true
-        })
-            .populate("storeId expenseHeadId raisedBy policyId")
-            .sort({ createdAt: -1 });
-
-        res.send({
-            status: 200,
-            success: true,
-            message: "ZH Pending Expenses",
-            data: expenses
-        });
-
-    } catch (err) {
-        res.send({
-            status: 500,
-            success: false,
-            message: "ZH pending fetch failed"
-        });
+    if (!userId) {
+      return res.send({
+        success: false,
+        message: "userId is required"
+      });
     }
+
+    /* 1️⃣ Zonal Head data (zoneId yahin se) */
+    const zhData = await zhModel.findOne({ userId });
+
+    if (!zhData || !zhData.zoneId) {
+      return res.send({
+        success: false,
+        message: "Zonal Head or zone not found"
+      });
+    }
+
+    /* 2️⃣ Zone ke stores */
+    const zoneStores = await storeModel.find(
+      { zoneId: zhData.zoneId },
+      { _id: 1 }
+    );
+
+    const storeIds = zoneStores.map(s => s._id);
+
+    if (storeIds.length === 0) {
+      return res.send({
+        success: true,
+        data: []
+      });
+    }
+
+    /* 3️⃣ ZH Pending expenses (policy-aware) */
+    const expenses = await expenseModel.find({
+      storeId: { $in: storeIds },
+      currentApprovalLevel: "ZONAL_HEAD",
+      currentStatus: "Pending",
+      status: true
+    })
+    .populate("storeId expenseHeadId raisedBy policyId")
+    .sort({ createdAt: -1 });
+
+    /* 4️⃣ Policy filter (ZH required only) */
+    const filteredExpenses = expenses.filter(exp =>
+      exp.policyId &&
+      Array.isArray(exp.policyId.approvalLevels) &&
+      exp.policyId.approvalLevels.includes("ZONAL_HEAD")
+    );
+
+    return res.send({
+      success: true,
+      message: "ZH Pending Expenses",
+      data: filteredExpenses
+    });
+
+  } catch (err) {
+    return res.send({
+      success: false,
+      message: "ZH pending fetch failed"
+    });
+  }
 };
+
+
 const pendingForBF = async (req, res) => {
     try {
         if (!req.body.userId) {
