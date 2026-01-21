@@ -171,24 +171,45 @@ export default function AddCity() {
                                             {stateName || "Select a State"}
                                         </button>
                                         <ul className="dropdown-menu w-100">
-                                            {states.length > 0 ? states.map(s => (
-                                                <li key={s._id}>
-                                                    <button
-                                                        type="button"
-                                                        className="dropdown-item"
-                                                        onClick={() => {
-                                                            setStateName(s.stateName);
-                                                            setStateId(s._id);
-                                                            loadCities(s.stateName);
-                                                        }}
-                                                    >
-                                                        {s.stateName}
-                                                    </button>
-                                                </li>
-                                            )) : (
+                                            {states.length > 0 ? (
+                                                states.flatMap((s) =>
+                                                    Array.isArray(s.stateName)
+                                                        ? s.stateName.map((name) => (
+                                                            <li key={s._id + name}>
+                                                                <button
+                                                                    type="button"
+                                                                    className="dropdown-item"
+                                                                    onClick={() => {
+                                                                        setStateName(name);
+                                                                        setStateId(s._id);
+                                                                        loadCities(name);
+                                                                    }}
+                                                                >
+                                                                    {name}
+                                                                </button>
+                                                            </li>
+                                                        ))
+                                                        : (
+                                                            <li key={s._id}>
+                                                                <button
+                                                                    type="button"
+                                                                    className="dropdown-item"
+                                                                    onClick={() => {
+                                                                        setStateName(s.stateName);
+                                                                        setStateId(s._id);
+                                                                        loadCities(s.stateName);
+                                                                    }}
+                                                                >
+                                                                    {s.stateName}
+                                                                </button>
+                                                            </li>
+                                                        )
+                                                )
+                                            ) : (
                                                 <li className="dropdown-item text-muted">No States Found</li>
                                             )}
                                         </ul>
+
                                     </div>
                                 </div>
 

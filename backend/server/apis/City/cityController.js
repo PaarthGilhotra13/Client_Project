@@ -2,15 +2,19 @@ const cityModel = require("./cityModel")
 
 const add = (req, res) => {
     var errMsgs = [];
-    if (!req.body.cityName || !Array.isArray(req.body.cityName) || req.body.cityName.length === 0) {
+
+    if (!req.body.cityName || !Array.isArray(req.body.cityName)) {
         errMsgs.push("cityName array is required");
     }
+
     if (!req.body.stateId) {
         errMsgs.push("stateId is required");
     }
+
     if (!req.body.zoneId) {
         errMsgs.push("zoneId is required");
     }
+
     if (errMsgs.length > 0) {
         res.send({
             status: 422,
@@ -19,41 +23,44 @@ const add = (req, res) => {
         });
     }
     else {
+
+        // 🔁 SAME LOGIC AS ADD STATE
         cityModel.findOne({
-            stateName: { $in: req.body.stateName }
+            stateId: req.body.stateId,
+            zoneId: req.body.zoneId
         })
-            .then((existingCity) => {
+            .then((cityData) => {
 
-                if (existingCity) {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "One or more cities already exist"
-                    });
-                }
-                else {
-                    const cityDocs = req.body.cityName.map((city) => ({
-                        cityName: city,
-                        stateId: req.body.stateId,
-                        zoneId: req.body.zoneId
-                    }));
+                if (cityData == null) {
 
-                    cityModel.insertMany(cityDocs)
-                        .then((savedCities) => {
+                    let cityObj = new cityModel();
+                    cityObj.cityName = req.body.cityName;   // array
+                    cityObj.stateId = req.body.stateId;
+                    cityObj.zoneId = req.body.zoneId;
+
+                    cityObj.save()
+                        .then((savedCity) => {
                             res.send({
                                 status: 200,
                                 success: true,
-                                message: "Cities Added Successfully",
-                                data: savedCities
+                                message: "City Added Successfully",
+                                data: savedCity
                             });
                         })
                         .catch(() => {
                             res.send({
                                 status: 422,
                                 success: false,
-                                message: "Cities Not Added"
+                                message: "City Not Added"
                             });
                         });
+
+                } else {
+                    res.send({
+                        status: 422,
+                        success: false,
+                        message: "City Already Exists for this State"
+                    });
                 }
             })
             .catch(() => {
@@ -65,6 +72,7 @@ const add = (req, res) => {
             });
     }
 };
+
 
 
 const getAll = (req, res) => {
