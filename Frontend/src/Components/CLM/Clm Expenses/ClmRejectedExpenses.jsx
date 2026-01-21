@@ -5,107 +5,230 @@ import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 
 export default function ClmRejectedExpense() {
+  const [data, setData] = useState([]);
+  const [load, setLoad] = useState(true);
+  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-    const [data, setData] = useState([]);
-    const [load, setLoad] = useState(true);
+  const userId = sessionStorage.getItem("userId");
 
-    const userId = sessionStorage.getItem("userId");
+  /* ================= FETCH REJECTED ================= */
+  const fetchRejected = () => {
+    if (!userId) {
+      Swal.fire("Error", "User not logged in", "error");
+      setLoad(false);
+      return;
+    }
 
-    /* ================= FETCH REJECTED ================= */
-    const fetchRejected = () => {
-        if (!userId) {
-            Swal.fire("Error", "User not logged in", "error");
-            setLoad(false);
-            return;
+    ApiServices.MyApprovalActions({
+      userId: userId,
+      action: "Rejected",
+      level: "CLM",
+    })
+      .then((res) => {
+        if (res?.data?.success) {
+          setData(res.data.data || []);
+        } else {
+          setData([]);
         }
+        setTimeout(() => setLoad(false), 500);
+      })
+      .catch(() => {
+        setData([]);
+        setTimeout(() => setLoad(false), 500);
+      });
+  };
 
-        ApiServices.MyApprovalActions({
-            userId: userId,
-            action: "Rejected",
-            level:"CLM"
-        })
-            .then((res) => {
-                if (res?.data?.success) {
-                    setData(res.data.data || []);
-                } else {
-                    setData([]);
-                }
-                setTimeout(() => setLoad(false), 500);
-            })
-            .catch(() => {
-                setData([]);
-                setTimeout(() => setLoad(false), 500);
-            });
-    };
+  useEffect(() => {
+    fetchRejected();
+  }, []);
 
-    useEffect(() => {
-        fetchRejected();
-    }, []);
+  /* ================= MODAL HANDLERS ================= */
+  const handleViewClick = (expense) => {
+    setSelectedExpense(expense);
+    setShowModal(true);
+  };
 
-    return (
-        <>
-            <main className="main" id="main">
-                <PageTitle child="Rejected Expenses (CLM)" />
+  const handleCloseModal = () => {
+    setSelectedExpense(null);
+    setShowModal(false);
+  };
 
-                <ScaleLoader
-                    color="#6776f4"
-                    cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-                    size={200}
-                    loading={load}
-                />
+  /* ================= ATTACHMENT DOWNLOAD ================= */
+  const handleDownload = (url) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = url.split("/").pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-                {!load && (
-                    <div className="container-fluid">
-                        <div className="row justify-content-center">
-                            <div className="col-lg-12 mt-4 table-responsive">
+  return (
+    <>
+      <main className="main" id="main">
+        <PageTitle child="Rejected Expenses (CLM)" />
 
-                                <table className="table table-hover table-striped">
-                                    <thead className="table-dark">
-                                        <tr>
-                                            <th>Sr. No</th>
-                                            <th>Ticket ID</th>
-                                            <th>Store</th>
-                                            <th>Expense Head</th>
-                                            <th>Amount</th>
-                                            <th>Status</th>
-                                            <th>Comment</th>
-                                            <th>Action Date</th>
-                                        </tr>
-                                    </thead>
+        {/* Loader */}
+        <ScaleLoader
+          color="#6776f4"
+          cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+          size={200}
+          loading={load}
+        />
 
-                                    <tbody>
-                                        {data.length > 0 ? (
-                                            data.map((el, index) => (
-                                                <tr key={el._id}>
-                                                    <td>{index + 1}</td>
-                                                    <td>{el.expenseId?.ticketId}</td>
-                                                    <td>{el.expenseId?.storeId?.storeName}</td>
-                                                    <td>{el.expenseId?.expenseHeadId?.name}</td>
-                                                    <td>₹ {el.expenseId?.amount}</td>
-                                                    <td>
-                                                        <span className="badge bg-danger">
-                                                            Rejected
-                                                        </span>
-                                                    </td>
-                                                    <td>{el.comment || "-"}</td>
-                                                    <td>{new Date(el.actionAt).toLocaleDateString()}</td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="8" className="text-center text-muted">
-                                                    No Rejected Expenses Found
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+        {!load && (
+          <div className="container-fluid">
+            <div className="row justify-content-center">
+              <div className="col-lg-12 mt-4 table-responsive">
+                <table className="table table-hover table-striped">
+                  <thead className="table-dark">
+                    <tr>
+                      <th>Sr. No</th>
+                      <th>Ticket ID</th>
+                      <th>Store</th>
+                      <th>Expense Head</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Comment</th>
+                      <th>Action Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
 
-                            </div>
-                        </div>
+                  <tbody>
+                    {data.length > 0 ? (
+                      data.map((el, index) => (
+                        <tr key={el._id}>
+                          <td>{index + 1}</td>
+                          <td>{el.expenseId?.ticketId}</td>
+                          <td>{el.expenseId?.storeId?.storeName}</td>
+                          <td>{el.expenseId?.expenseHeadId?.name}</td>
+                          <td>₹ {el.expenseId?.amount}</td>
+                          <td>
+                            <span className="badge bg-danger">Rejected</span>
+                          </td>
+                          <td>{el.comment || "-"}</td>
+                          <td>{new Date(el.actionAt).toLocaleDateString()}</td>
+                          <td>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => handleViewClick(el)}
+                            >
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="9" className="text-center text-muted">
+                          No Rejected Expenses Found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= MODAL ================= */}
+        {showModal && selectedExpense && (
+          <div
+            className="modal show d-block"
+            tabIndex="-1"
+            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          >
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Expense Details</h5>
+                  <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "50%",
+                      backgroundColor: "red",
+                      color: "white",
+                      fontWeight: "bold",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      fontSize: "18px",
+                    }}
+                  >
+                    &times;
+                  </button>
+                </div>
+
+                <div className="modal-body px-4">
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <strong>Ticket ID:</strong>
+                      <p>{selectedExpense.expenseId?.ticketId}</p>
                     </div>
-                )}
-            </main>
-        </>
-    );
+                    <div className="col-md-6">
+                      <strong>Store:</strong>
+                      <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Expense Head:</strong>
+                      <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Amount:</strong>
+                      <p>₹ {selectedExpense.expenseId?.amount}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Status:</strong>
+                      <p>
+                        <span className="badge bg-danger">Rejected</span>
+                      </p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Comment:</strong>
+                      <p>{selectedExpense.comment || "-"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Action Date:</strong>
+                      <p>
+                        {new Date(
+                          selectedExpense.actionAt,
+                        ).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="col-12">
+                      <strong>Attachment:</strong>
+                      <p>
+                        {selectedExpense.expenseId?.attachment ? (
+                          <button
+                            className="btn btn-sm btn-primary"
+                            onClick={() =>
+                              handleDownload(
+                                selectedExpense.expenseId.attachment,
+                              )
+                            }
+                          >
+                            Download Attachment
+                          </button>
+                        ) : (
+                          <span className="text-muted">No Attachment</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </>
+  );
 }
