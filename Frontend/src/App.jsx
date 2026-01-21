@@ -50,11 +50,13 @@ import PendingExpenses from "./Components/FM/Expenses/PendingExpenses"
 import ApprovedExpenses from "./Components/FM/Expenses/ApprovedExpenses"
 import HoldExpenses from "./Components/FM/Expenses/HoldExpenses"
 import RejectedExpenses from "./Components/FM/Expenses/RejectedExpenses"
+import FMProfile from "./Components/Profile/FMProfile"
 
 import ClmApprovedExpenses from "./Components/CLM/Clm Expenses/ClmApprovedExpenses"
 import ClmHoldExpenses from "./Components/CLM/Clm Expenses/ClmHoldExpenses"
 import ClmPendingExpense from "./Components/CLM/Clm Expenses/ClmPendingExpense"
 import ClmRejectedExpenses from "./Components/CLM/Clm Expenses/ClmRejectedExpenses"
+import CLMProfile from "./Components/Profile/CLMProfile"
 
 import ExpenseTracking from "./Components/FM/Expenses/ExpenseTrackingCard"
 import TrackApproval from "./Components/FM/Expenses/TrackApproval"
@@ -63,7 +65,7 @@ import ZhApprovedExpenses from "./Components/Zonal_Head/Expenses/ZhApprovedExpen
 import ZhHoldExpenses from "./Components/Zonal_Head/Expenses/ZhHoldExpenses"
 import ZhPendingExpenses from "./Components/Zonal_Head/Expenses/ZhPendingExpense"
 import ZhRejectedExpenses from "./Components/Zonal_Head/Expenses/ZhRejectedExpenses"
-
+import ZhProfile from "./Components/Profile/ZonalProfile"
 
 
 function App() {
@@ -138,6 +140,7 @@ function App() {
             <Route path="/fm/rejectedExpenses" element={<RejectedExpenses />} />
             <Route path="/fm/expenseTrackingCard/:id" element={<ExpenseTracking />} />
             <Route path="/fm/trackApproval" element={<TrackApproval />} />
+            <Route path="/fm/fmProfile" element={<FMProfile />} />
           </Route>
           <Route path="/clm" element={<ClmMaster />}>
             <Route path="/clm" element={<EmployeeDashboard />} />
@@ -145,6 +148,7 @@ function App() {
             <Route path="/clm/holdExpenses" element={<ClmHoldExpenses />} />
             <Route path="/clm/pendingExpenses" element={<ClmPendingExpense />} />
             <Route path="/clm/rejectedExpenses" element={<ClmRejectedExpenses />} />
+            <Route path="/clm/clmProfile" element={<CLMProfile />} />
           </Route>
           <Route path="/ZonalHead" element={<ZhMaster />}>
             <Route path="/ZonalHead" element={<EmployeeDashboard />} />
@@ -152,6 +156,7 @@ function App() {
             <Route path="/ZonalHead/holdExpenses" element={<ZhHoldExpenses />} />
             <Route path="/ZonalHead/pendingExpenses" element={<ZhPendingExpenses />} />
             <Route path="/ZonalHead/rejectedExpenses" element={<ZhRejectedExpenses />} />
+            <Route path="/ZonalHead/zhprofile" element={<ZhProfile/>} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

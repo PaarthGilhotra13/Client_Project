@@ -122,7 +122,7 @@ export default function ZhHeader() {
                 </li>
                 <li><hr className="dropdown-divider" /></li>
                 <li>
-                  <Link to="/employee/myProfile" className="dropdown-item d-flex align-items-center">
+                  <Link to="/ZonalHead/zhprofile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person" />
                     <span>My Profile</span>
                   </Link>

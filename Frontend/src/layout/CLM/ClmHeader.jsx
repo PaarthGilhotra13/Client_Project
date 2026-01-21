@@ -122,7 +122,7 @@ export default function ClmHeader() {
                 </li>
                 <li><hr className="dropdown-divider" /></li>
                 <li>
-                  <Link to="/employee/myProfile" className="dropdown-item d-flex align-items-center">
+                  <Link to="/clm/clmProfile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person" />
                     <span>My Profile</span>
                   </Link>
