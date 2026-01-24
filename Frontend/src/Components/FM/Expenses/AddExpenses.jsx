@@ -506,7 +506,7 @@ export default function AddExpenses() {
                             <button
                               type="button"
                               className="dropdown-item"
-                              onMouseDown={() => {   // 🔥 IMPORTANT FIX
+                              onMouseDown={() => {  
                                 setStoreId(el._id);
                                 setSelectedStore(el);
                                 setSearchStore(el.storeName);

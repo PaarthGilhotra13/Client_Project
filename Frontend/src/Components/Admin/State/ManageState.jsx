@@ -168,9 +168,6 @@ import Swal from "sweetalert2";
 export default function ManageState() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState("");
-  const [modalTitle, setModalTitle] = useState("");
 
   useEffect(() => {
     ApiServices.GetAllState()
@@ -225,17 +222,11 @@ export default function ManageState() {
     });
   }
 
-  const truncateText = (text, limit = 50) => {
-    if (!text) return "";
-    if (text.length <= limit) return text;
-    return text.slice(0, limit) + "...";
-  };
-
   const activeStates = data.filter((el) => el.status === true);
 
   return (
     <>
-      <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
+      <main className="main" id="main">
         <PageTitle child="Manage State" />
 
         <div className="container-fluid">
@@ -256,7 +247,7 @@ export default function ManageState() {
                     <tr>
                       <th>Sr. No</th>
                       <th>Zone</th>
-                      <th>States</th>
+                      <th>State</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -265,38 +256,26 @@ export default function ManageState() {
                       activeStates.map((el, index) => (
                         <tr key={el._id}>
                           <td>{index + 1}</td>
-                          <td>{el.zoneId?.zoneName}</td>
-                          <td>
-                            {truncateText(el.stateName.join(", "), 50)}
-                            {el.stateName.join(", ").length > 50 && (
-                              <span
-                                style={{
-                                  color: "blue",
-                                  cursor: "pointer",
-                                  marginLeft: "5px",
-                                }}
-                                onClick={() => {
-                                  setModalTitle(el.zoneId?.zoneName || "States");
-                                  setModalContent(el.stateName.join(", "));
-                                  setModalOpen(true);
-                                }}
-                              >
-                                View More
-                              </span>
-                            )}
-                          </td>
+                          <td>{el.zoneId?.zoneName || "-"}</td>
+                          <td>{el.stateName}</td> 
                           <td>
                             <div className="btn-group">
                               <Link
                                 to={`/admin/editState/${el._id}`}
                                 className="btn"
-                                style={{ background: "#197ce6ff", color: "white" }}
+                                style={{
+                                  background: "#197ce6ff",
+                                  color: "white",
+                                }}
                               >
                                 <i className="bi bi-pen"></i>
                               </Link>
                               <button
                                 className="btn ms-2"
-                                style={{ background: "#6c757d", color: "white" }}
+                                style={{
+                                  background: "#6c757d",
+                                  color: "white",
+                                }}
                                 onClick={() => changeInactiveStatus(el._id)}
                               >
                                 <i className="bi bi-x-circle"></i>
@@ -319,25 +298,7 @@ export default function ManageState() {
           </div>
         </div>
       </main>
-
-      {modalOpen && (
-        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-          <div
-            className="modal-box position-relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="btn-close btn-close-red btn-close-large position-absolute top-0 end-0 m-2"
-              aria-label="Close"
-              onClick={() => setModalOpen(false)}
-            ></button>
-
-            <h5 className="pe-4">Zone Name: {modalTitle}</h5>
-            <p style={{ textAlign: "justify" }}> State Name : {modalContent}</p>
-          </div>
-        </div>
-      )}
     </>
   );
 }
+

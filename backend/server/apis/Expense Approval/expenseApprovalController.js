@@ -317,76 +317,120 @@ const clmPendingExpenses = async (req, res) => {
 // };
 
 const pendingForZH = async (req, res) => {
-  try {
-    const { userId } = req.body;
+    try {
+        const { userId } = req.body;
 
-    if (!userId) {
-      return res.send({
-        success: false,
-        message: "userId is required"
-      });
+        if (!userId) {
+            return res.send({
+                success: false,
+                message: "userId is required"
+            });
+        }
+
+        /* 1️⃣ Zonal Head data (zoneId yahin se) */
+        const zhData = await zhModel.findOne({ userId });
+
+        if (!zhData || !zhData.zoneId) {
+            return res.send({
+                success: false,
+                message: "Zonal Head or zone not found"
+            });
+        }
+
+        /* 2️⃣ Zone ke stores */
+        const zoneStores = await storeModel.find(
+            { zoneId: zhData.zoneId },
+            { _id: 1 }
+        );
+
+        const storeIds = zoneStores.map(s => s._id);
+
+        if (storeIds.length === 0) {
+            return res.send({
+                success: true,
+                data: []
+            });
+        }
+
+        /* 3️⃣ ZH Pending expenses (policy-aware) */
+        const expenses = await expenseModel.find({
+            storeId: { $in: storeIds },
+            currentApprovalLevel: "ZONAL_HEAD",
+            currentStatus: "Pending",
+            status: true
+        })
+            .populate("storeId expenseHeadId raisedBy policyId")
+            .sort({ createdAt: -1 });
+
+        /* 4️⃣ Policy filter (ZH required only) */
+        const filteredExpenses = expenses.filter(exp =>
+            exp.policyId &&
+            Array.isArray(exp.policyId.approvalLevels) &&
+            exp.policyId.approvalLevels.includes("ZONAL_HEAD")
+        );
+
+        return res.send({
+            success: true,
+            message: "ZH Pending Expenses",
+            data: filteredExpenses
+        });
+
+    } catch (err) {
+        return res.send({
+            success: false,
+            message: "ZH pending fetch failed"
+        });
     }
-
-    /* 1️⃣ Zonal Head data (zoneId yahin se) */
-    const zhData = await zhModel.findOne({ userId });
-
-    if (!zhData || !zhData.zoneId) {
-      return res.send({
-        success: false,
-        message: "Zonal Head or zone not found"
-      });
-    }
-
-    /* 2️⃣ Zone ke stores */
-    const zoneStores = await storeModel.find(
-      { zoneId: zhData.zoneId },
-      { _id: 1 }
-    );
-
-    const storeIds = zoneStores.map(s => s._id);
-
-    if (storeIds.length === 0) {
-      return res.send({
-        success: true,
-        data: []
-      });
-    }
-
-    /* 3️⃣ ZH Pending expenses (policy-aware) */
-    const expenses = await expenseModel.find({
-      storeId: { $in: storeIds },
-      currentApprovalLevel: "ZONAL_HEAD",
-      currentStatus: "Pending",
-      status: true
-    })
-    .populate("storeId expenseHeadId raisedBy policyId")
-    .sort({ createdAt: -1 });
-
-    /* 4️⃣ Policy filter (ZH required only) */
-    const filteredExpenses = expenses.filter(exp =>
-      exp.policyId &&
-      Array.isArray(exp.policyId.approvalLevels) &&
-      exp.policyId.approvalLevels.includes("ZONAL_HEAD")
-    );
-
-    return res.send({
-      success: true,
-      message: "ZH Pending Expenses",
-      data: filteredExpenses
-    });
-
-  } catch (err) {
-    return res.send({
-      success: false,
-      message: "ZH pending fetch failed"
-    });
-  }
 };
 
 
+// const pendingForBF = async (req, res) => {
+//     try {
+//         if (!req.body.userId) {
+//             return res.send({
+//                 status: 422,
+//                 success: false,
+//                 message: "userId is required"
+//             });
+//         }
+
+//         const bfUser = await userModel.findById(req.body.userId);
+//         if (!bfUser) {
+//             return res.send({
+//                 status: 404,
+//                 success: false,
+//                 message: "User not found"
+//             });
+//         }
+//         const expenses = await expenseModel.find({
+//             currentApprovalLevel: "BUSINESS_FINANCE",
+//             currentStatus: "Pending",
+//             storeId: { $in: bfUser.storeIds },
+//             status: true
+//         })
+//             .populate("storeId expenseHeadId raisedBy policyId")
+//             .sort({ createdAt: -1 });
+//         console.log(expenses)
+//         res.send({
+//             status: 200,
+//             success: true,
+//             message: "BF Pending Expenses",
+//             data: expenses
+//         });
+
+//     } catch (err) {
+//         res.send({
+//             status: 500,
+//             success: false,
+//             message: "BF pending fetch failed"
+//         });
+//     }
+// };
 const pendingForBF = async (req, res) => {
     try {
-        if (!req.body.userId) {
+        const { userId } = req.body;
+
+        if (!userId) {
             return res.send({
                 status: 422,
                 success: false,
@@ -394,7 +438,7 @@ const pendingForBF = async (req, res) => {
             });
         }
 
-        const bfUser = await userModel.findById(req.body.userId);
+        const bfUser = await userModel.findById(userId);
 
         if (!bfUser) {
             return res.send({
@@ -404,16 +448,23 @@ const pendingForBF = async (req, res) => {
             });
         }
 
-        const expenses = await expenseModel.find({
-            currentApprovalLevel: "BF",
+        // 🔹 Base condition (mandatory)
+        let query = {
+            currentApprovalLevel: "BUSINESS_FINANCE",
             currentStatus: "Pending",
-            storeId: { $in: bfUser.storeIds },
             status: true
-        })
+        };
+
+        // 🔹 Store filter ONLY if BF has storeIds
+        if (Array.isArray(bfUser.storeIds) && bfUser.storeIds.length > 0) {
+            query.storeId = { $in: bfUser.storeIds };
+        }
+        console.log(query)
+        const expenses = await expenseModel.find(query)
             .populate("storeId expenseHeadId raisedBy policyId")
             .sort({ createdAt: -1 });
 
-        res.send({
+        return res.send({
             status: 200,
             success: true,
             message: "BF Pending Expenses",
@@ -421,16 +472,65 @@ const pendingForBF = async (req, res) => {
         });
 
     } catch (err) {
-        res.send({
+        console.error("BF Pending Error:", err);
+        return res.send({
             status: 500,
             success: false,
             message: "BF pending fetch failed"
         });
     }
 };
+
+
+// const pendingForProcurement = async (req, res) => {
+//     try {
+//         if (!req.body.userId) {
+//             return res.send({
+//                 status: 422,
+//                 success: false,
+//                 message: "userId is required"
+//             });
+//         }
+
+//         const procurementUser = await userModel.findById(req.body.userId);
+
+//         if (!procurementUser) {
+//             return res.send({
+//                 status: 404,
+//                 success: false,
+//                 message: "User not found"
+//             });
+//         }
+
+//         const expenses = await expenseModel.find({
+//             currentApprovalLevel: "PROCUREMENT",
+//             currentStatus: "Pending",
+//             storeId: { $in: procurementUser.storeIds },
+//             status: true
+//         })
+//             .populate("storeId expenseHeadId raisedBy policyId")
+//             .sort({ createdAt: -1 });
+
+//         res.send({
+//             status: 200,
+//             success: true,
+//             message: "Procurement Pending Expenses",
+//             data: expenses
+//         });
+
+//     } catch (err) {
+//         res.send({
+//             status: 500,
+//             success: false,
+//             message: "Procurement pending fetch failed"
+//         });
+//     }
+// };
 const pendingForProcurement = async (req, res) => {
     try {
-        if (!req.body.userId) {
+        const { userId } = req.body;
+
+        if (!userId) {
             return res.send({
                 status: 422,
                 success: false,
@@ -438,7 +538,7 @@ const pendingForProcurement = async (req, res) => {
             });
         }
 
-        const procurementUser = await userModel.findById(req.body.userId);
+        const procurementUser = await userModel.findById(userId);
 
         if (!procurementUser) {
             return res.send({
@@ -447,17 +547,26 @@ const pendingForProcurement = async (req, res) => {
                 message: "User not found"
             });
         }
-
-        const expenses = await expenseModel.find({
+        // 🔹 Base mandatory condition
+        let query = {
             currentApprovalLevel: "PROCUREMENT",
             currentStatus: "Pending",
-            storeId: { $in: procurementUser.storeIds },
             status: true
-        })
+        };
+
+        // 🔹 Optional store filtering
+        if (
+            Array.isArray(procurementUser.storeIds) &&
+            procurementUser.storeIds.length > 0
+        ) {
+            query.storeId = { $in: procurementUser.storeIds };
+        }
+
+        const expenses = await expenseModel.find(query)
             .populate("storeId expenseHeadId raisedBy policyId")
             .sort({ createdAt: -1 });
 
-        res.send({
+        return res.send({
             status: 200,
             success: true,
             message: "Procurement Pending Expenses",
@@ -465,7 +574,8 @@ const pendingForProcurement = async (req, res) => {
         });
 
     } catch (err) {
-        res.send({
+        console.error("Procurement Pending Error:", err);
+        return res.send({
             status: 500,
             success: false,
             message: "Procurement pending fetch failed"

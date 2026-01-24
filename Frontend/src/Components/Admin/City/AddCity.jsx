@@ -28,18 +28,24 @@ export default function AddCity() {
 
     /* ================= LOAD STATES BY ZONE ================= */
     const loadStatesByZone = (zId) => {
+        setStates([]);
+        setStateName("");
+        setStateId("");
+        setCities([]);
+        setSelectedCities([]);
+
         ApiServices.GetAllState({ zoneId: zId })
             .then(res => setStates(res?.data?.data || []))
             .catch(() => setStates([]));
     };
 
     /* ================= LOAD CITIES BY STATE ================= */
-    const loadCities = (sName) => {
+    const loadCitiesByState = (state) => {
         setCityLoading(true);
         setCities([]);
         setSelectedCities([]);
 
-        ApiServices.GetCitiesByState(sName)
+        ApiServices.GetCitiesByState(state)
             .then(res => setCities(res?.data?.data || []))
             .catch(() => setCities([]))
             .finally(() => setCityLoading(false));
@@ -70,8 +76,7 @@ export default function AddCity() {
             Swal.fire({
                 icon: "error",
                 title: "Missing Fields",
-                text: "Please select Zone, State and City(s)",
-                timer: 2000,
+                text: "Please select Zone, State and City",
             });
             return;
         }
@@ -81,7 +86,8 @@ export default function AddCity() {
         ApiServices.AddCity({
             zoneId,
             stateId,
-            cityName: selectedCities   // ✅ array
+            stateName,
+            cityName: selectedCities   // ✅ city array allowed
         })
             .then(res => {
                 if (res?.data?.success) {
@@ -95,7 +101,7 @@ export default function AddCity() {
                     setCities([]);
                     setSelectedCities([]);
                 } else {
-                    Swal.fire("Error", res?.data?.message || "Failed", "error");
+                    Swal.fire("Error", res?.data?.message, "error");
                 }
             })
             .catch(() => Swal.fire("Error", "Server Error", "error"))
@@ -141,11 +147,6 @@ export default function AddCity() {
                                                         onClick={() => {
                                                             setZoneName(z.zoneName);
                                                             setZoneId(z._id);
-                                                            setStateName("");
-                                                            setStateId("");
-                                                            setStates([]);
-                                                            setCities([]);
-                                                            setSelectedCities([]);
                                                             loadStatesByZone(z._id);
                                                         }}
                                                     >
@@ -153,7 +154,9 @@ export default function AddCity() {
                                                     </button>
                                                 </li>
                                             )) : (
-                                                <li className="dropdown-item text-muted">No Zones Found</li>
+                                                <li className="dropdown-item text-muted">
+                                                    No Zones Found
+                                                </li>
                                             )}
                                         </ul>
                                     </div>
@@ -170,50 +173,37 @@ export default function AddCity() {
                                         >
                                             {stateName || "Select a State"}
                                         </button>
-                                        <ul className="dropdown-menu w-100">
+
+                                        <ul
+                                            className="dropdown-menu w-100"
+                                            style={{ maxHeight: "220px", overflowY: "auto" }}
+                                        >
                                             {states.length > 0 ? (
-                                                states.flatMap((s) =>
-                                                    Array.isArray(s.stateName)
-                                                        ? s.stateName.map((name) => (
-                                                            <li key={s._id + name}>
-                                                                <button
-                                                                    type="button"
-                                                                    className="dropdown-item"
-                                                                    onClick={() => {
-                                                                        setStateName(name);
-                                                                        setStateId(s._id);
-                                                                        loadCities(name);
-                                                                    }}
-                                                                >
-                                                                    {name}
-                                                                </button>
-                                                            </li>
-                                                        ))
-                                                        : (
-                                                            <li key={s._id}>
-                                                                <button
-                                                                    type="button"
-                                                                    className="dropdown-item"
-                                                                    onClick={() => {
-                                                                        setStateName(s.stateName);
-                                                                        setStateId(s._id);
-                                                                        loadCities(s.stateName);
-                                                                    }}
-                                                                >
-                                                                    {s.stateName}
-                                                                </button>
-                                                            </li>
-                                                        )
-                                                )
+                                                states.map(s => (
+                                                    <li key={s._id}>
+                                                        <button
+                                                            type="button"
+                                                            className="dropdown-item"
+                                                            onClick={() => {
+                                                                setStateName(s.stateName);
+                                                                setStateId(s._id);
+                                                                loadCitiesByState(s.stateName);
+                                                            }}
+                                                        >
+                                                            {s.stateName}
+                                                        </button>
+                                                    </li>
+                                                ))
                                             ) : (
-                                                <li className="dropdown-item text-muted">No States Found</li>
+                                                <li className="dropdown-item text-muted">
+                                                    No States Found
+                                                </li>
                                             )}
                                         </ul>
-
                                     </div>
                                 </div>
 
-                                {/* ================= CITY (STATE STYLE + CHECKBOX + NUMBERING) ================= */}
+                                {/* ================= CITY (MULTI) ================= */}
                                 <div className="col-12">
                                     <label className="form-label">City Name</label>
                                     <div className="dropdown">
@@ -246,10 +236,7 @@ export default function AddCity() {
                                                                 </label>
 
                                                                 {idx !== -1 && (
-                                                                    <span
-                                                                        className="badge"
-                                                                        style={{ background: "#6776f4" }}
-                                                                    >
+                                                                    <span className="badge" style={{ background: "#6776f4" }}>
                                                                         {idx + 1}
                                                                     </span>
                                                                 )}

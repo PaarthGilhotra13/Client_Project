@@ -70,7 +70,7 @@ export default function ManageStore() {
     <main className="main" id="main">
       <PageTitle child="Manage Store" />
 
-      <div className="container-fluid ">
+      <div className="container-fluid">
         <div className="row">
           <div className="col-md-12">
             <ScaleLoader
@@ -101,22 +101,27 @@ export default function ManageStore() {
                     <th>Action</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {UnBlockedStore?.length ? (
+                  {UnBlockedStore.length ? (
                     UnBlockedStore.map((el, index) => (
-                      <tr key={el?._id}>
+                      <tr key={el._id}>
                         <td>{index + 1}</td>
-                        <td>{el?.storeName}</td>
-                        <td>{el?.storeCode}</td>
-                        <td>{el?.storeCategoryId?.name}</td>
-                        <td>{el?.cityId?.cityName}</td>
-                        <td>{el?.stateId?.stateName}</td>
-                        <td>{el?.zoneId?.zoneName}</td>
-                        <td>{el?.address}</td>
+                        <td>{el.storeName}</td>
+                        <td>{el.storeCode}</td>
+                        <td>{el.storeCategoryId?.name || "-"}</td>
+
+                        {/* ✅ FIXED */}
+                        <td>{el.cityName || "-"}</td>
+
+                        <td>{el.stateId?.stateName || "-"}</td>
+                        <td>{el.zoneId?.zoneName || "-"}</td>
+                        <td>{el.address}</td>
+
                         <td>
                           <div className="btn-group">
                             <Link
-                              to={"/admin/editStore/" + el?._id}
+                              to={"/admin/editStore/" + el._id}
                               className="btn"
                               style={{ background: "#197ce6ff", color: "white" }}
                             >
@@ -126,7 +131,7 @@ export default function ManageStore() {
                             <button
                               className="btn ms-2"
                               style={{ background: "#6c757d", color: "white" }}
-                              onClick={() => changeInactiveStatus(el?._id)}
+                              onClick={() => changeInactiveStatus(el._id)}
                             >
                               <i className="bi bi-x-circle"></i>
                             </button>

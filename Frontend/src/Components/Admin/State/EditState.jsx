@@ -10,8 +10,8 @@ export default function EditState() {
   const [zoneId, setZoneId] = useState("");
   const [zones, setZones] = useState([]);
 
+  const [stateName, setStateName] = useState(""); // ✅ STRING
   const [states, setStates] = useState([]);
-  const [selectedStates, setSelectedStates] = useState([]);
 
   const [load, setLoad] = useState(false);
 
@@ -25,35 +25,26 @@ export default function EditState() {
     // Zones
     ApiServices.GetAllZone({ status: "true" })
       .then(res => setZones(res?.data?.data || []))
-      .catch(() => {});
+      .catch(() => { });
 
-    // All States list
+    // All States master list
     ApiServices.GetAllStates()
       .then(res => setStates(res?.data?.data || []))
-      .catch(() => {});
+      .catch(() => { });
 
     // Single State (EDIT DATA)
     ApiServices.GetSingleState({ _id: params.id })
       .then(res => {
         const data = res?.data?.data;
 
-        setZoneName(data?.zoneId?.zoneName);
-        setZoneId(data?.zoneId?._id);
-        setSelectedStates(data?.stateName || []);
+        setZoneName(data?.zoneId?.zoneName || "");
+        setZoneId(data?.zoneId?._id || "");
+        setStateName(data?.stateName || ""); // ✅ STRING
 
-        setTimeout(() => setLoad(false), 1000);
+        setLoad(false);
       })
       .catch(() => setLoad(false));
   }, [params.id]);
-
-  /* ================= STATE TOGGLE ================= */
-  const handleStateToggle = (stateName) => {
-    setSelectedStates(prev =>
-      prev.includes(stateName)
-        ? prev.filter(s => s !== stateName)
-        : [...prev, stateName]
-    );
-  };
 
   /* ================= SUBMIT ================= */
   function handleForm(e) {
@@ -64,8 +55,8 @@ export default function EditState() {
       return;
     }
 
-    if (selectedStates.length === 0) {
-      Swal.fire("Error", "Select at least one State", "error");
+    if (!stateName) {
+      Swal.fire("Error", "Please select State", "error");
       return;
     }
 
@@ -73,8 +64,8 @@ export default function EditState() {
 
     ApiServices.UpdateState({
       _id: params.id,
-      zoneId: zoneId,
-      stateName: selectedStates
+      zoneId,
+      stateName // ✅ STRING
     })
       .then(res => {
         setLoad(false);
@@ -90,14 +81,6 @@ export default function EditState() {
         Swal.fire("Error", "Something went wrong", "error");
       });
   }
-
-  /* ================= BUTTON TEXT ================= */
-  const stateButtonText =
-    selectedStates.length === 0
-      ? "Select State(s)"
-      : selectedStates.length <= 2
-        ? selectedStates.join(", ")
-        : `${selectedStates.slice(0, 2).join(", ")} +${selectedStates.length - 2} more`;
 
   return (
     <main id="main" className="main">
@@ -131,10 +114,7 @@ export default function EditState() {
                           {zoneName || "Select a Zone"}
                         </button>
 
-                        <ul
-                          className="dropdown-menu w-100"
-                          style={{ maxHeight: "200px", overflowY: "auto" }}
-                        >
+                        <ul className="dropdown-menu w-100">
                           {zones.map(z => (
                             <li key={z._id}>
                               <button
@@ -143,7 +123,7 @@ export default function EditState() {
                                 onClick={() => {
                                   setZoneName(z.zoneName);
                                   setZoneId(z._id);
-                                  setSelectedStates([]);
+                                  setStateName(""); // reset state
                                 }}
                               >
                                 {z.zoneName}
@@ -154,7 +134,7 @@ export default function EditState() {
                       </div>
                     </div>
 
-                    {/* ================= STATE (ADD PAGE STYLE) ================= */}
+                    {/* ================= STATE ================= */}
                     <div className="col-12">
                       <label className="form-label">State Name</label>
                       <div className="dropdown">
@@ -164,41 +144,24 @@ export default function EditState() {
                           data-bs-toggle="dropdown"
                           disabled={!zoneId}
                         >
-                          {stateButtonText}
+                          {stateName || "Select a State"}
                         </button>
 
                         <ul
-                          className="dropdown-menu w-100 p-2"
+                          className="dropdown-menu w-100"
                           style={{ maxHeight: "220px", overflowY: "auto" }}
                         >
-                          {states.map(state => {
-                            const index = selectedStates.indexOf(state.name);
-
-                            return (
-                              <li key={state._id}>
-                                <div className="form-check d-flex justify-content-between align-items-center">
-                                  <label className="form-check-label">
-                                    <input
-                                      type="checkbox"
-                                      className="form-check-input me-2"
-                                      checked={index !== -1}
-                                      onChange={() => handleStateToggle(state.name)}
-                                    />
-                                    {state.name}
-                                  </label>
-
-                                  {index !== -1 && (
-                                    <span
-                                      className="badge"
-                                      style={{ background: "#6776f4" }}
-                                    >
-                                      {index + 1}
-                                    </span>
-                                  )}
-                                </div>
-                              </li>
-                            );
-                          })}
+                          {states.map(state => (
+                            <li key={state._id}>
+                              <button
+                                type="button"
+                                className="dropdown-item"
+                                onClick={() => setStateName(state.name)}
+                              >
+                                {state.name}
+                              </button>
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     </div>
@@ -210,7 +173,7 @@ export default function EditState() {
                         className="btn"
                         style={{ background: "#6776f4", color: "white" }}
                       >
-                        Submit
+                        Update
                       </button>
                     </div>
 

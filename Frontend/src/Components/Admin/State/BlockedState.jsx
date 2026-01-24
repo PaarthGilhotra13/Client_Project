@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
@@ -8,9 +7,6 @@ import Swal from "sweetalert2";
 export default function BlockedState() {
     const [data, setData] = useState([]);
     const [load, setLoad] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [modalContent, setModalContent] = useState("");
-    const [modalTitle, setModalTitle] = useState("");
 
     useEffect(() => {
         ApiServices.GetAllState()
@@ -41,8 +37,7 @@ export default function BlockedState() {
             confirmButtonText: "Yes, Unblock",
         }).then((result) => {
             if (result.isConfirmed) {
-                let payload = { _id: id, status: true };
-                ApiServices.ChangeStatusState(payload)
+                ApiServices.ChangeStatusState({ _id: id, status: true })
                     .then((res) => {
                         if (res?.data?.success) {
                             Swal.fire({
@@ -52,6 +47,8 @@ export default function BlockedState() {
                                 timer: 1200,
                             });
                             setLoad(true);
+                        } else {
+                            Swal.fire("Error", res?.data?.message, "error");
                         }
                     })
                     .catch(() => {
@@ -61,15 +58,9 @@ export default function BlockedState() {
         });
     }
 
-    const truncateText = (text, limit = 50) => {
-        if (!text) return "";
-        if (text.length <= limit) return text;
-        return text.slice(0, limit) + "...";
-    };
-
     return (
         <>
-            <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
+            <main className="main" id="main">
                 <PageTitle child="Blocked State" />
 
                 <div className="container-fluid">
@@ -90,7 +81,7 @@ export default function BlockedState() {
                                         <tr>
                                             <th>Sr. No</th>
                                             <th>Zone</th>
-                                            <th>States</th>
+                                            <th>State</th>
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
@@ -100,40 +91,19 @@ export default function BlockedState() {
                                             blockedStates.map((el, index) => (
                                                 <tr key={el._id}>
                                                     <td>{index + 1}</td>
-                                                    <td>{el.zoneId?.zoneName}</td>
-                                                    <td>
-                                                        {truncateText(el.stateName.join(", "), 50)}
-                                                        {el.stateName.join(", ").length > 50 && (
-                                                            <span
-                                                                style={{
-                                                                    color: "blue",
-                                                                    cursor: "pointer",
-                                                                    marginLeft: "5px",
-                                                                }}
-                                                                onClick={() => {
-                                                                    setModalTitle(el.zoneId?.zoneName || "States");
-                                                                    setModalContent(el.stateName.join(", "));
-                                                                    setModalOpen(true);
-                                                                }}
-                                                            >
-                                                                View More
-                                                            </span>
-                                                        )}
-                                                    </td>
+                                                    <td>{el.zoneId?.zoneName || "-"}</td>
+                                                    <td>{el.stateName}</td> {/* ✅ STRING */}
                                                     <td>
                                                         <span className="badge bg-danger">Blocked</span>
                                                     </td>
                                                     <td>
-                                                        <div className="btn-group">
-                                                            {/* Unblock Button */}
-                                                            <button
-                                                                className="btn ms-2"
-                                                                style={{ background: "#198754", color: "white" }}
-                                                                onClick={() => changeActiveStatus(el._id)}
-                                                            >
-                                                                <i className="bi bi-check-circle"></i> Unblock
-                                                            </button>
-                                                        </div>
+                                                        <button
+                                                            className="btn"
+                                                            style={{ background: "#198754", color: "white" }}
+                                                            onClick={() => changeActiveStatus(el._id)}
+                                                        >
+                                                            <i className="bi bi-check-circle"></i> Unblock
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))
@@ -151,25 +121,6 @@ export default function BlockedState() {
                     </div>
                 </div>
             </main>
-
-            {modalOpen && (
-                <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-                    <div
-                        className="modal-box position-relative"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button
-                            type="button"
-                            className="btn-close btn-close-red btn-close-large position-absolute top-0 end-0 m-2"
-                            aria-label="Close"
-                            onClick={() => setModalOpen(false)}
-                        ></button>
-
-                        <h5 className="pe-4">{modalTitle}</h5>
-                        <p style={{ textAlign: "justify" }}>{modalContent}</p>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

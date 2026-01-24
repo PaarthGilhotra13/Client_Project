@@ -5,12 +5,13 @@ import ApiServices from "../../../ApiServices";
 import Swal from "sweetalert2";
 
 export default function AddState() {
+
   const [zoneName, setZoneName] = useState("");
   const [zoneId, setZoneId] = useState("");
   const [zones, setZones] = useState([]);
 
+  const [stateName, setStateName] = useState("");   // ✅ STRING
   const [states, setStates] = useState([]);
-  const [selectedStates, setSelectedStates] = useState([]);
 
   const [load, setLoad] = useState(false);
 
@@ -28,14 +29,6 @@ export default function AddState() {
     setTimeout(() => setLoad(false), 1000);
   }, []);
 
-  const handleStateToggle = (stateName) => {
-    setSelectedStates(prev =>
-      prev.includes(stateName)
-        ? prev.filter(s => s !== stateName)
-        : [...prev, stateName]
-    );
-  };
-
   const handleForm = (e) => {
     e.preventDefault();
 
@@ -44,8 +37,8 @@ export default function AddState() {
       return;
     }
 
-    if (selectedStates.length === 0) {
-      Swal.fire("Error", "Select at least one State", "error");
+    if (!stateName) {
+      Swal.fire("Error", "Please select State", "error");
       return;
     }
 
@@ -53,7 +46,7 @@ export default function AddState() {
 
     ApiServices.AddState({
       zoneId,
-      stateName: selectedStates
+      stateName   // ✅ STRING send hoga
     })
       .then(res => {
         setLoad(false);
@@ -61,7 +54,7 @@ export default function AddState() {
           Swal.fire("Success", "State Added Successfully", "success");
           setZoneName("");
           setZoneId("");
-          setSelectedStates([]);
+          setStateName("");
         } else {
           Swal.fire("Error", res?.data?.message, "error");
         }
@@ -71,13 +64,6 @@ export default function AddState() {
         Swal.fire("Error", "Something went wrong", "error");
       });
   };
-
-  const stateButtonText =
-    selectedStates.length === 0
-      ? "Select State(s)"
-      : selectedStates.length <= 2
-        ? selectedStates.join(", ")
-        : `${selectedStates.slice(0, 2).join(", ")} +${selectedStates.length - 2} more`;
 
   return (
     <main id="main" className="main">
@@ -98,7 +84,7 @@ export default function AddState() {
 
                 <form className="row g-3" onSubmit={handleForm}>
 
-                  {/* Zone */}
+                  {/* ========== ZONE DROPDOWN ========== */}
                   <div className="col-12">
                     <label className="form-label">Zone Name</label>
                     <div className="dropdown">
@@ -118,7 +104,7 @@ export default function AddState() {
                               onClick={() => {
                                 setZoneName(z.zoneName);
                                 setZoneId(z._id);
-                                setSelectedStates([]);
+                                setStateName("");
                               }}
                             >
                               {z.zoneName}
@@ -129,7 +115,7 @@ export default function AddState() {
                     </div>
                   </div>
 
-                  {/* State Dropdown */}
+                  {/* ========== STATE DROPDOWN (SAME AS ZONE) ========== */}
                   <div className="col-12">
                     <label className="form-label">State Name</label>
                     <div className="dropdown">
@@ -139,40 +125,24 @@ export default function AddState() {
                         data-bs-toggle="dropdown"
                         disabled={!zoneId}
                       >
-                        {stateButtonText}
+                        {stateName || "Select a State"}
                       </button>
 
                       <ul
-                        className="dropdown-menu w-100 p-2"
+                        className="dropdown-menu w-100"
                         style={{ maxHeight: "220px", overflowY: "auto" }}
                       >
-                        {states.map(state => {
-                          const index = selectedStates.indexOf(state.name);
-                          return (
-                            <li key={state._id}>
-                              <div className="form-check d-flex justify-content-between align-items-center">
-                                <label className="form-check-label">
-                                  <input
-                                    type="checkbox"
-                                    className="form-check-input me-2"
-                                    checked={index !== -1}
-                                    onChange={() => handleStateToggle(state.name)}
-                                  />
-                                  {state.name}
-                                </label>
-
-                                {index !== -1 && (
-                                  <span
-                                    className="badge"
-                                    style={{ background: "#6776f4" }}
-                                  >
-                                    {index + 1}
-                                  </span>
-                                )}
-                              </div>
-                            </li>
-                          );
-                        })}
+                        {states.map(state => (
+                          <li key={state._id}>
+                            <button
+                              type="button"
+                              className="dropdown-item"
+                              onClick={() => setStateName(state.name)}
+                            >
+                              {state.name}
+                            </button>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   </div>

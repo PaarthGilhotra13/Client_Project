@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
@@ -9,88 +8,51 @@ export default function BlockedCity() {
 
     const [data, setData] = useState([]);
     const [load, setLoad] = useState(true);
-    const navigate = useNavigate();
-
     const [modalOpen, setModalOpen] = useState(false);
     const [modalZone, setModalZone] = useState("");
     const [modalState, setModalState] = useState("");
-    const [modalContent, setModalContent] = useState([]);
+    const [modalCities, setModalCities] = useState([]);
 
     useEffect(() => {
         ApiServices.GetAllCity()
-            .then((res) => {
+            .then(res => {
                 if (res?.data?.success) {
                     setData(res.data.data || []);
-                } else {
-                    setData([]);
                 }
                 setLoad(false);
             })
-            .catch(() => {
-                setData([]);
-                setLoad(false);
-            });
+            .catch(() => setLoad(false));
     }, []);
 
-    /* ================= BLOCKED CITIES ================= */
+    /* ✅ ONLY BLOCKED DOCUMENTS */
     const blockedCities = data.filter(el => el.status === false);
-
-    /* ================= GROUP BY ZONE + STATE ================= */
-    const groupedData = Object.values(
-        blockedCities.reduce((acc, city) => {
-            const zoneName = city?.zoneId?.zoneName;
-            const stateNames = city?.stateId?.stateName || [];
-
-            if (!Array.isArray(stateNames)) return acc;
-
-            stateNames.forEach((state) => {
-                const key = `${zoneName}_${state}`;
-
-                if (!acc[key]) {
-                    acc[key] = {
-                        zoneName,
-                        stateName: state,
-                        cities: []
-                    };
-                }
-
-                acc[key].cities.push(city.cityName);
-            });
-
-            return acc;
-        }, {})
-    );
-
     function changeActiveStatus(id) {
         Swal.fire({
-            title: "Unblock City?",
-            text: "Do you want to unblock this city?",
+            title: "Unblock State?",
+            text: "Do you want to unblock this state?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#198754",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Unblock"
+            confirmButtonText: "Yes, Unblock",
         }).then((result) => {
             if (result.isConfirmed) {
-
-                let payload = {
-                    _id: id,
-                    status: true
-                };
-
-                ApiServices.ChangeStatusCity(payload)
+                ApiServices.ChangeStatusCity({ _id: id, status: true })
                     .then((res) => {
                         if (res?.data?.success) {
+                            setLoad(true);
                             Swal.fire({
                                 icon: "success",
                                 title: res.data.message,
                                 showConfirmButton: false,
-                                timer: 1200
+                                timer: 1200,
                             });
+                            setTimeout(()=>{
+                                setLoad(false)
+                            },1000)
 
-                            setTimeout(() => {
-                                navigate("/admin/blockedCity");
-                            }, 1200);
+                        } else {
+                            Swal.fire("Error", res?.data?.message, "error");
                         }
                     })
                     .catch(() => {
@@ -99,7 +61,6 @@ export default function BlockedCity() {
             }
         });
     }
-
     return (
         <>
             <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
@@ -126,24 +87,25 @@ export default function BlockedCity() {
                                             <th>State</th>
                                             <th>Cities</th>
                                             <th>Status</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
 
                                     <tbody>
-                                        {groupedData.length ? (
-                                            groupedData.map((el, index) => (
-                                                <tr key={index}>
+                                        {blockedCities.length ? (
+                                            blockedCities.map((el, index) => (
+                                                <tr key={el._id}>
                                                     <td>{index + 1}</td>
-                                                    <td>{el.zoneName}</td>
-                                                    <td>{el.stateName}</td>
+                                                    <td>{el.zoneId?.zoneName}</td>
+                                                    <td>{el?.stateId?.stateName}</td>
 
                                                     <td>
                                                         <span
                                                             style={{ color: "blue", cursor: "pointer" }}
                                                             onClick={() => {
-                                                                setModalZone(el.zoneName);
-                                                                setModalState(el.stateName);
-                                                                setModalContent(el.cities);
+                                                                setModalZone(el.zoneId?.zoneName);
+                                                                setModalState(el?.stateId?.stateName);
+                                                                setModalCities(el.cityName);
                                                                 setModalOpen(true);
                                                             }}
                                                         >
@@ -153,6 +115,15 @@ export default function BlockedCity() {
 
                                                     <td>
                                                         <span className="badge bg-danger">Blocked</span>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            className="btn"
+                                                            style={{ background: "#198754", color: "white" }}
+                                                            onClick={() => changeActiveStatus(el._id)}
+                                                        >
+                                                            <i className="bi bi-check-circle"></i> Unblock
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))
@@ -185,20 +156,15 @@ export default function BlockedCity() {
                             onClick={() => setModalOpen(false)}
                         ></button>
 
-                        <h5 className="mb-1">
-                            Zone : <span className="fw-normal">{modalZone}</span>
-                        </h5>
-                        <h6 className="mb-3">
-                            State : <span className="fw-normal">{modalState}</span>
-                        </h6>
+                        <h5>Zone : <span className="fw-normal">{modalZone}</span></h5>
+                        <h6>State : <span className="fw-normal">{modalState}</span></h6>
 
                         <hr />
 
-                        <h6 className="mb-2">Cities</h6>
-
+                        <h6>Cities</h6>
                         <ul className="ps-3">
-                            {modalContent.map((city, index) => (
-                                <li key={index}>{city}</li>
+                            {modalCities.map((c, i) => (
+                                <li key={i}>{c}</li>
                             ))}
                         </ul>
                     </div>

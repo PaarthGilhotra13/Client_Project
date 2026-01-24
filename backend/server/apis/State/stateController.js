@@ -3,7 +3,7 @@ const stateModel = require("./stateModel")
 const add = (req, res) => {
     var errMsgs = []
 
-    if (!req.body.stateName || !Array.isArray(req.body.stateName)) {
+    if (!req.body.stateName) {
         errMsgs.push("stateName array is required")
     }
 
@@ -19,7 +19,7 @@ const add = (req, res) => {
         })
     }
     else {
-        stateModel.findOne({ zoneId: req.body.zoneId })
+        stateModel.findOne({ stateName: req.body.stateName })
             .then((stateData) => {
                 if (stateData == null) {
 
@@ -146,7 +146,7 @@ const update = (req, res) => {
         errMsgs.push("zoneId is required");
     }
 
-    if (!req.body.stateName || !Array.isArray(req.body.stateName) || req.body.stateName.length === 0) {
+    if (!req.body.stateName ) {
         errMsgs.push("At least one state is required");
     }
 
@@ -159,8 +159,7 @@ const update = (req, res) => {
     }
     else {
         stateModel.findOne({
-            stateName: { $in: req.body.stateName },
-            _id: { $ne: req.body._id }
+            _id: req.body._id
         })
             .then((duplicateState) => {
 
