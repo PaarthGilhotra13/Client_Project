@@ -345,7 +345,6 @@
 //   );
 // }
 
-
 // Experiment
 import { useState, useRef, useEffect } from "react";
 import PageTitle from "../../PageTitle";
@@ -354,7 +353,6 @@ import ApiServices from "../../../ApiServices";
 import { useNavigate } from "react-router-dom";
 
 export default function AddExpenses() {
-
   const nav = useNavigate();
 
   /* ================= STATES ================= */
@@ -398,7 +396,7 @@ export default function AddExpenses() {
     Promise.all([
       ApiServices.GetAllStore({ status: "true" }),
       ApiServices.GetAllStoreCategory({ status: "true" }),
-      ApiServices.GetAllExpenseHead({ status: "true" })
+      ApiServices.GetAllExpenseHead({ status: "true" }),
     ])
       .then(([storeRes, catRes, headRes]) => {
         setStores(storeRes?.data?.data || []);
@@ -443,14 +441,14 @@ export default function AddExpenses() {
     setLoad(true);
 
     ApiServices.AddExpense(data)
-      .then(res => {
+      .then((res) => {
         setLoad(false);
         if (res?.data?.success) {
           Swal.fire({
             title: "Expense Added Successfully",
             icon: "success",
             draggable: true,
-            confirmButtonText: 'Continue',
+            confirmButtonText: "Continue",
             timer: 2000,
             timerProgressBar: true,
           });
@@ -465,8 +463,8 @@ export default function AddExpenses() {
       });
   }
 
-  const filteredStores = stores.filter(el =>
-    el.storeName.toLowerCase().includes(searchStore.toLowerCase())
+  const filteredStores = stores.filter((el) =>
+    el.storeName.toLowerCase().includes(searchStore.toLowerCase()),
   );
 
   return (
@@ -477,11 +475,9 @@ export default function AddExpenses() {
         <div className="col-lg-6 mx-auto mt-3">
           <div className="card">
             <div className="card-body">
-
               <h5 className="card-title">Store Expense Details</h5>
 
               <form className="row g-3" onSubmit={handleForm}>
-
                 {/* ================= STORE SEARCH ================= */}
                 <div className="col-12 position-relative">
                   <label className="form-label">Store</label>
@@ -492,21 +488,35 @@ export default function AddExpenses() {
                     placeholder="Search for store name..."
                     value={searchStore}
                     onChange={(e) => {
-                      setSearchStore(e.target.value);
+                      const value = e.target.value;
+                      setSearchStore(value);
                       setShowSearchDropdown(true);
+
+                      // 🔥 CLEAR STORE INFO WHEN INPUT IS CLEARED
+                      if (value === "") {
+                        setSelectedStore(null);
+                        setStoreId("");
+                        setStoreCategoryName("");
+                        setStoreCategoryId("");
+                        setExpenseHeadName("");
+                        setExpenseHeadId("");
+                        setPolicy("");
+                      }
                     }}
-                    onBlur={() => setTimeout(() => setShowSearchDropdown(false), 150)}
+                    onBlur={() =>
+                      setTimeout(() => setShowSearchDropdown(false), 150)
+                    }
                   />
 
                   {showSearchDropdown && searchStore && (
                     <ul className="dropdown-menu show w-100">
                       {filteredStores.length ? (
-                        filteredStores.map(el => (
+                        filteredStores.map((el) => (
                           <li key={el._id}>
                             <button
                               type="button"
                               className="dropdown-item"
-                              onMouseDown={() => {   // 🔥 IMPORTANT FIX
+                              onMouseDown={() => {
                                 setStoreId(el._id);
                                 setSelectedStore(el);
                                 setSearchStore(el.storeName);
@@ -538,10 +548,22 @@ export default function AddExpenses() {
                     <div className="card mt-2">
                       <div className="card-body p-3">
                         <div className="row">
-                          <div className="col-6"><b>State</b><div>{selectedStore?.stateId?.stateName}</div></div>
-                          <div className="col-6"><b>City</b><div>{selectedStore?.cityId?.cityName}</div></div>
-                          <div className="col-6 mt-2"><b>Store Code</b><div>{selectedStore?.storeCode}</div></div>
-                          <div className="col-6 mt-2"><b>Zone</b><div>{selectedStore?.zoneId?.zoneName}</div></div>
+                          <div className="col-6">
+                            <b>State</b>
+                            <div>{selectedStore?.stateId?.stateName}</div>
+                          </div>
+                          <div className="col-6">
+                            <b>City</b>
+                            <div>{selectedStore?.cityId?.cityName}</div>
+                          </div>
+                          <div className="col-6 mt-2">
+                            <b>Store Code</b>
+                            <div>{selectedStore?.storeCode}</div>
+                          </div>
+                          <div className="col-6 mt-2">
+                            <b>Zone</b>
+                            <div>{selectedStore?.zoneId?.zoneName}</div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -552,17 +574,23 @@ export default function AddExpenses() {
                 <div className="col-12">
                   <label className="form-label">Store Category</label>
                   <div className="dropdown">
-                    <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                    <button
+                      className="form-control text-start dropdown-toggle"
+                      data-bs-toggle="dropdown"
+                    >
                       {storeCategoryName || "-- Select Type --"}
                     </button>
                     <ul className="dropdown-menu w-100">
-                      {storeCategories.map(el => (
+                      {storeCategories.map((el) => (
                         <li key={el._id}>
-                          <button type="button" className="dropdown-item"
+                          <button
+                            type="button"
+                            className="dropdown-item"
                             onClick={() => {
                               setStoreCategoryName(el.name);
                               setStoreCategoryId(el._id);
-                            }}>
+                            }}
+                          >
                             {el.name}
                           </button>
                         </li>
@@ -575,17 +603,23 @@ export default function AddExpenses() {
                 <div className="col-12">
                   <label className="form-label">Expense Head</label>
                   <div className="dropdown">
-                    <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                    <button
+                      className="form-control text-start dropdown-toggle"
+                      data-bs-toggle="dropdown"
+                    >
                       {expenseHeadName || "-- Select Type --"}
                     </button>
                     <ul className="dropdown-menu w-100">
-                      {expenseHeads.map(el => (
+                      {expenseHeads.map((el) => (
                         <li key={el._id}>
-                          <button type="button" className="dropdown-item"
+                          <button
+                            type="button"
+                            className="dropdown-item"
                             onClick={() => {
                               setExpenseHeadName(el.name);
                               setExpenseHeadId(el._id);
-                            }}>
+                            }}
+                          >
                             {el.name}
                           </button>
                         </li>
@@ -598,48 +632,111 @@ export default function AddExpenses() {
                 <div className="col-6">
                   <label className="form-label">Nature of Expense</label>
                   <div className="dropdown">
-                    <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                    <button
+                      className="form-control text-start dropdown-toggle"
+                      data-bs-toggle="dropdown"
+                    >
                       {natureOfExpense || "-- Select Type --"}
                     </button>
                     <ul className="dropdown-menu w-100">
-                      <li><button type="button" className="dropdown-item" onClick={() => setNatureOfExpense("Opex")}>Opex</button></li>
-                      <li><button type="button" className="dropdown-item" onClick={() => setNatureOfExpense("Capex")}>Capex</button></li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item"
+                          onClick={() => setNatureOfExpense("Opex")}
+                        >
+                          Opex
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item"
+                          onClick={() => setNatureOfExpense("Capex")}
+                        >
+                          Capex
+                        </button>
+                      </li>
                     </ul>
                   </div>
                 </div>
 
                 <div className="col-6">
                   <label className="form-label">Expense Value</label>
-                  <input type="number" className="form-control"
+                  <input
+                    type="number"
+                    className="form-control"
                     value={expenseValue}
-                    onChange={(e) => setExpenseValue(e.target.value)} />
+                    onChange={(e) => setExpenseValue(e.target.value)}
+                  />
                 </div>
 
                 {/* ================= REMARK & RCA ================= */}
                 <div className="col-6">
                   <label className="form-label">Remark</label>
-                  <textarea className="form-control" value={remark}
-                    onChange={(e) => setRemark(e.target.value)} />
+                  <textarea
+                    className="form-control"
+                    value={remark}
+                    onChange={(e) => setRemark(e.target.value)}
+                  />
                 </div>
 
                 <div className="col-6">
                   <label className="form-label">RCA</label>
-                  <textarea className="form-control" value={rca}
-                    onChange={(e) => setRca(e.target.value)} />
+                  <textarea
+                    className="form-control"
+                    value={rca}
+                    onChange={(e) => setRca(e.target.value)}
+                  />
                 </div>
 
                 {/* ================= POLICY ================= */}
                 <div className="col-12">
                   <label className="form-label">Policy</label>
                   <div className="dropdown">
-                    <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                    <button
+                      className="form-control text-start dropdown-toggle"
+                      data-bs-toggle="dropdown"
+                    >
                       {policy || "-- Select Policy --"}
                     </button>
                     <ul className="dropdown-menu w-100">
-                      <li><button type="button" className="dropdown-item" onClick={() => setPolicy("REPAIR & MAINTENANCE")}>REPAIR & MAINTENANCE</button></li>
-                      <li><button type="button" className="dropdown-item" onClick={() => setPolicy("ADHOC MANPOWER")}>ADHOC MANPOWER</button></li>
-                      <li><button type="button" className="dropdown-item" onClick={() => setPolicy("FIRE AMC")}>FIRE AMC</button></li>
-                      <li><button type="button" className="dropdown-item" onClick={() => setPolicy("COLD ROOM R&M")}>COLD ROOM R&M</button></li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item"
+                          onClick={() => setPolicy("REPAIR & MAINTENANCE")}
+                        >
+                          REPAIR & MAINTENANCE
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item"
+                          onClick={() => setPolicy("ADHOC MANPOWER")}
+                        >
+                          ADHOC MANPOWER
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item"
+                          onClick={() => setPolicy("FIRE AMC")}
+                        >
+                          FIRE AMC
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item"
+                          onClick={() => setPolicy("COLD ROOM R&M")}
+                        >
+                          COLD ROOM R&M
+                        </button>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -647,26 +744,34 @@ export default function AddExpenses() {
                 {/* ================= ATTACHMENT ================= */}
                 <div className="col-12">
                   <label className="form-label">Attachment</label>
-                  <input type="file" ref={fileInputRef} className="form-control"
-                    onChange={(e) => setAttachment(e.target.files[0])} />
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="form-control"
+                    onChange={(e) => setAttachment(e.target.files[0])}
+                  />
                 </div>
 
                 {/* ================= TICKET ================= */}
                 <div className="col-12">
                   <label className="form-label">Ticket ID</label>
-                  <input className="form-control" value={ticketId}
-                    onChange={(e) => setTicketId(e.target.value)} />
+                  <input
+                    className="form-control"
+                    value={ticketId}
+                    onChange={(e) => setTicketId(e.target.value)}
+                  />
                 </div>
 
                 <div className="text-center">
-                  <button type="submit" className="btn"
-                    style={{ background: "#6776f4", color: "white" }}>
+                  <button
+                    type="submit"
+                    className="btn"
+                    style={{ background: "#6776f4", color: "white" }}
+                  >
                     {load ? "Submitting..." : "Submit Expense"}
                   </button>
                 </div>
-
               </form>
-
             </div>
           </div>
         </div>
@@ -674,4 +779,3 @@ export default function AddExpenses() {
     </main>
   );
 }
-

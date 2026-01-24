@@ -179,6 +179,8 @@ import ApiServices from "../../../ApiServices";
 export default function ZhPendingExpenses() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
+  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const userId = sessionStorage.getItem("userId");
 
@@ -189,16 +191,10 @@ export default function ZhPendingExpenses() {
       setLoad(false);
       return;
     }
-    console.log(userId);
 
-    // ✅ ZH pending API (zone based)
-    ApiServices.GetZhPendingExpenses({ userId })    
+    ApiServices.GetZhPendingExpenses({ userId })
       .then((res) => {
-        if (res?.data?.success) {
-          setData(res.data.data || []);
-        } else {
-          setData([]);
-        }
+        setData(res?.data?.success ? res.data.data || [] : []);
         setTimeout(() => setLoad(false), 500);
       })
       .catch(() => {
@@ -218,14 +214,14 @@ export default function ZhPendingExpenses() {
       input: "textarea",
       inputPlaceholder: "Enter comment (optional)",
       showCancelButton: true,
-      confirmButtonText: type
+      confirmButtonText: type,
     }).then((result) => {
       if (!result.isConfirmed) return;
 
       const payload = {
         expenseId,
         approverId: userId,
-        comment: result.value || ""
+        comment: result.value || "",
       };
 
       setLoad(true);
@@ -252,88 +248,194 @@ export default function ZhPendingExpenses() {
     });
   };
 
+  /* ================= MODAL HANDLERS ================= */
+  const handleViewClick = (expense) => {
+    setSelectedExpense(expense);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedExpense(null);
+    setShowModal(false);
+  };
+
+  /* ================= ATTACHMENT DOWNLOAD ================= */
+  const handleDownload = (url) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = url.split("/").pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <>
-      <main className="main" id="main">
-        {/* ✅ Correct title */}
-        <PageTitle child="Pending Expenses (Zonal Head)" />
+    <main className="main" id="main">
+      <PageTitle child="Pending Expenses (Zonal Head)" />
 
-        <ScaleLoader
-          color="#6776f4"
-          cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-          size={200}
-          loading={load}
-        />
+      {/* Loader */}
+      <ScaleLoader
+        color="#6776f4"
+        cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+        size={200}
+        loading={load}
+      />
 
-        {!load && (
-          <div className="container-fluid">
-            <div className="row justify-content-center">
-              <div className="col-lg-12 mt-4 table-responsive">
-                <table className="table table-hover table-striped">
-                  <thead className="table-dark">
-                    <tr>
-                      <th>Sr. No</th>
-                      <th>Ticket ID</th>
-                      <th>Store</th>
-                      <th>Expense Head</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
+      {/* Table */}
+      {!load && (
+        <div className="container-fluid">
+          <div className="row justify-content-center">
+            <div className="col-lg-12 mt-4 table-responsive">
+              <table className="table table-hover table-striped">
+                <thead className="table-dark">
+                  <tr>
+                    <th>Sr. No</th>
+                    <th>Ticket ID</th>
+                    <th>Store</th>
+                    <th>Expense Head</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
 
-                  <tbody>
-                    {data.length > 0 ? (
-                      data.map((el, index) => (
-                        <tr key={el._id}>
-                          <td>{index + 1}</td>
-                          <td>{el.ticketId}</td>
-                          <td>{el.storeId?.storeName}</td>
-                          <td>{el.expenseHeadId?.name}</td>
-                          <td>₹ {el.amount}</td>
-                          <td>
-                            <span className="badge bg-warning">Pending</span>
-                          </td>
-                          <td>
-                            <div className="btn-group">
-                              <button
-                                className="btn btn-success btn-sm"
-                                onClick={() => takeAction("Approve", el._id)}
-                              >
-                                Approve
-                              </button>
-
-                              <button
-                                className="btn btn-secondary btn-sm ms-1"
-                                onClick={() => takeAction("Hold", el._id)}
-                              >
-                                Hold
-                              </button>
-
-                              <button
-                                className="btn btn-danger btn-sm ms-1"
-                                onClick={() => takeAction("Reject", el._id)}
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="7" className="text-center text-muted">
-                          No Pending Expenses Found
+                <tbody>
+                  {data.length > 0 ? (
+                    data.map((el, index) => (
+                      <tr key={el._id}>
+                        <td>{index + 1}</td>
+                        <td>{el.ticketId}</td>
+                        <td>{el.storeId?.storeName}</td>
+                        <td>{el.expenseHeadId?.name}</td>
+                        <td>₹ {el.amount}</td>
+                        <td>
+                          <span className="badge bg-warning">Pending</span>
+                        </td>
+                        <td>
+                          <div className="btn-group">
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => handleViewClick(el)}
+                            >
+                              View
+                            </button>
+                            <button
+                              className="btn btn-success btn-sm ms-1"
+                              onClick={() => takeAction("Approve", el._id)}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="btn btn-secondary btn-sm ms-1"
+                              onClick={() => takeAction("Hold", el._id)}
+                            >
+                              Hold
+                            </button>
+                            <button
+                              className="btn btn-danger btn-sm ms-1"
+                              onClick={() => takeAction("Reject", el._id)}
+                            >
+                              Reject
+                            </button>
+                          </div>
                         </td>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="text-center text-muted">
+                        No Pending Expenses Found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL ================= */}
+      {showModal && selectedExpense && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Expense Details</h5>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              <div className="modal-body px-4">
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <strong>Ticket ID:</strong>
+                    <p>{selectedExpense.ticketId}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Store:</strong>
+                    <p>{selectedExpense.storeId?.storeName}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Expense Head:</strong>
+                    <p>{selectedExpense.expenseHeadId?.name}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Amount:</strong>
+                    <p>₹ {selectedExpense.amount}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Status:</strong>
+                    <p>
+                      <span className="badge bg-warning">Pending</span>
+                    </p>
+                  </div>
+                  <div className="col-12">
+                    <strong>Attachment:</strong>
+                    <p>
+                      {selectedExpense.attachment ? (
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() =>
+                            handleDownload(selectedExpense.attachment)
+                          }
+                        >
+                          Download Attachment
+                        </button>
+                      ) : (
+                        <span className="text-muted">No Attachment</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        )}
-      </main>
-    </>
+        </div>
+      )}
+    </main>
   );
 }
+
