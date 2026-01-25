@@ -103,7 +103,6 @@ export default function ManageStore() {
     <main className="main" id="main">
       <PageTitle child="Manage Store" />
 
-<<<<<<< HEAD
       {/* Loader */}
       <ScaleLoader
         color="#6776f4"
@@ -136,22 +135,10 @@ export default function ManageStore() {
                 Download CSV
               </CSVLink>
             </div>
-=======
-      <div className="container-fluid">
-        <div className="row">
-          <div className="col-md-12">
-            <ScaleLoader
-              color="#6776f4"
-              cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-              size={200}
-              loading={load}
-            />
->>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
           </div>
         </div>
       )}
 
-<<<<<<< HEAD
       {/* Table */}
       {!load && (
         <div className="container-fluid">
@@ -203,68 +190,6 @@ export default function ManageStore() {
                             <i className="bi bi-x-circle"></i>
                           </button>
                         </div>
-=======
-      <div className="container-fluid">
-        <div className="row justify-content-center">
-          <div className="col-lg-12 mt-5 table-responsive">
-            {!load && (
-              <table className="table table-hover table-striped">
-                <thead className="table-dark">
-                  <tr>
-                    <th>Sr. No</th>
-                    <th>Store Name</th>
-                    <th>Store Code</th>
-                    <th>Store Category</th>
-                    <th>City Name</th>
-                    <th>State Name</th>
-                    <th>Zone Name</th>
-                    <th>Address</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {UnBlockedStore.length ? (
-                    UnBlockedStore.map((el, index) => (
-                      <tr key={el._id}>
-                        <td>{index + 1}</td>
-                        <td>{el.storeName}</td>
-                        <td>{el.storeCode}</td>
-                        <td>{el.storeCategoryId?.name || "-"}</td>
-
-                        {/* ✅ FIXED */}
-                        <td>{el.cityName || "-"}</td>
-
-                        <td>{el.stateId?.stateName || "-"}</td>
-                        <td>{el.zoneId?.zoneName || "-"}</td>
-                        <td>{el.address}</td>
-
-                        <td>
-                          <div className="btn-group">
-                            <Link
-                              to={"/admin/editStore/" + el._id}
-                              className="btn"
-                              style={{ background: "#197ce6ff", color: "white" }}
-                            >
-                              <i className="bi bi-pen"></i>
-                            </Link>
-
-                            <button
-                              className="btn ms-2"
-                              style={{ background: "#6c757d", color: "white" }}
-                              onClick={() => changeInactiveStatus(el._id)}
-                            >
-                              <i className="bi bi-x-circle"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={9} className="text-center text-muted">
-                        No Active Store Found
->>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
                       </td>
                     </tr>
                   ))

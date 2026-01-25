@@ -10,7 +10,6 @@ export default function BlockedCity() {
   const [load, setLoad] = useState(true);
   const navigate = useNavigate();
 
-<<<<<<< HEAD
   const [modalOpen, setModalOpen] = useState(false);
   const [modalZone, setModalZone] = useState("");
   const [modalState, setModalState] = useState("");
@@ -125,67 +124,6 @@ export default function BlockedCity() {
     <>
       <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
         <PageTitle child="Blocked City" />
-=======
-    const [data, setData] = useState([]);
-    const [load, setLoad] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [modalZone, setModalZone] = useState("");
-    const [modalState, setModalState] = useState("");
-    const [modalCities, setModalCities] = useState([]);
-
-    useEffect(() => {
-        ApiServices.GetAllCity()
-            .then(res => {
-                if (res?.data?.success) {
-                    setData(res.data.data || []);
-                }
-                setLoad(false);
-            })
-            .catch(() => setLoad(false));
-    }, []);
-
-    /* ✅ ONLY BLOCKED DOCUMENTS */
-    const blockedCities = data.filter(el => el.status === false);
-    function changeActiveStatus(id) {
-        Swal.fire({
-            title: "Unblock State?",
-            text: "Do you want to unblock this state?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#198754",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Unblock",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                ApiServices.ChangeStatusCity({ _id: id, status: true })
-                    .then((res) => {
-                        if (res?.data?.success) {
-                            setLoad(true);
-                            Swal.fire({
-                                icon: "success",
-                                title: res.data.message,
-                                showConfirmButton: false,
-                                timer: 1200,
-                            });
-                            setTimeout(()=>{
-                                setLoad(false)
-                            },1000)
-
-                        } else {
-                            Swal.fire("Error", res?.data?.message, "error");
-                        }
-                    })
-                    .catch(() => {
-                        Swal.fire("Error", "Something went wrong!", "error");
-                    });
-            }
-        });
-    }
-    return (
-        <>
-            <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
-                <PageTitle child="Blocked City" />
->>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
 
         {/* Loader */}
         <div className="container-fluid">
@@ -212,7 +150,6 @@ export default function BlockedCity() {
                 />
               </div>
 
-<<<<<<< HEAD
               <div className="col-md-8 text-end">
                 <CSVLink
                   data={csvData}
@@ -298,67 +235,6 @@ export default function BlockedCity() {
                 >
                   Previous
                 </button>
-=======
-                            {!load && (
-                                <table className="table table-hover table-striped">
-                                    <thead className="table-dark">
-                                        <tr>
-                                            <th>Sr. No</th>
-                                            <th>Zone</th>
-                                            <th>State</th>
-                                            <th>Cities</th>
-                                            <th>Status</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        {blockedCities.length ? (
-                                            blockedCities.map((el, index) => (
-                                                <tr key={el._id}>
-                                                    <td>{index + 1}</td>
-                                                    <td>{el.zoneId?.zoneName}</td>
-                                                    <td>{el?.stateId?.stateName}</td>
-
-                                                    <td>
-                                                        <span
-                                                            style={{ color: "blue", cursor: "pointer" }}
-                                                            onClick={() => {
-                                                                setModalZone(el.zoneId?.zoneName);
-                                                                setModalState(el?.stateId?.stateName);
-                                                                setModalCities(el.cityName);
-                                                                setModalOpen(true);
-                                                            }}
-                                                        >
-                                                            View Cities
-                                                        </span>
-                                                    </td>
-
-                                                    <td>
-                                                        <span className="badge bg-danger">Blocked</span>
-                                                    </td>
-                                                    <td>
-                                                        <button
-                                                            className="btn"
-                                                            style={{ background: "#198754", color: "white" }}
-                                                            onClick={() => changeActiveStatus(el._id)}
-                                                        >
-                                                            <i className="bi bi-check-circle"></i> Unblock
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={5} className="text-center text-muted">
-                                                    No Blocked City Found
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            )}
->>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
 
                 {[...Array(totalPages)].map((_, i) => (
                   <button
@@ -372,7 +248,6 @@ export default function BlockedCity() {
                   </button>
                 ))}
 
-<<<<<<< HEAD
                 <button
                   className="btn btn-secondary ms-2"
                   disabled={currentPage === totalPages}
@@ -381,34 +256,6 @@ export default function BlockedCity() {
                   Next
                 </button>
               </div>
-=======
-            {/* ================= MODAL ================= */}
-            {modalOpen && (
-                <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-                    <div
-                        className="modal-box position-relative"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button
-                            type="button"
-                            className="btn-close position-absolute top-0 end-0 m-2"
-                            onClick={() => setModalOpen(false)}
-                        ></button>
-
-                        <h5>Zone : <span className="fw-normal">{modalZone}</span></h5>
-                        <h6>State : <span className="fw-normal">{modalState}</span></h6>
-
-                        <hr />
-
-                        <h6>Cities</h6>
-                        <ul className="ps-3">
-                            {modalCities.map((c, i) => (
-                                <li key={i}>{c}</li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
->>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
             )}
           </div>
         )}
