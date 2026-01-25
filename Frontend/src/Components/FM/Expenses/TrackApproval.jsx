@@ -202,6 +202,10 @@ export default function TrackExpenses() {
   const [search, setSearch] = useState("");
   const [load, setLoad] = useState(true);
 
+  // ================= PAGINATION =================
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15; // Adjust as needed
+
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
 
@@ -231,15 +235,26 @@ export default function TrackExpenses() {
 
   // 🔍 Search by Ticket ID
   useEffect(() => {
+    let result;
     if (!search.trim()) {
-      setFilteredData(data);
+      result = data;
     } else {
-      const result = data.filter((el) =>
+      result = data.filter((el) =>
         el.ticketId?.toLowerCase().includes(search.toLowerCase())
       );
-      setFilteredData(result);
     }
+    setFilteredData(result);
+    setCurrentPage(1); // Reset to first page when search changes
   }, [search, data]);
+
+  // ================= PAGINATION LOGIC =================
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const showPagination = filteredData.length > itemsPerPage;
+
+  const currentExpenses = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <main className="main" id="main">
@@ -272,21 +287,15 @@ export default function TrackExpenses() {
         {!load && (
           <div className="container-fluid">
             <div className="row g-4">
-
-              {filteredData.length === 0 && (
-                <div className="text-center text-muted">
-                  No Expenses Found
-                </div>
+              {currentExpenses.length === 0 && (
+                <div className="text-center text-muted">No Expenses Found</div>
               )}
 
-              {filteredData.map((el) => (
+              {currentExpenses.map((el) => (
                 <div key={el._id} className="col-lg-4 col-md-6">
                   <div className="card expense-card h-100">
                     <div className="card-body pt-2">
-
-                      <h6 className="ticket-id mb-3">
-                        Ticket ID: {el.ticketId}
-                      </h6>
+                      <h6 className="ticket-id mb-3">Ticket ID: {el.ticketId}</h6>
 
                       <p className="text-muted mb-1">
                         <strong>Store:</strong> {el.storeId?.storeName}
@@ -297,13 +306,10 @@ export default function TrackExpenses() {
                       </p>
 
                       <p className="text-muted mb-3">
-                        <strong>Date:</strong>{" "}
-                        {el.createdAt?.split("T")[0]}
+                        <strong>Date:</strong> {el.createdAt?.split("T")[0]}
                       </p>
 
-                      <h5 className="amount-text">
-                        ₹ {el.amount}
-                      </h5>
+                      <h5 className="amount-text">₹ {el.amount}</h5>
 
                       <div className="d-flex justify-content-end">
                         <Link
@@ -313,17 +319,49 @@ export default function TrackExpenses() {
                           Track
                         </Link>
                       </div>
-
                     </div>
                   </div>
                 </div>
               ))}
-
             </div>
+
+            {/* ================= PAGINATION ================= */}
+            {showPagination && (
+              <div className="d-flex justify-content-center mt-4">
+                <button
+                  className="btn btn-secondary me-2"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                >
+                  Previous
+                </button>
+
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    className={`btn me-1 ${
+                      currentPage === i + 1 ? "btn-primary" : "btn-light"
+                    }`}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                <button
+                  className="btn btn-secondary ms-2"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
     </main>
   );
 }
+
 

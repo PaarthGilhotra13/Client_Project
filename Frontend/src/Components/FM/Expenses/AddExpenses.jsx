@@ -513,7 +513,7 @@ export default function AddExpenses() {
                           <li key={el._id}>
                             <button
                               type="button"
-                              className="dropdown-item"
+                              className="dropdown-item"                              
                               onMouseDown={() => {
                                 setStoreId(el._id);
                                 setSelectedStore(el);

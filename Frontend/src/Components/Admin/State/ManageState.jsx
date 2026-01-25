@@ -164,10 +164,15 @@ import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
 import Swal from "sweetalert2";
+import { CSVLink } from "react-csv";
 
 export default function ManageState() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
+
+  const [searchTerm, setSearchTerm] = useState(""); // Search
+  const [currentPage, setCurrentPage] = useState(1); // Pagination
+  const itemsPerPage = 20;
 
   useEffect(() => {
     ApiServices.GetAllState()
@@ -184,6 +189,36 @@ export default function ManageState() {
       });
   }, [load]);
 
+  const activeStates = data.filter((el) => el.status === true);
+
+  const truncateText = (text, limit = 50) => {
+    if (!text) return "";
+    if (text.length <= limit) return text;
+    return text.slice(0, limit) + "...";
+  };
+
+  /* ================= SEARCH ================= */
+  const filteredStates = activeStates.filter(
+    (el) =>
+      el.zoneId?.zoneName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.stateName.join(", ").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(filteredStates.length / itemsPerPage);
+  const currentData = filteredStates.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  /* ================= CSV DATA ================= */
+  const csvData = filteredStates.map((el, idx) => ({
+    SrNo: idx + 1,
+    Zone: el.zoneId?.zoneName || "",
+    States: el.stateName.join(", "),
+  }));
+
+  /* ================= CHANGE STATUS ================= */
   function changeInactiveStatus(id) {
     Swal.fire({
       title: "Confirm Status Change",
@@ -222,13 +257,12 @@ export default function ManageState() {
     });
   }
 
-  const activeStates = data.filter((el) => el.status === true);
-
   return (
     <>
       <main className="main" id="main">
         <PageTitle child="Manage State" />
 
+        {/* Loader */}
         <div className="container-fluid">
           <ScaleLoader
             color="#6776f4"
@@ -238,10 +272,40 @@ export default function ManageState() {
           />
         </div>
 
-        <div className="container-fluid">
-          <div className="row justify-content-center">
-            <div className="col-lg-12 mt-5 table-responsive">
-              {!load && (
+        {/* Search + CSV */}
+        {!load && (
+          <div className="container-fluid mb-3">
+            <div className="row align-items-center">
+              <div className="col-md-4">
+                <input
+                  className="form-control"
+                  placeholder="Search by Zone or State"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+
+              <div className="col-md-8 text-end">
+                <CSVLink
+                  data={csvData}
+                  filename="Active_States.csv"
+                  className="btn btn-primary btn-sm"
+                >
+                  Download CSV
+                </CSVLink>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Table */}
+        {!load && (
+          <div className="container-fluid">
+            <div className="row justify-content-center">
+              <div className="col-lg-12 mt-3 table-responsive">
                 <table className="table table-hover table-striped">
                   <thead className="table-dark">
                     <tr>
@@ -251,13 +315,32 @@ export default function ManageState() {
                       <th>Action</th>
                     </tr>
                   </thead>
+
                   <tbody>
-                    {activeStates.length ? (
-                      activeStates.map((el, index) => (
+                    {currentData.length ? (
+                      currentData.map((el, index) => (
                         <tr key={el._id}>
-                          <td>{index + 1}</td>
-                          <td>{el.zoneId?.zoneName || "-"}</td>
-                          <td>{el.stateName}</td> 
+                          <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                          <td>{el.zoneId?.zoneName}</td>
+                          <td>
+                            {truncateText(el.stateName.join(", "), 50)}
+                            {el.stateName.join(", ").length > 50 && (
+                              <span
+                                style={{
+                                  color: "blue",
+                                  cursor: "pointer",
+                                  marginLeft: "5px",
+                                }}
+                                onClick={() => {
+                                  setModalTitle(el.zoneId?.zoneName || "States");
+                                  setModalContent(el.stateName.join(", "));
+                                  setModalOpen(true);
+                                }}
+                              >
+                                View More
+                              </span>
+                            )}
+                          </td>
                           <td>
                             <div className="btn-group">
                               <Link
@@ -293,11 +376,64 @@ export default function ManageState() {
                     )}
                   </tbody>
                 </table>
-              )}
+              </div>
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="d-flex justify-content-center mt-3">
+                <button
+                  className="btn btn-secondary me-2"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                >
+                  Previous
+                </button>
+
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    className={`btn me-1 ${
+                      currentPage === i + 1 ? "btn-primary" : "btn-light"
+                    }`}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                <button
+                  className="btn btn-secondary ms-2"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+          <div
+            className="modal-box position-relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="btn-close btn-close-red btn-close-large position-absolute top-0 end-0 m-2"
+              aria-label="Close"
+              onClick={() => setModalOpen(false)}
+            ></button>
+
+            <h5 className="pe-4">Zone Name: {modalTitle}</h5>
+            <p style={{ textAlign: "justify" }}> State Name : {modalContent}</p>
           </div>
         </div>
-      </main>
+      )}
     </>
   );
 }

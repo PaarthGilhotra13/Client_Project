@@ -10,6 +10,10 @@ export default function ApprovedExpenses() {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  // ================= PAGINATION =================
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20; // You can adjust as needed
+
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
 
@@ -47,6 +51,15 @@ export default function ApprovedExpenses() {
     setSelectedExpense(null);
     setShowModal(false);
   };
+
+  // ================= PAGINATION LOGIC =================
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const showPagination = data.length > itemsPerPage;
+
+  const currentExpenses = data.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <>
@@ -87,10 +100,10 @@ export default function ApprovedExpenses() {
                   </thead>
 
                   <tbody>
-                    {data.length > 0 ? (
-                      data.map((el, index) => (
+                    {currentExpenses.length > 0 ? (
+                      currentExpenses.map((el, index) => (
                         <tr key={el._id}>
-                          <td>{index + 1}</td>
+                          <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                           <td>{el.ticketId}</td>
                           <td>{el.storeId?.storeName}</td>
                           <td>{el.expenseHeadId?.name}</td>
@@ -120,6 +133,39 @@ export default function ApprovedExpenses() {
                 </table>
               </div>
             </div>
+
+            {/* Pagination */}
+            {showPagination && (
+              <div className="d-flex justify-content-center mt-3">
+                <button
+                  className="btn btn-secondary me-2"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                >
+                  Previous
+                </button>
+
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    className={`btn me-1 ${
+                      currentPage === i + 1 ? "btn-primary" : "btn-light"
+                    }`}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+
+                <button
+                  className="btn btn-secondary ms-2"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -198,11 +244,7 @@ export default function ApprovedExpenses() {
                     </div>
                     <div className="col-md-6">
                       <strong>Created At:</strong>
-                      <p>
-                        {new Date(
-                          selectedExpense.createdAt,
-                        ).toLocaleDateString()}
-                      </p>
+                      <p>{new Date(selectedExpense.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div className="col-12">
                       <strong>Attachment:</strong>

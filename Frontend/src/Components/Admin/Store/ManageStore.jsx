@@ -4,16 +4,25 @@ import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
+import { CSVLink } from "react-csv";
 
 export default function ManageStore() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
 
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  // ================= FETCH =================
   useEffect(() => {
     ApiServices.GetAllStore()
       .then((res) => {
         if (res?.data?.success) {
-          setData(res?.data?.data || []);
+          setData(res.data.data || []);
         } else {
           setData([]);
         }
@@ -25,8 +34,42 @@ export default function ManageStore() {
       });
   }, [load]);
 
-  const UnBlockedStore = data.filter((el) => el.status === true);
+  // ================= ACTIVE STORE =================
+  const unBlockedStore = data.filter(el => el.status === true);
 
+  // ================= SEARCH FILTER =================
+  const filteredData = unBlockedStore.filter(el => {
+    const lower = searchTerm.toLowerCase();
+    return (
+      el?.storeName?.toLowerCase().includes(lower) ||
+      el?.storeCode?.toLowerCase().includes(lower) ||
+      el?.cityId?.cityName?.toLowerCase().includes(lower)
+    );
+  });
+
+  // ================= PAGINATION =================
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const showPagination = filteredData.length > itemsPerPage;
+
+  const currentData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // ================= CSV =================
+  const csvData = filteredData.map((el, idx) => ({
+    srNo: idx + 1,
+    storeName: el.storeName,
+    storeCode: el.storeCode,
+    storeCategory: el?.storeCategoryId?.name,
+    city: el?.cityId?.cityName,
+    state: el?.stateId?.stateName,
+    zone: el?.zoneId?.zoneName,
+    address: el.address,
+    status: "Active",
+  }));
+
+  // ================= STATUS CHANGE =================
   function changeInactiveStatus(id) {
     Swal.fire({
       title: "Confirm Status Change",
@@ -38,8 +81,7 @@ export default function ManageStore() {
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        let payload = { _id: id, status: "false" };
-        ApiServices.ChangeStatusStore(payload)
+        ApiServices.ChangeStatusStore({ _id: id, status: "false" })
           .then((res) => {
             setLoad(true);
             Swal.fire({
@@ -50,17 +92,8 @@ export default function ManageStore() {
             });
             setTimeout(() => setLoad(false), 1500);
           })
-          .catch((err) => {
-            setLoad(true);
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: "Something went wrong!",
-              timer: 2000,
-              timerProgressBar: true,
-            });
-            setTimeout(() => setLoad(false), 2000);
-            console.log("Error is", err);
+          .catch(() => {
+            Swal.fire("Error", "Something went wrong!", "error");
           });
       }
     });
@@ -70,88 +103,141 @@ export default function ManageStore() {
     <main className="main" id="main">
       <PageTitle child="Manage Store" />
 
-      <div className="container-fluid">
-        <div className="row">
-          <div className="col-md-12">
-            <ScaleLoader
-              color="#6776f4"
-              cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-              size={200}
-              loading={load}
-            />
+      {/* Loader */}
+      <ScaleLoader
+        color="#6776f4"
+        cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+        loading={load}
+      />
+
+      {/* Search + CSV */}
+      {!load && (
+        <div className="container-fluid mb-3">
+          <div className="row align-items-center">
+            <div className="col-md-4">
+              <input
+                className="form-control"
+                placeholder="Search by Store Name / Code / City"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+
+            <div className="col-md-8 text-end">
+              <CSVLink
+                data={csvData}
+                filename="Active_Stores.csv"
+                className="btn btn-primary btn-sm"
+              >
+                Download CSV
+              </CSVLink>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="container-fluid">
-        <div className="row justify-content-center">
-          <div className="col-lg-12 mt-5 table-responsive">
-            {!load && (
-              <table className="table table-hover table-striped">
-                <thead className="table-dark">
-                  <tr>
-                    <th>Sr. No</th>
-                    <th>Store Name</th>
-                    <th>Store Code</th>
-                    <th>Store Category</th>
-                    <th>City Name</th>
-                    <th>State Name</th>
-                    <th>Zone Name</th>
-                    <th>Address</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
+      {/* Table */}
+      {!load && (
+        <div className="container-fluid">
+          <div className="table-responsive">
+            <table className="table table-hover table-striped">
+              <thead className="table-dark">
+                <tr>
+                  <th>Sr. No</th>
+                  <th>Store Name</th>
+                  <th>Store Code</th>
+                  <th>Store Category</th>
+                  <th>City</th>
+                  <th>State</th>
+                  <th>Zone</th>
+                  <th>Address</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {UnBlockedStore.length ? (
-                    UnBlockedStore.map((el, index) => (
-                      <tr key={el._id}>
-                        <td>{index + 1}</td>
-                        <td>{el.storeName}</td>
-                        <td>{el.storeCode}</td>
-                        <td>{el.storeCategoryId?.name || "-"}</td>
+              <tbody>
+                {currentData.length ? (
+                  currentData.map((el, index) => (
+                    <tr key={el._id}>
+                      <td>
+                        {(currentPage - 1) * itemsPerPage + index + 1}
+                      </td>
+                      <td>{el.storeName}</td>
+                      <td>{el.storeCode}</td>
+                      <td>{el?.storeCategoryId?.name}</td>
+                      <td>{el?.cityId?.cityName}</td>
+                      <td>{el?.stateId?.stateName}</td>
+                      <td>{el?.zoneId?.zoneName}</td>
+                      <td>{el.address}</td>
+                      <td>
+                        <div className="btn-group">
+                          <Link
+                            to={"/admin/editStore/" + el._id}
+                            className="btn"
+                            style={{ background: "#197ce6ff", color: "white" }}
+                          >
+                            <i className="bi bi-pen"></i>
+                          </Link>
 
-                        {/* ✅ FIXED */}
-                        <td>{el.cityName || "-"}</td>
-
-                        <td>{el.stateId?.stateName || "-"}</td>
-                        <td>{el.zoneId?.zoneName || "-"}</td>
-                        <td>{el.address}</td>
-
-                        <td>
-                          <div className="btn-group">
-                            <Link
-                              to={"/admin/editStore/" + el._id}
-                              className="btn"
-                              style={{ background: "#197ce6ff", color: "white" }}
-                            >
-                              <i className="bi bi-pen"></i>
-                            </Link>
-
-                            <button
-                              className="btn ms-2"
-                              style={{ background: "#6c757d", color: "white" }}
-                              onClick={() => changeInactiveStatus(el._id)}
-                            >
-                              <i className="bi bi-x-circle"></i>
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={9} className="text-center text-muted">
-                        No Active Store Found
+                          <button
+                            className="btn ms-2"
+                            style={{ background: "#6c757d", color: "white" }}
+                            onClick={() => changeInactiveStatus(el._id)}
+                          >
+                            <i className="bi bi-x-circle"></i>
+                          </button>
+                        </div>
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            )}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={9} className="text-center text-muted">
+                      No Active Store Found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Pagination */}
+      {showPagination && (
+        <div className="d-flex justify-content-center mt-3">
+          <button
+            className="btn btn-secondary me-2"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => p - 1)}
+          >
+            Previous
+          </button>
+
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              className={`btn me-1 ${
+                currentPage === i + 1 ? "btn-primary" : "btn-light"
+              }`}
+              onClick={() => setCurrentPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            className="btn btn-secondary ms-2"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => p + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </main>
   );
 }

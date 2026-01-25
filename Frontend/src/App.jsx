@@ -76,7 +76,8 @@ import ProcureHoldExpenses from "./Components/Procurement/Expenses/ProcureHoldEx
 import ProcurePendingExpense from "./Components/Procurement/Expenses/ProcurePendingExpense"
 import ProcureRejectedExpenses from "./Components/Procurement/Expenses/ProcureRejectedExpenses"
 import EditCity from "./Components/Admin/City/EditCity"
-import ZhProfile from "./Components/Profile/ZonalProfile"
+import ZonalProfile from "./Components/Profile/ZonalProfile"
+
 
 function App() {
   return (
@@ -167,7 +168,21 @@ function App() {
             <Route path="/ZonalHead/holdExpenses" element={<ZhHoldExpenses />} />
             <Route path="/ZonalHead/pendingExpenses" element={<ZhPendingExpenses />} />
             <Route path="/ZonalHead/rejectedExpenses" element={<ZhRejectedExpenses />} />
-            <Route path="/ZonalHead/zhprofile" element={<ZhProfile/>} />
+            <Route path="/ZonalHead/zhprofile" element={<ZonalProfile/>} />
+          </Route>
+          <Route path="/BusinessFinance" element={<BfMaster />}>
+            <Route path="/BusinessFinance" element={<EmployeeDashboard />} />
+            <Route path="/BusinessFinance/approvedExpenses" element={<BfApprovedExpenses />} />
+            <Route path="/BusinessFinance/holdExpenses" element={<BfHoldExpense />} />
+            <Route path="/BusinessFinance/pendingExpenses" element={<BfPendingExpense />} />
+            <Route path="/BusinessFinance/rejectedExpenses" element={<BfRejectedExpense />} />
+          </Route>
+          <Route path="/Procurement" element={<ProcureMaster />}>
+            <Route path="/Procurement" element={<EmployeeDashboard />} />
+            <Route path="/Procurement/approvedExpenses" element={<ProcureApprovedExpenses />} />
+            <Route path="/Procurement/holdExpenses" element={<ProcureHoldExpenses />} />
+            <Route path="/Procurement/pendingExpenses" element={<ProcurePendingExpense />} />
+            <Route path="/Procurement/rejectedExpenses" element={<ProcureRejectedExpenses />} />
           </Route>
           <Route path="/BusinessFinance" element={<BfMaster />}>
             <Route path="/BusinessFinance" element={<EmployeeDashboard />} />
