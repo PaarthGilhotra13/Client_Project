@@ -122,7 +122,7 @@ export default function BlockedStore() {
       {!load && (
         <div className="container-fluid mb-3">
           <div className="row align-items-center">
-            <div className="col-md-4">
+            <div className="col-md-6">
               <input
                 className="form-control"
                 placeholder="Search by Store Name / Code / City"
@@ -134,7 +134,7 @@ export default function BlockedStore() {
               />
             </div>
 
-            <div className="col-md-8 text-end">
+            <div className="col-md-6 text-end">
               <CSVLink
                 data={csvData}
                 filename="Blocked_Stores.csv"

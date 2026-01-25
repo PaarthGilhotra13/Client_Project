@@ -114,7 +114,7 @@ export default function ManageStore() {
       {!load && (
         <div className="container-fluid mb-3">
           <div className="row align-items-center">
-            <div className="col-md-4">
+            <div className="col-md-6">
               <input
                 className="form-control"
                 placeholder="Search by Store Name / Code / City"
@@ -126,7 +126,7 @@ export default function ManageStore() {
               />
             </div>
 
-            <div className="col-md-8 text-end">
+            <div className="col-md-6 text-end">
               <CSVLink
                 data={csvData}
                 filename="Active_Stores.csv"

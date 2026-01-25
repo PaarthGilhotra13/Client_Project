@@ -3,12 +3,20 @@ import PageTitle from "../../PageTitle";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
+import { CSVLink } from "react-csv";
 
 export default function ClmPendingExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const userId = sessionStorage.getItem("userId");
 
@@ -20,27 +28,48 @@ export default function ClmPendingExpense() {
       return;
     }
 
+    setLoad(true);
+
     ApiServices.GetClmPendingExpenses({ userId })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
-        setTimeout(() => setLoad(false), 500);
       })
-      .catch(() => {
-        setData([]);
-        setTimeout(() => setLoad(false), 500);
-      });
+      .finally(() => setLoad(false));
   };
 
   useEffect(() => {
     fetchPending();
   }, []);
 
+  /* ================= SEARCH FILTER ================= */
+  const filteredData = data.filter((el) =>
+    el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentExpenses = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  /* ================= CSV DATA ================= */
+  const csvData = filteredData.map((el, index) => ({
+    SrNo: index + 1,
+    TicketID: el.ticketId,
+    Store: el.storeId?.storeName,
+    ExpenseHead: el.expenseHeadId?.name,
+    Amount: el.amount,
+    Status: "Pending",
+  }));
+
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
     setShowModal(true);
   };
-
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
@@ -109,6 +138,34 @@ export default function ClmPendingExpense() {
         loading={load}
       />
 
+      {/* Search + CSV */}
+      {!load && (
+        <div className="container-fluid mb-3">
+          <div className="row align-items-center">
+            <div className="col-md-6">
+              <input
+                className="form-control"
+                placeholder="Search by Ticket ID, Store, Expense Head"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+            <div className="col-md-6 text-end">
+              <CSVLink
+                data={csvData}
+                filename="CLM_Pending_Expenses.csv"
+                className="btn btn-primary btn-sm"
+              >
+                Download CSV
+              </CSVLink>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       {!load && (
         <div className="container-fluid">
@@ -126,12 +183,11 @@ export default function ClmPendingExpense() {
                     <th>Action</th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {data.length > 0 ? (
-                    data.map((el, index) => (
+                  {currentExpenses.length ? (
+                    currentExpenses.map((el, index) => (
                       <tr key={el._id}>
-                        <td>{index + 1}</td>
+                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td>{el.ticketId}</td>
                         <td>{el.storeId?.storeName}</td>
                         <td>{el.expenseHeadId?.name}</td>
@@ -171,49 +227,62 @@ export default function ClmPendingExpense() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" className="text-center text-muted">
+                      <td colSpan={7} className="text-center text-muted">
                         No Pending Expenses Found
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-3">
+                  <button
+                    className="btn btn-secondary me-2"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                  >
+                    Previous
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      className={`btn me-1 ${
+                        currentPage === i + 1 ? "btn-primary" : "btn-light"
+                      }`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className="btn btn-secondary ms-2"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= MODAL ================= */}
+      {/* Modal */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
-          tabIndex="-1"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    borderRadius: "50%",
-                    backgroundColor: "red",
-                    color: "white",
-                    fontWeight: "bold",
-                    border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                  }}
-                >
-                  &times;
-                </button>
+                <button className="btn-close" onClick={handleCloseModal} />
               </div>
 
               <div className="modal-body px-4">

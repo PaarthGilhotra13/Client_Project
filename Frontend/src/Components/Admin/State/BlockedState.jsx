@@ -113,7 +113,7 @@ export default function BlockedState() {
         {!load && (
           <div className="container-fluid mb-3">
             <div className="row align-items-center">
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <input
                   className="form-control"
                   placeholder="Search by Zone or State"
@@ -124,7 +124,7 @@ export default function BlockedState() {
                   }}
                 />
               </div>
-              <div className="col-md-8 text-end">
+              <div className="col-md-6 text-end">
                 <CSVLink
                   data={csvData}
                   filename="Blocked_States.csv"
