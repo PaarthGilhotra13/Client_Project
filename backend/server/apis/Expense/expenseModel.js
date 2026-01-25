@@ -1,11 +1,5 @@
-<<<<<<< Updated upstream
-// paarth
 const mongoose = require("mongoose");
-=======
-//paarth
-console.log("expense loaded")
-const mongoose = require("mongoose")
->>>>>>> Stashed changes
+
 
 const expenseSchema = new mongoose.Schema({
     ticketId: { type: String, default: "" },
