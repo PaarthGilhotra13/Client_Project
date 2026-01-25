@@ -169,10 +169,13 @@ import { CSVLink } from "react-csv";
 export default function ManageState() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
+<<<<<<< HEAD
 
   const [searchTerm, setSearchTerm] = useState(""); // Search
   const [currentPage, setCurrentPage] = useState(1); // Pagination
   const itemsPerPage = 20;
+=======
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
 
   useEffect(() => {
     ApiServices.GetAllState()
@@ -257,6 +260,11 @@ export default function ManageState() {
     });
   }
 
+<<<<<<< HEAD
+=======
+  const activeStates = data.filter((el) => el.status === true);
+
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
   return (
     <>
       <main className="main" id="main">
@@ -320,6 +328,7 @@ export default function ManageState() {
                     {currentData.length ? (
                       currentData.map((el, index) => (
                         <tr key={el._id}>
+<<<<<<< HEAD
                           <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                           <td>{el.zoneId?.zoneName}</td>
                           <td>
@@ -341,6 +350,11 @@ export default function ManageState() {
                               </span>
                             )}
                           </td>
+=======
+                          <td>{index + 1}</td>
+                          <td>{el.zoneId?.zoneName || "-"}</td>
+                          <td>{el.stateName}</td> 
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
                           <td>
                             <div className="btn-group">
                               <Link
@@ -414,6 +428,7 @@ export default function ManageState() {
           </div>
         )}
       </main>
+<<<<<<< HEAD
 
       {/* Modal */}
       {modalOpen && (
@@ -434,6 +449,8 @@ export default function ManageState() {
           </div>
         </div>
       )}
+=======
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
     </>
   );
 }

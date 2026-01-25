@@ -6,11 +6,16 @@ import Swal from "sweetalert2";
 import { CSVLink } from "react-csv";
 
 export default function BlockedState() {
+<<<<<<< HEAD
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
   const [modalTitle, setModalTitle] = useState("");
+=======
+    const [data, setData] = useState([]);
+    const [load, setLoad] = useState(true);
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +37,7 @@ export default function BlockedState() {
       });
   }, [load]);
 
+<<<<<<< HEAD
   const blockedStates = data.filter((el) => el.status === false);
 
   // ================= UNBLOCK =================
@@ -57,6 +63,36 @@ export default function BlockedState() {
                 timer: 1200,
               });
               setLoad(true);
+=======
+    function changeActiveStatus(id) {
+        Swal.fire({
+            title: "Unblock State?",
+            text: "Do you want to unblock this state?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#198754",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Unblock",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                ApiServices.ChangeStatusState({ _id: id, status: true })
+                    .then((res) => {
+                        if (res?.data?.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: res.data.message,
+                                showConfirmButton: false,
+                                timer: 1200,
+                            });
+                            setLoad(true);
+                        } else {
+                            Swal.fire("Error", res?.data?.message, "error");
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire("Error", "Something went wrong!", "error");
+                    });
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
             }
           })
           .catch(() => {
@@ -66,6 +102,7 @@ export default function BlockedState() {
     });
   }
 
+<<<<<<< HEAD
   const truncateText = (text, limit = 50) => {
     if (!text) return "";
     if (text.length <= limit) return text;
@@ -78,6 +115,12 @@ export default function BlockedState() {
       el.zoneId?.zoneName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       el.stateName.join(", ").toLowerCase().includes(searchTerm.toLowerCase()),
   );
+=======
+    return (
+        <>
+            <main className="main" id="main">
+                <PageTitle child="Blocked State" />
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
 
   // ================= PAGINATION =================
   const totalPages = Math.ceil(filteredStates.length / itemsPerPage);
@@ -86,6 +129,7 @@ export default function BlockedState() {
     currentPage * itemsPerPage,
   );
 
+<<<<<<< HEAD
   // ================= CSV DATA =================
   const csvData = filteredStates.map((el, idx) => ({
     SrNo: idx + 1,
@@ -270,4 +314,57 @@ export default function BlockedState() {
       )}
     </>
   );
+=======
+                <div className="container-fluid">
+                    <div className="row justify-content-center">
+                        <div className="col-lg-12 mt-5 table-responsive">
+                            {!load && (
+                                <table className="table table-hover table-striped">
+                                    <thead className="table-dark">
+                                        <tr>
+                                            <th>Sr. No</th>
+                                            <th>Zone</th>
+                                            <th>State</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {blockedStates.length ? (
+                                            blockedStates.map((el, index) => (
+                                                <tr key={el._id}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{el.zoneId?.zoneName || "-"}</td>
+                                                    <td>{el.stateName}</td> {/* ✅ STRING */}
+                                                    <td>
+                                                        <span className="badge bg-danger">Blocked</span>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            className="btn"
+                                                            style={{ background: "#198754", color: "white" }}
+                                                            onClick={() => changeActiveStatus(el._id)}
+                                                        >
+                                                            <i className="bi bi-check-circle"></i> Unblock
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={5} className="text-center text-muted">
+                                                    No Blocked State Found
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </>
+    );
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
 }

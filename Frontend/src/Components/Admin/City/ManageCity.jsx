@@ -14,11 +14,15 @@ export default function ManageCity() {
   const [modalZone, setModalZone] = useState("");
   const [modalState, setModalState] = useState("");
   const [modalCities, setModalCities] = useState([]);
+<<<<<<< HEAD
 
   const [searchTerm, setSearchTerm] = useState(""); // Search
   const [currentPage, setCurrentPage] = useState(1); // Pagination
   const itemsPerPage = 20;
+=======
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
 
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
     ApiServices.GetAllCity()
       .then((res) => {
@@ -31,6 +35,7 @@ export default function ManageCity() {
       .finally(() => setLoad(false));
   }, []);
 
+<<<<<<< HEAD
   /* ================= ACTIVE CITIES ================= */
   const activeCities = data.filter((el) => el.status === true);
 
@@ -83,6 +88,12 @@ export default function ManageCity() {
   }));
 
   /* ================= CHANGE STATUS ================= */
+=======
+  /* ================= ACTIVE ONLY ================= */
+  const activeCities = data.filter(el => el.status === true);
+
+  /* ================= BLOCK ================= */
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
   function changeInactiveStatus(id) {
     Swal.fire({
       title: "Confirm Status Change",
@@ -135,6 +146,7 @@ export default function ManageCity() {
           />
         </div>
 
+<<<<<<< HEAD
         {/* Search + CSV */}
         {!load && (
           <div className="container-fluid mb-3">
@@ -169,6 +181,12 @@ export default function ManageCity() {
           <div className="container-fluid">
             <div className="row justify-content-center">
               <div className="col-lg-12 mt-3 table-responsive">
+=======
+        {!load && (
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col-lg-12 table-responsive">
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
                 <table className="table table-hover table-striped">
                   <thead className="table-dark">
                     <tr>
@@ -181,12 +199,22 @@ export default function ManageCity() {
                   </thead>
 
                   <tbody>
+<<<<<<< HEAD
                     {currentData.length ? (
                       currentData.map((el, index) => (
                         <tr key={el._id}>
                           <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                           <td>{el.zoneName}</td>
                           <td>{el.stateName}</td>
+=======
+                    {activeCities.length > 0 ? (
+                      activeCities.map((el, index) => (
+                        <tr key={el._id}>
+                          <td>{index + 1}</td>
+                          <td>{el.zoneId?.zoneName}</td>
+                          <td>{el?.stateId?.stateName}</td>
+
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
                           <td>
                             <span
                               style={{ color: "blue", cursor: "pointer" }}
@@ -277,6 +305,7 @@ export default function ManageCity() {
               type="button"
               className="btn-close position-absolute top-0 end-0 m-2"
               onClick={() => setModalOpen(false)}
+<<<<<<< HEAD
             ></button>
 
             <h5 className="mb-1">
@@ -285,6 +314,9 @@ export default function ManageCity() {
             <h6 className="mb-3">
               State: <span className="fw-normal">{modalState}</span>
             </h6>
+=======
+            />
+>>>>>>> 76f897e0a716ee006b2b24411128cd4c7fc6cfa0
 
             <h6>Zone : {modalZone}</h6>
             <h6>State : {modalState}</h6>
