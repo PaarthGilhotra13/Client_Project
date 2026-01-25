@@ -10,6 +10,10 @@ export default function RejectedExpenses() {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  // ================= PAGINATION =================
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
 
@@ -40,14 +44,12 @@ export default function RejectedExpenses() {
     setShowModal(false);
   };
 
-  const handleDownload = (url) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = url.split("/").pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const showPagination = data.length > itemsPerPage;
+  const currentExpenses = data.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <main className="main" id="main">
@@ -87,10 +89,10 @@ export default function RejectedExpenses() {
                 </thead>
 
                 <tbody>
-                  {data.length > 0 ? (
-                    data.map((el, index) => (
+                  {currentExpenses.length > 0 ? (
+                    currentExpenses.map((el, index) => (
                       <tr key={el._id}>
-                        <td>{index + 1}</td>
+                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td>{el.ticketId}</td>
                         <td>{el.storeId?.storeName}</td>
                         <td>{el.expenseHeadId?.name}</td>
@@ -118,6 +120,39 @@ export default function RejectedExpenses() {
                   )}
                 </tbody>
               </table>
+
+              {/* Pagination */}
+              {showPagination && (
+                <div className="d-flex justify-content-center mt-3">
+                  <button
+                    className="btn btn-secondary me-2"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                  >
+                    Previous
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      className={`btn me-1 ${
+                        currentPage === i + 1 ? "btn-primary" : "btn-light"
+                      }`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className="btn btn-secondary ms-2"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -190,7 +225,7 @@ export default function RejectedExpenses() {
                     <strong>Remarks:</strong>
                     <p>{selectedExpense.remark || "-"}</p>
                   </div>
-                   <div className="col-md-6">
+                  <div className="col-md-6">
                     <strong>Status:</strong>
                     <p>
                       <span className="badge bg-danger">Rejected</span>
@@ -204,16 +239,14 @@ export default function RejectedExpenses() {
                     <strong>Attachment:</strong>
                     <p>
                       {selectedExpense.attachment ? (
-                        <>
-                          <a
-                            href={selectedExpense.attachment}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-sm btn-primary me-2"
-                          >
-                            View Attachment
-                          </a>
-                        </>
+                        <a
+                          href={selectedExpense.attachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-primary me-2"
+                        >
+                          View Attachment
+                        </a>
                       ) : (
                         <span className="text-muted">No Attachment</span>
                       )}
