@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";

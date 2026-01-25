@@ -6,7 +6,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 export default function EditStore() {
-
     const [storeName, setStoreName] = useState("");
     const [storeCode, setStoreCode] = useState("");
 
@@ -18,7 +17,6 @@ export default function EditStore() {
 
     const [cityName, setCityName] = useState("");
     const [cities, setCities] = useState([]);
-    const [cityId, setCityId] = useState("");
 
     const [stateName, setStateName] = useState("");
     const [stateId, setStateId] = useState("");
@@ -37,10 +35,9 @@ export default function EditStore() {
         Promise.all([
             ApiServices.GetAllStoreCategory({ status: "true" }),
             ApiServices.GetAllZone({ status: "true" }),
-            ApiServices.GetSingleStore({ _id: params.id })
+            ApiServices.GetSingleStore({ _id: params.id }),
         ])
             .then(([catRes, zoneRes, storeRes]) => {
-
                 setStoreCategories(catRes?.data?.data || []);
                 setZones(zoneRes?.data?.data || []);
 
@@ -58,8 +55,8 @@ export default function EditStore() {
                     setStateName(store.stateId?.stateName);
                     setStateId(store.stateId?._id);
 
-                    setCityName(store.cityId?.cityName);
-                    setCityId(store.cityId?._id);
+                    // ✅ FIX: cityName string
+                    setCityName(store.cityName || "");
 
                     setAddress(store.address || "");
 
@@ -84,11 +81,12 @@ export default function EditStore() {
 
     function handleForm(e) {
         e.preventDefault();
-        if (!zoneId || !stateId || !cityId) {
+
+        if (!zoneId || !stateId || !cityName) {
             Swal.fire({
                 icon: "warning",
                 title: "Invalid Location",
-                text: "Please select Zone, State and City properly"
+                text: "Please select Zone, State and City properly",
             });
             return;
         }
@@ -102,8 +100,8 @@ export default function EditStore() {
             storeCategoryId,
             zoneId,
             stateId,
-            cityId,
-            address
+            cityName, // ✅ FIXED
+            address,
         };
 
         ApiServices.UpdateStore(data)
@@ -112,13 +110,13 @@ export default function EditStore() {
                     Swal.fire({
                         title: res.data.message,
                         icon: "success",
-                        timer: 3000,
-                        timerProgressBar: true
+                        timer: 2000,
+                        timerProgressBar: true,
                     });
                     setTimeout(() => {
                         nav("/admin/manageStore");
                         setLoad(false);
-                    }, 3000);
+                    }, 2000);
                 } else {
                     Swal.fire("Error", res.data.message, "error");
                     setLoad(false);
@@ -148,7 +146,6 @@ export default function EditStore() {
                             <h5 className="card-title">Store Details</h5>
 
                             <form className="row g-3" onSubmit={handleForm}>
-
                                 <div className="col-12">
                                     <label className="form-label">Store Name</label>
                                     <input
@@ -169,11 +166,15 @@ export default function EditStore() {
                                     />
                                 </div>
 
-                                {/* STORE CATEGORY */}
+                                {/* Store Category */}
                                 <div className="col-12">
                                     <label className="form-label">Store Category</label>
                                     <div className="dropdown">
-                                        <button type="button" className="form-control dropdown-toggle text-start" data-bs-toggle="dropdown">
+                                        <button
+                                            type="button"
+                                            className="form-control dropdown-toggle text-start"
+                                            data-bs-toggle="dropdown"
+                                        >
                                             {storeCategoryName || "Select Store Category"}
                                         </button>
                                         <ul className="dropdown-menu w-100">
@@ -195,11 +196,15 @@ export default function EditStore() {
                                     </div>
                                 </div>
 
-                                {/* ZONE */}
+                                {/* Zone */}
                                 <div className="col-12">
                                     <label className="form-label">Zone Name</label>
                                     <div className="dropdown">
-                                        <button type="button" className="form-control dropdown-toggle text-start" data-bs-toggle="dropdown">
+                                        <button
+                                            type="button"
+                                            className="form-control dropdown-toggle text-start"
+                                            data-bs-toggle="dropdown"
+                                        >
                                             {zoneName || "Select a Zone"}
                                         </button>
                                         <ul className="dropdown-menu w-100">
@@ -214,9 +219,7 @@ export default function EditStore() {
                                                             setStateName("");
                                                             setStateId("");
                                                             setCityName("");
-                                                            setCityId("");
                                                             setCities([]);
-
                                                             loadStatesByZone(el._id);
                                                         }}
                                                     >
@@ -228,7 +231,7 @@ export default function EditStore() {
                                     </div>
                                 </div>
 
-                                {/* STATE */}
+                                {/* State */}
                                 <div className="col-12">
                                     <label className="form-label">State Name</label>
                                     <div className="dropdown">
@@ -250,9 +253,7 @@ export default function EditStore() {
                                                             setStateName(el.stateName);
                                                             setStateId(el._id);
                                                             setCityName("");
-                                                            setCityId("");
                                                             setCities([]);
-
                                                             loadCities(el._id);
                                                         }}
                                                     >
@@ -264,7 +265,7 @@ export default function EditStore() {
                                     </div>
                                 </div>
 
-                                {/* CITY */}
+                                {/* City */}
                                 <div className="col-12">
                                     <label className="form-label">City Name</label>
                                     <div className="dropdown">
@@ -278,28 +279,40 @@ export default function EditStore() {
                                         </button>
                                         <ul className="dropdown-menu w-100">
                                             {cities.length > 0 ? (
-                                                cities.map((el) => (
-                                                    <li key={el._id}>
-                                                        <button
-                                                            type="button"
-                                                            className="dropdown-item"
-                                                            onClick={() => {
-                                                                setCityName(el.cityName);
-                                                                setCityId(el._id);
-                                                            }}
-                                                        >
-                                                            {el.cityName}
-                                                        </button>
-                                                    </li>
-                                                ))
+                                                cities.flatMap((el) =>
+                                                    Array.isArray(el.cityName)
+                                                        ? el.cityName.map((name) => (
+                                                            <li key={el._id + name}>
+                                                                <button
+                                                                    type="button"
+                                                                    className="dropdown-item"
+                                                                    onClick={() => setCityName(name)}   
+                                                                >
+                                                                    {name}
+                                                                </button>
+                                                            </li>
+                                                        ))
+                                                        : (
+                                                            <li key={el._id}>
+                                                                <button
+                                                                    type="button"
+                                                                    className="dropdown-item"
+                                                                    onClick={() => setCityName(el.cityName)}
+                                                                >
+                                                                    {el.cityName}
+                                                                </button>
+                                                            </li>
+                                                        )
+                                                )
                                             ) : (
                                                 <li className="dropdown-item text-muted">No Cities Found</li>
                                             )}
+
                                         </ul>
                                     </div>
                                 </div>
 
-                                {/* ADDRESS */}
+                                {/* Address */}
                                 <div className="col-12">
                                     <label className="form-label">Store Location</label>
                                     <textarea
@@ -311,13 +324,15 @@ export default function EditStore() {
                                 </div>
 
                                 <div className="text-center">
-                                    <button type="submit" className="btn" style={{ background: "#6776f4", color: "white" }}>
+                                    <button
+                                        type="submit"
+                                        className="btn"
+                                        style={{ background: "#6776f4", color: "white" }}
+                                    >
                                         Submit
                                     </button>
                                 </div>
-
                             </form>
-
                         </div>
                     </div>
                 </div>

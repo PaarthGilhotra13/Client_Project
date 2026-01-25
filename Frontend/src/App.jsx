@@ -65,7 +65,19 @@ import ZhApprovedExpenses from "./Components/Zonal_Head/Expenses/ZhApprovedExpen
 import ZhHoldExpenses from "./Components/Zonal_Head/Expenses/ZhHoldExpenses"
 import ZhPendingExpenses from "./Components/Zonal_Head/Expenses/ZhPendingExpense"
 import ZhRejectedExpenses from "./Components/Zonal_Head/Expenses/ZhRejectedExpenses"
-import ZhProfile from "./Components/Profile/ZonalProfile"
+import BfMaster from "./layout/BF/BfMaster"
+import ProcureMaster from "./layout/Procurement/ProcureMaster"
+import BfApprovedExpenses from "./Components/Business_FInance/Expenses/BfApprovedExpenses"
+import BfHoldExpense from "./Components/Business_FInance/Expenses/BfHoldExpenses"
+import BfPendingExpense from "./Components/Business_FInance/Expenses/BfPendingExpense"
+import BfRejectedExpense from "./Components/Business_FInance/Expenses/BfRejectedExpenses"
+import ProcureApprovedExpenses from "./Components/Procurement/Expenses/ProcureApprovedExpenses"
+import ProcureHoldExpenses from "./Components/Procurement/Expenses/ProcureHoldExpenses"
+import ProcurePendingExpense from "./Components/Procurement/Expenses/ProcurePendingExpense"
+import ProcureRejectedExpenses from "./Components/Procurement/Expenses/ProcureRejectedExpenses"
+import EditCity from "./Components/Admin/City/EditCity"
+import ZonalProfile from "./Components/Profile/ZonalProfile"
+
 
 
 function App() {
@@ -98,6 +110,7 @@ function App() {
             <Route path="/admin/addCity" element={<AddCity />} />
             <Route path="/admin/manageCity" element={<ManageCity />} />
             <Route path="/admin/blockedCity" element={<BlockedCity />} />
+            <Route path="/admin/editCity/:id" element={<EditCity />} />
 
             {/* Store Category */}
             <Route path="/admin/addStoreCategory" element={<AddStoreCategory />} />
@@ -156,7 +169,21 @@ function App() {
             <Route path="/ZonalHead/holdExpenses" element={<ZhHoldExpenses />} />
             <Route path="/ZonalHead/pendingExpenses" element={<ZhPendingExpenses />} />
             <Route path="/ZonalHead/rejectedExpenses" element={<ZhRejectedExpenses />} />
-            <Route path="/ZonalHead/zhprofile" element={<ZhProfile/>} />
+            <Route path="/ZonalHead/zhprofile" element={<ZonalProfile/>} />
+          </Route>
+          <Route path="/BusinessFinance" element={<BfMaster />}>
+            <Route path="/BusinessFinance" element={<EmployeeDashboard />} />
+            <Route path="/BusinessFinance/approvedExpenses" element={<BfApprovedExpenses />} />
+            <Route path="/BusinessFinance/holdExpenses" element={<BfHoldExpense />} />
+            <Route path="/BusinessFinance/pendingExpenses" element={<BfPendingExpense />} />
+            <Route path="/BusinessFinance/rejectedExpenses" element={<BfRejectedExpense />} />
+          </Route>
+          <Route path="/Procurement" element={<ProcureMaster />}>
+            <Route path="/Procurement" element={<EmployeeDashboard />} />
+            <Route path="/Procurement/approvedExpenses" element={<ProcureApprovedExpenses />} />
+            <Route path="/Procurement/holdExpenses" element={<ProcureHoldExpenses />} />
+            <Route path="/Procurement/pendingExpenses" element={<ProcurePendingExpense />} />
+            <Route path="/Procurement/rejectedExpenses" element={<ProcureRejectedExpenses />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

@@ -11,8 +11,8 @@ const add = (req, res) => {
     if (!req.body.storeCategoryId) {
         errMsgs.push("storeCategoryId is required")
     }
-    if (!req.body.cityId) {
-        errMsgs.push("cityId is required")
+    if (!req.body.cityName) {
+        errMsgs.push("cityName is required")
     }
     if (!req.body.stateId) {
         errMsgs.push("stateId is required")
@@ -38,7 +38,7 @@ const add = (req, res) => {
                     storeObj.storeName = req.body.storeName
                     storeObj.storeCode = req.body.storeCode
                     storeObj.storeCategoryId = req.body.storeCategoryId
-                    storeObj.cityId = req.body.cityId
+                    storeObj.cityName = req.body.cityName
                     storeObj.stateId = req.body.stateId
                     storeObj.zoneId = req.body.zoneId
                     storeObj.address = req.body.address
@@ -81,7 +81,6 @@ const add = (req, res) => {
 const getAll = (req, res) => {
     storeModel.find(req.body)
         .populate("storeCategoryId")
-        .populate("cityId")
         .populate("stateId")
         .populate("zoneId")
         .then((storeData) => {
@@ -126,7 +125,6 @@ const getSingle = (req, res) => {
     else {
         storeModel.findOne({ _id: req.body._id })
             .populate("storeCategoryId")
-            .populate("cityId")
             .populate("stateId")
             .populate("zoneId")
             .then((storeData) => {
@@ -198,8 +196,8 @@ const update = (req, res) => {
                                 if (req.body.storeCategoryId) {
                                     storeData.storeCategoryId = req.body.storeCategoryId
                                 }
-                                if (req.body.cityId) {
-                                    storeData.cityId = req.body.cityId
+                                if (req.body.cityName) {
+                                    storeData.cityName = req.body.cityName
                                 }
                                 if (req.body.stateId) {
                                     storeData.stateId = req.body.stateId

@@ -13,7 +13,7 @@ export default function ManageCity() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalZone, setModalZone] = useState("");
   const [modalState, setModalState] = useState("");
-  const [modalContent, setModalContent] = useState([]);
+  const [modalCities, setModalCities] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState(""); // Search
   const [currentPage, setCurrentPage] = useState(1); // Pagination
@@ -23,15 +23,12 @@ export default function ManageCity() {
     ApiServices.GetAllCity()
       .then((res) => {
         if (res?.data?.success) {
-          setData(res?.data?.data || []);
+          setData(res.data.data || []);
         } else {
           setData([]);
         }
-        setTimeout(() => setLoad(false), 500);
       })
-      .catch(() => {
-        setTimeout(() => setLoad(false), 1000);
-      });
+      .finally(() => setLoad(false));
   }, []);
 
   /* ================= ACTIVE CITIES ================= */
@@ -109,7 +106,7 @@ export default function ManageCity() {
             });
             setTimeout(() => setLoad(false), 1500);
           })
-          .catch((err) => {
+          .catch(() => {
             setLoad(true);
             Swal.fire({
               icon: "error",
@@ -119,7 +116,6 @@ export default function ManageCity() {
               timerProgressBar: true,
             });
             setTimeout(() => setLoad(false), 2000);
-            console.log("Error is", err);
           });
       }
     });
@@ -195,13 +191,13 @@ export default function ManageCity() {
                             <span
                               style={{ color: "blue", cursor: "pointer" }}
                               onClick={() => {
-                                setModalZone(el.zoneName);
-                                setModalState(el.stateName);
-                                setModalContent(el.cities);
+                                setModalZone(el?.zoneId?.zoneName);
+                                setModalState(el?.stateId?.stateName);
+                                setModalCities(el?.cityName || []);
                                 setModalOpen(true);
                               }}
                             >
-                              View Cities
+                              View Cities ({el?.cityName?.length || 0})
                             </span>
                           </td>
                           <td>
@@ -213,6 +209,7 @@ export default function ManageCity() {
                               >
                                 <i className="bi bi-pen"></i>
                               </Link>
+
                               <button
                                 className="btn ms-2"
                                 style={{ background: "#6c757d", color: "white" }}
@@ -275,10 +272,7 @@ export default function ManageCity() {
       {/* Modal */}
       {modalOpen && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-          <div
-            className="modal-box position-relative"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               className="btn-close position-absolute top-0 end-0 m-2"
@@ -292,18 +286,18 @@ export default function ManageCity() {
               State: <span className="fw-normal">{modalState}</span>
             </h6>
 
+            <h6>Zone : {modalZone}</h6>
+            <h6>State : {modalState}</h6>
             <hr />
 
-            <h6 className="mb-2">Cities</h6>
-
-            {modalContent.length > 0 ? (
-              <ul className="ps-3">
-                {modalContent.map((city, index) => (
-                  <li key={index}>{city}</li>
+            {modalCities.length > 0 ? (
+              <ul>
+                {modalCities.map((c, i) => (
+                  <li key={i}>{c}</li>
                 ))}
               </ul>
             ) : (
-              <p className="text-muted mb-0">No Cities Found</p>
+              <p className="text-muted">No Cities Found</p>
             )}
           </div>
         </div>

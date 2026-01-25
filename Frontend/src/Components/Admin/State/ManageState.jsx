@@ -169,9 +169,6 @@ import { CSVLink } from "react-csv";
 export default function ManageState() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState("");
-  const [modalTitle, setModalTitle] = useState("");
 
   const [searchTerm, setSearchTerm] = useState(""); // Search
   const [currentPage, setCurrentPage] = useState(1); // Pagination
@@ -262,7 +259,7 @@ export default function ManageState() {
 
   return (
     <>
-      <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
+      <main className="main" id="main">
         <PageTitle child="Manage State" />
 
         {/* Loader */}
@@ -314,7 +311,7 @@ export default function ManageState() {
                     <tr>
                       <th>Sr. No</th>
                       <th>Zone</th>
-                      <th>States</th>
+                      <th>State</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -349,13 +346,19 @@ export default function ManageState() {
                               <Link
                                 to={`/admin/editState/${el._id}`}
                                 className="btn"
-                                style={{ background: "#197ce6ff", color: "white" }}
+                                style={{
+                                  background: "#197ce6ff",
+                                  color: "white",
+                                }}
                               >
                                 <i className="bi bi-pen"></i>
                               </Link>
                               <button
                                 className="btn ms-2"
-                                style={{ background: "#6c757d", color: "white" }}
+                                style={{
+                                  background: "#6c757d",
+                                  color: "white",
+                                }}
                                 onClick={() => changeInactiveStatus(el._id)}
                               >
                                 <i className="bi bi-x-circle"></i>
@@ -434,3 +437,4 @@ export default function ManageState() {
     </>
   );
 }
+

@@ -110,6 +110,7 @@ export default function EditApprovalPolicy() {
 
                                 <form className="row g-3" onSubmit={handleForm}>
 
+                                    {/* MIN */}
                                     <div className="col-12">
                                         <label className="form-label">Min Amount</label>
                                         <input
@@ -120,6 +121,7 @@ export default function EditApprovalPolicy() {
                                         />
                                     </div>
 
+                                    {/* MAX */}
                                     <div className="col-12">
                                         <label className="form-label">Max Amount</label>
                                         <input
@@ -130,25 +132,45 @@ export default function EditApprovalPolicy() {
                                         />
                                     </div>
 
+                                    {/* APPROVAL LEVELS (SAME UI AS ADD) */}
                                     <div className="col-12">
                                         <label className="form-label">Approval Levels</label>
                                         <div className="border rounded p-2">
-                                            {roles.map(role => (
-                                                <div key={role} className="form-check">
-                                                    <input
-                                                        className="form-check-input"
-                                                        type="checkbox"
-                                                        checked={approvalLevels.includes(role)}
-                                                        onChange={() => handleRoleToggle(role)}
-                                                    />
-                                                    <label className="form-check-label">
-                                                        {role}
-                                                    </label>
-                                                </div>
-                                            ))}
+
+                                            {roles.map(role => {
+                                                const index = approvalLevels.indexOf(role);
+
+                                                return (
+                                                    <div
+                                                        key={role}
+                                                        className="form-check d-flex align-items-center gap-2"
+                                                    >
+                                                        <input
+                                                            className="form-check-input"
+                                                            type="checkbox"
+                                                            checked={index !== -1}
+                                                            onChange={() => handleRoleToggle(role)}
+                                                        />
+
+                                                        <label className="form-check-label">
+                                                            {role}
+                                                            {index !== -1 && (
+                                                                <span
+                                                                    className="badge ms-2"
+                                                                    style={{ background: "#6776f4" }}
+                                                                >
+                                                                    {index + 1}
+                                                                </span>
+                                                            )}
+                                                        </label>
+                                                    </div>
+                                                );
+                                            })}
+
                                         </div>
                                     </div>
 
+                                    {/* SUBMIT */}
                                     <div className="text-center">
                                         <button
                                             type="submit"
