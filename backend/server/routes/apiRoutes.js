@@ -162,6 +162,7 @@ routes.post("/expense-approval/bf/pending",expenseApprovalController.pendingForB
 routes.post("/expense-approval/procure/pending",expenseApprovalController.pendingForProcurement)
 routes.post("/expense-approval/action",expenseApprovalController.expenseAction)
 routes.post("/expense-approval/myApprovedAction",expenseApprovalController.myApprovalActions)
+routes.post("/expense-approval/reSubmitHeldExpense",upload.single("attachment"),expenseApprovalController.resubmitHeldExpense)
 
 
 module.exports=routes

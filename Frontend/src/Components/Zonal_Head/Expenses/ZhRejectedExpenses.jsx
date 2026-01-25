@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
 
-export default function ZhRejectedExpenses() {
+export default function ZhRejectedExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -82,16 +82,6 @@ export default function ZhRejectedExpenses() {
     setShowModal(false);
   };
 
-  /* ================= ATTACHMENT DOWNLOAD ================= */
-  const handleDownload = (url) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = url.split("/").pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <main className="main" id="main">
       <PageTitle child="Rejected Expenses (Zonal Head)" />
@@ -146,8 +136,7 @@ export default function ZhRejectedExpenses() {
                     <th>Expense Head</th>
                     <th>Amount</th>
                     <th>Status</th>
-                    <th>Comment</th>
-                    <th>Action Date</th>
+                    <th>Rejected On</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -164,11 +153,14 @@ export default function ZhRejectedExpenses() {
                         <td>
                           <span className="badge bg-danger">Rejected</span>
                         </td>
-                        <td>{el.comment || "-"}</td>
-                        <td>{new Date(el.actionAt).toLocaleDateString()}</td>
+                        <td>
+                          {el.actionAt
+                            ? new Date(el.actionAt).toLocaleDateString()
+                            : "-"}
+                        </td>
                         <td>
                           <button
-                            className="btn btn-primary btn-sm"
+                            className="btn btn-sm btn-primary"
                             onClick={() => handleViewClick(el)}
                           >
                             View
@@ -178,12 +170,13 @@ export default function ZhRejectedExpenses() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="9" className="text-center text-muted">
+                      <td colSpan="8" className="text-center text-muted">
                         No Rejected Expenses Found
                       </td>
                     </tr>
                   )}
                 </tbody>
+
               </table>
 
               {/* Pagination */}
@@ -262,47 +255,88 @@ export default function ZhRejectedExpenses() {
                     <strong>Ticket ID:</strong>
                     <p>{selectedExpense.expenseId?.ticketId}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Store:</strong>
                     <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Expense Head:</strong>
                     <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Amount:</strong>
                     <p>₹ {selectedExpense.expenseId?.amount}</p>
                   </div>
+
+                  <div className="col-md-6">
+                    <strong>Policy:</strong>
+                    <p>{selectedExpense.expenseId?.policy || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Nature of Expense:</strong>
+                    <p>{selectedExpense.expenseId?.natureOfExpense || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>RCA:</strong>
+                    <p>{selectedExpense.expenseId?.rca || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Remarks:</strong>
+                    <p>{selectedExpense.expenseId?.remark || "-"}</p>
+                  </div>
+
                   <div className="col-md-6">
                     <strong>Status:</strong>
                     <p>
                       <span className="badge bg-danger">Rejected</span>
                     </p>
                   </div>
+
                   <div className="col-md-6">
-                    <strong>Comment:</strong>
-                    <p>{selectedExpense.comment || "-"}</p>
+                    <strong>Rejected On:</strong>
+                    <p>
+                      {selectedExpense.actionAt
+                        ? new Date(selectedExpense.actionAt).toLocaleDateString()
+                        : "-"}
+                    </p>
                   </div>
-                  <div className="col-md-6">
-                    <strong>Action Date:</strong>
-                    <p>{new Date(selectedExpense.actionAt).toLocaleDateString()}</p>
-                  </div>
+
+                  {/* Attachments */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
-                      {selectedExpense.expenseId?.attachment ? (
-                        <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() =>
-                            handleDownload(selectedExpense.expenseId.attachment)
-                          }
+                      {selectedExpense.expenseId?.attachment && (
+                        <a
+                          href={selectedExpense.expenseId.attachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-primary me-2"
                         >
-                          Download Attachment
-                        </button>
-                      ) : (
-                        <span className="text-muted">No Attachment</span>
+                          Original
+                        </a>
                       )}
+
+                      {selectedExpense.expenseId?.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.expenseId.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          Resubmitted
+                        </a>
+                      )}
+
+                      {!selectedExpense.expenseId?.attachment &&
+                        !selectedExpense.expenseId?.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
                     </p>
                   </div>
                 </div>
@@ -311,6 +345,7 @@ export default function ZhRejectedExpenses() {
           </div>
         </div>
       )}
+
     </main>
   );
 }

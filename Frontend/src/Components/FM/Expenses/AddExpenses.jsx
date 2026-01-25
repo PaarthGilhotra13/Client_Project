@@ -491,8 +491,6 @@ export default function AddExpenses() {
                       const value = e.target.value;
                       setSearchStore(value);
                       setShowSearchDropdown(true);
-
-                      // 🔥 CLEAR STORE INFO WHEN INPUT IS CLEARED
                       if (value === "") {
                         setSelectedStore(null);
                         setStoreId("");
@@ -521,7 +519,6 @@ export default function AddExpenses() {
                                 setSelectedStore(el);
                                 setSearchStore(el.storeName);
                                 setShowSearchDropdown(false);
-
                                 setStoreCategoryName("");
                                 setStoreCategoryId("");
                                 setExpenseHeadName("");

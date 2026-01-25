@@ -104,7 +104,7 @@ export default function ClmPendingExpense() {
           setLoad(false);
           if (res?.data?.success) {
             Swal.fire("Success", res.data.message, "success");
-            fetchPending(); // refresh list
+            fetchPending();
           } else {
             Swal.fire("Error", res.data.message, "error");
           }
@@ -114,16 +114,6 @@ export default function ClmPendingExpense() {
           Swal.fire("Error", "Something went wrong", "error");
         });
     });
-  };
-
-  /* ================= ATTACHMENT DOWNLOAD ================= */
-  const handleDownload = (url) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = url.split("/").pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
@@ -325,21 +315,37 @@ export default function ClmPendingExpense() {
                       <span className="badge bg-warning">Pending</span>
                     </p>
                   </div>
+
+                  {/* 🔥 ATTACHMENT FIX (UI SAME) */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
-                      {selectedExpense.attachment ? (
+                      {selectedExpense.attachment && (
                         <a
                           href={selectedExpense.attachment}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn btn-sm btn-primary me-2"
                         >
-                          View Attachment
+                          Original
                         </a>
-                      ) : (
-                        <span className="text-muted">No Attachment</span>
                       )}
+
+                      {selectedExpense.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          Resubmitted
+                        </a>
+                      )}
+
+                      {!selectedExpense.attachment &&
+                        !selectedExpense.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
                     </p>
                   </div>
                 </div>

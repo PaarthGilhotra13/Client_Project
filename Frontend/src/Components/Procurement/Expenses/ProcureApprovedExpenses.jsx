@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
 
-export default function ProcureApprovedExpense() {
+export default function ProcurementApprovedExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -20,7 +20,7 @@ export default function ProcureApprovedExpense() {
 
   const userId = sessionStorage.getItem("userId");
 
-  /* ================= FETCH APPROVED ================= */
+  /* ================= FETCH APPROVED (PROCUREMENT) ================= */
   const fetchApproved = () => {
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
@@ -79,16 +79,6 @@ export default function ProcureApprovedExpense() {
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
-  };
-
-  /* ================= DOWNLOAD HANDLER ================= */
-  const handleDownload = (url) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = url.split("/").pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (

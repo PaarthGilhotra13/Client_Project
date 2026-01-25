@@ -29,7 +29,7 @@ export default function HoldExpenses() {
     }
 
     ApiServices.MyExpenses({
-      userId: userId,
+      userId,
       currentStatus: "Hold",
     })
       .then((res) => {
@@ -70,12 +70,50 @@ export default function HoldExpenses() {
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
+    setResubmitFile(null);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
+    setResubmitFile(null);
     setShowModal(false);
+  };
+  /* ================= RESUBMIT ================= */
+  const handleResubmit = () => {
+    if (!resubmitFile) {
+      Swal.fire("Error", "Please upload attachment", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("expenseId", selectedExpense._id);
+    formData.append("attachment", resubmitFile);
+
+    setSubmitting(true);
+
+    ApiServices.ReSubmitHeldExpense(formData)
+      .then((res) => {
+        if (res?.data?.success) {
+          Swal.fire("Success", "Expense resubmitted successfully", "success");
+          handleCloseModal();
+          setLoad(true);
+
+          ApiServices.MyExpenses({
+            userId: sessionStorage.getItem("userId"),
+            currentStatus: "Hold",
+          }).then((res) => {
+            setData(res?.data?.data || []);
+            setLoad(false);
+          });
+        } else {
+          Swal.fire("Error", "Resubmission failed", "error");
+        }
+      })
+      .catch(() => {
+        Swal.fire("Error", "Something went wrong", "error");
+      })
+      .finally(() => setSubmitting(false));
   };
 
   return (
@@ -237,6 +275,16 @@ export default function HoldExpenses() {
                   <strong>Status:</strong>{" "}
                   <span className="badge bg-warning text-dark">Hold</span>
                 </p>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  className="btn btn-success"
+                  disabled={submitting}
+                  onClick={handleResubmit}
+                >
+                  {submitting ? "Submitting..." : "Resubmit"}
+                </button>
               </div>
             </div>
           </div>
