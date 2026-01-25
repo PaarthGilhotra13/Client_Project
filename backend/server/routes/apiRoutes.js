@@ -16,6 +16,9 @@ const approvalPolicyController=require("../apis/Approval Policy/approvalPolicyCo
 const stateController=require("../apis/State/stateController")
 const locationController=require("../apis/City/locationController")
 const expenseApprovalController=require("../apis/Expense Approval/expenseApprovalController")
+const adminDashboardController=require("../apis/Dashboard/adminDashboardController")
+const fmDashboardController=require("../apis/Dashboard/fmDashboardController")
+
 const multer=require("multer")
 const storage=multer.memoryStorage()
 const upload=multer({storage:storage})
@@ -162,7 +165,14 @@ routes.post("/expense-approval/bf/pending",expenseApprovalController.pendingForB
 routes.post("/expense-approval/procure/pending",expenseApprovalController.pendingForProcurement)
 routes.post("/expense-approval/action",expenseApprovalController.expenseAction)
 routes.post("/expense-approval/myApprovedAction",expenseApprovalController.myApprovalActions)
+<<<<<<< Updated upstream
 routes.post("/expense-approval/reSubmitHeldExpense",upload.single("attachment"),expenseApprovalController.resubmitHeldExpense)
+=======
+routes.post("/expense-approval/approval-history",expenseApprovalController.approvalHistory);
+>>>>>>> Stashed changes
 
+// Dashboard
+routes.get("/dashboard",adminDashboardController.getDashboard)
+routes.get("/fm/dashboard",fmDashboardController.getFMDashboard)
 
 module.exports=routes
