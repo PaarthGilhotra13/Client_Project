@@ -4,7 +4,7 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 
-export default function ZhApprovedExpenses() {
+export default function ZhApprovedExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -12,13 +12,16 @@ export default function ZhApprovedExpenses() {
 
   const userId = sessionStorage.getItem("userId");
 
-  /* ================= FETCH APPROVED ================= */
+  /* ================= FETCH APPROVED (ZONAL HEAD) ================= */
   const fetchApproved = () => {
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
       setLoad(false);
       return;
     }
+
+    setLoad(true);
+
     ApiServices.MyApprovalActions({
       userId: userId,
       action: "Approved",
@@ -26,11 +29,11 @@ export default function ZhApprovedExpenses() {
     })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
-        setTimeout(() => setLoad(false), 500);
+        setLoad(false);
       })
       .catch(() => {
         setData([]);
-        setTimeout(() => setLoad(false), 500);
+        setLoad(false);
       });
   };
 
@@ -47,16 +50,6 @@ export default function ZhApprovedExpenses() {
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
-  };
-
-  /* ================= ATTACHMENT DOWNLOAD ================= */
-  const handleDownload = (url) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = url.split("/").pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
@@ -102,10 +95,14 @@ export default function ZhApprovedExpenses() {
                         <td>
                           <span className="badge bg-success">Approved</span>
                         </td>
-                        <td>{new Date(el.actionAt).toLocaleDateString()}</td>
+                        <td>
+                          {el.actionAt
+                            ? new Date(el.actionAt).toLocaleDateString()
+                            : "-"}
+                        </td>
                         <td>
                           <button
-                            className="btn btn-primary btn-sm"
+                            className="btn btn-sm btn-primary"
                             onClick={() => handleViewClick(el)}
                           >
                             View
@@ -166,59 +163,88 @@ export default function ZhApprovedExpenses() {
                     <strong>Ticket ID:</strong>
                     <p>{selectedExpense.expenseId?.ticketId}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Store:</strong>
                     <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Expense Head:</strong>
                     <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Amount:</strong>
                     <p>₹ {selectedExpense.expenseId?.amount}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Policy:</strong>
                     <p>{selectedExpense.expenseId?.policy || "-"}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Nature of Expense:</strong>
                     <p>{selectedExpense.expenseId?.natureOfExpense || "-"}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>RCA:</strong>
                     <p>{selectedExpense.expenseId?.rca || "-"}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Remarks:</strong>
                     <p>{selectedExpense.expenseId?.remark || "-"}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Status:</strong>
                     <p>
                       <span className="badge bg-success">Approved</span>
                     </p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Approved On:</strong>
-                    <p>{new Date(selectedExpense.actionAt).toLocaleDateString()}</p>
+                    <p>
+                      {selectedExpense.actionAt
+                        ? new Date(selectedExpense.actionAt).toLocaleDateString()
+                        : "-"}
+                    </p>
                   </div>
+
+                  {/* Attachments */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
-                      {selectedExpense.expenseId?.attachment ? (
+                      {selectedExpense.expenseId?.attachment && (
                         <a
                           href={selectedExpense.expenseId.attachment}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn btn-sm btn-primary me-2"
                         >
-                          View Attachment
+                          Original
                         </a>
-                      ) : (
-                        <span className="text-muted">No Attachment</span>
                       )}
+
+                      {selectedExpense.expenseId?.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.expenseId.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          Resubmitted
+                        </a>
+                      )}
+
+                      {!selectedExpense.expenseId?.attachment &&
+                        !selectedExpense.expenseId?.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
                     </p>
                   </div>
                 </div>
@@ -227,6 +253,7 @@ export default function ZhApprovedExpenses() {
           </div>
         </div>
       )}
+
     </main>
   );
 }

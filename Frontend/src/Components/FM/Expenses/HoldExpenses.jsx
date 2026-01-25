@@ -10,6 +10,9 @@ export default function HoldExpenses() {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  const [resubmitFile, setResubmitFile] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
   /* ================= FETCH HOLD EXPENSES ================= */
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
@@ -21,32 +24,71 @@ export default function HoldExpenses() {
     }
 
     ApiServices.MyExpenses({
-      userId: userId,
+      userId,
       currentStatus: "Hold",
     })
       .then((res) => {
         if (res?.data?.success) {
-          setData(res?.data?.data || []);
+          setData(res.data.data || []);
         } else {
           setData([]);
         }
-        setTimeout(() => setLoad(false), 500);
+        setLoad(false);
       })
       .catch(() => {
         setData([]);
-        setTimeout(() => setLoad(false), 500);
+        setLoad(false);
       });
   }, []);
 
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
+    setResubmitFile(null);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
+    setResubmitFile(null);
     setShowModal(false);
+  };
+
+  /* ================= RESUBMIT ================= */
+  const handleResubmit = () => {
+    if (!resubmitFile) {
+      Swal.fire("Error", "Please upload attachment", "error");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("expenseId", selectedExpense._id);
+    formData.append("attachment", resubmitFile);
+
+    setSubmitting(true);
+
+    ApiServices.ReSubmitHeldExpense(formData)
+      .then((res) => {
+        if (res?.data?.success) {
+          Swal.fire("Success", "Expense resubmitted successfully", "success");
+          handleCloseModal();
+          setLoad(true);
+
+          ApiServices.MyExpenses({
+            userId: sessionStorage.getItem("userId"),
+            currentStatus: "Hold",
+          }).then((res) => {
+            setData(res?.data?.data || []);
+            setLoad(false);
+          });
+        } else {
+          Swal.fire("Error", "Resubmission failed", "error");
+        }
+      })
+      .catch(() => {
+        Swal.fire("Error", "Something went wrong", "error");
+      })
+      .finally(() => setSubmitting(false));
   };
 
   return (
@@ -96,9 +138,13 @@ export default function HoldExpenses() {
                         <td>{el.expenseHeadId?.name}</td>
                         <td>₹ {el.amount}</td>
                         <td>
-                          <span className="badge bg-warning text-dark">Hold</span>
+                          <span className="badge bg-warning text-dark">
+                            Hold
+                          </span>
                         </td>
-                        <td>{new Date(el.createdAt).toLocaleDateString()}</td>
+                        <td>
+                          {new Date(el.createdAt).toLocaleDateString()}
+                        </td>
                         <td>
                           <button
                             className="btn btn-sm btn-primary"
@@ -190,16 +236,14 @@ export default function HoldExpenses() {
                     <strong>Remarks:</strong>
                     <p>{selectedExpense.remark || "-"}</p>
                   </div>
-                  <div className="col-md-6">
-                    <strong>Status:</strong>
-                    <p>
-                      <span className="badge bg-warning text-dark">Hold</span>
+
+                  <div className="col-12">
+                    <strong>Hold Comment:</strong>
+                    <p className="text-danger">
+                      {selectedExpense.holdComment || "No Comment"}
                     </p>
                   </div>
-                  <div className="col-md-6">
-                    <strong>Created At:</strong>
-                    <p>{new Date(selectedExpense.createdAt).toLocaleDateString()}</p>
-                  </div>
+
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
@@ -217,7 +261,28 @@ export default function HoldExpenses() {
                       )}
                     </p>
                   </div>
+
+                  <div className="col-12">
+                    <strong>Resubmitted Attachment:</strong>
+                    <input
+                      type="file"
+                      className="form-control mt-1"
+                      onChange={(e) =>
+                        setResubmitFile(e.target.files[0])
+                      }
+                    />
+                  </div>
                 </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  className="btn btn-success"
+                  disabled={submitting}
+                  onClick={handleResubmit}
+                >
+                  {submitting ? "Submitting..." : "Resubmit"}
+                </button>
               </div>
             </div>
           </div>

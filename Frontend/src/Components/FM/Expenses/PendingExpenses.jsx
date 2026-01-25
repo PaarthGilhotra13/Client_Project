@@ -33,8 +33,7 @@ export default function PendingExpense() {
         }
         setTimeout(() => setLoad(false), 500);
       })
-      .catch((err) => {
-        console.log("Error is ", err);
+      .catch(() => {
         setTimeout(() => setLoad(false), 1000);
       });
   }, []);
@@ -97,7 +96,9 @@ export default function PendingExpense() {
                         <td>₹ {el.amount}</td>
                         <td>{el.policy || "-"}</td>
                         <td>
-                          <span className="badge bg-warning text-dark">Pending</span>
+                          <span className="badge bg-warning text-dark">
+                            Pending
+                          </span>
                         </td>
                         <td>
                           <button
@@ -193,28 +194,50 @@ export default function PendingExpense() {
                   <div className="col-md-6">
                     <strong>Status:</strong>
                     <p>
-                      <span className="badge bg-warning text-dark">Pending</span>
+                      <span className="badge bg-warning text-dark">
+                        Pending
+                      </span>
                     </p>
                   </div>
                   <div className="col-md-6">
                     <strong>Created At:</strong>
-                    <p>{new Date(selectedExpense.createdAt).toLocaleDateString()}</p>
+                    <p>
+                      {new Date(
+                        selectedExpense.createdAt
+                      ).toLocaleDateString()}
+                    </p>
                   </div>
+
+                  {/* 🔥 FIXED ATTACHMENT LOGIC (UI SAME) */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
-                      {selectedExpense.attachment ? (
+                      {selectedExpense.attachment && (
                         <a
                           href={selectedExpense.attachment}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn btn-sm btn-primary"
+                          className="btn btn-sm btn-primary me-2"
                         >
-                          View Attachment
+                          Original
                         </a>
-                      ) : (
-                        <span className="text-muted">No Attachment</span>
                       )}
+
+                      {selectedExpense.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          Resubmitted
+                        </a>
+                      )}
+
+                      {!selectedExpense.attachment &&
+                        !selectedExpense.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
                     </p>
                   </div>
                 </div>

@@ -4,7 +4,7 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 
-export default function ZhHoldExpenses() {
+export default function ZhHoldExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -12,7 +12,7 @@ export default function ZhHoldExpenses() {
 
   const userId = sessionStorage.getItem("userId");
 
-  /* ================= FETCH HOLD (ZH) ================= */
+  /* ================= FETCH HOLD (ZONAL HEAD) ================= */
   const fetchHold = () => {
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
@@ -20,18 +20,20 @@ export default function ZhHoldExpenses() {
       return;
     }
 
+    setLoad(true);
+
     ApiServices.MyApprovalActions({
-      userId: userId,
+      userId,
       action: "Hold",
       level: "ZONAL_HEAD",
     })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
-        setTimeout(() => setLoad(false), 500);
+        setLoad(false);
       })
       .catch(() => {
         setData([]);
-        setTimeout(() => setLoad(false), 500);
+        setLoad(false);
       });
   };
 
@@ -48,16 +50,6 @@ export default function ZhHoldExpenses() {
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
-  };
-
-  /* ================= ATTACHMENT DOWNLOAD ================= */
-  const handleDownload = (url) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = url.split("/").pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
@@ -86,8 +78,7 @@ export default function ZhHoldExpenses() {
                     <th>Expense Head</th>
                     <th>Amount</th>
                     <th>Status</th>
-                    <th>Comment</th>
-                    <th>Action Date</th>
+                    <th>Hold On</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -97,18 +88,21 @@ export default function ZhHoldExpenses() {
                     data.map((el, index) => (
                       <tr key={el._id}>
                         <td>{index + 1}</td>
-                        <td>{el.expenseId?.ticketId}</td>
-                        <td>{el.expenseId?.storeId?.storeName}</td>
-                        <td>{el.expenseId?.expenseHeadId?.name}</td>
-                        <td>₹ {el.expenseId?.amount}</td>
+                        <td>{el.ticketId}</td>
+                        <td>{el.storeId?.storeName}</td>
+                        <td>{el.expenseHeadId?.name}</td>
+                        <td>₹ {el.amount}</td>
                         <td>
-                          <span className="badge bg-secondary">Hold</span>
+                          <span className="badge bg-warning text-dark">
+                            Hold
+                          </span>
                         </td>
-                        <td>{el.comment || "-"}</td>
-                        <td>{new Date(el.actionAt).toLocaleDateString()}</td>
+                        <td>
+                          {new Date(el.updatedAt || el.createdAt).toLocaleDateString()}
+                        </td>
                         <td>
                           <button
-                            className="btn btn-primary btn-sm"
+                            className="btn btn-sm btn-primary"
                             onClick={() => handleViewClick(el)}
                           >
                             View
@@ -118,7 +112,7 @@ export default function ZhHoldExpenses() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="9" className="text-center text-muted">
+                      <td colSpan="8" className="text-center text-muted">
                         No Hold Expenses Found
                       </td>
                     </tr>
@@ -167,49 +161,81 @@ export default function ZhHoldExpenses() {
                 <div className="row g-3">
                   <div className="col-md-6">
                     <strong>Ticket ID:</strong>
-                    <p>{selectedExpense.expenseId?.ticketId}</p>
+                    <p>{selectedExpense.ticketId}</p>
                   </div>
                   <div className="col-md-6">
                     <strong>Store:</strong>
-                    <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
+                    <p>{selectedExpense.storeId?.storeName}</p>
                   </div>
                   <div className="col-md-6">
                     <strong>Expense Head:</strong>
-                    <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
+                    <p>{selectedExpense.expenseHeadId?.name}</p>
                   </div>
                   <div className="col-md-6">
                     <strong>Amount:</strong>
-                    <p>₹ {selectedExpense.expenseId?.amount}</p>
+                    <p>₹ {selectedExpense.amount}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Policy:</strong>
+                    <p>{selectedExpense.policy || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Nature of Expense:</strong>
+                    <p>{selectedExpense.natureOfExpense || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>RCA:</strong>
+                    <p>{selectedExpense.rca || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Hold Comment:</strong>
+                    <p>{selectedExpense.holdComment || "-"}</p>
                   </div>
                   <div className="col-md-6">
                     <strong>Status:</strong>
                     <p>
-                      <span className="badge bg-secondary">Hold</span>
+                      <span className="badge bg-warning text-dark">Hold</span>
                     </p>
                   </div>
                   <div className="col-md-6">
-                    <strong>Comment:</strong>
-                    <p>{selectedExpense.comment || "-"}</p>
+                    <strong>Hold On:</strong>
+                    <p>
+                      {new Date(
+                        selectedExpense.updatedAt || selectedExpense.createdAt
+                      ).toLocaleDateString()}
+                    </p>
                   </div>
-                  <div className="col-md-6">
-                    <strong>Action Date:</strong>
-                    <p>{new Date(selectedExpense.actionAt).toLocaleDateString()}</p>
-                  </div>
+
+                  {/* Attachments */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
-                      {selectedExpense.expenseId?.attachment ? (
-                        <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() =>
-                            handleDownload(selectedExpense.expenseId.attachment)
-                          }
+                      {selectedExpense.attachment && (
+                        <a
+                          href={selectedExpense.attachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-primary me-2"
                         >
-                          Download Attachment
-                        </button>
-                      ) : (
-                        <span className="text-muted">No Attachment</span>
+                          Original
+                        </a>
                       )}
+
+                      {selectedExpense.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          Resubmitted
+                        </a>
+                      )}
+
+                      {!selectedExpense.attachment &&
+                        !selectedExpense.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
                     </p>
                   </div>
                 </div>

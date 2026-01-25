@@ -338,6 +338,9 @@ class ApiServices {
    MyApprovalActions(data) {
       return axios.post(BaseURL + "/apis/expense-approval/myApprovedAction", data, { headers: getToken() })
    }
+   ReSubmitHeldExpense(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/reSubmitHeldExpense", data, { headers: getToken() })
+   }
 
 
    //Announcement
