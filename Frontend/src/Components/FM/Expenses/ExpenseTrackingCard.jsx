@@ -157,33 +157,21 @@
 //   );
 // }
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 // import { useEffect, useState } from "react";
 // import { useParams, useNavigate } from "react-router-dom";
 // import ApiServices from "../../../ApiServices";
 
-<<<<<<< Updated upstream
 // const STATUS_STYLE = {
 //   Approved: { bg: "success", dot: "#22c55e" },
 //   Pending: { bg: "warning", dot: "#facc15" },
 //   Hold: { bg: "primary", dot: "#3b82f6" },
 //   Rejected: { bg: "danger", dot: "#ef4444" },
-=======
-// const STATUS_COLORS = {
-//   Pending: "#facc15",   // yellow
-//   Approved: "#22c55e",  // green
-//   Rejected: "#ef4444",  // red
->>>>>>> Stashed changes
 // };
 
 // export default function TrackExpenses() {
 //   const { id } = useParams();
 //   const navigate = useNavigate();
 
-<<<<<<< Updated upstream
 //   const [expense, setExpense] = useState(null);
 //   const [loading, setLoading] = useState(true);
 
@@ -323,8 +311,6 @@
 //   const { id } = useParams();
 //   const navigate = useNavigate();
 
-=======
->>>>>>> Stashed changes
 //   const [data, setData] = useState(null);
 //   const [loading, setLoading] = useState(true);
 
@@ -332,17 +318,10 @@
 //     if (!id) return;
 
 //     setLoading(true);
-<<<<<<< Updated upstream
 //     ApiServices.GetSingleExpense({ _id: id })
 //       .then((res) => {
 //         const result = res?.data?.data;
 //         setData(Array.isArray(result) ? result[0] : result);
-=======
-
-//     ApiServices.GetSingleExpense({ _id: id })
-//       .then((res) => {
-//         setData(res?.data?.data || null);
->>>>>>> Stashed changes
 //         setLoading(false);
 //       })
 //       .catch(() => {
@@ -353,7 +332,6 @@
 
 //   if (!id) return null;
 
-<<<<<<< Updated upstream
 //   /* ===============================
 //      🔹 APPROVAL CARDS (TEMP LOGIC)
 //      backend me jab approvalJourney
@@ -402,29 +380,13 @@
 //       dot: "#3b82f6",
 //     },
 //   };
-=======
-//   const status = data?.currentStatus?.trim() || "Pending";
-
-//   // ✅ PERFECT STEP FLOW
-//   let STEPS = ["Pending"];
-
-//   if (status === "Approved") {
-//     STEPS = ["Pending", "Approved"];
-//   } else if (status === "Rejected") {
-//     STEPS = ["Pending", "Rejected"];
-//   }
->>>>>>> Stashed changes
 
 //   return (
 //     <div
 //       style={{
 //         position: "fixed",
 //         inset: 0,
-<<<<<<< Updated upstream
 //         background: "rgba(0,0,0,0.45)",
-=======
-//         background: "rgba(0,0,0,0.4)",
->>>>>>> Stashed changes
 //         display: "flex",
 //         justifyContent: "center",
 //         alignItems: "center",
@@ -434,7 +396,6 @@
 //       <div
 //         style={{
 //           background: "#fff",
-<<<<<<< Updated upstream
 //           borderRadius: 16,
 //           padding: 22,
 //           width: 520,
@@ -447,18 +408,6 @@
 //           <h5 className="fw-bold mb-0">Track Expense Approval</h5>
 //           <button
 //             className="btn btn-sm btn-outline-secondary"
-=======
-//           borderRadius: 12,
-//           padding: 24,
-//           width: "420px",
-//         }}
-//       >
-//         {/* Header */}
-//         <div className="d-flex justify-content-between mb-3">
-//           <h6 className="mb-0">Track Expense</h6>
-//           <button
-//             className="btn btn-sm btn-danger"
->>>>>>> Stashed changes
 //             onClick={() => navigate(-1)}
 //           >
 //             ✕
@@ -467,7 +416,6 @@
 
 //         {loading && <p>Loading...</p>}
 
-<<<<<<< Updated upstream
 //         {!loading && !data && (
 //           <p className="text-danger">No data found.</p>
 //         )}
@@ -1352,64 +1300,6 @@
 //                 </div>
 //               );
 //             })}
-=======
-//         {!loading && data && (
-//           <>
-//             <p><b>Ticket ID:</b> {data.ticketId}</p>
-//             <p><b>Store:</b> {data.storeId?.storeName}</p>
-//             <p><b>Expense:</b> {data.expenseHeadId?.name}</p>
-//             <p><b>Amount:</b> ₹ {data.amount}</p>
-//             <p>
-//               <b>Date:</b>{" "}
-//               {new Date(data.createdAt).toLocaleDateString()}
-//             </p>
-
-//             {/* ✅ CLEAN STATUS TIMELINE */}
-//             <div className="mt-3">
-//               {STEPS.map((step, index) => {
-//                 const isLast = index === STEPS.length - 1;
-
-//                 return (
-//                   <div key={step} style={{ display: "flex", gap: 14 }}>
-//                     <div
-//                       style={{
-//                         display: "flex",
-//                         flexDirection: "column",
-//                         alignItems: "center",
-//                       }}
-//                     >
-//                       <div
-//                         style={{
-//                           width: 14,
-//                           height: 14,
-//                           borderRadius: "50%",
-//                           background: STATUS_COLORS[step],
-//                         }}
-//                       />
-//                       {!isLast && (
-//                         <div
-//                           style={{
-//                             width: 2,
-//                             height: 30,
-//                             background: STATUS_COLORS[step],
-//                           }}
-//                         />
-//                       )}
-//                     </div>
-
-//                     <div
-//                       style={{
-//                         fontWeight: isLast ? 600 : 400,
-//                         color: isLast ? "#000" : "#6b7280",
-//                       }}
-//                     >
-//                       {step}
-//                     </div>
-//                   </div>
-//                 );
-//               })}
-//             </div>
->>>>>>> Stashed changes
 //           </>
 //         )}
 //       </div>
@@ -1417,7 +1307,6 @@
 //   );
 // }
 
-<<<<<<< Updated upstream
 // /* ===================== STYLES ===================== */
 
 // const overlay = {
@@ -1563,35 +1452,21 @@
 // };
 
 
-=======
->>>>>>> Stashed changes
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ApiServices from "../../../ApiServices";
 
-<<<<<<< Updated upstream
-=======
-const COLORS = {
-  Pending: "#facc15",   // yellow
-  Approved: "#22c55e",  // green
-  Rejected: "#ef4444",  // red
-  Hold: "#38bdf8"       // blue
-};
-
->>>>>>> Stashed changes
 export default function TrackExpenses() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [expense, setExpense] = useState(null);
-  const [history, setHistory] = useState([]);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
 
     setLoading(true);
-<<<<<<< Updated upstream
     ApiServices.GetSingleExpense({ _id: id })
       .then((res) => {
         const result = res?.data?.data;
@@ -1601,25 +1476,9 @@ export default function TrackExpenses() {
       .catch(() => {
         setData(null);
         setLoading(false);
-=======
-
-    // 1️⃣ fetch expense
-    ApiServices.GetSingleExpense({ _id: id })
-      .then(res => {
-        setExpense(res?.data?.data || null);
->>>>>>> Stashed changes
       });
-
-    // 2️⃣ fetch approval history
-    ApiServices.ApprovalHistory({ expenseId: id })
-      .then(res => {
-        setHistory(res?.data?.data || []);
-      })
-      .finally(() => setLoading(false));
-
   }, [id]);
 
-<<<<<<< Updated upstream
   if (!id) return null;
 
   /* ================= APPROVAL FLOW ================= */
@@ -1656,21 +1515,10 @@ export default function TrackExpenses() {
           <button style={closeBtn} onClick={() => navigate(-1)}>
             ✕
           </button>
-=======
-  return (
-    <div style={overlay}>
-      <div style={card}>
-
-        {/* HEADER */}
-        <div className="d-flex justify-content-between mb-2">
-          <h6 className="mb-0">Track Expense</h6>
-          <button className="btn btn-sm btn-danger" onClick={() => navigate(-1)}>✕</button>
->>>>>>> Stashed changes
         </div>
 
         {loading && <p>Loading...</p>}
 
-<<<<<<< Updated upstream
         {!loading && data && (
           <>
             {/* SUMMARY */}
@@ -1762,78 +1610,6 @@ export default function TrackExpenses() {
                 </div>
               );
             })}
-=======
-        {!loading && !expense && (
-          <p className="text-danger">Expense not found</p>
-        )}
-
-        {!loading && expense && (
-          <>
-            {/* BASIC INFO */}
-            <p><b>Ticket ID:</b> {expense.ticketId}</p>
-            <p><b>Store:</b> {expense.storeId?.storeName}</p>
-            <p><b>Expense:</b> {expense.expenseHeadId?.name}</p>
-            <p><b>Amount:</b> ₹ {expense.amount}</p>
-            <p><b>Date:</b> {new Date(expense.createdAt).toLocaleDateString()}</p>
-
-            <hr />
-
-            {/* TIMELINE */}
-            <h6>Approval Status</h6>
-
-            {history.length === 0 && (
-              <p className="text-muted">No approval action taken yet</p>
-            )}
-
-            {history.map((h, i) => (
-              <div key={i} style={{ display: "flex", gap: 12, marginBottom: 8 }}>
-                <div
-                  style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: "50%",
-                    background: COLORS[h.status] || "#ccc",
-                    marginTop: 4
-                  }}
-                />
-                <div>
-                  <div>
-                    <b>{h.level}</b> —{" "}
-                    <span style={{ color: COLORS[h.status] }}>
-                      {h.status}
-                    </span>
-                  </div>
-                  <small className="text-muted">
-                    {h.approverId?.name || "—"}
-                  </small>
-                </div>
-              </div>
-            ))}
-
-            {/* CURRENT PENDING LEVEL */}
-            {expense.currentApprovalLevel && expense.currentStatus === "Pending" && (
-              <>
-                <hr />
-                <div style={{ display: "flex", gap: 12 }}>
-                  <div
-                    style={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: "50%",
-                      background: COLORS.Pending,
-                      marginTop: 4
-                    }}
-                  />
-                  <div>
-                    <b>{expense.currentApprovalLevel}</b> —{" "}
-                    <span style={{ color: COLORS.Pending }}>
-                      Pending
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
->>>>>>> Stashed changes
           </>
         )}
       </div>
@@ -1841,7 +1617,6 @@ export default function TrackExpenses() {
   );
 }
 
-<<<<<<< Updated upstream
 /* ===================== STYLES ===================== */
 
 const overlay = {
@@ -1984,148 +1759,3 @@ const pendingText = {
   fontSize: 13,
   color: "#92400E",
 };
-=======
-/* STYLES */
-const overlay = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.4)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 999
-};
-
-const card = {
-  background: "#fff",
-  padding: 20,
-  width: 420,
-  borderRadius: 10
-};
-
-
-// import { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import ApiServices from "../../../ApiServices";
-
-// const COLORS = {
-//   Pending: "#facc15",
-//   Approved: "#22c55e",
-//   Rejected: "#ef4444",
-//   Hold: "#38bdf8"
-// };
-
-// export default function TrackExpenses() {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
-
-//   const [expense, setExpense] = useState(null);
-//   const [history, setHistory] = useState([]);
-//   const [level, setLevel] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     if (!id) return;
-
-//     setLoading(true);
-
-//     ApiServices.GetSingleExpense({ _id: id }).then(res => {
-//       setExpense(res?.data?.data || null);
-//     });
-
-//     // ApiServices.ApprovalHistory({ expenseId: id }).then(res => {
-//     //   setHistory(res?.data?.history || []);
-//     //   setLevel(res?.data?.currentApprovalLevel || null);
-//     //   setLoading(false);
-//     // });
-//     ApiServices.ApprovalHistory({ expenseId: id })
-//   .then(res => {
-//     console.log("APPROVAL HISTORY RESPONSE 👉", res.data); // 👈 ADD THIS
-//     setHistory(res?.data?.history || []);
-//     setLevel(res?.data?.currentApprovalLevel || null);
-//     setLoading(false);
-//   });
-
-//   }, [id]);
-
-//   return (
-//     <div style={overlay}>
-//       <div style={card}>
-//         <div className="d-flex justify-content-between">
-//           <h6>Track Expense</h6>
-//           <button className="btn btn-sm btn-danger" onClick={() => navigate(-1)}>✕</button>
-//         </div>
-
-//         {loading && <p>Loading...</p>}
-
-//         {!loading && expense && (
-//           <>
-//             <p><b>Ticket ID:</b> {expense.ticketId}</p>
-//             <p><b>Store:</b> {expense.storeId?.storeName}</p>
-//             <p><b>Expense:</b> {expense.expenseHeadId?.name}</p>
-//             <p><b>Amount:</b> ₹ {expense.amount}</p>
-//             <p><b>Date:</b> {new Date(expense.createdAt).toLocaleDateString()}</p>
-
-//             <hr />
-//             <h6>Approval Status</h6>
-
-//             {/* history exists */}
-//             {history.length > 0 && history.map((h, i) => (
-//               <div key={i} style={row}>
-//                 <span style={{ ...dot, background: COLORS[h.status] }} />
-//                 <div>
-//                   <b>{h.level}</b> — {h.status}
-//                   <br />
-//                   <small>{h.approverId?.name}</small>
-//                 </div>
-//               </div>
-//             ))}
-
-//             {/* no history yet */}
-//             {history.length === 0 && level && (
-//               <div style={row}>
-//                 <span style={{ ...dot, background: COLORS.Pending }} />
-//                 <div>
-//                   <b>{level}</b> — Pending
-//                 </div>
-//               </div>
-//             )}
-//           </>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// /* styles */
-// const overlay = {
-//   position: "fixed",
-//   inset: 0,
-//   background: "rgba(0,0,0,0.4)",
-//   display: "flex",
-//   justifyContent: "center",
-//   alignItems: "center",
-//   zIndex: 999
-// };
-
-// const card = {
-//   background: "#fff",
-//   padding: 20,
-//   width: 420,
-//   borderRadius: 10
-// };
-
-// const row = {
-//   display: "flex",
-//   gap: 10,
-//   marginBottom: 10
-// };
-
-// const dot = {
-//   width: 12,
-//   height: 12,
-//   borderRadius: "50%",
-//   marginTop: 6
-// };
-
->>>>>>> Stashed changes

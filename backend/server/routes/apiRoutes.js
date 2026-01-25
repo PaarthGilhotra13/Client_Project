@@ -166,7 +166,11 @@ routes.post("/expense-approval/procure/pending",expenseApprovalController.pendin
 routes.post("/expense-approval/action",expenseApprovalController.expenseAction)
 routes.post("/expense-approval/myApprovedAction",expenseApprovalController.myApprovalActions)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 routes.post("/expense-approval/reSubmitHeldExpense",upload.single("attachment"),expenseApprovalController.resubmitHeldExpense)
+=======
+routes.post("/expense-approval/approval-history",expenseApprovalController.approvalHistory);
+>>>>>>> Stashed changes
 =======
 routes.post("/expense-approval/approval-history",expenseApprovalController.approvalHistory);
 >>>>>>> Stashed changes
