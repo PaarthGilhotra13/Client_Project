@@ -1,3 +1,4 @@
+// pending expense
 import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
@@ -80,6 +81,14 @@ export default function PendingExpense() {
     setShowModal(false);
   };
 
+  // ================= PAGINATION LOGIC =================
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const showPagination = data.length > itemsPerPage;
+
+  const currentExpenses = data.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
   return (
     <main className="main" id="main">
       <PageTitle child="Pending Expenses" />
@@ -194,9 +203,8 @@ export default function PendingExpense() {
               {[...Array(totalPages)].map((_, i) => (
                 <button
                   key={i}
-                  className={`btn me-1 ${
-                    currentPage === i + 1 ? "btn-primary" : "btn-light"
-                  }`}
+                  className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                    }`}
                   onClick={() => setCurrentPage(i + 1)}
                 >
                   {i + 1}
@@ -229,6 +237,93 @@ export default function PendingExpense() {
               </div>
 
               <div className="modal-body px-4">
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <strong>Ticket ID:</strong>
+                    <p>{selectedExpense.ticketId}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Store:</strong>
+                    <p>{selectedExpense.storeId?.storeName}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Expense Head:</strong>
+                    <p>{selectedExpense.expenseHeadId?.name}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Amount:</strong>
+                    <p>₹ {selectedExpense.amount}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Policy:</strong>
+                    <p>{selectedExpense.policy || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Nature of Expense:</strong>
+                    <p>{selectedExpense.natureOfExpense || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>RCA:</strong>
+                    <p>{selectedExpense.rca || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Remarks:</strong>
+                    <p>{selectedExpense.remark || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Status:</strong>
+                    <p>
+                      <span className="badge bg-warning text-dark">
+                        Pending
+                      </span>
+                    </p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Created At:</strong>
+                    <p>
+                      {new Date(
+                        selectedExpense.createdAt
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  {/* 🔥 FIXED ATTACHMENT LOGIC (UI SAME) */}
+                  <div className="col-12">
+                    <strong>Attachment:</strong>
+                    <p>
+                      {selectedExpense.attachment && (
+                        <a
+                          href={selectedExpense.attachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-primary me-2"
+                        >
+                          View Original
+                        </a>
+
+
+                      )}
+
+                      {selectedExpense.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          View Resubmitted
+                        </a>
+
+
+                      )}
+
+                      {!selectedExpense.attachment &&
+                        !selectedExpense.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
+                    </p>
+                  </div>
+                </div>
                 <p><strong>Ticket ID:</strong> {selectedExpense.ticketId}</p>
                 <p><strong>Store:</strong> {selectedExpense.storeId?.storeName}</p>
                 <p><strong>Expense Head:</strong> {selectedExpense.expenseHeadId?.name}</p>
@@ -238,6 +333,7 @@ export default function PendingExpense() {
                   <strong>Status:</strong>{" "}
                   <span className="badge bg-warning text-dark">Pending</span>
                 </p>
+
               </div>
             </div>
           </div>
