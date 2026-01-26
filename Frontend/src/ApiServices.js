@@ -393,6 +393,9 @@ class ApiServices {
    FMDashboard() {
       return axios.get(BaseURL + "/apis/fm/dashboard", { headers: getToken() });
    }
+   ZHDashboard() {
+      return axios.get(BaseURL + "/apis/zh/dashboard", { headers: getToken() });
+   }
 
 }
 

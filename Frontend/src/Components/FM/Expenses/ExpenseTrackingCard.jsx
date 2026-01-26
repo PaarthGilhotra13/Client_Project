@@ -1451,6 +1451,315 @@
 //   color: "#92400E",
 // };
 
+// import { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import ApiServices from "../../../ApiServices";
+
+// export default function TrackExpenses() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+
+//   const [data, setData] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     if (!id) return;
+
+//     setLoading(true);
+//     ApiServices.GetSingleExpense({ _id: id })
+//       .then((res) => {
+//         const result = res?.data?.data;
+//         setData(Array.isArray(result) ? result[0] : result);
+//         setLoading(false);
+//       })
+//       .catch(() => {
+//         setData(null);
+//         setLoading(false);
+//       });
+//   }, [id]);
+
+//   if (!id) return null;
+
+//   /* ================= APPROVAL FLOW ================= */
+//   const approvalCards = [
+//     {
+//       level: "CLM",
+//       status: "Approved",
+//       user: "CLM Team",
+//     },
+//     {
+//       level: "ZH",
+//       status: data?.currentStatus || "Pending",
+//       remark:
+//         data?.currentStatus === "Hold" || data?.currentStatus === "Rejected"
+//           ? data?.remark
+//           : "",
+//     },
+//   ];
+
+//   const STATUS = {
+//     Approved: { bg: "#DCFCE7", color: "#16A34A", dot: "#22C55E" },
+//     Pending: { bg: "#FEF3C7", color: "#D97706", dot: "#FACC15" },
+//     Rejected: { bg: "#FEE2E2", color: "#DC2626", dot: "#EF4444" },
+//     Hold: { bg: "#E0E7FF", color: "#4338CA", dot: "#3B82F6" },
+//   };
+
+//   return (
+//     <div style={overlay}>
+//       <div style={modal}>
+//         {/* HEADER */}
+//         <div style={header}>
+//           <h5 style={{ margin: 0 }}>Track Expense Approval</h5>
+//           <button style={closeBtn} onClick={() => navigate(-1)}>
+//             ✕
+//           </button>
+//         </div>
+
+//         {loading && <p>Loading...</p>}
+
+//         {!loading && data && (
+//           <>
+//             {/* SUMMARY */}
+//             <div style={summary}>
+//               <div style={{ fontWeight: 600 }}>{data.expenseHeadId?.name}</div>
+//               <div style={summaryMeta}>
+//                 ₹ {data.amount} • {data.natureOfExpense} •{" "}
+//                 {new Date(data.createdAt).toLocaleDateString()}
+//               </div>
+//             </div>
+
+//             <div style={sectionTitle}>APPROVAL JOURNEY</div>
+
+//             {approvalCards.map((step, index) => {
+//               const style = STATUS[step.status] || STATUS.Pending;
+
+//               return (
+//                 <div key={index} style={row}>
+//                   {/* TIMELINE */}
+//                   <div style={timelineContainer}>
+//                     <span
+//                       style={{
+//                         ...dot,
+//                         background: style.dot,
+//                         top: 22,
+//                       }}
+//                     />
+//                     {index !== approvalCards.length - 1 && <span style={line} />}
+//                   </div>
+
+//                   {/* CARD */}
+//                   <div
+//                     style={{
+//                       ...card,
+//                       ...(step.status === "Pending" ? pendingCard : {}),
+//                     }}
+//                   >
+//                     <div style={cardHeader}>
+//                       <div>
+//                         <div style={cardTitle}>{step.level}</div>
+//                         <div style={cardSub}>Approval Level</div>
+//                       </div>
+
+//                       <span
+//                         style={{
+//                           ...badge,
+//                           background: style.bg,
+//                           color: style.color,
+//                         }}
+//                       >
+//                         {step.status}
+//                       </span>
+//                     </div>
+
+//                     {step.user && <div style={meta}>👤 {step.user}</div>}
+
+//                     {/* REMARK */}
+//                     {step.remark &&
+//                       (step.status === "Hold" || step.status === "Rejected") && (
+//                         <div
+//                           style={{
+//                             ...remark,
+//                             background:
+//                               step.status === "Rejected" ? "#FEE2E2" : "#EEF2FF",
+//                           }}
+//                         >
+//                           “{step.remark}”
+//                         </div>
+//                       )}
+
+//                     {/* PENDING TEXT */}
+//                     {step.status === "Pending" && (
+//                       <div style={pendingText}>
+//                         Waiting for approval from {step.level} team
+//                       </div>
+//                     )}
+//                   </div>
+//                 </div>
+//               );
+//             })}
+//           </>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+// /* ===================== STYLES ===================== */
+
+// const overlay = {
+//   position: "fixed",
+//   inset: 0,
+//   background: "rgba(0,0,0,0.45)",
+//   display: "flex",
+//   justifyContent: "center",
+//   alignItems: "center",
+//   zIndex: 999,
+//   padding: 16, // mobile spacing
+// };
+
+// const modal = {
+//   background: "#fff",
+//   borderRadius: 20,
+//   padding: 20,
+//   width: "100%",       // responsive width
+//   maxWidth: 560,       // desktop max
+//   maxHeight: "90vh",
+//   overflowY: "auto",
+//   boxSizing: "border-box",
+// };
+
+// const header = {
+//   display: "flex",
+//   justifyContent: "space-between",
+//   alignItems: "center",
+//   marginBottom: 14,
+// };
+
+// const closeBtn = {
+//   border: "none",
+//   background: "#ef3939",
+//   color: "#fff",
+//   borderRadius: 8,
+//   padding: "4px 8px",
+//   fontSize: 14,
+//   cursor: "pointer",
+// };
+
+// const summary = {
+//   background: "#F9FAFB",
+//   borderRadius: 14,
+//   padding: 12,
+//   marginBottom: 18,
+// };
+
+// const summaryMeta = {
+//   fontSize: 13,
+//   color: "#6B7280",
+// };
+
+// const sectionTitle = {
+//   fontSize: 13,
+//   color: "#6B7280",
+//   fontWeight: 600,
+//   marginBottom: 12,
+// };
+
+// const row = {
+//   display: "flex",
+//   flexDirection: "row",
+//   gap: 16,
+//   position: "relative",
+//   marginBottom: 24,
+//   flexWrap: "wrap", // allows wrapping on small screens
+// };
+
+// const timelineContainer = {
+//   width: 24,
+//   position: "relative",
+//   flexShrink: 0,
+// };
+
+// const dot = {
+//   width: 14,
+//   height: 14,
+//   borderRadius: "50%",
+//   position: "absolute",
+//   left: "50%",
+//   transform: "translateX(-50%)",
+// };
+
+// const line = {
+//   position: "absolute",
+//   top: 36,
+//   left: "50%",
+//   transform: "translateX(-50%)",
+//   width: 4,
+//   height: "120%",
+//   background: "#E5E7EB",
+// };
+
+// const card = {
+//   flex: 1,
+//   minWidth: 200,       // responsive minimum width
+//   background: "#fff",
+//   borderRadius: 16,
+//   padding: 16,
+//   border: "1px solid #E5E7EB",
+//   wordBreak: "break-word",
+// };
+
+// const pendingCard = {
+//   background: "#FFFBEB",
+//   border: "1px dashed #FACC15",
+// };
+
+// const cardHeader = {
+//   display: "flex",
+//   justifyContent: "space-between",
+//   alignItems: "center",
+//   marginBottom: 6,
+//   flexWrap: "wrap", // wrap badge on small screens
+// };
+
+// const cardTitle = {
+//   fontWeight: 600,
+//   fontSize: 15,
+// };
+
+// const cardSub = {
+//   fontSize: 12,
+//   color: "#6B7280",
+// };
+
+// const badge = {
+//   fontSize: 12,
+//   fontWeight: 500,
+//   padding: "4px 8px",
+//   borderRadius: 999,
+//   whiteSpace: "nowrap",
+//   marginTop: 4,
+// };
+
+// const meta = {
+//   fontSize: 12,
+//   color: "#6B7280",
+//   marginBottom: 6,
+// };
+
+// const remark = {
+//   borderRadius: 10,
+//   padding: 10,
+//   fontSize: 13,
+// };
+
+// const pendingText = {
+//   marginTop: 8,
+//   fontSize: 13,
+//   color: "#92400E",
+// };
+
+
+// 27 jan
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ApiServices from "../../../ApiServices";
@@ -1478,24 +1787,44 @@ export default function TrackExpenses() {
       });
   }, [id]);
 
-  if (!id) return null;
+  if (loading) return null;
+  if (!data) return null;
 
-  /* ================= APPROVAL FLOW ================= */
-  const approvalCards = [
-    {
-      level: "CLM",
-      status: "Approved",
-      user: "CLM Team",
-    },
-    {
-      level: "ZH",
-      status: data?.currentStatus || "Pending",
-      remark:
-        data?.currentStatus === "Hold" || data?.currentStatus === "Rejected"
-          ? data?.remark
-          : "",
-    },
-  ];
+  /* ================= APPROVAL LEVELS (SAFE LOGIC) ================= */
+
+  // 🔥 backend already decides this, frontend just reflects
+  let approvalLevels = [];
+
+  if (data.amount <= 5000) {
+    approvalLevels = ["CLM"];
+  } else if (data.amount <= 10000) {
+    approvalLevels = ["ZONAL_HEAD"];
+  } else {
+    approvalLevels = ["ZONAL_HEAD", "BUSINESS_FINANCE", "PROCUREMENT"];
+  }
+
+  const approvalCards = approvalLevels.map((level) => {
+    let status = "Pending";
+    let remark = "";
+
+    if (data.currentStatus === "Approved") {
+      status = "Approved";
+    }
+
+    if (data.currentStatus === "Hold" || data.currentStatus === "Rejected") {
+      if (data.actionBy === level) {
+        status = data.currentStatus;
+        remark = data.remark || "";
+      } else if (
+        approvalLevels.indexOf(level) <
+        approvalLevels.indexOf(data.actionBy)
+      ) {
+        status = "Approved";
+      }
+    }
+
+    return { level, status, remark };
+  });
 
   const STATUS = {
     Approved: { bg: "#DCFCE7", color: "#16A34A", dot: "#22C55E" },
@@ -1507,104 +1836,63 @@ export default function TrackExpenses() {
   return (
     <div style={overlay}>
       <div style={modal}>
-        {/* HEADER */}
         <div style={header}>
           <h5 style={{ margin: 0 }}>Track Expense Approval</h5>
-          <button style={closeBtn} onClick={() => navigate(-1)}>
-            ✕
-          </button>
+          <button style={closeBtn} onClick={() => navigate(-1)}>✕</button>
         </div>
 
-        {loading && <p>Loading...</p>}
+        <div style={summary}>
+          <div style={{ fontWeight: 600 }}>
+            {data.expenseHeadId?.name}
+          </div>
+          <div style={summaryMeta}>
+            ₹ {data.amount} • {data.natureOfExpense} •{" "}
+            {new Date(data.createdAt).toLocaleDateString()}
+          </div>
+        </div>
 
-        {!loading && data && (
-          <>
-            {/* SUMMARY */}
-            <div style={summary}>
-              <div style={{ fontWeight: 600 }}>{data.expenseHeadId?.name}</div>
-              <div style={summaryMeta}>
-                ₹ {data.amount} • {data.natureOfExpense} •{" "}
-                {new Date(data.createdAt).toLocaleDateString()}
+        <div style={sectionTitle}>APPROVAL JOURNEY</div>
+
+        {approvalCards.map((step, index) => {
+          const style = STATUS[step.status];
+
+          return (
+            <div key={index} style={row}>
+              <div style={timelineContainer}>
+                <span style={{ ...dot, background: style.dot, top: 22 }} />
+                {index !== approvalCards.length - 1 && <span style={line} />}
+              </div>
+
+              <div style={{ ...card, ...(step.status === "Pending" ? pendingCard : {}) }}>
+                <div style={cardHeader}>
+                  <div>
+                    <div style={cardTitle}>{step.level}</div>
+                    <div style={cardSub}>Approval Level</div>
+                  </div>
+                  <span style={{ ...badge, background: style.bg, color: style.color }}>
+                    {step.status}
+                  </span>
+                </div>
+
+                {(step.status === "Hold" || step.status === "Rejected") && step.remark && (
+                  <div style={remark}>“{step.remark}”</div>
+                )}
+
+                {step.status === "Pending" && (
+                  <div style={pendingText}>
+                    Waiting for approval from {step.level} team
+                  </div>
+                )}
               </div>
             </div>
-
-            <div style={sectionTitle}>APPROVAL JOURNEY</div>
-
-            {approvalCards.map((step, index) => {
-              const style = STATUS[step.status] || STATUS.Pending;
-
-              return (
-                <div key={index} style={row}>
-                  {/* TIMELINE */}
-                  <div style={timelineContainer}>
-                    <span
-                      style={{
-                        ...dot,
-                        background: style.dot,
-                        top: 22,
-                      }}
-                    />
-                    {index !== approvalCards.length - 1 && <span style={line} />}
-                  </div>
-
-                  {/* CARD */}
-                  <div
-                    style={{
-                      ...card,
-                      ...(step.status === "Pending" ? pendingCard : {}),
-                    }}
-                  >
-                    <div style={cardHeader}>
-                      <div>
-                        <div style={cardTitle}>{step.level}</div>
-                        <div style={cardSub}>Approval Level</div>
-                      </div>
-
-                      <span
-                        style={{
-                          ...badge,
-                          background: style.bg,
-                          color: style.color,
-                        }}
-                      >
-                        {step.status}
-                      </span>
-                    </div>
-
-                    {step.user && <div style={meta}>👤 {step.user}</div>}
-
-                    {/* REMARK */}
-                    {step.remark &&
-                      (step.status === "Hold" || step.status === "Rejected") && (
-                        <div
-                          style={{
-                            ...remark,
-                            background:
-                              step.status === "Rejected" ? "#FEE2E2" : "#EEF2FF",
-                          }}
-                        >
-                          “{step.remark}”
-                        </div>
-                      )}
-
-                    {/* PENDING TEXT */}
-                    {step.status === "Pending" && (
-                      <div style={pendingText}>
-                        Waiting for approval from {step.level} team
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </>
-        )}
+          );
+        })}
       </div>
     </div>
   );
 }
 
-/* ===================== STYLES ===================== */
+/* ================= STYLES ================= */
 
 const overlay = {
   position: "fixed",
@@ -1614,146 +1902,33 @@ const overlay = {
   justifyContent: "center",
   alignItems: "center",
   zIndex: 999,
-  padding: 16, // mobile spacing
 };
 
 const modal = {
   background: "#fff",
   borderRadius: 20,
   padding: 20,
-  width: "100%",       // responsive width
-  maxWidth: 560,       // desktop max
+  width: "100%",
+  maxWidth: 560,
   maxHeight: "90vh",
   overflowY: "auto",
-  boxSizing: "border-box",
 };
 
-const header = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 14,
-};
+const header = { display: "flex", justifyContent: "space-between" };
+const closeBtn = { background: "#ef3939", color: "#fff", border: "none" };
+const summary = { background: "#F9FAFB", padding: 12, borderRadius: 12 };
+const summaryMeta = { fontSize: 13, color: "#6B7280" };
+const sectionTitle = { fontSize: 13, margin: "12px 0" };
+const row = { display: "flex", gap: 16, marginBottom: 24 };
+const timelineContainer = { width: 24, position: "relative" };
+const dot = { width: 14, height: 14, borderRadius: "50%", position: "absolute", left: "50%", transform: "translateX(-50%)" };
+const line = { position: "absolute", top: 36, left: "50%", width: 4, height: "120%", background: "#E5E7EB", transform: "translateX(-50%)" };
+const card = { flex: 1, border: "1px solid #E5E7EB", borderRadius: 16, padding: 16 };
+const pendingCard = { background: "#FFFBEB", border: "1px dashed #FACC15" };
+const cardHeader = { display: "flex", justifyContent: "space-between" };
+const cardTitle = { fontWeight: 600 };
+const cardSub = { fontSize: 12, color: "#6B7280" };
+const badge = { padding: "4px 8px", borderRadius: 999, fontSize: 12 };
+const remark = { marginTop: 8, padding: 10, borderRadius: 10, background: "#F9FAFB" };
+const pendingText = { marginTop: 8, color: "#92400E" };
 
-const closeBtn = {
-  border: "none",
-  background: "#ef3939",
-  color: "#fff",
-  borderRadius: 8,
-  padding: "4px 8px",
-  fontSize: 14,
-  cursor: "pointer",
-};
-
-const summary = {
-  background: "#F9FAFB",
-  borderRadius: 14,
-  padding: 12,
-  marginBottom: 18,
-};
-
-const summaryMeta = {
-  fontSize: 13,
-  color: "#6B7280",
-};
-
-const sectionTitle = {
-  fontSize: 13,
-  color: "#6B7280",
-  fontWeight: 600,
-  marginBottom: 12,
-};
-
-const row = {
-  display: "flex",
-  flexDirection: "row",
-  gap: 16,
-  position: "relative",
-  marginBottom: 24,
-  flexWrap: "wrap", // allows wrapping on small screens
-};
-
-const timelineContainer = {
-  width: 24,
-  position: "relative",
-  flexShrink: 0,
-};
-
-const dot = {
-  width: 14,
-  height: 14,
-  borderRadius: "50%",
-  position: "absolute",
-  left: "50%",
-  transform: "translateX(-50%)",
-};
-
-const line = {
-  position: "absolute",
-  top: 36,
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: 4,
-  height: "120%",
-  background: "#E5E7EB",
-};
-
-const card = {
-  flex: 1,
-  minWidth: 200,       // responsive minimum width
-  background: "#fff",
-  borderRadius: 16,
-  padding: 16,
-  border: "1px solid #E5E7EB",
-  wordBreak: "break-word",
-};
-
-const pendingCard = {
-  background: "#FFFBEB",
-  border: "1px dashed #FACC15",
-};
-
-const cardHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: 6,
-  flexWrap: "wrap", // wrap badge on small screens
-};
-
-const cardTitle = {
-  fontWeight: 600,
-  fontSize: 15,
-};
-
-const cardSub = {
-  fontSize: 12,
-  color: "#6B7280",
-};
-
-const badge = {
-  fontSize: 12,
-  fontWeight: 500,
-  padding: "4px 8px",
-  borderRadius: 999,
-  whiteSpace: "nowrap",
-  marginTop: 4,
-};
-
-const meta = {
-  fontSize: 12,
-  color: "#6B7280",
-  marginBottom: 6,
-};
-
-const remark = {
-  borderRadius: 10,
-  padding: 10,
-  fontSize: 13,
-};
-
-const pendingText = {
-  marginTop: 8,
-  fontSize: 13,
-  color: "#92400E",
-};

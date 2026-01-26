@@ -18,6 +18,7 @@ const locationController=require("../apis/City/locationController")
 const expenseApprovalController=require("../apis/Expense Approval/expenseApprovalController")
 const adminDashboardController=require("../apis/Dashboard/adminDashboardController")
 const fmDashboardController=require("../apis/Dashboard/fmDashboardController")
+const zhDashboardController = require("../apis/Dashboard/zhDashboardController");
 
 const multer=require("multer")
 const storage=multer.memoryStorage()
@@ -172,5 +173,6 @@ routes.post("/expense-approval/approval-history",expenseApprovalController.appro
 // Dashboard
 routes.get("/dashboard",adminDashboardController.getDashboard)
 routes.get("/fm/dashboard",fmDashboardController.getFMDashboard)
+routes.get("/zh/dashboard",zhDashboardController.getZHDashboard);
 
 module.exports=routes
