@@ -1451,7 +1451,6 @@
 //   color: "#92400E",
 // };
 
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ApiServices from "../../../ApiServices";
@@ -1492,8 +1491,7 @@ export default function TrackExpenses() {
       level: "ZH",
       status: data?.currentStatus || "Pending",
       remark:
-        data?.currentStatus === "Hold" ||
-        data?.currentStatus === "Rejected"
+        data?.currentStatus === "Hold" || data?.currentStatus === "Rejected"
           ? data?.remark
           : "",
     },
@@ -1523,9 +1521,7 @@ export default function TrackExpenses() {
           <>
             {/* SUMMARY */}
             <div style={summary}>
-              <div style={{ fontWeight: 600 }}>
-                {data.expenseHeadId?.name}
-              </div>
+              <div style={{ fontWeight: 600 }}>{data.expenseHeadId?.name}</div>
               <div style={summaryMeta}>
                 ₹ {data.amount} • {data.natureOfExpense} •{" "}
                 {new Date(data.createdAt).toLocaleDateString()}
@@ -1548,18 +1544,14 @@ export default function TrackExpenses() {
                         top: 22,
                       }}
                     />
-                    {index !== approvalCards.length - 1 && (
-                      <span style={line} />
-                    )}
+                    {index !== approvalCards.length - 1 && <span style={line} />}
                   </div>
 
                   {/* CARD */}
                   <div
                     style={{
                       ...card,
-                      ...(step.status === "Pending"
-                        ? pendingCard
-                        : {}),
+                      ...(step.status === "Pending" ? pendingCard : {}),
                     }}
                   >
                     <div style={cardHeader}>
@@ -1579,21 +1571,16 @@ export default function TrackExpenses() {
                       </span>
                     </div>
 
-                    {step.user && (
-                      <div style={meta}>👤 {step.user}</div>
-                    )}
+                    {step.user && <div style={meta}>👤 {step.user}</div>}
 
-                    {/* 🔥 REMARK LOGIC (ONLY HOLD / REJECTED) */}
+                    {/* REMARK */}
                     {step.remark &&
-                      (step.status === "Hold" ||
-                        step.status === "Rejected") && (
+                      (step.status === "Hold" || step.status === "Rejected") && (
                         <div
                           style={{
                             ...remark,
                             background:
-                              step.status === "Rejected"
-                                ? "#FEE2E2"
-                                : "#EEF2FF",
+                              step.status === "Rejected" ? "#FEE2E2" : "#EEF2FF",
                           }}
                         >
                           “{step.remark}”
@@ -1627,15 +1614,18 @@ const overlay = {
   justifyContent: "center",
   alignItems: "center",
   zIndex: 999,
+  padding: 16, // mobile spacing
 };
 
 const modal = {
   background: "#fff",
   borderRadius: 20,
-  padding: 22,
-  width: 560,
+  padding: 20,
+  width: "100%",       // responsive width
+  maxWidth: 560,       // desktop max
   maxHeight: "90vh",
   overflowY: "auto",
+  boxSizing: "border-box",
 };
 
 const header = {
@@ -1647,17 +1637,18 @@ const header = {
 
 const closeBtn = {
   border: "none",
-  background: "#6B7280",
+  background: "#ef3939",
   color: "#fff",
   borderRadius: 8,
-  padding: "4px 10px",
+  padding: "4px 8px",
+  fontSize: 14,
   cursor: "pointer",
 };
 
 const summary = {
   background: "#F9FAFB",
   borderRadius: 14,
-  padding: 14,
+  padding: 12,
   marginBottom: 18,
 };
 
@@ -1675,14 +1666,17 @@ const sectionTitle = {
 
 const row = {
   display: "flex",
-  gap: 24,
+  flexDirection: "row",
+  gap: 16,
   position: "relative",
-  marginBottom: 28,
+  marginBottom: 24,
+  flexWrap: "wrap", // allows wrapping on small screens
 };
 
 const timelineContainer = {
   width: 24,
   position: "relative",
+  flexShrink: 0,
 };
 
 const dot = {
@@ -1706,10 +1700,12 @@ const line = {
 
 const card = {
   flex: 1,
+  minWidth: 200,       // responsive minimum width
   background: "#fff",
   borderRadius: 16,
   padding: 16,
   border: "1px solid #E5E7EB",
+  wordBreak: "break-word",
 };
 
 const pendingCard = {
@@ -1722,6 +1718,7 @@ const cardHeader = {
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: 6,
+  flexWrap: "wrap", // wrap badge on small screens
 };
 
 const cardTitle = {
@@ -1737,9 +1734,10 @@ const cardSub = {
 const badge = {
   fontSize: 12,
   fontWeight: 500,
-  padding: "4px 12px",
+  padding: "4px 8px",
   borderRadius: 999,
   whiteSpace: "nowrap",
+  marginTop: 4,
 };
 
 const meta = {

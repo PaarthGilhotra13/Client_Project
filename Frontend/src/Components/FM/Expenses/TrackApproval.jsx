@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import ApiServices from "../../../ApiServices";
 import PageTitle from "../../PageTitle";
 import { ScaleLoader } from "react-spinners";
@@ -11,13 +11,15 @@ export default function TrackExpenses() {
   const [search, setSearch] = useState("");
   const [load, setLoad] = useState(true);
 
-  // ================= PAGINATION =================
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15; // Adjust as needed
+  const itemsPerPage = 15;
+
+  // Ref for table container
+  const tableRef = useRef(null);
 
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
-
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
       setLoad(false);
@@ -42,34 +44,36 @@ export default function TrackExpenses() {
       });
   }, []);
 
-  // 🔍 Search by Ticket ID
+  // Search by Ticket ID
   useEffect(() => {
-    let result;
-    if (!search.trim()) {
-      result = data;
-    } else {
-      result = data.filter((el) =>
-        el.ticketId?.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+    const result = search.trim()
+      ? data.filter((el) =>
+          el.ticketId?.toLowerCase().includes(search.toLowerCase())
+        )
+      : data;
+
     setFilteredData(result);
-    setCurrentPage(1); // Reset to first page when search changes
+    setCurrentPage(1);
   }, [search, data]);
 
-  // ================= PAGINATION LOGIC =================
+  // Pagination logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const showPagination = filteredData.length > itemsPerPage;
-
   const currentExpenses = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
+  // Scroll to top of table when page changes
+  useEffect(() => {
+    tableRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [currentPage]);
+
   return (
     <main className="main" id="main">
       <PageTitle child="Track Expenses" />
 
-      {/* 🔍 SEARCH BAR */}
+      {/* Search Bar */}
       <div className="container-fluid mt-4">
         <div className="row mb-3">
           <div className="col-lg-4 col-md-6">
@@ -84,8 +88,8 @@ export default function TrackExpenses() {
         </div>
       </div>
 
-      {/* CONTENT */}
-      <div style={{ paddingTop: "12px" }}>
+      {/* Content */}
+      <div style={{ paddingTop: "12px" }} ref={tableRef}>
         {load && (
           <ScaleLoader
             color="#6776f4"
@@ -95,38 +99,39 @@ export default function TrackExpenses() {
 
         {!load && (
           <div className="container-fluid">
-            <div className="row g-4">
+            <div className="expense-cards-container">
               {currentExpenses.length === 0 && (
                 <div className="text-center text-muted">No Expenses Found</div>
               )}
 
               {currentExpenses.map((el) => (
-                <div key={el._id} className="col-lg-4 col-md-6">
-                  <div className="card expense-card h-100">
-                    <div className="card-body pt-2">
-                      <h6 className="ticket-id mb-3">Ticket ID: {el.ticketId}</h6>
-
-                      <p className="text-muted mb-1">
-                        <strong>Store:</strong> {el.storeId?.storeName}
-                      </p>
-
-                      <p className="text-muted mb-1">
-                        <strong>Expense:</strong> {el.expenseHeadId?.name}
-                      </p>
-
-                      <p className="text-muted mb-3">
-                        <strong>Date:</strong> {el.createdAt?.split("T")[0]}
-                      </p>
-
-                      <h5 className="amount-text">₹ {el.amount}</h5>
-
-                      <div className="d-flex justify-content-end">
-                        <Link
-                          to={`/fm/expenseTrackingCard/${el._id}`}
-                          className="btn btn-sm btn-outline-primary"
-                        >
-                          Track
-                        </Link>
+                <div key={el._id} className="expense-card-wrapper">
+                  <div className="card expense-card">
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-center">
+                        <div className=" mt-3 ms-3">
+                          <h6 className="ticket-id mb-2">
+                            Ticket ID: {el.ticketId}
+                          </h6>
+                          <p className="text-muted mb-1">
+                            <strong>Store:</strong> {el.storeId?.storeName}
+                          </p>
+                          <p className="text-muted mb-1">
+                            <strong>Expense:</strong> {el.expenseHeadId?.name}
+                          </p>
+                          <p className="text-muted mb-0">
+                            <strong>Date:</strong> {el.createdAt?.split("T")[0]}
+                          </p>
+                        </div>
+                        <div className="justify-content-between align-items-center me-3">
+                          <h5 className="amount-text mb-2">₹ {el.amount}</h5>
+                          <Link
+                            to={`/fm/expenseTrackingCard/${el._id}`}
+                            className="btn btn-sm btn-outline-primary"
+                          >
+                            Track
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -134,7 +139,7 @@ export default function TrackExpenses() {
               ))}
             </div>
 
-            {/* ================= PAGINATION ================= */}
+            {/* Pagination */}
             {showPagination && (
               <div className="d-flex justify-content-center mt-4">
                 <button
@@ -172,5 +177,3 @@ export default function TrackExpenses() {
     </main>
   );
 }
-
-
