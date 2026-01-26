@@ -3,12 +3,20 @@ import PageTitle from "../../PageTitle";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
+import { CSVLink } from "react-csv";
 
 export default function ProcureHoldExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const userId = sessionStorage.getItem("userId");
 
@@ -20,39 +28,61 @@ export default function ProcureHoldExpense() {
       return;
     }
 
+    setLoad(true);
+
     ApiServices.MyApprovalActions({
       userId: userId,
       action: "Hold",
-      level: "PROCUREMENT", // ✅ IMPORTANT
+      level: "PROCUREMENT",
     })
       .then((res) => {
-        if (res?.data?.success) {
-          setData(res.data.data || []);
-        } else {
-          setData([]);
-        }
-        setTimeout(() => setLoad(false), 500);
+        setData(res?.data?.success ? res.data.data || [] : []);
       })
-      .catch(() => {
-        setData([]);
-        setTimeout(() => setLoad(false), 500);
-      });
+      .finally(() => setLoad(false));
   };
 
   useEffect(() => {
     fetchHold();
   }, []);
 
+  /* ================= SEARCH FILTER ================= */
+  const filteredData = data.filter(
+    (el) =>
+      el.expenseId?.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.expenseId?.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.expenseId?.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentExpenses = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  /* ================= CSV DATA ================= */
+  const csvData = filteredData.map((el, index) => ({
+    SrNo: index + 1,
+    TicketID: el.expenseId?.ticketId,
+    Store: el.expenseId?.storeId?.storeName,
+    ExpenseHead: el.expenseId?.expenseHeadId?.name,
+    Amount: el.expenseId?.amount,
+    Status: "Hold",
+    Comment: el.comment || "-",
+    ActionDate: new Date(el.actionAt).toLocaleDateString(),
+  }));
+
+  /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
     setShowModal(true);
   };
-
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
   };
 
+  /* ================= DOWNLOAD HANDLER ================= */
   const handleDownload = (url) => {
     const link = document.createElement("a");
     link.href = url;
@@ -63,124 +93,217 @@ export default function ProcureHoldExpense() {
   };
 
   return (
-    <>
-      <main className="main" id="main">
-        <PageTitle child="Hold Expenses (Procurement)" />
+    <main className="main" id="main">
+      <PageTitle child="Hold Expenses (Procurement)" />
 
-        <ScaleLoader
-          color="#6776f4"
-          cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-          size={200}
-          loading={load}
-        />
+      {/* Loader */}
+      <ScaleLoader
+        color="#6776f4"
+        cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+        size={200}
+        loading={load}
+      />
 
-        {!load && (
-          <div className="container-fluid">
-            <div className="row justify-content-center">
-              <div className="col-lg-12 mt-4 table-responsive">
-                <table className="table table-hover table-striped">
-                  <thead className="table-dark">
-                    <tr>
-                      <th>Sr. No</th>
-                      <th>Ticket ID</th>
-                      <th>Store</th>
-                      <th>Expense Head</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Comment</th>
-                      <th>Action Date</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
+      {/* Search + CSV */}
+      {!load && (
+        <div className="container-fluid mb-3">
+          <div className="row align-items-center">
+            <div className="col-md-6">
+              <input
+                className="form-control"
+                placeholder="Search by Ticket ID, Store, Expense Head"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+            <div className="col-md-6 text-end">
+              <CSVLink
+                data={csvData}
+                filename="Procurement_Hold_Expenses.csv"
+                className="btn btn-primary btn-sm"
+              >
+                Download CSV
+              </CSVLink>
+            </div>
+          </div>
+        </div>
+      )}
 
-                  <tbody>
-                    {data.length > 0 ? (
-                      data.map((el, index) => (
-                        <tr key={el._id}>
-                          <td>{index + 1}</td>
-                          <td>{el.expenseId?.ticketId}</td>
-                          <td>{el.expenseId?.storeId?.storeName}</td>
-                          <td>{el.expenseId?.expenseHeadId?.name}</td>
-                          <td>₹ {el.expenseId?.amount}</td>
-                          <td>
-                            <span className="badge bg-secondary">Hold</span>
-                          </td>
-                          <td>{el.comment || "-"}</td>
-                          <td>
-                            {new Date(el.actionAt).toLocaleDateString()}
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-primary"
-                              onClick={() => handleViewClick(el)}
-                            >
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="9" className="text-center text-muted">
-                          No Hold Expenses Found
+      {/* Table */}
+      {!load && (
+        <div className="container-fluid">
+          <div className="row justify-content-center">
+            <div className="col-lg-12 mt-4 table-responsive">
+              <table className="table table-hover table-striped">
+                <thead className="table-dark">
+                  <tr>
+                    <th>Sr. No</th>
+                    <th>Ticket ID</th>
+                    <th>Store</th>
+                    <th>Expense Head</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Comment</th>
+                    <th>Action Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {currentExpenses.length > 0 ? (
+                    currentExpenses.map((el, index) => (
+                      <tr key={el._id}>
+                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                        <td>{el.expenseId?.ticketId}</td>
+                        <td>{el.expenseId?.storeId?.storeName}</td>
+                        <td>{el.expenseId?.expenseHeadId?.name}</td>
+                        <td>₹ {el.expenseId?.amount}</td>
+                        <td>
+                          <span className="badge bg-secondary">Hold</span>
+                        </td>
+                        <td>{el.comment || "-"}</td>
+                        <td>{new Date(el.actionAt).toLocaleDateString()}</td>
+                        <td>
+                          <button
+                            className="btn btn-sm btn-primary"
+                            onClick={() => handleViewClick(el)}
+                          >
+                            View
+                          </button>
                         </td>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="9" className="text-center text-muted">
+                        No Hold Expenses Found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
 
-        {/* ================= MODAL ================= */}
-        {showModal && selectedExpense && (
-          <div
-            className="modal show d-block"
-            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Expense Details</h5>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-3">
                   <button
-                    onClick={handleCloseModal}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: "50%",
-                      background: "red",
-                      color: "white",
-                      border: "none",
-                    }}
+                    className="btn btn-secondary me-2"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
                   >
-                    &times;
+                    Previous
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      className={`btn me-1 ${
+                        currentPage === i + 1 ? "btn-primary" : "btn-light"
+                      }`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className="btn btn-secondary ms-2"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                  >
+                    Next
                   </button>
                 </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
-                <div className="modal-body px-4">
-                  <p><b>Ticket:</b> {selectedExpense.expenseId?.ticketId}</p>
-                  <p><b>Store:</b> {selectedExpense.expenseId?.storeId?.storeName}</p>
-                  <p><b>Expense Head:</b> {selectedExpense.expenseId?.expenseHeadId?.name}</p>
-                  <p><b>Amount:</b> ₹ {selectedExpense.expenseId?.amount}</p>
-                  <p><b>Comment:</b> {selectedExpense.comment || "-"}</p>
+      {/* Modal */}
+      {showModal && selectedExpense && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Expense Details</h5>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    backgroundColor: "red",
+                    color: "white",
+                    border: "none",
+                    fontSize: "18px",
+                    cursor: "pointer",
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
 
-                  {selectedExpense.expenseId?.attachment && (
-                    <button
-                      className="btn btn-sm btn-primary"
-                      onClick={() =>
-                        handleDownload(selectedExpense.expenseId.attachment)
-                      }
-                    >
-                      Download Attachment
-                    </button>
-                  )}
+              <div className="modal-body px-4">
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <strong>Ticket ID:</strong>
+                    <p>{selectedExpense.expenseId?.ticketId}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Store:</strong>
+                    <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Expense Head:</strong>
+                    <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Amount:</strong>
+                    <p>₹ {selectedExpense.expenseId?.amount}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Status:</strong>
+                    <span className="badge bg-secondary">Hold</span>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Comment:</strong>
+                    <p>{selectedExpense.comment || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Action Date:</strong>
+                    <p>{new Date(selectedExpense.actionAt).toLocaleDateString()}</p>
+                  </div>
+                  <div className="col-12">
+                    <strong>Attachment:</strong>
+                    <p>
+                      {selectedExpense.expenseId?.attachment ? (
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() =>
+                            handleDownload(selectedExpense.expenseId.attachment)
+                          }
+                        >
+                          Download Attachment
+                        </button>
+                      ) : (
+                        <span className="text-muted">No Attachment</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        )}
-      </main>
-    </>
+        </div>
+      )}
+    </main>
   );
 }

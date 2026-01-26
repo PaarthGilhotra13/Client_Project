@@ -306,6 +306,12 @@ class ApiServices {
    ChangeStatusApprovalPolicy(data) {
       return axios.post(BaseURL + "/apis/approvalPolicy/changeStatus", data, { headers: getToken() })
    }
+   ApprovalHistory(payload) {
+      return axios.post(BaseURL + "/apis/expense-approval/approval-history",payload,{ headers: getToken() });
+   }
+
+
+
 
    //Expense Approval
    ApproveExpense(data) {
@@ -378,9 +384,16 @@ class ApiServices {
    }
 
    //Dashboard
+   // Dashboard() {
+   //    return axios.post(BaseURL + "/apis/dashboard", null, { headers: getToken() })
+   // }
    Dashboard() {
-      return axios.post(BaseURL + "/apis/dashboard", null, { headers: getToken() })
+      return axios.get(BaseURL + "/apis/dashboard", { headers: getToken() });
    }
+   FMDashboard() {
+      return axios.get(BaseURL + "/apis/fm/dashboard", { headers: getToken() });
+   }
+
 }
 
 export default new ApiServices;

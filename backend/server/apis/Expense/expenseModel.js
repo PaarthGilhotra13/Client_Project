@@ -1,5 +1,5 @@
-// paarth
 const mongoose = require("mongoose");
+
 
 const expenseSchema = new mongoose.Schema({
     ticketId: { type: String, default: "" },

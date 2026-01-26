@@ -57,7 +57,7 @@ export default function ManageCity() {
 
       acc[key].cities.push(city.cityName);
       return acc;
-    }, {})
+    }, {}),
   );
 
   /* ================= SEARCH ================= */
@@ -65,14 +65,14 @@ export default function ManageCity() {
     (el) =>
       el.zoneName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       el.stateName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      el.cities.join(" ").toLowerCase().includes(searchTerm.toLowerCase())
+      el.cities.join(" ").toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   /* ================= PAGINATION ================= */
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   /* ================= CSV DATA ================= */
@@ -140,7 +140,7 @@ export default function ManageCity() {
         {!load && (
           <div className="container-fluid mb-3">
             <div className="row align-items-center">
-              <div className="col-md-4">
+              <div className="col-md-6">
                 <input
                   className="form-control"
                   placeholder="Search by Zone, State or City"
@@ -152,7 +152,7 @@ export default function ManageCity() {
                 />
               </div>
 
-              <div className="col-md-8 text-end">
+              <div className="col-md-6 text-end">
                 <CSVLink
                   data={csvData}
                   filename="Active_Cities.csv"
@@ -185,7 +185,9 @@ export default function ManageCity() {
                     {currentData.length ? (
                       currentData.map((el, index) => (
                         <tr key={el._id}>
-                          <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                          <td>
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
                           <td>{el.zoneName}</td>
                           <td>{el.stateName}</td>
                           <td>
@@ -206,14 +208,20 @@ export default function ManageCity() {
                               <Link
                                 to={`/admin/editCity/${el._id}`}
                                 className="btn"
-                                style={{ background: "#197ce6ff", color: "white" }}
+                                style={{
+                                  background: "#197ce6ff",
+                                  color: "white",
+                                }}
                               >
                                 <i className="bi bi-pen"></i>
                               </Link>
 
                               <button
                                 className="btn ms-2"
-                                style={{ background: "#6c757d", color: "white" }}
+                                style={{
+                                  background: "#6c757d",
+                                  color: "white",
+                                }}
                                 onClick={() => changeInactiveStatus(el._id)}
                               >
                                 <i className="bi bi-x-circle"></i>

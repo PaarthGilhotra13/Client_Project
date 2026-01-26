@@ -3,12 +3,20 @@ import PageTitle from "../../PageTitle";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
+import { CSVLink } from "react-csv";
 
 export default function ProcurementPendingExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const userId = sessionStorage.getItem("userId");
 
@@ -25,24 +33,44 @@ export default function ProcurementPendingExpense() {
     ApiServices.GetProcurementPendingExpenses({ userId })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
-        setLoad(false);
       })
-      .catch(() => {
-        setData([]);
-        setLoad(false);
-      });
+      .finally(() => setLoad(false));
   };
 
   useEffect(() => {
     fetchPending();
   }, []);
 
+  /* ================= SEARCH FILTER ================= */
+  const filteredData = data.filter(
+    (el) =>
+      el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentExpenses = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  /* ================= CSV DATA ================= */
+  const csvData = filteredData.map((el, index) => ({
+    SrNo: index + 1,
+    TicketID: el.ticketId,
+    Store: el.storeId?.storeName,
+    ExpenseHead: el.expenseHeadId?.name,
+    Amount: el.amount,
+    Status: "Pending",
+  }));
+
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
     setShowModal(true);
   };
-
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
@@ -101,6 +129,34 @@ export default function ProcurementPendingExpense() {
         loading={load}
       />
 
+      {/* Search + CSV */}
+      {!load && (
+        <div className="container-fluid mb-3">
+          <div className="row align-items-center">
+            <div className="col-md-6">
+              <input
+                className="form-control"
+                placeholder="Search by Ticket ID, Store, Expense Head"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+            <div className="col-md-6 text-end">
+              <CSVLink
+                data={csvData}
+                filename="Procurement_Pending_Expenses.csv"
+                className="btn btn-primary btn-sm"
+              >
+                Download CSV
+              </CSVLink>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       {!load && (
         <div className="container-fluid">
@@ -120,10 +176,10 @@ export default function ProcurementPendingExpense() {
                 </thead>
 
                 <tbody>
-                  {data.length > 0 ? (
-                    data.map((el, index) => (
+                  {currentExpenses.length > 0 ? (
+                    currentExpenses.map((el, index) => (
                       <tr key={el._id}>
-                        <td>{index + 1}</td>
+                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td>{el.ticketId}</td>
                         <td>{el.storeId?.storeName}</td>
                         <td>{el.expenseHeadId?.name}</td>
@@ -170,16 +226,48 @@ export default function ProcurementPendingExpense() {
                   )}
                 </tbody>
               </table>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-3">
+                  <button
+                    className="btn btn-secondary me-2"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                  >
+                    Previous
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      className={`btn me-1 ${
+                        currentPage === i + 1 ? "btn-primary" : "btn-light"
+                      }`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className="btn btn-secondary ms-2"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= MODAL (SAME AS ZONAL HEAD) ================= */}
+      {/* Modal */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
-          tabIndex="-1"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         >
           <div className="modal-dialog modal-lg">
@@ -195,13 +283,9 @@ export default function ProcurementPendingExpense() {
                     borderRadius: "50%",
                     backgroundColor: "red",
                     color: "white",
-                    fontWeight: "bold",
                     border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
                     fontSize: "18px",
+                    cursor: "pointer",
                   }}
                 >
                   &times;
@@ -214,78 +298,37 @@ export default function ProcurementPendingExpense() {
                     <strong>Ticket ID:</strong>
                     <p>{selectedExpense.ticketId}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Store:</strong>
                     <p>{selectedExpense.storeId?.storeName}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Expense Head:</strong>
                     <p>{selectedExpense.expenseHeadId?.name}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Amount:</strong>
                     <p>₹ {selectedExpense.amount}</p>
                   </div>
-
-                  <div className="col-md-6">
-                    <strong>Policy:</strong>
-                    <p>{selectedExpense.policy || "-"}</p>
-                  </div>
-
-                  <div className="col-md-6">
-                    <strong>Nature of Expense:</strong>
-                    <p>{selectedExpense.natureOfExpense || "-"}</p>
-                  </div>
-
-                  <div className="col-md-6">
-                    <strong>RCA:</strong>
-                    <p>{selectedExpense.rca || "-"}</p>
-                  </div>
-
-                  <div className="col-md-6">
-                    <strong>Remarks:</strong>
-                    <p>{selectedExpense.remark || "-"}</p>
-                  </div>
-
                   <div className="col-md-6">
                     <strong>Status:</strong>
-                    <p>
-                      <span className="badge bg-warning">Pending</span>
-                    </p>
+                    <span className="badge bg-warning">Pending</span>
                   </div>
-
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
-                      {selectedExpense.attachment && (
-                        <a
-                          href={selectedExpense.attachment}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-primary me-2"
+                      {selectedExpense.attachment ? (
+                        <button
+                          className="btn btn-sm btn-primary"
+                          onClick={() =>
+                            handleDownload(selectedExpense.attachment)
+                          }
                         >
-                          Original
-                        </a>
+                          Download Attachment
+                        </button>
+                      ) : (
+                        <span className="text-muted">No Attachment</span>
                       )}
-
-                      {selectedExpense.resubmittedAttachment && (
-                        <a
-                          href={selectedExpense.resubmittedAttachment}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-success"
-                        >
-                          Resubmitted
-                        </a>
-                      )}
-
-                      {!selectedExpense.attachment &&
-                        !selectedExpense.resubmittedAttachment && (
-                          <span className="text-muted">No Attachment</span>
-                        )}
                     </p>
                   </div>
                 </div>

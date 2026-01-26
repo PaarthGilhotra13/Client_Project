@@ -33,8 +33,8 @@ export default function ManageEmployee() {
         ApiServices.GetAllProcurement(),
       ]);
 
-      const allData = responses.flatMap(res =>
-        res?.data?.success ? res.data.data : []
+      const allData = responses.flatMap((res) =>
+        res?.data?.success ? res.data.data : [],
       );
       setData(allData || []);
     } catch (err) {
@@ -51,8 +51,8 @@ export default function ManageEmployee() {
   // ================= FILTER =================
   useEffect(() => {
     const filtered = data
-      .filter(emp => emp.status)
-      .filter(emp => {
+      .filter((emp) => emp.status)
+      .filter((emp) => {
         const lower = searchTerm.toLowerCase();
         return (
           emp?.name?.toLowerCase().includes(lower) ||
@@ -66,72 +66,67 @@ export default function ManageEmployee() {
 
   const currentEmployees = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   // ================= STATUS CHANGE =================
   function changeInactiveStatus(id, designation) {
-      Swal.fire({
-        title: "Confirm Status Change",
-        text: "Are you sure you want to change the status?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          let data = {
-            _id: id,
-            status: "false"
-          };
-  
-          let apiCall;
-          if (designation === "FM") {
-            apiCall = ApiServices.ChangeStatusFm;
-          }
-          else if (designation === "CLM") {
-            apiCall = ApiServices.ChangeStatusClm;
-          }
-          else if (designation === "Zonal_Head") {
-            apiCall = ApiServices.ChangeStatusZh;
-          }
-          else if (designation === "Business_Finance") {
-            apiCall = ApiServices.ChangeStatusBf;
-          }
-          else if (designation === "Procurement") {
-            apiCall = ApiServices.ChangeStatusProcurement;
-          }
-          else {
+    Swal.fire({
+      title: "Confirm Status Change",
+      text: "Are you sure you want to change the status?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let data = {
+          _id: id,
+          status: "false",
+        };
+
+        let apiCall;
+        if (designation === "FM") {
+          apiCall = ApiServices.ChangeStatusFm;
+        } else if (designation === "CLM") {
+          apiCall = ApiServices.ChangeStatusClm;
+        } else if (designation === "Zonal_Head") {
+          apiCall = ApiServices.ChangeStatusZh;
+        } else if (designation === "Business_Finance") {
+          apiCall = ApiServices.ChangeStatusBf;
+        } else if (designation === "Procurement") {
+          apiCall = ApiServices.ChangeStatusProcurement;
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Please select a valid designation",
+          });
+          return;
+        }
+
+        apiCall(data)
+          .then((res) => {
+            Swal.fire({
+              title: res?.data?.message,
+              icon: "success",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            fetchAllStaff(); // refresh list
+          })
+          .catch((err) => {
             Swal.fire({
               icon: "error",
               title: "Oops...",
-              text: "Please select a valid designation",
+              text: "Something went wrong!",
             });
-            return;
-          }
-  
-          apiCall(data)
-            .then((res) => {
-              Swal.fire({
-                title: res?.data?.message,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 1500,
-              });
-              fetchAllStaff(); // refresh list
-            })
-            .catch((err) => {
-              Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Something went wrong!",
-              });
-              console.log("Error is", err);
-            });
-        }
-      });
-    }
+            console.log("Error is", err);
+          });
+      }
+    });
+  }
 
   // ================= CSV =================
   const csvData = filteredData.map((emp, idx) => ({
@@ -140,7 +135,7 @@ export default function ManageEmployee() {
     name: emp.name,
     email: emp.email,
     contact: emp.contact,
-    stores: emp?.storeId?.map(s => s.storeName).join(", "),
+    stores: emp?.storeId?.map((s) => s.storeName).join(", "),
     designation: emp.designation,
   }));
 
@@ -159,7 +154,7 @@ export default function ManageEmployee() {
                 className="form-control"
                 placeholder="Search by Name or ID"
                 value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="col-md-6 text-end">
@@ -230,7 +225,9 @@ export default function ManageEmployee() {
                           </Link>
                           <button
                             className="btn btn-secondary"
-                            onClick={() => changeInactiveStatus(el._id, el.designation)}
+                            onClick={() =>
+                              changeInactiveStatus(el._id, el.designation)
+                            }
                           >
                             <i className="bi bi-x-circle"></i>
                           </button>
@@ -254,7 +251,7 @@ export default function ManageEmployee() {
       {/* ===== MODAL (SAME STYLE AS EXPENSE HEAD) ===== */}
       {modalOpen && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
             <button
               className="btn-close position-absolute top-0 end-0 m-2"
               onClick={() => setModalOpen(false)}

@@ -3,6 +3,7 @@ import PageTitle from "../../PageTitle";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
+import { CSVLink } from "react-csv";
 
 export default function ZhPendingExpense() {
   const [data, setData] = useState([]);
@@ -10,9 +11,16 @@ export default function ZhPendingExpense() {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
   const userId = sessionStorage.getItem("userId");
 
-  /* ================= FETCH PENDING (ZH) ================= */
+  /* ================= FETCH PENDING ================= */
   const fetchPending = () => {
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
@@ -25,28 +33,38 @@ export default function ZhPendingExpense() {
     ApiServices.GetZhPendingExpenses({ userId })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
-        setLoad(false);
       })
-      .catch(() => {
-        setData([]);
-        setLoad(false);
-      });
+      .finally(() => setLoad(false));
   };
 
   useEffect(() => {
     fetchPending();
   }, []);
 
-  /* ================= MODAL HANDLERS ================= */
-  const handleViewClick = (expense) => {
-    setSelectedExpense(expense);
-    setShowModal(true);
-  };
+  /* ================= SEARCH FILTER ================= */
+  const filteredData = data.filter(
+    (el) =>
+      el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const handleCloseModal = () => {
-    setSelectedExpense(null);
-    setShowModal(false);
-  };
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentExpenses = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  /* ================= CSV DATA ================= */
+  const csvData = filteredData.map((el, index) => ({
+    SrNo: index + 1,
+    TicketID: el.ticketId,
+    Store: el.storeId?.storeName,
+    ExpenseHead: el.expenseHeadId?.name,
+    Amount: el.amount,
+    Status: "Pending",
+  }));
 
   /* ================= ACTION HANDLER ================= */
   const takeAction = (type, expenseId) => {
@@ -89,6 +107,26 @@ export default function ZhPendingExpense() {
     });
   };
 
+  /* ================= MODAL HANDLERS ================= */
+  const handleViewClick = (expense) => {
+    setSelectedExpense(expense);
+    setShowModal(true);
+  };
+  const handleCloseModal = () => {
+    setSelectedExpense(null);
+    setShowModal(false);
+  };
+
+  /* ================= ATTACHMENT DOWNLOAD ================= */
+  const handleDownload = (url) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = url.split("/").pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <main className="main" id="main">
       <PageTitle child="Pending Expenses (Zonal Head)" />
@@ -100,6 +138,34 @@ export default function ZhPendingExpense() {
         size={200}
         loading={load}
       />
+
+      {/* Search + CSV */}
+      {!load && (
+        <div className="container-fluid mb-3">
+          <div className="row align-items-center">
+            <div className="col-md-6">
+              <input
+                className="form-control"
+                placeholder="Search by Ticket ID, Store, Expense Head"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+            <div className="col-md-6 text-end">
+              <CSVLink
+                data={csvData}
+                filename="ZH_Pending_Expenses.csv"
+                className="btn btn-primary btn-sm"
+              >
+                Download CSV
+              </CSVLink>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Table */}
       {!load && (
@@ -120,10 +186,10 @@ export default function ZhPendingExpense() {
                 </thead>
 
                 <tbody>
-                  {data.length > 0 ? (
-                    data.map((el, index) => (
+                  {currentExpenses.length > 0 ? (
+                    currentExpenses.map((el, index) => (
                       <tr key={el._id}>
-                        <td>{index + 1}</td>
+                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td>{el.ticketId}</td>
                         <td>{el.storeId?.storeName}</td>
                         <td>{el.expenseHeadId?.name}</td>
@@ -170,12 +236,45 @@ export default function ZhPendingExpense() {
                   )}
                 </tbody>
               </table>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-3">
+                  <button
+                    className="btn btn-secondary me-2"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                  >
+                    Previous
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      className={`btn me-1 ${
+                        currentPage === i + 1 ? "btn-primary" : "btn-light"
+                      }`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className="btn btn-secondary ms-2"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= MODAL ================= */}
+      {/* Modal */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
@@ -186,26 +285,7 @@ export default function ZhPendingExpense() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    borderRadius: "50%",
-                    backgroundColor: "red",
-                    color: "white",
-                    fontWeight: "bold",
-                    border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                  }}
-                >
-                  &times;
-                </button>
+                <button className="btn-close" onClick={handleCloseModal} />
               </div>
 
               <div className="modal-body px-4">
@@ -290,3 +370,5 @@ export default function ZhPendingExpense() {
     </main>
   );
 }
+
+

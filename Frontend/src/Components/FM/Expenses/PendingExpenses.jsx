@@ -1,8 +1,10 @@
+// pending expense
 import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
+import { CSVLink } from "react-csv";
 
 export default function PendingExpense() {
   const [data, setData] = useState([]);
@@ -10,9 +12,12 @@ export default function PendingExpense() {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // ================= PAGINATION =================
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20; // Adjust as needed
+  const itemsPerPage = 20;
 
   /* ================= FETCH PENDING EXPENSE ================= */
   useEffect(() => {
@@ -35,12 +40,35 @@ export default function PendingExpense() {
         } else {
           setData([]);
         }
-        setTimeout(() => setLoad(false), 500);
       })
-      .catch(() => {
-        setTimeout(() => setLoad(false), 1000);
-      });
+      .finally(() => setLoad(false));
   }, []);
+
+  /* ================= SEARCH FILTER ================= */
+  const filteredData = data.filter((el) =>
+    el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentExpenses = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  /* ================= CSV DATA ================= */
+  const csvData = filteredData.map((el, index) => ({
+    SrNo: index + 1,
+    TicketID: el.ticketId,
+    Store: el.storeId?.storeName,
+    ExpenseHead: el.expenseHeadId?.name,
+    Amount: el.amount,
+    Policy: el.policy || "-",
+    Status: "Pending",
+    CreatedAt: new Date(el.createdAt).toLocaleDateString(),
+  }));
 
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
@@ -61,49 +89,53 @@ export default function PendingExpense() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  const openAttachment = (url) => {
-    if (!url) return;
-
-    // pdf / doc / excel detect
-    const isDoc = /\.(pdf|doc|docx|xls|xlsx)$/i.test(url);
-
-    let finalUrl = url;
-
-    if (isDoc) {
-      // 🔥 PDF ko browser me inline open karane ke liye
-      finalUrl = url
-        .replace("/image/upload/", "/raw/upload/")
-        .replace("/upload/", "/upload/fl_inline/");
-    }
-
-    window.open(finalUrl, "_blank", "noopener,noreferrer");
-  };
-
-
-
   return (
     <main className="main" id="main">
       <PageTitle child="Pending Expenses" />
 
       {/* Loader */}
       <div className="container-fluid">
-        <div className="row">
-          <div className="col-md-12">
-            <ScaleLoader
-              color="#6776f4"
-              cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-              loading={load}
-            />
+        <ScaleLoader
+          color="#6776f4"
+          cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+          loading={load}
+        />
+      </div>
+
+      {/* Search + CSV */}
+      {!load && (
+        <div className="container-fluid mb-3">
+          <div className="row align-items-center">
+            <div className="col-md-6">
+              <input
+                className="form-control"
+                placeholder="Search by Ticket ID, Store or Expense Head"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+
+            <div className="col-md-6 text-end">
+              <CSVLink
+                data={csvData}
+                filename="Pending_Expenses.csv"
+                className="btn btn-primary btn-sm"
+              >
+                Download CSV
+              </CSVLink>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Table */}
       {!load && (
         <div className="container-fluid">
           <div className="row justify-content-center">
-            <div className="col-lg-12 mt-5 table-responsive">
+            <div className="col-lg-12 mt-4 table-responsive">
               <table className="table table-hover table-striped">
                 <thead className="table-dark">
                   <tr>
@@ -119,10 +151,12 @@ export default function PendingExpense() {
                 </thead>
 
                 <tbody>
-                  {currentExpenses.length > 0 ? (
+                  {currentExpenses.length ? (
                     currentExpenses.map((el, index) => (
                       <tr key={el._id}>
-                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                        <td>
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
                         <td>{el.ticketId}</td>
                         <td>{el.storeId?.storeName}</td>
                         <td>{el.expenseHeadId?.name}</td>
@@ -156,7 +190,7 @@ export default function PendingExpense() {
           </div>
 
           {/* Pagination */}
-          {showPagination && (
+          {totalPages > 1 && (
             <div className="d-flex justify-content-center mt-3">
               <button
                 className="btn btn-secondary me-2"
@@ -189,37 +223,17 @@ export default function PendingExpense() {
         </div>
       )}
 
-      {/* ================= MODAL ================= */}
+      {/* Modal */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
-          tabIndex="-1"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    borderRadius: "50%",
-                    backgroundColor: "red",
-                    color: "white",
-                    fontWeight: "bold",
-                    border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                  }}
-                >
-                  &times;
-                </button>
+                <button className="btn-close" onClick={handleCloseModal} />
               </div>
 
               <div className="modal-body px-4">
@@ -310,6 +324,16 @@ export default function PendingExpense() {
                     </p>
                   </div>
                 </div>
+                <p><strong>Ticket ID:</strong> {selectedExpense.ticketId}</p>
+                <p><strong>Store:</strong> {selectedExpense.storeId?.storeName}</p>
+                <p><strong>Expense Head:</strong> {selectedExpense.expenseHeadId?.name}</p>
+                <p><strong>Amount:</strong> ₹ {selectedExpense.amount}</p>
+                <p><strong>Policy:</strong> {selectedExpense.policy || "-"}</p>
+                <p>
+                  <strong>Status:</strong>{" "}
+                  <span className="badge bg-warning text-dark">Pending</span>
+                </p>
+
               </div>
             </div>
           </div>
