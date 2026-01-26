@@ -447,12 +447,33 @@ export default function AddExpenses() {
           Swal.fire({
             title: "Expense Added Successfully",
             icon: "success",
-            draggable: true,
-            confirmButtonText: "Continue",
             timer: 2000,
             timerProgressBar: true,
           });
-          nav("/fm/addExpenses");
+
+          /* ===== RESET FORM ===== */
+          setStoreId("");
+          setSearchStore("");
+          setSelectedStore(null);
+          setShowSearchDropdown(false);
+
+          setStoreCategoryName("");
+          setStoreCategoryId("");
+
+          setExpenseHeadName("");
+          setExpenseHeadId("");
+
+          setNatureOfExpense("");
+          setExpenseValue("");
+          setRemark("");
+          setRca("");
+          setPolicy("");
+          setTicketId("");
+
+          setAttachment(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
         } else {
           Swal.fire("Error", res.data.message, "error");
         }
@@ -478,10 +499,9 @@ export default function AddExpenses() {
               <h5 className="card-title">Store Expense Details</h5>
 
               <form className="row g-3" onSubmit={handleForm}>
-                {/* ================= STORE SEARCH ================= */}
+                {/* ===== STORE SEARCH ===== */}
                 <div className="col-12 position-relative">
                   <label className="form-label">Store</label>
-
                   <input
                     type="text"
                     className="form-control dropdown-toggle"
@@ -513,14 +533,26 @@ export default function AddExpenses() {
                           <li key={el._id}>
                             <button
                               type="button"
-                              className="dropdown-item"                              
+                              className="dropdown-item"
                               onMouseDown={() => {
                                 setStoreId(el._id);
                                 setSelectedStore(el);
                                 setSearchStore(el.storeName);
                                 setShowSearchDropdown(false);
-                                setStoreCategoryName("");
-                                setStoreCategoryId("");
+
+                                if (el.storeCategoryId) {
+                                  setStoreCategoryId(
+                                    el.storeCategoryId._id ||
+                                      el.storeCategoryId,
+                                  );
+                                  setStoreCategoryName(
+                                    el.storeCategoryId.name || "",
+                                  );
+                                } else {
+                                  setStoreCategoryId("");
+                                  setStoreCategoryName("");
+                                }
+
                                 setExpenseHeadName("");
                                 setExpenseHeadId("");
                                 setPolicy("");
@@ -551,7 +583,7 @@ export default function AddExpenses() {
                           </div>
                           <div className="col-6">
                             <b>City</b>
-                            <div>{selectedStore?.cityId?.cityName}</div>
+                            <div>{selectedStore?.cityName}</div>
                           </div>
                           <div className="col-6 mt-2">
                             <b>Store Code</b>
