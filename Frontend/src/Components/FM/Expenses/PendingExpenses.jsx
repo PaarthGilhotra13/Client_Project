@@ -62,6 +62,26 @@ export default function PendingExpense() {
     currentPage * itemsPerPage
   );
 
+  const openAttachment = (url) => {
+    if (!url) return;
+
+    // pdf / doc / excel detect
+    const isDoc = /\.(pdf|doc|docx|xls|xlsx)$/i.test(url);
+
+    let finalUrl = url;
+
+    if (isDoc) {
+      // 🔥 PDF ko browser me inline open karane ke liye
+      finalUrl = url
+        .replace("/image/upload/", "/raw/upload/")
+        .replace("/upload/", "/upload/fl_inline/");
+    }
+
+    window.open(finalUrl, "_blank", "noopener,noreferrer");
+  };
+
+
+
   return (
     <main className="main" id="main">
       <PageTitle child="Pending Expenses" />
@@ -149,9 +169,8 @@ export default function PendingExpense() {
               {[...Array(totalPages)].map((_, i) => (
                 <button
                   key={i}
-                  className={`btn me-1 ${
-                    currentPage === i + 1 ? "btn-primary" : "btn-light"
-                  }`}
+                  className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                    }`}
                   onClick={() => setCurrentPage(i + 1)}
                 >
                   {i + 1}
@@ -265,8 +284,10 @@ export default function PendingExpense() {
                           rel="noopener noreferrer"
                           className="btn btn-sm btn-primary me-2"
                         >
-                          Original
+                          View Original
                         </a>
+
+
                       )}
 
                       {selectedExpense.resubmittedAttachment && (
@@ -276,8 +297,10 @@ export default function PendingExpense() {
                           rel="noopener noreferrer"
                           className="btn btn-sm btn-success"
                         >
-                          Resubmitted
+                          View Resubmitted
                         </a>
+
+
                       )}
 
                       {!selectedExpense.attachment &&

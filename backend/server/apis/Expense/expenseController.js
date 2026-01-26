@@ -206,7 +206,6 @@ const add = (req, res) => {
                             })
                         }
                     }
-
                     expenseObj.currentApprovalLevel = nextApprovalLevel;
                     expenseObj.currentStatus = "Pending";
 
@@ -423,7 +422,7 @@ const myExpenses = (req, res) => {
     var errMsgs = [];
 
     if (!req.body.userId) errMsgs.push("userId is required");
-    
+
     if (errMsgs.length > 0) {
         return res.send({
             status: 422,

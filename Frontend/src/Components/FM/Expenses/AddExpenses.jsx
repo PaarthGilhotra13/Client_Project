@@ -457,8 +457,9 @@ export default function AddExpenses() {
           Swal.fire("Error", res.data.message, "error");
         }
       })
-      .catch(() => {
+      .catch((err) => {
         setLoad(false);
+        console.log("ADD EXPENSE ERROR 👉", err.response?.data);
         Swal.fire("Error", "Something went wrong", "error");
       });
   }

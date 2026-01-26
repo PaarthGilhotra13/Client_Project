@@ -1,4 +1,4 @@
-const cloudinary=require("cloudinary").v2
+const cloudinary = require("cloudinary").v2
 cloudinary.config({
     cloud_name: "do2ccjsdi",  // your cloud name
     api_key: "594497365838797",
@@ -12,7 +12,8 @@ const uploadImg = async (fileBuffer, publicId) => {
         cloudinary.uploader.upload_stream(
             {
                 public_id: publicId,
-                resource_type: "auto" },
+                resource_type: "auto"
+            },
             (error, result) => {
                 if (error) {
                     reject(error);
@@ -23,5 +24,4 @@ const uploadImg = async (fileBuffer, publicId) => {
         ).end(fileBuffer);
     });
 };
-
-module.exports={uploadImg}
+module.exports = { uploadImg }
