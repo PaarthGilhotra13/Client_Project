@@ -51,13 +51,6 @@ export default function PendingExpense() {
     el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  /* ================= PAGINATION ================= */
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const currentExpenses = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   /* ================= CSV DATA ================= */
   const csvData = filteredData.map((el, index) => ({
     SrNo: index + 1,
