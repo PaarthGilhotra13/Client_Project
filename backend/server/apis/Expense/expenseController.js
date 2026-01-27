@@ -251,6 +251,9 @@ const add = (req, res) => {
 
 const getAll = (req, res) => {
     expenseModel.find(req.body)
+    .populate("storeId")
+    .populate("expenseHeadId")
+    .populate("raisedBy")
         .then(data => {
             res.send({
                 status: 200,

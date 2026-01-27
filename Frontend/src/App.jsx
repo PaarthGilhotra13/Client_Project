@@ -11,10 +11,6 @@ import EditEmployee from "./Components/Admin/employee/EditEmployee"
 import AdminDashboard from "./Components/Admin/AdminDashboard"
 import EmployeeDashboard from "./Components/Employee/EmployeeDashboard"
 import BlockedEmployee from "./Components/Admin/employee/BlockedEmployee"
-import ViewRequest from "./Components/Admin/Complaint/ViewRequest";
-import HoldComplaint from "./Components/Admin/Complaint/HoldComplaint";
-import ApprovedComplaint from "./Components/Admin/Complaint/ApprovedComplaint";
-import DeclinedComplaint from "./Components/Admin/Complaint/DeclinedComplaint";
 import AddZone from "./Components/Admin/Zone/AddZone"
 import ManageZone from "./Components/Admin/Zone/ManageZone"
 import BlockedZone from "./Components/Admin/Zone/BlockedZone"
@@ -77,6 +73,10 @@ import ProcurePendingExpense from "./Components/Procurement/Expenses/ProcurePend
 import ProcureRejectedExpenses from "./Components/Procurement/Expenses/ProcureRejectedExpenses"
 import EditCity from "./Components/Admin/City/EditCity"
 import ZonalProfile from "./Components/Profile/ZonalProfile"
+import AllPendingExpense from "./Components/Admin/Expenses/AllPendingExpense"
+import AllApprovedExpense from "./Components/Admin/Expenses/AllApprovedExpense"
+import AllHoldExpense from "./Components/Admin/Expenses/AllHoldExpense"
+import AllRjectedExpense from "./Components/Admin/Expenses/AllRjectedExpense"
 
 
 function App() {
@@ -136,10 +136,10 @@ function App() {
             <Route path="/admin/blockedApprovalPolicy" element={<BlockedAppovalPolicy />} />
 
             {/* Complaint Routes */}
-            <Route path="/admin/viewRequest" element={<ViewRequest />} />
-            <Route path="/admin/holdComplaint" element={<HoldComplaint />} />
-            <Route path="/admin/approvedComplaint" element={<ApprovedComplaint />} />
-            <Route path="/admin/declinedComplaint" element={<DeclinedComplaint />} />
+            <Route path="/admin/allPendingExpenses" element={<AllPendingExpense />} />
+            <Route path="/admin/allApprovedExpenses" element={<AllApprovedExpense />} />
+            <Route path="/admin/allHoldExpenses" element={<AllHoldExpense />} />
+            <Route path="/admin/allRejectedExpenses" element={<AllRjectedExpense />} />
 
           </Route>
 

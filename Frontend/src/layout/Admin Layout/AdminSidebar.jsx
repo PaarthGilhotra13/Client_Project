@@ -368,8 +368,8 @@ export default function AdminSidebar() {
               data-bs-target="#complaint-nav"
               data-bs-toggle="collapse"
             >
-              <i className="bi bi-exclamation-circle" />
-              <span>Complaints</span>
+              <i className="bi bi-cash-stack" />
+              <span>Expenses</span>
               <i className="bi bi-chevron-down ms-auto" />
             </Link>
             <ul
@@ -380,35 +380,35 @@ export default function AdminSidebar() {
 
               <li>
                 <Link
-                  to={"/admin/viewRequest"}
+                  to={"/admin/allPendingExpenses"}
                   onClick={handleSidebarClose}
                 >
-                  <i className="bi bi-card-list fs-6" />
-                  <span>View Requests</span>
+                  <i className="bi bi-hourglass-split fs-6" />
+                  <span>Pending Expenses</span>
                 </Link>
               </li>
               <li>
                 <Link
-                  to={"/admin/approvedComplaint"}
+                  to={"/admin/allApprovedExpenses"}
                   onClick={handleSidebarClose}
                 >
-                  <i className="bi bi-card-list fs-6" />
-                  <span>Approved Requests</span>
+                  <i className="bi bi-check-circle fs-6" />
+                  <span>Approved Expenses</span>
                 </Link>
               </li>
               <li>
-                <Link to={"/admin/holdComplaint"} onClick={handleSidebarClose}>
-                  <i className="bi bi-card-list fs-6" />
-                  <span>Hold Requests</span>
+                <Link to={"/admin/allHoldExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-pause-circle fs-6" />
+                  <span>Hold Expenses</span>
                 </Link>
               </li>
               <li>
                 <Link
-                  to={"/admin/declinedComplaint"}
+                  to={"/admin/allRejectedExpenses"}
                   onClick={handleSidebarClose}
                 >
-                  <i className="bi bi-card-list fs-6" />
-                  <span>Declined Requests</span>
+                  <i className="bi bi-x-circle fs-6" />
+                  <span>Rejected Expenses</span>
                 </Link>
               </li>
             </ul>

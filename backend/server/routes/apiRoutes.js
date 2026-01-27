@@ -168,7 +168,7 @@ routes.post("/expense-approval/action",expenseApprovalController.expenseAction)
 routes.post("/expense-approval/myApprovedAction",expenseApprovalController.myApprovalActions)
 routes.post("/expense-approval/reSubmitHeldExpense",upload.single("attachment"),expenseApprovalController.resubmitHeldExpense)
 routes.post("/expense-approval/approval-history",expenseApprovalController.approvalHistory);
-// routes.post("/expense-approval/approval-history",expenseApprovalController.approvalHistory);
+routes.post("/expense-approval/adminExpensesByStatus",expenseApprovalController.adminExpensesByStatus);
 
 // Dashboard
 routes.get("/dashboard",adminDashboardController.getDashboard)

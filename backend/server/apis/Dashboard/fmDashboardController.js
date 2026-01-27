@@ -3,10 +3,10 @@ const expenseApprovalModel = require("../Expense Approval/expenseApprovalModel")
 
 const getFMDashboard = async (req, res) => {
   try {
-    console.log("🔥 FM DASHBOARD API HIT");
+    // console.log("🔥 FM DASHBOARD API HIT");
 
-    console.log("👉 req.user :", req.user);
-    console.log("👉 req.headers.authorization :", req.headers.authorization);
+    // console.log("👉 req.user :", req.user);
+    // console.log("👉 req.headers.authorization :", req.headers.authorization);
 
     // 1️⃣ Assigned Requests
     const assignedRequests = await expenseModel.countDocuments({
