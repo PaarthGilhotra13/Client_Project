@@ -226,7 +226,25 @@ export default function PendingExpense() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
-                <button className="btn-close" onClick={handleCloseModal} />
+                <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      backgroundColor: "red",
+                      color: "white",
+                      fontWeight: "bold",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      fontSize: "18px",
+                    }}
+                  >
+                    &times;
+                  </button>
               </div>
 
               <div className="modal-body px-4">
@@ -317,7 +335,7 @@ export default function PendingExpense() {
                     </p>
                   </div>
                 </div>
-                <p><strong>Ticket ID:</strong> {selectedExpense.ticketId}</p>
+                {/* <p><strong>Ticket ID:</strong> {selectedExpense.ticketId}</p>
                 <p><strong>Store:</strong> {selectedExpense.storeId?.storeName}</p>
                 <p><strong>Expense Head:</strong> {selectedExpense.expenseHeadId?.name}</p>
                 <p><strong>Amount:</strong> ₹ {selectedExpense.amount}</p>
@@ -325,8 +343,7 @@ export default function PendingExpense() {
                 <p>
                   <strong>Status:</strong>{" "}
                   <span className="badge bg-warning text-dark">Pending</span>
-                </p>
-
+                </p> */}
               </div>
             </div>
           </div>

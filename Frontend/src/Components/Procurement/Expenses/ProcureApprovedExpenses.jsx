@@ -226,7 +226,6 @@ export default function ProcurementApprovedExpense() {
                   style={{
                     width: "30px",
                     height: "30px",
-                    borderRadius: "50%",
                     backgroundColor: "red",
                     color: "white",
                     border: "none",
@@ -258,7 +257,7 @@ export default function ProcurementApprovedExpense() {
                   </div>
                   <div className="col-md-6">
                     <strong>Status:</strong>
-                    <span className="badge bg-success">Approved</span>
+                    <p><span className="badge bg-success">Approved</span></p>
                   </div>
                   <div className="col-md-6">
                     <strong>Approved On:</strong>

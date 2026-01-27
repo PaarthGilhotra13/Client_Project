@@ -223,7 +223,6 @@ export default function ProcurementRejectedExpense() {
                   style={{
                     width: "30px",
                     height: "30px",
-                    borderRadius: "50%",
                     backgroundColor: "red",
                     color: "white",
                     fontWeight: "bold",
