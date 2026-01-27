@@ -1,15 +1,15 @@
-import { useState } from "react";
 import PageTitle from "../../PageTitle";
+import { useState } from "react";
 import Swal from "sweetalert2";
 
-export default function HoldComplaint() {
+export default function AllPendingExpense() {
   const [complaints, setComplaints] = useState([
     {
       _id: "CMP001",
       employeeName: "Rahul Sharma",
       subject: "Salary Issue",
       description: "Salary not credited for March",
-      attachment: "https://example.com/salary-slip.pdf",
+      attachment: "",
       status: "Hold",
       comment: "",
       createdAt: "2025-01-10T10:30:00",
@@ -21,7 +21,7 @@ export default function HoldComplaint() {
       description: "Leave not approved",
       attachment: "",
       status: "Approved",
-      comment: "Approved by HR",
+      comment: "",
       createdAt: "2025-01-11T12:15:00",
     },
     {
@@ -30,7 +30,7 @@ export default function HoldComplaint() {
       subject: "Work Pressure",
       description: "Excessive workload",
       attachment: "",
-      status: "Hold",
+      status: "Declined",
       comment: "",
       createdAt: "2025-01-12T09:45:00",
     },
@@ -38,21 +38,19 @@ export default function HoldComplaint() {
 
   const [activeMenu, setActiveMenu] = useState(null); // which complaint's menu is open
 
-  // Handle status update with comment
-  const handleAction = (id, newStatus) => {
+  // Function to update complaint status and comment
+  const updateComplaint = (id, newStatus) => {
     Swal.fire({
       title: `Change status to "${newStatus}"`,
       input: "text",
-      inputLabel: "Enter comment (required)",
+      inputLabel: "Reason",
       inputPlaceholder: "Enter comment...",
-      inputValidator: (value) => {
-        if (!value.trim()) return "Comment is required";
-      },
+      inputValue: complaints.find((c) => c._id === id)?.comment || "",
       showCancelButton: true,
       confirmButtonText: "Update",
     }).then((result) => {
       if (result.isConfirmed) {
-        const comment = result.value;
+        const comment = result.value || "";
         setComplaints((prev) =>
           prev.map((c) =>
             c._id === id ? { ...c, status: newStatus, comment } : c
@@ -69,12 +67,9 @@ export default function HoldComplaint() {
     });
   };
 
-  // Only Hold complaints
-  const holdComplaints = complaints.filter((c) => c.status === "Hold");
-
   return (
     <main className="main" id="main">
-      <PageTitle child="Hold Requests" />
+      <PageTitle child="View Request" />
 
       <div className="container-fluid mt-3" style={{cursor: "default"}}>
         <div className="table-responsive">
@@ -88,21 +83,13 @@ export default function HoldComplaint() {
                 <th>Subject</th>
                 <th>Description</th>
                 <th>Attachment</th>
-                <th>Status / Action</th>
+                <th>Action</th>
                 <th>Comment</th>
               </tr>
             </thead>
 
             <tbody>
-              {holdComplaints.length === 0 && (
-                <tr>
-                  <td colSpan="9" className="text-center">
-                    No Hold Complaints Found
-                  </td>
-                </tr>
-              )}
-
-              {holdComplaints.map((c, index) => (
+              {complaints.map((c, index) => (
                 <tr key={c._id}>
                   <td>{index + 1}</td>
                   <td>{c._id}</td>
@@ -110,30 +97,16 @@ export default function HoldComplaint() {
                   <td>{new Date(c.createdAt).toLocaleString()}</td>
                   <td>{c.subject}</td>
                   <td>{c.description}</td>
+                  <td>{c.attachment ? "View" : "N/A"}</td>
                   <td>
-                    {c.attachment ? (
-                      <a
-                        href={c.attachment}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-primary btn-sm"
-                      >
-                        View
-                      </a>
-                    ) : (
-                      "N/A"
-                    )}
-                  </td>
-                  <td>
-                    <div className="dropdown">
+                    <div className="dropdown" style={{cursor: "default"}}>
                       <span
-                        className={`badge bg-warning text-dark`}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", fontSize: "18px" }}
                         onClick={() =>
                           setActiveMenu(activeMenu === c._id ? null : c._id)
                         }
                       >
-                        {c.status} &#x22EE;
+                        &#x22EE; {/* 3-dot menu */}
                       </span>
 
                       {activeMenu === c._id && (
@@ -141,13 +114,11 @@ export default function HoldComplaint() {
                           className="dropdown-menu show"
                           style={{ position: "absolute", zIndex: 1000 }}
                         >
-                          {["Approved", "Declined"].map((statusOption) => (
+                          {["Approved", "Hold", "Declined"].map((statusOption) => (
                             <li key={statusOption}>
                               <button
                                 className="dropdown-item"
-                                onClick={() =>
-                                  handleAction(c._id, statusOption)
-                                }
+                                onClick={() => updateComplaint(c._id, statusOption)}
                               >
                                 {statusOption}
                               </button>

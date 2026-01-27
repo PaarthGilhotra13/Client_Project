@@ -50,7 +50,6 @@ export default function PendingExpense() {
     el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   /* ================= CSV DATA ================= */
   const csvData = filteredData.map((el, index) => ({
     SrNo: index + 1,
@@ -77,7 +76,6 @@ export default function PendingExpense() {
   // ================= PAGINATION LOGIC =================
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const showPagination = data.length > itemsPerPage;
-
   const currentExpenses = data.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -183,7 +181,7 @@ export default function PendingExpense() {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {showPagination && (
             <div className="d-flex justify-content-center mt-3">
               <button
                 className="btn btn-secondary me-2"

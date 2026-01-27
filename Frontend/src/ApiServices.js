@@ -347,6 +347,9 @@ class ApiServices {
    ReSubmitHeldExpense(data) {
       return axios.post(BaseURL + "/apis/expense-approval/reSubmitHeldExpense", data, { headers: getToken() })
    }
+   AdminExpensesByStatus(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/adminExpensesByStatus", data, { headers: getToken() })
+   }
 
 
    //Announcement

@@ -845,9 +845,64 @@ const myApprovalActions = async (req, res) => {
     }
 };
 
+const adminExpensesByStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        // status = Pending | Approved | Hold | Rejected
+
+        // 🔹 PENDING (direct from expense)
+        if (status === "Pending") {
+            const pending = await expenseModel
+                .find({ currentStatus: "Pending" })
+                .populate("storeId expenseHeadId raisedBy");
+
+            return res.send({
+                success: true,
+                data: pending.map(e => ({
+                    ...e.toObject(),
+                    currentAt: e.currentApprovalLevel // 👈 pending kahaan hai
+                }))
+            });
+        }
+
+        // 🔹 APPROVED / HOLD / REJECTED (from approval history)
+        const approvals = await expenseApprovalModel
+            .find({ action: status })
+            .populate("expenseId approverId")
+            .sort({ actionAt: -1 });
+
+        const map = new Map();
+
+        approvals.forEach(a => {
+            if (!a.expenseId) return;
+
+            const id = a.expenseId._id.toString();
+
+            if (!map.has(id)) {
+                map.set(id, {
+                    ...a.expenseId.toObject(),
+                    action: a.action,
+                    actionBy: a.approverId?.name || "-",
+                    actionLevel: a.level,
+                    actionAt: a.actionAt,
+                    comment: a.comment || "-"
+                });
+            }
+        });
+
+        res.send({
+            success: true,
+            data: Array.from(map.values())
+        });
+
+    } catch (err) {
+        res.send({
+            success: false,
+            message: "Admin expense fetch failed"
+        });
+    }
+};
 
 
 
-
-
-module.exports = { approveExpense, holdExpense, rejectExpense, approvalHistory, clmPendingExpenses, pendingForProcurement, pendingForBF, pendingForZH, expenseAction, myApprovalActions, resubmitHeldExpense }
+module.exports = { approveExpense, holdExpense, rejectExpense, approvalHistory, clmPendingExpenses, pendingForProcurement, pendingForBF, pendingForZH, expenseAction, myApprovalActions, resubmitHeldExpense, adminExpensesByStatus }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PageTitle from "../../PageTitle";
 
-export default function DeclinedComplaint() {
+export default function AllRjectedExpense() {
   const [complaints] = useState([
     {
       _id: "CMP001",
