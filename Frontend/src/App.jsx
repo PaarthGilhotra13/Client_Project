@@ -77,6 +77,9 @@ import AllPendingExpense from "./Components/Admin/Expenses/AllPendingExpense"
 import AllApprovedExpense from "./Components/Admin/Expenses/AllApprovedExpense"
 import AllHoldExpense from "./Components/Admin/Expenses/AllHoldExpense"
 import AllRjectedExpense from "./Components/Admin/Expenses/AllRjectedExpense"
+import ManageZonalHead from "./Components/Zonal_Head/manageZonalHead"
+import ManageCLM from "./Components/CLM/ManageCLM"
+import ManageFM from "./Components/FM/ManageFM"
 
 
 function App() {
@@ -92,6 +95,9 @@ function App() {
             <Route path="/admin/manageEmployee" element={<ManageEmployee />} />
             <Route path="/admin/blockedEmployee" element={<BlockedEmployee />} />
             <Route path="/admin/editEmployee/:id" element={<EditEmployee />} />
+            <Route path="/admin/zonalHead/" element={<ManageZonalHead />} />
+            <Route path="/admin/CLMs/" element={<ManageCLM />} />
+            <Route path="/admin/FMs/" element={<ManageFM />} />
 
             {/* Zone */}
             <Route path="/admin/addZone" element={<AddZone />} />
