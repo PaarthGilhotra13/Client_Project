@@ -16,6 +16,7 @@ export default function AddEmployee() {
   const [stores, setStores] = useState([]);
   const [storeIds, setStoreIds] = useState([]);
   const [storeOrder, setStoreOrder] = useState([]);
+  const [storeSearch, setStoreSearch] = useState("");
 
   // ZONE
   const [zones, setZones] = useState([]);
@@ -30,11 +31,11 @@ export default function AddEmployee() {
 
     ApiServices.GetAllStore({ status: "true" })
       .then((res) => setStores(res?.data?.data || []))
-      .catch(() => { });
+      .catch(() => {});
 
     ApiServices.GetAllZone?.({ status: "true" })
       .then((res) => setZones(res?.data?.data || []))
-      .catch(() => { });
+      .catch(() => {});
 
     setTimeout(() => setLoad(false), 800);
   }, []);
@@ -87,12 +88,10 @@ export default function AddEmployee() {
       apiCall = ApiServices.AddZonalCommercial;
     else if (designation === "Missing_Bridge")
       apiCall = ApiServices.AddMissingBridge;
-    else if (designation === "Business_Finance")
-      apiCall = ApiServices.AddBf;
+    else if (designation === "Business_Finance") apiCall = ApiServices.AddBf;
     else if (designation === "Procurement")
       apiCall = ApiServices.AddProcurement;
-    else if (designation === "PR/PO")
-      apiCall = ApiServices.AddPrPo;
+    else if (designation === "PR/PO") apiCall = ApiServices.AddPrPo;
     else {
       Swal.fire("Error", "Please select designation", "error");
       setLoad(false);
@@ -231,36 +230,53 @@ export default function AddEmployee() {
                       data-bs-toggle="dropdown"
                     >
                       {storeIds.length > 0
-                        ? `${storeIds.length} Store${storeIds.length > 1 ? "s" : ""
-                        } Selected`
+                        ? `${storeIds.length} Store${storeIds.length > 1 ? "s" : ""} Selected`
                         : "Select Store"}
                     </button>
 
-                    <ul className="dropdown-menu w-100">
-                      {stores.map((el) => (
-                        <li
-                          key={el._id}
-                          className="dropdown-item d-flex justify-content-between align-items-center"
-                        >
-                          <div className="form-check">
-                            <input
-                              type="checkbox"
-                              className="form-check-input me-2"
-                              checked={storeIds.includes(el._id)}
-                              onChange={() => handleStoreToggle(el)}
-                            />
-                            <label className="form-check-label">
-                              {el.storeName}
-                            </label>
-                          </div>
+                    <ul className="dropdown-menu w-100 p-2">
+                      {/* Search Input */}
+                      <li>
+                        <input
+                          type="text"
+                          className="form-control mb-2"
+                          placeholder="Search store..."
+                          value={storeSearch}
+                          onChange={(e) => setStoreSearch(e.target.value)}
+                        />
+                      </li>
 
-                          {getStoreNumber(el._id) && (
-                            <span className="badge bg-primary">
-                              {getStoreNumber(el._id)}
-                            </span>
-                          )}
-                        </li>
-                      ))}
+                      {/* Filtered Stores */}
+                      {stores
+                        .filter((el) =>
+                          el.storeName
+                            .toLowerCase()
+                            .includes(storeSearch.toLowerCase()),
+                        )
+                        .map((el) => (
+                          <li
+                            key={el._id}
+                            className="dropdown-item d-flex justify-content-between align-items-center"
+                          >
+                            <div className="form-check">
+                              <input
+                                type="checkbox"
+                                className="form-check-input me-2"
+                                checked={storeIds.includes(el._id)}
+                                onChange={() => handleStoreToggle(el)}
+                              />
+                              <label className="form-check-label">
+                                {el.storeName}
+                              </label>
+                            </div>
+
+                            {getStoreNumber(el._id) && (
+                              <span className="badge bg-primary">
+                                {getStoreNumber(el._id)}
+                              </span>
+                            )}
+                          </li>
+                        ))}
                     </ul>
                   </div>
                 </div>
