@@ -222,7 +222,25 @@ export default function ClmApprovedExpense() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
-                <button className="btn-close" onClick={handleCloseModal} />
+                <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    style={{
+                      width: "30px",
+                      height: "30px",
+                      backgroundColor: "red",
+                      color: "white",
+                      fontWeight: "bold",
+                      border: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      fontSize: "18px",
+                    }}
+                  >
+                    &times;
+                  </button>
               </div>
 
               <div className="modal-body px-4">

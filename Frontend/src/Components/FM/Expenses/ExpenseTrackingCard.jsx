@@ -301,7 +301,6 @@
 //   );
 // }
 
-
 // // final – CARD BASED UI
 // import { useEffect, useState } from "react";
 // import { useParams, useNavigate } from "react-router-dom";
@@ -862,7 +861,6 @@
 //   fontSize: 13,
 //   color: "#92400E",
 // };
-
 
 // // FINAL – STABLE & POLISHED (BACKEND SAFE)
 // import { useEffect, useState } from "react";
@@ -1758,7 +1756,6 @@
 //   color: "#92400E",
 // };
 
-
 // 27 jan
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -1816,8 +1813,7 @@ export default function TrackExpenses() {
         status = data.currentStatus;
         remark = data.remark || "";
       } else if (
-        approvalLevels.indexOf(level) <
-        approvalLevels.indexOf(data.actionBy)
+        approvalLevels.indexOf(level) < approvalLevels.indexOf(data.actionBy)
       ) {
         status = "Approved";
       }
@@ -1838,13 +1834,13 @@ export default function TrackExpenses() {
       <div style={modal}>
         <div style={header}>
           <h5 style={{ margin: 0 }}>Track Expense Approval</h5>
-          <button style={closeBtn} onClick={() => navigate(-1)}>✕</button>
+          <button style={closeBtn} onClick={() => navigate(-1)}>
+            ✕
+          </button>
         </div>
 
         <div style={summary}>
-          <div style={{ fontWeight: 600 }}>
-            {data.expenseHeadId?.name}
-          </div>
+          <div style={{ fontWeight: 600 }}>{data.expenseHeadId?.name}</div>
           <div style={summaryMeta}>
             ₹ {data.amount} • {data.natureOfExpense} •{" "}
             {new Date(data.createdAt).toLocaleDateString()}
@@ -1863,20 +1859,30 @@ export default function TrackExpenses() {
                 {index !== approvalCards.length - 1 && <span style={line} />}
               </div>
 
-              <div style={{ ...card, ...(step.status === "Pending" ? pendingCard : {}) }}>
+              <div
+                style={{
+                  ...card,
+                  ...(step.status === "Pending" ? pendingCard : {}),
+                }}
+              >
                 <div style={cardHeader}>
                   <div>
                     <div style={cardTitle}>{step.level}</div>
                     <div style={cardSub}>Approval Level</div>
                   </div>
-                  <span style={{ ...badge, background: style.bg, color: style.color }}>
+                  <span
+                    style={{
+                      ...badge,
+                      background: style.bg,
+                      color: style.color,
+                    }}
+                  >
                     {step.status}
                   </span>
                 </div>
 
-                {(step.status === "Hold" || step.status === "Rejected") && step.remark && (
-                  <div style={remark}>“{step.remark}”</div>
-                )}
+                {(step.status === "Hold" || step.status === "Rejected") &&
+                  step.remark && <div style={remark}>“{step.remark}”</div>}
 
                 {step.status === "Pending" && (
                   <div style={pendingText}>
@@ -1921,14 +1927,47 @@ const summaryMeta = { fontSize: 13, color: "#6B7280" };
 const sectionTitle = { fontSize: 13, margin: "12px 0" };
 const row = { display: "flex", gap: 16, marginBottom: 24 };
 const timelineContainer = { width: 24, position: "relative" };
-const dot = { width: 14, height: 14, borderRadius: "50%", position: "absolute", left: "50%", transform: "translateX(-50%)" };
-const line = { position: "absolute", top: 36, left: "50%", width: 4, height: "120%", background: "#E5E7EB", transform: "translateX(-50%)" };
-const card = { flex: 1, border: "1px solid #E5E7EB", borderRadius: 16, padding: 16 };
+const dot = {
+  width: 14,
+  height: 14,
+  borderRadius: "50%",
+  position: "absolute",
+  left: "50%",
+  transform: "translateX(-50%)",
+};
+const line = {
+  position: "absolute",
+  top: 36,
+  left: "50%",
+  width: 4,
+  height: "120%",
+  background: "#E5E7EB",
+  transform: "translateX(-50%)",
+};
+const card = {
+  flex: 1,
+  border: "1px solid #E5E7EB",
+  borderRadius: 16,
+  padding: 16,
+};
+const badge = {
+  padding: "2px 10px", 
+  borderRadius: 999,
+  fontSize: 12,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  height: 22,
+  lineHeight: 1,
+};
 const pendingCard = { background: "#FFFBEB", border: "1px dashed #FACC15" };
 const cardHeader = { display: "flex", justifyContent: "space-between" };
 const cardTitle = { fontWeight: 600 };
 const cardSub = { fontSize: 12, color: "#6B7280" };
-const badge = { padding: "4px 8px", borderRadius: 999, fontSize: 12 };
-const remark = { marginTop: 8, padding: 10, borderRadius: 10, background: "#F9FAFB" };
+const remark = {
+  marginTop: 8,
+  padding: 10,
+  borderRadius: 10,
+  background: "#F9FAFB",
+};
 const pendingText = { marginTop: 8, color: "#92400E" };
-
