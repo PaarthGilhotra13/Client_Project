@@ -4,7 +4,7 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 
-export default function ProcurementRejectedExpense() {
+export default function PrPoApprovedExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -12,8 +12,8 @@ export default function ProcurementRejectedExpense() {
 
   const userId = sessionStorage.getItem("userId");
 
-  /* ================= FETCH REJECTED (PROCUREMENT) ================= */
-  const fetchRejected = () => {
+  /* ================= FETCH APPROVED (PR/PO) ================= */
+  const fetchApproved = () => {
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
       setLoad(false);
@@ -23,9 +23,9 @@ export default function ProcurementRejectedExpense() {
     setLoad(true);
 
     ApiServices.MyApprovalActions({
-      userId: userId,
-      action: "Rejected",
-      level: "PROCUREMENT",
+      userId,
+      action: "Approved",
+      level: "PR/PO",
     })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
@@ -38,7 +38,7 @@ export default function ProcurementRejectedExpense() {
   };
 
   useEffect(() => {
-    fetchRejected();
+    fetchApproved();
   }, []);
 
   /* ================= MODAL HANDLERS ================= */
@@ -54,13 +54,12 @@ export default function ProcurementRejectedExpense() {
 
   return (
     <main className="main" id="main">
-      <PageTitle child="Rejected Expenses (Procurement)" />
+      <PageTitle child="Approved Expenses (PR/PO)" />
 
       {/* Loader */}
       <ScaleLoader
         color="#6776f4"
         cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-        size={200}
         loading={load}
       />
 
@@ -78,7 +77,7 @@ export default function ProcurementRejectedExpense() {
                     <th>Expense Head</th>
                     <th>Amount</th>
                     <th>Status</th>
-                    <th>Rejected On</th>
+                    <th>Approved On</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -94,7 +93,7 @@ export default function ProcurementRejectedExpense() {
                         <td>₹ {el.expenseId?.amount}</td>
 
                         <td>
-                          <span className="badge bg-danger">Rejected</span>
+                          <span className="badge bg-success">Approved</span>
                         </td>
 
                         <td>
@@ -116,7 +115,7 @@ export default function ProcurementRejectedExpense() {
                   ) : (
                     <tr>
                       <td colSpan="8" className="text-center text-muted">
-                        No Rejected Expenses Found
+                        No Approved Expenses Found
                       </td>
                     </tr>
                   )}
@@ -128,7 +127,7 @@ export default function ProcurementRejectedExpense() {
         </div>
       )}
 
-      {/* ================= MODAL (SAME AS BF APPROVED) ================= */}
+      {/* ================= MODAL ================= */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
@@ -206,12 +205,12 @@ export default function ProcurementRejectedExpense() {
                   <div className="col-md-6">
                     <strong>Status:</strong>
                     <p>
-                      <span className="badge bg-danger">Rejected</span>
+                      <span className="badge bg-success">Approved</span>
                     </p>
                   </div>
 
                   <div className="col-md-6">
-                    <strong>Rejected On:</strong>
+                    <strong>Approved On:</strong>
                     <p>
                       {selectedExpense.actionAt
                         ? new Date(
@@ -221,7 +220,7 @@ export default function ProcurementRejectedExpense() {
                     </p>
                   </div>
 
-                  {/* ===== ATTACHMENTS (SAME) ===== */}
+                  {/* ===== ATTACHMENTS ===== */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
@@ -255,7 +254,6 @@ export default function ProcurementRejectedExpense() {
                         )}
                     </p>
                   </div>
-
                 </div>
               </div>
             </div>

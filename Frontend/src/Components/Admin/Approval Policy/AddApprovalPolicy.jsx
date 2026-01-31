@@ -11,10 +11,12 @@ export default function AddApprovalPolicy() {
     const [approvalLevels, setApprovalLevels] = useState([]);
     const [load, setLoad] = useState(false);
 
+    // ✅ UPDATED ROLES (PR/PO ADDED)
     const roles = [
         "CLM",
         "ZONAL_HEAD",
         "BUSINESS_FINANCE",
+        "PR/PO",
         "PROCUREMENT"
     ];
 

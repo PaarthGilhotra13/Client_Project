@@ -144,81 +144,88 @@ export default function BfHoldExpense() {
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">Expense Details</h5>
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    style={{
-                      width: "30px",
-                      height: "30px",
-                      borderRadius: "50%",
-                      backgroundColor: "red",
-                      color: "white",
-                      fontWeight: "bold",
-                      border: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                    }}
-                  >
-                    &times;
-                  </button>
+                  <button className="btn-close" onClick={handleCloseModal} />
                 </div>
 
                 <div className="modal-body px-4">
                   <div className="row g-3">
                     <div className="col-md-6">
                       <strong>Ticket ID:</strong>
-                      <p>{selectedExpense.expenseId?.ticketId}</p>
+                      <p>{selectedExpense.ticketId}</p>
                     </div>
                     <div className="col-md-6">
                       <strong>Store:</strong>
-                      <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
+                      <p>{selectedExpense.storeId?.storeName}</p>
                     </div>
                     <div className="col-md-6">
                       <strong>Expense Head:</strong>
-                      <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
+                      <p>{selectedExpense.expenseHeadId?.name}</p>
                     </div>
                     <div className="col-md-6">
                       <strong>Amount:</strong>
-                      <p>₹ {selectedExpense.expenseId?.amount}</p>
+                      <p>₹ {selectedExpense.amount}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Policy:</strong>
+                      <p>{selectedExpense.policy || "-"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Nature of Expense:</strong>
+                      <p>{selectedExpense.natureOfExpense || "-"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>RCA:</strong>
+                      <p>{selectedExpense.rca || "-"}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <strong>Hold Comment:</strong>
+                      <p>{selectedExpense.holdComment || "-"}</p>
                     </div>
                     <div className="col-md-6">
                       <strong>Status:</strong>
                       <p>
-                        <span className="badge bg-secondary">Hold</span>
+                        <span className="badge bg-warning text-dark">Hold</span>
                       </p>
                     </div>
                     <div className="col-md-6">
-                      <strong>Comment:</strong>
-                      <p>{selectedExpense.comment || "-"}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Action Date:</strong>
+                      <strong>Hold On:</strong>
                       <p>
                         {new Date(
-                          selectedExpense.actionAt,
+                          selectedExpense.updatedAt || selectedExpense.createdAt
                         ).toLocaleDateString()}
                       </p>
                     </div>
+
+                    {/* Attachments */}
                     <div className="col-12">
                       <strong>Attachment:</strong>
                       <p>
-                        {selectedExpense.expenseId?.attachment ? (
-                          <button
-                            className="btn btn-sm btn-primary"
-                            onClick={() =>
-                              handleDownload(
-                                selectedExpense.expenseId.attachment,
-                              )
-                            }
+                        {selectedExpense.attachment && (
+                          <a
+                            href={selectedExpense.attachment}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-primary me-2"
                           >
-                            Download Attachment
-                          </button>
-                        ) : (
-                          <span className="text-muted">No Attachment</span>
+                            Original
+                          </a>
                         )}
+
+                        {selectedExpense.resubmittedAttachment && (
+                          <a
+                            href={selectedExpense.resubmittedAttachment}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-success"
+                          >
+                            Resubmitted
+                          </a>
+                        )}
+
+                        {!selectedExpense.attachment &&
+                          !selectedExpense.resubmittedAttachment && (
+                            <span className="text-muted">No Attachment</span>
+                          )}
                       </p>
                     </div>
                   </div>

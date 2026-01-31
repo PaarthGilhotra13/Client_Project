@@ -16,7 +16,8 @@ export default function ManageApprovalPolicy() {
   const itemsPerPage = 20;
 
   // ================= FETCH =================
-  useEffect(() => {
+  const fetchPolicies = () => {
+    setLoad(true);
     ApiServices.GetAllApprovalPolicy()
       .then((res) => {
         if (res?.data?.success) {
@@ -31,6 +32,10 @@ export default function ManageApprovalPolicy() {
         setPolicies([]);
         setTimeout(() => setLoad(false), 1000);
       });
+  };
+
+  useEffect(() => {
+    fetchPolicies();
   }, []);
 
   // ================= STATUS CHANGE =================
@@ -40,8 +45,6 @@ export default function ManageApprovalPolicy() {
       text: "Are you sure you want to block this policy?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -56,8 +59,7 @@ export default function ManageApprovalPolicy() {
               showConfirmButton: false,
               timer: 1500,
             });
-            setLoad(true);
-            setTimeout(() => setLoad(false), 1500);
+            fetchPolicies(); // ✅ REFRESH LIST
           })
           .catch(() => {
             Swal.fire("Error", "Something went wrong!", "error");
@@ -68,8 +70,8 @@ export default function ManageApprovalPolicy() {
 
   // ================= FILTER =================
   const activePolicies = policies
-    .filter(el => el.status === true)
-    .filter(el => {
+    .filter((el) => el.status === true)
+    .filter((el) => {
       const lower = searchTerm.toLowerCase();
       return (
         el.minAmount?.toString().includes(lower) ||
@@ -78,7 +80,6 @@ export default function ManageApprovalPolicy() {
       );
     });
 
-  // Pagination data
   const totalPages = Math.ceil(activePolicies.length / itemsPerPage);
   const showPagination = activePolicies.length > itemsPerPage;
 
@@ -203,7 +204,7 @@ export default function ManageApprovalPolicy() {
           <button
             className="btn btn-secondary me-2"
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage(p => p - 1)}
+            onClick={() => setCurrentPage((p) => p - 1)}
           >
             Previous
           </button>
@@ -211,9 +212,8 @@ export default function ManageApprovalPolicy() {
           {[...Array(totalPages)].map((_, i) => (
             <button
               key={i}
-              className={`btn me-1 ${
-                currentPage === i + 1 ? "btn-primary" : "btn-light"
-              }`}
+              className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                }`}
               onClick={() => setCurrentPage(i + 1)}
             >
               {i + 1}
@@ -223,7 +223,7 @@ export default function ManageApprovalPolicy() {
           <button
             className="btn btn-secondary ms-2"
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(p => p + 1)}
+            onClick={() => setCurrentPage((p) => p + 1)}
           >
             Next
           </button>

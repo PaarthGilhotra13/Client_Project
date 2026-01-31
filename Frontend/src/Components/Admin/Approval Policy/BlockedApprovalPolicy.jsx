@@ -2,7 +2,6 @@ import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { CSVLink } from "react-csv";
 
@@ -12,14 +11,13 @@ export default function BlockedAppovalPolicy() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
 
-  const navigate = useNavigate();
-
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
   // ================= FETCH =================
-  useEffect(() => {
+  const fetchPolicies = () => {
+    setLoad(true);
     ApiServices.GetAllApprovalPolicy()
       .then((res) => {
         if (res?.data?.success) {
@@ -34,13 +32,17 @@ export default function BlockedAppovalPolicy() {
         setData([]);
         setLoad(false);
       });
+  };
+
+  useEffect(() => {
+    fetchPolicies();
   }, []);
 
   // ================= FILTER =================
   useEffect(() => {
     const blocked = data
-      .filter(el => el.status === false)
-      .filter(el => {
+      .filter((el) => el.status === false)
+      .filter((el) => {
         const lower = searchTerm.toLowerCase();
         return (
           el.minAmount?.toString().includes(lower) ||
@@ -64,8 +66,8 @@ export default function BlockedAppovalPolicy() {
   // ================= UNBLOCK =================
   function changeActiveStatus(id) {
     Swal.fire({
-      title: "Unblock Category?",
-      text: "Do you want to unblock this category?",
+      title: "Unblock Approval Policy?",
+      text: "Do you want to unblock this approval policy?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#198754",
@@ -85,9 +87,7 @@ export default function BlockedAppovalPolicy() {
                 showConfirmButton: false,
                 timer: 1200,
               });
-              setTimeout(() => {
-                navigate("/admin/manageApprovalPolicy");
-              }, 1200);
+              fetchPolicies(); // ✅ refresh list
             }
           })
           .catch(() => {
@@ -137,13 +137,11 @@ export default function BlockedAppovalPolicy() {
       )}
 
       {/* Loader */}
-      {load && (
-        <ScaleLoader
-          color="#6776f4"
-          cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-          loading={load}
-        />
-      )}
+      <ScaleLoader
+        color="#6776f4"
+        cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+        loading={load}
+      />
 
       {/* Table */}
       {!load && (
@@ -203,7 +201,7 @@ export default function BlockedAppovalPolicy() {
           <button
             className="btn btn-secondary me-2"
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage(p => p - 1)}
+            onClick={() => setCurrentPage((p) => p - 1)}
           >
             Previous
           </button>
@@ -211,9 +209,8 @@ export default function BlockedAppovalPolicy() {
           {[...Array(totalPages)].map((_, i) => (
             <button
               key={i}
-              className={`btn me-1 ${
-                currentPage === i + 1 ? "btn-primary" : "btn-light"
-              }`}
+              className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                }`}
               onClick={() => setCurrentPage(i + 1)}
             >
               {i + 1}
@@ -223,7 +220,7 @@ export default function BlockedAppovalPolicy() {
           <button
             className="btn btn-secondary ms-2"
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(p => p + 1)}
+            onClick={() => setCurrentPage((p) => p + 1)}
           >
             Next
           </button>

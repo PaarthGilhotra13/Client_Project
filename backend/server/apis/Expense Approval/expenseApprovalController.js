@@ -665,6 +665,56 @@ const pendingForProcurement = async (req, res) => {
     }
 };
 
+const prPoPendingExpenses = async (req, res) => {
+    try {
+        const errMsgs = [];
+
+        if (!req.body.userId) errMsgs.push("userId is required");
+
+        if (errMsgs.length > 0) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: errMsgs,
+            });
+        }
+
+        const userId = req.body.userId;
+
+        // ✅ Check PR/PO user exists
+        const prpoUser = await userModel.findById(userId);
+
+        if (!prpoUser) {
+            return res.send({
+                success: false,
+                message: "PR/PO user not found",
+            });
+        }
+
+        // ✅ Fetch pending expenses for PR/PO
+        const expenses = await expenseModel
+            .find({
+                currentApprovalLevel: "PR/PO",
+                currentStatus: "Pending",
+            })
+            .populate("storeId")
+            .populate("expenseHeadId")
+            .populate("raisedBy")
+            .sort({ createdAt: -1 });
+
+        return res.send({
+            success: true,
+            message: "PR/PO pending expenses fetched successfully",
+            data: expenses,
+        });
+    } catch (error) {
+        console.log("PR/PO Pending Expense Error:", error);
+        return res.send({
+            success: false,
+            message: "Something went wrong",
+        });
+    }
+};
 
 
 const expenseAction = async (req, res) => {
@@ -905,4 +955,4 @@ const adminExpensesByStatus = async (req, res) => {
 
 
 
-module.exports = { approveExpense, holdExpense, rejectExpense, approvalHistory, clmPendingExpenses, pendingForProcurement, pendingForBF, pendingForZH, expenseAction, myApprovalActions, resubmitHeldExpense, adminExpensesByStatus }
+module.exports = { approveExpense, holdExpense, rejectExpense, approvalHistory, clmPendingExpenses, pendingForProcurement, pendingForBF, pendingForZH, expenseAction, myApprovalActions, resubmitHeldExpense, adminExpensesByStatus,prPoPendingExpenses }

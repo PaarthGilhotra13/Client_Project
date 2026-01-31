@@ -3,17 +3,25 @@ import PageTitle from "../../PageTitle";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
+import { CSVLink } from "react-csv";
 
-export default function ProcurementRejectedExpense() {
+export default function PrPoHoldExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
   const userId = sessionStorage.getItem("userId");
 
-  /* ================= FETCH REJECTED (PROCUREMENT) ================= */
-  const fetchRejected = () => {
+  /* ================= FETCH HOLD (PR/PO) ================= */
+  const fetchHold = () => {
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
       setLoad(false);
@@ -23,23 +31,50 @@ export default function ProcurementRejectedExpense() {
     setLoad(true);
 
     ApiServices.MyApprovalActions({
-      userId: userId,
-      action: "Rejected",
-      level: "PROCUREMENT",
+      userId,
+      action: "Hold",
+      level: "PR_PO",
     })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
-        setLoad(false);
       })
-      .catch(() => {
-        setData([]);
-        setLoad(false);
-      });
+      .finally(() => setLoad(false));
   };
 
   useEffect(() => {
-    fetchRejected();
+    fetchHold();
   }, []);
+
+  /* ================= SEARCH FILTER ================= */
+  const filteredData = data.filter(
+    (el) =>
+      el.expenseId?.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.expenseId?.storeId?.storeName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      el.expenseId?.expenseHeadId?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase())
+  );
+
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentExpenses = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  /* ================= CSV DATA ================= */
+  const csvData = filteredData.map((el, index) => ({
+    SrNo: index + 1,
+    TicketID: el.expenseId?.ticketId,
+    Store: el.expenseId?.storeId?.storeName,
+    ExpenseHead: el.expenseId?.expenseHeadId?.name,
+    Amount: el.expenseId?.amount,
+    Status: "Hold",
+    Comment: el.comment || "-",
+    ActionDate: new Date(el.actionAt).toLocaleDateString(),
+  }));
 
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
@@ -54,7 +89,7 @@ export default function ProcurementRejectedExpense() {
 
   return (
     <main className="main" id="main">
-      <PageTitle child="Rejected Expenses (Procurement)" />
+      <PageTitle child="Hold Expenses (PR/PO)" />
 
       {/* Loader */}
       <ScaleLoader
@@ -63,6 +98,34 @@ export default function ProcurementRejectedExpense() {
         size={200}
         loading={load}
       />
+
+      {/* Search + CSV */}
+      {!load && (
+        <div className="container-fluid mb-3">
+          <div className="row align-items-center">
+            <div className="col-md-6">
+              <input
+                className="form-control"
+                placeholder="Search by Ticket ID, Store, Expense Head"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+            <div className="col-md-6 text-end">
+              <CSVLink
+                data={csvData}
+                filename="PRPO_Hold_Expenses.csv"
+                className="btn btn-primary btn-sm"
+              >
+                Download CSV
+              </CSVLink>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Table */}
       {!load && (
@@ -78,31 +141,32 @@ export default function ProcurementRejectedExpense() {
                     <th>Expense Head</th>
                     <th>Amount</th>
                     <th>Status</th>
-                    <th>Rejected On</th>
+                    <th>Hold On</th>
                     <th>Action</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {data.length > 0 ? (
-                    data.map((el, index) => (
+                  {currentExpenses.length > 0 ? (
+                    currentExpenses.map((el, index) => (
                       <tr key={el._id}>
-                        <td>{index + 1}</td>
+                        <td>
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
                         <td>{el.expenseId?.ticketId}</td>
                         <td>{el.expenseId?.storeId?.storeName}</td>
                         <td>{el.expenseId?.expenseHeadId?.name}</td>
                         <td>₹ {el.expenseId?.amount}</td>
-
                         <td>
-                          <span className="badge bg-danger">Rejected</span>
+                          <span className="badge bg-warning text-dark">
+                            Hold
+                          </span>
                         </td>
-
                         <td>
-                          {el.actionAt
-                            ? new Date(el.actionAt).toLocaleDateString()
-                            : "-"}
+                          {new Date(
+                            el.updatedAt || el.createdAt
+                          ).toLocaleDateString()}
                         </td>
-
                         <td>
                           <button
                             className="btn btn-sm btn-primary"
@@ -116,19 +180,51 @@ export default function ProcurementRejectedExpense() {
                   ) : (
                     <tr>
                       <td colSpan="8" className="text-center text-muted">
-                        No Rejected Expenses Found
+                        No Hold Expenses Found
                       </td>
                     </tr>
                   )}
                 </tbody>
-
               </table>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-3">
+                  <button
+                    className="btn btn-secondary me-2"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                  >
+                    Previous
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      className={`btn me-1 ${
+                        currentPage === i + 1 ? "btn-primary" : "btn-light"
+                      }`}
+                      onClick={() => setCurrentPage(i + 1)}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    className="btn btn-secondary ms-2"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= MODAL (SAME AS BF APPROVED) ================= */}
+      {/* ================= MODAL (NO UI CHANGE) ================= */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
@@ -139,26 +235,7 @@ export default function ProcurementRejectedExpense() {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    borderRadius: "50%",
-                    backgroundColor: "red",
-                    color: "white",
-                    fontWeight: "bold",
-                    border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                  }}
-                >
-                  &times;
-                </button>
+                <button className="btn-close" onClick={handleCloseModal} />
               </div>
 
               <div className="modal-body px-4">
@@ -167,61 +244,53 @@ export default function ProcurementRejectedExpense() {
                     <strong>Ticket ID:</strong>
                     <p>{selectedExpense.expenseId?.ticketId}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Store:</strong>
                     <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Expense Head:</strong>
                     <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Amount:</strong>
                     <p>₹ {selectedExpense.expenseId?.amount}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Policy:</strong>
                     <p>{selectedExpense.expenseId?.policy || "-"}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Nature of Expense:</strong>
-                    <p>{selectedExpense.expenseId?.natureOfExpense || "-"}</p>
+                    <p>
+                      {selectedExpense.expenseId?.natureOfExpense || "-"}
+                    </p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>RCA:</strong>
                     <p>{selectedExpense.expenseId?.rca || "-"}</p>
                   </div>
-
                   <div className="col-md-6">
-                    <strong>Remarks:</strong>
-                    <p>{selectedExpense.expenseId?.remark || "-"}</p>
+                    <strong>Hold Comment:</strong>
+                    <p>{selectedExpense.comment || "-"}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Status:</strong>
                     <p>
-                      <span className="badge bg-danger">Rejected</span>
+                      <span className="badge bg-warning text-dark">Hold</span>
                     </p>
                   </div>
-
                   <div className="col-md-6">
-                    <strong>Rejected On:</strong>
+                    <strong>Hold On:</strong>
                     <p>
-                      {selectedExpense.actionAt
-                        ? new Date(
-                            selectedExpense.actionAt
-                          ).toLocaleDateString()
-                        : "-"}
+                      {new Date(
+                        selectedExpense.updatedAt ||
+                          selectedExpense.createdAt
+                      ).toLocaleDateString()}
                     </p>
                   </div>
 
-                  {/* ===== ATTACHMENTS (SAME) ===== */}
+                  {/* Attachments */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
@@ -255,7 +324,6 @@ export default function ProcurementRejectedExpense() {
                         )}
                     </p>
                   </div>
-
                 </div>
               </div>
             </div>

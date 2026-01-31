@@ -4,7 +4,7 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 
-export default function ProcurementRejectedExpense() {
+export default function PrPoRejectedExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -12,7 +12,7 @@ export default function ProcurementRejectedExpense() {
 
   const userId = sessionStorage.getItem("userId");
 
-  /* ================= FETCH REJECTED (PROCUREMENT) ================= */
+  /* ================= FETCH REJECTED (PR/PO) ================= */
   const fetchRejected = () => {
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
@@ -25,7 +25,7 @@ export default function ProcurementRejectedExpense() {
     ApiServices.MyApprovalActions({
       userId: userId,
       action: "Rejected",
-      level: "PROCUREMENT",
+      level: "PR_PO",
     })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
@@ -54,7 +54,7 @@ export default function ProcurementRejectedExpense() {
 
   return (
     <main className="main" id="main">
-      <PageTitle child="Rejected Expenses (Procurement)" />
+      <PageTitle child="Rejected Expenses (PR/PO)" />
 
       {/* Loader */}
       <ScaleLoader
@@ -128,7 +128,7 @@ export default function ProcurementRejectedExpense() {
         </div>
       )}
 
-      {/* ================= MODAL (SAME AS BF APPROVED) ================= */}
+      {/* ================= MODAL (SAME UI) ================= */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
@@ -214,14 +214,12 @@ export default function ProcurementRejectedExpense() {
                     <strong>Rejected On:</strong>
                     <p>
                       {selectedExpense.actionAt
-                        ? new Date(
-                            selectedExpense.actionAt
-                          ).toLocaleDateString()
+                        ? new Date(selectedExpense.actionAt).toLocaleDateString()
                         : "-"}
                     </p>
                   </div>
 
-                  {/* ===== ATTACHMENTS (SAME) ===== */}
+                  {/* ===== ATTACHMENTS ===== */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>

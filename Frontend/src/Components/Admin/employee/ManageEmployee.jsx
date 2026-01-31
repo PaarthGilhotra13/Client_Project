@@ -12,7 +12,7 @@ export default function ManageEmployee() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
 
-  // 🔹 Modal (same UX as ExpenseHead)
+  // Modal
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState([]);
@@ -25,17 +25,22 @@ export default function ManageEmployee() {
   const fetchAllStaff = async () => {
     try {
       setLoad(true);
+
       const responses = await Promise.all([
         ApiServices.GetAllFm(),
         ApiServices.GetAllClm(),
         ApiServices.GetAllZh(),
+        ApiServices.GetAllZonalCommercial(),
+        ApiServices.GetAllMissingBridge(),
         ApiServices.GetAllBf(),
         ApiServices.GetAllProcurement(),
+        ApiServices.GetAllPrPo(),
       ]);
 
       const allData = responses.flatMap((res) =>
-        res?.data?.success ? res.data.data : [],
+        res?.data?.success ? res.data.data : []
       );
+
       setData(allData || []);
     } catch (err) {
       console.log("Error is", err);
@@ -66,7 +71,7 @@ export default function ManageEmployee() {
 
   const currentEmployees = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   // ================= STATUS CHANGE =================
@@ -76,53 +81,45 @@ export default function ManageEmployee() {
       text: "Are you sure you want to change the status?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        let data = {
+        let payload = {
           _id: id,
           status: "false",
         };
 
         let apiCall;
-        if (designation === "FM") {
-          apiCall = ApiServices.ChangeStatusFm;
-        } else if (designation === "CLM") {
-          apiCall = ApiServices.ChangeStatusClm;
-        } else if (designation === "Zonal_Head") {
-          apiCall = ApiServices.ChangeStatusZh;
-        } else if (designation === "Business_Finance") {
+        if (designation === "FM") apiCall = ApiServices.ChangeStatusFm;
+        else if (designation === "CLM") apiCall = ApiServices.ChangeStatusClm;
+        else if (designation === "Zonal_Head") apiCall = ApiServices.ChangeStatusZh;
+        else if (designation === "Zonal_Commercial")
+          apiCall = ApiServices.ChangeStatusZonalCommercial;
+        else if (designation === "Missing_Bridge")
+          apiCall = ApiServices.ChangeStatusMissingBridge;
+        else if (designation === "Business_Finance")
           apiCall = ApiServices.ChangeStatusBf;
-        } else if (designation === "Procurement") {
+        else if (designation === "Procurement")
           apiCall = ApiServices.ChangeStatusProcurement;
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Please select a valid designation",
-          });
+        else if (designation === "PR/PO")
+          apiCall = ApiServices.ChangeStatusPrPo;
+        else {
+          Swal.fire("Error", "Invalid designation", "error");
           return;
         }
 
-        apiCall(data)
+        apiCall(payload)
           .then((res) => {
             Swal.fire({
               title: res?.data?.message,
               icon: "success",
-              showConfirmButton: false,
               timer: 1500,
+              showConfirmButton: false,
             });
-            fetchAllStaff(); // refresh list
+            fetchAllStaff();
           })
-          .catch((err) => {
-            Swal.fire({
-              icon: "error",
-              title: "Oops...",
-              text: "Something went wrong!",
-            });
-            console.log("Error is", err);
+          .catch(() => {
+            Swal.fire("Error", "Something went wrong", "error");
           });
       }
     });
@@ -198,7 +195,6 @@ export default function ManageEmployee() {
                       <td>{el.email}</td>
                       <td>{el.contact}</td>
 
-                      {/* ✅ VIEW STORES */}
                       <td>
                         <span
                           style={{ color: "blue", cursor: "pointer" }}
@@ -219,7 +215,7 @@ export default function ManageEmployee() {
                           <Link
                             to={`/admin/editEmployee/${el._id}`}
                             state={{ designation: el.designation }}
-                            className="btn btn-primary  me-2"
+                            className="btn btn-primary me-2"
                           >
                             <i className="bi bi-pen"></i>
                           </Link>
@@ -248,7 +244,7 @@ export default function ManageEmployee() {
         </div>
       </main>
 
-      {/* ===== MODAL (SAME STYLE AS EXPENSE HEAD) ===== */}
+      {/* MODAL */}
       {modalOpen && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>

@@ -77,6 +77,11 @@ import AllPendingExpense from "./Components/Admin/Expenses/AllPendingExpense"
 import AllApprovedExpense from "./Components/Admin/Expenses/AllApprovedExpense"
 import AllHoldExpense from "./Components/Admin/Expenses/AllHoldExpense"
 import AllRjectedExpense from "./Components/Admin/Expenses/AllRjectedExpense"
+import PRPOMaster from "./layout/PR_PO/PRPOMaster"
+import PrPoPendingExpense from "./Components/PR_PO/Expenses/PrPoPendingExpense"
+import PrPoApprovedExpense from "./Components/PR_PO/Expenses/PrPoApprovedExpense"
+import PrPoRejectedExpense from "./Components/PR_PO/Expenses/PrPoRejectedExpense"
+import PrPoHoldExpense from "./Components/PR_PO/Expenses/PrPoHoldExpense"
 
 
 function App() {
@@ -168,7 +173,7 @@ function App() {
             <Route path="/ZonalHead/holdExpenses" element={<ZhHoldExpenses />} />
             <Route path="/ZonalHead/pendingExpenses" element={<ZhPendingExpenses />} />
             <Route path="/ZonalHead/rejectedExpenses" element={<ZhRejectedExpenses />} />
-            <Route path="/ZonalHead/zhprofile" element={<ZonalProfile/>} />
+            <Route path="/ZonalHead/zhprofile" element={<ZonalProfile />} />
           </Route>
           <Route path="/BusinessFinance" element={<BfMaster />}>
             <Route path="/BusinessFinance" element={<EmployeeDashboard />} />
@@ -184,19 +189,13 @@ function App() {
             <Route path="/Procurement/pendingExpenses" element={<ProcurePendingExpense />} />
             <Route path="/Procurement/rejectedExpenses" element={<ProcureRejectedExpenses />} />
           </Route>
-          <Route path="/BusinessFinance" element={<BfMaster />}>
-            <Route path="/BusinessFinance" element={<EmployeeDashboard />} />
-            <Route path="/BusinessFinance/approvedExpenses" element={<BfApprovedExpenses />} />
-            <Route path="/BusinessFinance/holdExpenses" element={<BfHoldExpense />} />
-            <Route path="/BusinessFinance/pendingExpenses" element={<BfPendingExpense />} />
-            <Route path="/BusinessFinance/rejectedExpenses" element={<BfRejectedExpense />} />
-          </Route>
-          <Route path="/Procurement" element={<ProcureMaster />}>
-            <Route path="/Procurement" element={<EmployeeDashboard />} />
-            <Route path="/Procurement/approvedExpenses" element={<ProcureApprovedExpenses />} />
-            <Route path="/Procurement/holdExpenses" element={<ProcureHoldExpenses />} />
-            <Route path="/Procurement/pendingExpenses" element={<ProcurePendingExpense />} />
-            <Route path="/Procurement/rejectedExpenses" element={<ProcureRejectedExpenses />} />
+          <Route path="/PR_PO" element={<PRPOMaster />}>
+            <Route path="/PR_PO" element={<EmployeeDashboard />} />
+            <Route path="/PR_PO/pendingExpenses" element={<PrPoPendingExpense />} />
+            <Route path="/PR_PO/holdExpenses" element={<PrPoHoldExpense />} />
+            <Route path="/PR_PO/approvedExpenses" element={<PrPoApprovedExpense />} />
+            <Route path="/PR_PO/rejectedExpenses" element={<PrPoRejectedExpense />} />
+
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

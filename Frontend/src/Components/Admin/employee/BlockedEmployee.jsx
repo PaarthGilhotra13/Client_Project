@@ -2,7 +2,6 @@ import PageTitle from "../../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
-import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { CSVLink } from "react-csv";
 
@@ -12,7 +11,7 @@ export default function BlockedEmployee() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
 
-  // 🔹 MODAL
+  // MODAL
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState([]);
@@ -30,11 +29,14 @@ export default function BlockedEmployee() {
         ApiServices.GetAllFm({ status: "false" }),
         ApiServices.GetAllClm({ status: "false" }),
         ApiServices.GetAllZh({ status: "false" }),
+        ApiServices.GetAllZonalCommercial({ status: "false" }),
+        ApiServices.GetAllMissingBridge({ status: "false" }),
         ApiServices.GetAllBf({ status: "false" }),
         ApiServices.GetAllProcurement({ status: "false" }),
+        ApiServices.GetAllPrPo({ status: "false" }),
       ]);
 
-      const allData = responses.flatMap(res =>
+      const allData = responses.flatMap((res) =>
         res?.data?.success ? res.data.data : []
       );
 
@@ -52,7 +54,7 @@ export default function BlockedEmployee() {
 
   // ================= FILTER =================
   useEffect(() => {
-    const filtered = data.filter(emp => {
+    const filtered = data.filter((emp) => {
       const lower = searchTerm.toLowerCase();
       return (
         emp?.name?.toLowerCase().includes(lower) ||
@@ -79,8 +81,6 @@ export default function BlockedEmployee() {
       text: "Are you sure you want to activate this employee?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -89,9 +89,18 @@ export default function BlockedEmployee() {
         let apiCall;
         if (designation === "FM") apiCall = ApiServices.ChangeStatusFm;
         else if (designation === "CLM") apiCall = ApiServices.ChangeStatusClm;
-        else if (designation === "Zonal_Head") apiCall = ApiServices.ChangeStatusZh;
-        else if (designation === "Business_Finance") apiCall = ApiServices.ChangeStatusBf;
-        else if (designation === "Procurement") apiCall = ApiServices.ChangeStatusProcurement;
+        else if (designation === "Zonal_Head")
+          apiCall = ApiServices.ChangeStatusZh;
+        else if (designation === "Zonal_Commercial")
+          apiCall = ApiServices.ChangeStatusZonalCommercial;
+        else if (designation === "Missing_Bridge")
+          apiCall = ApiServices.ChangeStatusMissingBridge;
+        else if (designation === "Business_Finance")
+          apiCall = ApiServices.ChangeStatusBf;
+        else if (designation === "Procurement")
+          apiCall = ApiServices.ChangeStatusProcurement;
+        else if (designation === "PR/PO")
+          apiCall = ApiServices.ChangeStatusPrPo;
         else {
           Swal.fire("Error", "Invalid designation", "error");
           return;
@@ -121,7 +130,7 @@ export default function BlockedEmployee() {
     name: emp.name,
     email: emp.email,
     contact: emp.contact,
-    stores: emp?.storeId?.map(s => s.storeName).join(", "),
+    stores: emp?.storeId?.map((s) => s.storeName).join(", "),
     designation: emp.designation,
     status: emp.status ? "Active" : "Inactive",
   }));
@@ -208,7 +217,9 @@ export default function BlockedEmployee() {
                       <td>
                         <button
                           className="btn btn-success"
-                          onClick={() => changeActiveStatus(el._id, el.designation)}
+                          onClick={() =>
+                            changeActiveStatus(el._id, el.designation)
+                          }
                         >
                           <i className="bi bi-check-circle"></i>
                         </button>
@@ -233,7 +244,7 @@ export default function BlockedEmployee() {
             <button
               className="btn btn-secondary me-2"
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
+              onClick={() => setCurrentPage((p) => p - 1)}
             >
               Previous
             </button>
@@ -241,9 +252,8 @@ export default function BlockedEmployee() {
             {[...Array(totalPages)].map((_, i) => (
               <button
                 key={i}
-                className={`btn me-1 ${
-                  currentPage === i + 1 ? "btn-primary" : "btn-light"
-                }`}
+                className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                  }`}
                 onClick={() => setCurrentPage(i + 1)}
               >
                 {i + 1}
@@ -253,7 +263,7 @@ export default function BlockedEmployee() {
             <button
               className="btn btn-secondary ms-2"
               disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
+              onClick={() => setCurrentPage((p) => p + 1)}
             >
               Next
             </button>
@@ -261,7 +271,7 @@ export default function BlockedEmployee() {
         )}
       </main>
 
-      {/* Modal */}
+      {/* MODAL */}
       {modalOpen && (
         <div className="modal-overlay" onClick={() => setModalOpen(false)}>
           <div className="modal-box" onClick={(e) => e.stopPropagation()}>

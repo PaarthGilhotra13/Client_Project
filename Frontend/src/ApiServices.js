@@ -133,6 +133,66 @@ class ApiServices {
       return axios.post(BaseURL + "/apis/procure/changeStatus", data, { headers: getToken() })
    }
 
+   //Pr-Po
+   AddPrPo(data) {
+      return axios.post(BaseURL + "/apis/pr-po/add", data, { headers: getToken() })
+   }
+   GetAllPrPo(data) {
+      return axios.post(BaseURL + "/apis/pr-po/all", data, { headers: getToken() })
+   }
+   GetSinglePrPo(data) {
+      return axios.post(BaseURL + "/apis/pr-po/single", data, { headers: getToken() })
+   }
+   UpdatePrPo(data) {
+      return axios.post(BaseURL + "/apis/pr-po/update", data, { headers: getToken() })
+   }
+   DeletePrPo(data) {
+      return axios.post(BaseURL + "/apis/pr-po/delete", data, { headers: getToken() })
+   }
+   ChangeStatusPrPo(data) {
+      return axios.post(BaseURL + "/apis/pr-po/changeStatus", data, { headers: getToken() })
+   }
+
+   //Zonal Commercial
+   AddZonalCommercial(data) {
+      return axios.post(BaseURL + "/apis/zonalCommercial/add", data, { headers: getToken() })
+   }
+   GetAllZonalCommercial(data) {
+      return axios.post(BaseURL + "/apis/zonalCommercial/all", data, { headers: getToken() })
+   }
+   GetSingleZonalCommercial(data) {
+      return axios.post(BaseURL + "/apis/zonalCommercial/single", data, { headers: getToken() })
+   }
+   UpdateZonalCommercial(data) {
+      return axios.post(BaseURL + "/apis/zonalCommercial/update", data, { headers: getToken() })
+   }
+   DeleteZonalCommercial(data) {
+      return axios.post(BaseURL + "/apis/zonalCommercial/delete", data, { headers: getToken() })
+   }
+   ChangeStatusZonalCommercial(data) {
+      return axios.post(BaseURL + "/apis/zonalCommercial/changeStatus", data, { headers: getToken() })
+   }
+
+   //Missing Bridge
+   AddMissingBridge(data) {
+      return axios.post(BaseURL + "/apis/missingBridge/add", data, { headers: getToken() })
+   }
+   GetAllMissingBridge(data) {
+      return axios.post(BaseURL + "/apis/missingBridge/all", data, { headers: getToken() })
+   }
+   GetSingleMissingBridge(data) {
+      return axios.post(BaseURL + "/apis/missingBridge/single", data, { headers: getToken() })
+   }
+   UpdateMissingBridge(data) {
+      return axios.post(BaseURL + "/apis/missingBridge/update", data, { headers: getToken() })
+   }
+   DeleteMissingBridge(data) {
+      return axios.post(BaseURL + "/apis/missingBridge/delete", data, { headers: getToken() })
+   }
+   ChangeStatusMissingBridge(data) {
+      return axios.post(BaseURL + "/apis/missingBridge/changeStatus", data, { headers: getToken() })
+   }
+
    //Zone
    AddZone(data) {
       return axios.post(BaseURL + "/apis/zone/add", data, { headers: getToken() })
@@ -337,6 +397,9 @@ class ApiServices {
    }
    GetProcurementPendingExpenses(data) {
       return axios.post(BaseURL + "/apis/expense-approval/procure/pending", data, { headers: getToken() })
+   }
+   GetPrPoPendingExpenses(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/pr-po/pending", data, { headers: getToken() })
    }
    ExpenseAction(data) {
       return axios.post(BaseURL + "/apis/expense-approval/action", data, { headers: getToken() })
