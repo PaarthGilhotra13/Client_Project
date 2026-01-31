@@ -197,6 +197,8 @@ routes.post("/expense-approval/myApprovedAction",expenseApprovalController.myApp
 routes.post("/expense-approval/reSubmitHeldExpense",upload.single("attachment"),expenseApprovalController.resubmitHeldExpense)
 routes.post("/expense-approval/approval-history",expenseApprovalController.approvalHistory);
 routes.post("/expense-approval/adminExpensesByStatus",expenseApprovalController.adminExpensesByStatus);
+routes.post("/expense-approval/verifyAndCloseExpense",expenseApprovalController.verifyAndCloseExpense);
+routes.post("/expense-approval/uploadWcrInvoice",expenseApprovalController.uploadWcrInvoice);
 
 // Dashboard
 routes.get("/dashboard",adminDashboardController.getDashboard)

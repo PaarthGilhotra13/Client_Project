@@ -240,9 +240,8 @@ export default function PrPoPendingExpense() {
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i}
-                    className={`btn me-1 ${
-                      currentPage === i + 1 ? "btn-primary" : "btn-light"
-                    }`}
+                    className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                      }`}
                     onClick={() => setCurrentPage(i + 1)}
                   >
                     {i + 1}
@@ -296,28 +295,92 @@ export default function PrPoPendingExpense() {
                     <strong>Ticket ID:</strong>
                     <p>{selectedExpense.ticketId}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Store:</strong>
                     <p>{selectedExpense.storeId?.storeName}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Expense Head:</strong>
                     <p>{selectedExpense.expenseHeadId?.name}</p>
                   </div>
+
                   <div className="col-md-6">
                     <strong>Amount:</strong>
                     <p>₹ {selectedExpense.amount}</p>
                   </div>
+
+                  <div className="col-md-6">
+                    <strong>Policy:</strong>
+                    <p>{selectedExpense.policy || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Nature of Expense:</strong>
+                    <p>{selectedExpense.natureOfExpense || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>RCA:</strong>
+                    <p>{selectedExpense.rca || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Remarks:</strong>
+                    <p>{selectedExpense.remark || "-"}</p>
+                  </div>
+
                   <div className="col-md-6">
                     <strong>Status:</strong>
-                    <span className="badge bg-warning">Pending</span>
+                    <p>
+                      <span className="badge bg-warning text-dark">
+                        Pending
+                      </span>
+                    </p>
                   </div>
+
+                  {/* ATTACHMENT */}
+                  {/* ATTACHMENTS */}
+                  <div className="col-12">
+                    <strong>Attachment:</strong>
+                    <p>
+                      {selectedExpense.attachment && (
+                        <a
+                          href={selectedExpense.attachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-primary me-2"
+                        >
+                          Original
+                        </a>
+                      )}
+
+                      {selectedExpense.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          Resubmitted
+                        </a>
+                      )}
+
+                      {!selectedExpense.attachment &&
+                        !selectedExpense.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
+                    </p>
+                  </div>
+
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
+
     </main>
   );
 }

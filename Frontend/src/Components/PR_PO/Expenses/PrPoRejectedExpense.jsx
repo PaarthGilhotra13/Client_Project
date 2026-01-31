@@ -25,7 +25,7 @@ export default function PrPoRejectedExpense() {
     ApiServices.MyApprovalActions({
       userId: userId,
       action: "Rejected",
-      level: "PR_PO",
+      level: "PR/PO",
     })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);

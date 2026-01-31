@@ -1,3 +1,4 @@
+// PR/PO HOLD EXPENSES
 import { useEffect, useState } from "react";
 import PageTitle from "../../PageTitle";
 import { ScaleLoader } from "react-spinners";
@@ -5,331 +6,279 @@ import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
 
-export default function PrPoHoldExpense() {
-  const [data, setData] = useState([]);
-  const [load, setLoad] = useState(true);
-  const [selectedExpense, setSelectedExpense] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+export default function PrpoHoldExpense() {
+    const [data, setData] = useState([]);
+    const [load, setLoad] = useState(true);
+    const [selectedExpense, setSelectedExpense] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
-  // Search
-  const [searchTerm, setSearchTerm] = useState("");
+    // Search
+    const [searchTerm, setSearchTerm] = useState("");
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
-  const userId = sessionStorage.getItem("userId");
+    const userId = sessionStorage.getItem("userId");
 
-  /* ================= FETCH HOLD (PR/PO) ================= */
-  const fetchHold = () => {
-    if (!userId) {
-      Swal.fire("Error", "User not logged in", "error");
-      setLoad(false);
-      return;
-    }
+    /* ================= FETCH HOLD (PR/PO) ================= */
+    const fetchHold = () => {
+        if (!userId) {
+            Swal.fire("Error", "User not logged in", "error");
+            setLoad(false);
+            return;
+        }
 
-    setLoad(true);
+        setLoad(true);
 
-    ApiServices.MyApprovalActions({
-      userId,
-      action: "Hold",
-      level: "PR_PO",
-    })
-      .then((res) => {
-        setData(res?.data?.success ? res.data.data || [] : []);
-      })
-      .finally(() => setLoad(false));
-  };
+        ApiServices.MyApprovalActions({
+            userId,
+            action: "Hold",
+            level: "PR/PO", // ✅ MOST IMPORTANT FIX
+        })
+            .then((res) => {
+                setData(res?.data?.success ? res.data.data || [] : []);
+            })
+            .finally(() => setLoad(false));
+    };
 
-  useEffect(() => {
-    fetchHold();
-  }, []);
+    useEffect(() => {
+        fetchHold();
+    }, []);
 
-  /* ================= SEARCH FILTER ================= */
-  const filteredData = data.filter(
-    (el) =>
-      el.expenseId?.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      el.expenseId?.storeId?.storeName
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      el.expenseId?.expenseHeadId?.name
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
+    /* ================= SEARCH FILTER ================= */
+    const filteredData = data.filter(
+        (el) =>
+            el.expenseId?.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            el.expenseId?.storeId?.storeName
+                ?.toLowerCase()
+                .includes(searchTerm.toLowerCase()) ||
+            el.expenseId?.expenseHeadId?.name
+                ?.toLowerCase()
+                .includes(searchTerm.toLowerCase())
+    );
 
-  /* ================= PAGINATION ================= */
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const currentExpenses = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+    /* ================= PAGINATION ================= */
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const currentExpenses = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
-  /* ================= CSV DATA ================= */
-  const csvData = filteredData.map((el, index) => ({
-    SrNo: index + 1,
-    TicketID: el.expenseId?.ticketId,
-    Store: el.expenseId?.storeId?.storeName,
-    ExpenseHead: el.expenseId?.expenseHeadId?.name,
-    Amount: el.expenseId?.amount,
-    Status: "Hold",
-    Comment: el.comment || "-",
-    ActionDate: new Date(el.actionAt).toLocaleDateString(),
-  }));
+    /* ================= CSV ================= */
+    const csvData = filteredData.map((el, index) => ({
+        SrNo: index + 1,
+        TicketID: el.expenseId?.ticketId,
+        Store: el.expenseId?.storeId?.storeName,
+        ExpenseHead: el.expenseId?.expenseHeadId?.name,
+        Amount: el.expenseId?.amount,
+        Status: "Hold",
+        Comment: el.comment || "-",
+        ActionDate: new Date(el.actionAt).toLocaleDateString(),
+    }));
 
-  /* ================= MODAL HANDLERS ================= */
-  const handleViewClick = (expense) => {
-    setSelectedExpense(expense);
-    setShowModal(true);
-  };
+    /* ================= MODAL ================= */
+    const handleViewClick = (expense) => {
+        setSelectedExpense(expense);
+        setShowModal(true);
+    };
 
-  const handleCloseModal = () => {
-    setSelectedExpense(null);
-    setShowModal(false);
-  };
+    const handleCloseModal = () => {
+        setSelectedExpense(null);
+        setShowModal(false);
+    };
 
-  return (
-    <main className="main" id="main">
-      <PageTitle child="Hold Expenses (PR/PO)" />
+    return (
+        <main className="main" id="main">
+            <PageTitle child="Hold Expenses (PR / PO)" />
 
-      {/* Loader */}
-      <ScaleLoader
-        color="#6776f4"
-        cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-        size={200}
-        loading={load}
-      />
+            {/* Loader */}
+            <ScaleLoader
+                color="#6776f4"
+                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+                loading={load}
+            />
 
-      {/* Search + CSV */}
-      {!load && (
-        <div className="container-fluid mb-3">
-          <div className="row align-items-center">
-            <div className="col-md-6">
-              <input
-                className="form-control"
-                placeholder="Search by Ticket ID, Store, Expense Head"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
-            <div className="col-md-6 text-end">
-              <CSVLink
-                data={csvData}
-                filename="PRPO_Hold_Expenses.csv"
-                className="btn btn-primary btn-sm"
-              >
-                Download CSV
-              </CSVLink>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Table */}
-      {!load && (
-        <div className="container-fluid">
-          <div className="row justify-content-center">
-            <div className="col-lg-12 mt-4 table-responsive">
-              <table className="table table-hover table-striped">
-                <thead className="table-dark">
-                  <tr>
-                    <th>Sr. No</th>
-                    <th>Ticket ID</th>
-                    <th>Store</th>
-                    <th>Expense Head</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Hold On</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {currentExpenses.length > 0 ? (
-                    currentExpenses.map((el, index) => (
-                      <tr key={el._id}>
-                        <td>
-                          {(currentPage - 1) * itemsPerPage + index + 1}
-                        </td>
-                        <td>{el.expenseId?.ticketId}</td>
-                        <td>{el.expenseId?.storeId?.storeName}</td>
-                        <td>{el.expenseId?.expenseHeadId?.name}</td>
-                        <td>₹ {el.expenseId?.amount}</td>
-                        <td>
-                          <span className="badge bg-warning text-dark">
-                            Hold
-                          </span>
-                        </td>
-                        <td>
-                          {new Date(
-                            el.updatedAt || el.createdAt
-                          ).toLocaleDateString()}
-                        </td>
-                        <td>
-                          <button
-                            className="btn btn-sm btn-primary"
-                            onClick={() => handleViewClick(el)}
-                          >
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="8" className="text-center text-muted">
-                        No Hold Expenses Found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="d-flex justify-content-center mt-3">
-                  <button
-                    className="btn btn-secondary me-2"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => p - 1)}
-                  >
-                    Previous
-                  </button>
-
-                  {[...Array(totalPages)].map((_, i) => (
-                    <button
-                      key={i}
-                      className={`btn me-1 ${
-                        currentPage === i + 1 ? "btn-primary" : "btn-light"
-                      }`}
-                      onClick={() => setCurrentPage(i + 1)}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-
-                  <button
-                    className="btn btn-secondary ms-2"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => p + 1)}
-                  >
-                    Next
-                  </button>
+            {/* Search + CSV */}
+            {!load && (
+                <div className="container-fluid mb-3">
+                    <div className="row align-items-center">
+                        <div className="col-md-6">
+                            <input
+                                className="form-control"
+                                placeholder="Search by Ticket ID, Store, Expense Head"
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            />
+                        </div>
+                        <div className="col-md-6 text-end">
+                            <CSVLink
+                                data={csvData}
+                                filename="PRPO_Hold_Expenses.csv"
+                                className="btn btn-primary btn-sm"
+                            >
+                                Download CSV
+                            </CSVLink>
+                        </div>
+                    </div>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+            )}
 
-      {/* ================= MODAL (NO UI CHANGE) ================= */}
-      {showModal && selectedExpense && (
-        <div
-          className="modal show d-block"
-          tabIndex="-1"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Expense Details</h5>
-                <button className="btn-close" onClick={handleCloseModal} />
-              </div>
+            {/* Table */}
+            {!load && (
+                <div className="container-fluid">
+                    <div className="table-responsive">
+                        <table className="table table-hover table-striped">
+                            <thead className="table-dark">
+                                <tr>
+                                    <th>Sr. No</th>
+                                    <th>Ticket ID</th>
+                                    <th>Store</th>
+                                    <th>Expense Head</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Comment</th>
+                                    <th>Action Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
 
-              <div className="modal-body px-4">
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <strong>Ticket ID:</strong>
-                    <p>{selectedExpense.expenseId?.ticketId}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Store:</strong>
-                    <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Expense Head:</strong>
-                    <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Amount:</strong>
-                    <p>₹ {selectedExpense.expenseId?.amount}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Policy:</strong>
-                    <p>{selectedExpense.expenseId?.policy || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Nature of Expense:</strong>
-                    <p>
-                      {selectedExpense.expenseId?.natureOfExpense || "-"}
-                    </p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>RCA:</strong>
-                    <p>{selectedExpense.expenseId?.rca || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Hold Comment:</strong>
-                    <p>{selectedExpense.comment || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Status:</strong>
-                    <p>
-                      <span className="badge bg-warning text-dark">Hold</span>
-                    </p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Hold On:</strong>
-                    <p>
-                      {new Date(
-                        selectedExpense.updatedAt ||
-                          selectedExpense.createdAt
-                      ).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  {/* Attachments */}
-                  <div className="col-12">
-                    <strong>Attachment:</strong>
-                    <p>
-                      {selectedExpense.expenseId?.attachment && (
-                        <a
-                          href={selectedExpense.expenseId.attachment}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-primary me-2"
-                        >
-                          Original
-                        </a>
-                      )}
-
-                      {selectedExpense.expenseId?.resubmittedAttachment && (
-                        <a
-                          href={
-                            selectedExpense.expenseId.resubmittedAttachment
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-success"
-                        >
-                          Resubmitted
-                        </a>
-                      )}
-
-                      {!selectedExpense.expenseId?.attachment &&
-                        !selectedExpense.expenseId?.resubmittedAttachment && (
-                          <span className="text-muted">No Attachment</span>
-                        )}
-                    </p>
-                  </div>
+                            <tbody>
+                                {currentExpenses.length ? (
+                                    currentExpenses.map((el, index) => (
+                                        <tr key={el._id}>
+                                            <td>
+                                                {(currentPage - 1) * itemsPerPage + index + 1}
+                                            </td>
+                                            <td>{el.expenseId?.ticketId}</td>
+                                            <td>{el.expenseId?.storeId?.storeName}</td>
+                                            <td>{el.expenseId?.expenseHeadId?.name}</td>
+                                            <td>₹ {el.expenseId?.amount}</td>
+                                            <td>
+                                                <span className="badge bg-secondary">Hold</span>
+                                            </td>
+                                            <td>{el.comment || "-"}</td>
+                                            <td>
+                                                {new Date(el.actionAt).toLocaleDateString()}
+                                            </td>
+                                            <td>
+                                                <button
+                                                    className="btn btn-sm btn-primary"
+                                                    onClick={() => handleViewClick(el)}
+                                                >
+                                                    View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="9" className="text-center text-muted">
+                                            No Hold Expenses Found
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </main>
-  );
+            )}
+
+            {/* ================= MODAL (SAME UI AS BF / PRPO) ================= */}
+            {showModal && selectedExpense && (
+                <div
+                    className="modal show d-block"
+                    style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+                >
+                    <div className="modal-dialog modal-lg">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Expense Details</h5>
+                                <button
+                                    type="button"
+                                    onClick={handleCloseModal}
+                                    style={{
+                                        width: "30px",
+                                        height: "30px",
+                                        borderRadius: "50%",
+                                        backgroundColor: "red",
+                                        color: "white",
+                                        border: "none",
+                                        fontSize: "18px",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    &times;
+                                </button>
+                            </div>
+
+                            <div className="modal-body px-4">
+                                <div className="row g-3">
+                                    <div className="col-md-6">
+                                        <strong>Ticket ID:</strong>
+                                        <p>{selectedExpense.expenseId?.ticketId}</p>
+                                    </div>
+
+                                    <div className="col-md-6">
+                                        <strong>Store:</strong>
+                                        <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
+                                    </div>
+
+                                    <div className="col-md-6">
+                                        <strong>Expense Head:</strong>
+                                        <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
+                                    </div>
+
+                                    <div className="col-md-6">
+                                        <strong>Amount:</strong>
+                                        <p>₹ {selectedExpense.expenseId?.amount}</p>
+                                    </div>
+
+                                    <div className="col-md-6">
+                                        <strong>Status:</strong>
+                                        <span className="badge bg-secondary">Hold</span>
+                                    </div>
+
+                                    <div className="col-md-6">
+                                        <strong>Hold Comment:</strong>
+                                        <p>{selectedExpense.comment || "-"}</p>
+                                    </div>
+
+                                    <div className="col-md-6">
+                                        <strong>Action Date:</strong>
+                                        <p>
+                                            {new Date(
+                                                selectedExpense.actionAt
+                                            ).toLocaleDateString()}
+                                        </p>
+                                    </div>
+
+                                    <div className="col-12">
+                                        <strong>Attachment:</strong>
+                                        <p>
+                                            {selectedExpense.expenseId?.attachment ? (
+                                                <a
+                                                    href={selectedExpense.expenseId.attachment}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="btn btn-sm btn-primary"
+                                                >
+                                                    Download Attachment
+                                                </a>
+                                            ) : (
+                                                <span className="text-muted">No Attachment</span>
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </main>
+    );
 }
