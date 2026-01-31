@@ -106,6 +106,7 @@ export default function ProcurementPendingExpense() {
           if (res?.data?.success) {
             Swal.fire("Success", res.data.message, "success");
             fetchPending();
+            handleCloseModal(); // close modal after action
           } else {
             Swal.fire("Error", res.data.message, "error");
           }
@@ -115,6 +116,11 @@ export default function ProcurementPendingExpense() {
           Swal.fire("Error", "Something went wrong", "error");
         });
     });
+  };
+
+  /* ================= ATTACHMENT DOWNLOAD HANDLER ================= */
+  const handleDownload = (url) => {
+    window.open(url, "_blank");
   };
 
   return (
@@ -188,32 +194,12 @@ export default function ProcurementPendingExpense() {
                           <span className="badge bg-warning">Pending</span>
                         </td>
                         <td>
-                          <div className="btn-group">
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => handleViewClick(el)}
-                            >
-                              View
-                            </button>
-                            <button
-                              className="btn btn-success btn-sm ms-1"
-                              onClick={() => takeAction("Approve", el._id)}
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className="btn btn-secondary btn-sm ms-1"
-                              onClick={() => takeAction("Hold", el._id)}
-                            >
-                              Hold
-                            </button>
-                            <button
-                              className="btn btn-danger btn-sm ms-1"
-                              onClick={() => takeAction("Reject", el._id)}
-                            >
-                              Reject
-                            </button>
-                          </div>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => handleViewClick(el)}
+                          >
+                            View
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -264,7 +250,7 @@ export default function ProcurementPendingExpense() {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Modal with Approve/Hold/Reject */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
@@ -331,6 +317,28 @@ export default function ProcurementPendingExpense() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Modal Footer with Actions */}
+              <div className="modal-footer">
+                <button
+                  className="btn btn-success"
+                  onClick={() => takeAction("Approve", selectedExpense._id)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => takeAction("Hold", selectedExpense._id)}
+                >
+                  Hold
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => takeAction("Reject", selectedExpense._id)}
+                >
+                  Reject
+                </button>
               </div>
             </div>
           </div>

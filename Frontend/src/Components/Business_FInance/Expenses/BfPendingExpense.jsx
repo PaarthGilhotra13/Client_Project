@@ -78,6 +78,7 @@ export default function BfPendingExpense() {
           if (res?.data?.success) {
             Swal.fire("Success", res.data.message, "success");
             fetchPending();
+            handleCloseModal(); // close modal after action
           } else {
             Swal.fire("Error", res.data.message, "error");
           }
@@ -129,32 +130,12 @@ export default function BfPendingExpense() {
                           <span className="badge bg-warning">Pending</span>
                         </td>
                         <td>
-                          <div className="btn-group">
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => handleViewClick(el)}
-                            >
-                              View
-                            </button>
-                            <button
-                              className="btn btn-success btn-sm ms-1"
-                              onClick={() => takeAction("Approve", el._id)}
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className="btn btn-secondary btn-sm ms-1"
-                              onClick={() => takeAction("Hold", el._id)}
-                            >
-                              Hold
-                            </button>
-                            <button
-                              className="btn btn-danger btn-sm ms-1"
-                              onClick={() => takeAction("Reject", el._id)}
-                            >
-                              Reject
-                            </button>
-                          </div>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => handleViewClick(el)}
+                          >
+                            View
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -183,24 +164,24 @@ export default function BfPendingExpense() {
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
                 <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    style={{
-                      width: "30px",
-                      height: "30px",
-                      backgroundColor: "red",
-                      color: "white",
-                      fontWeight: "bold",
-                      border: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                    }}
-                  >
-                    &times;
-                  </button>
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                >
+                  &times;
+                </button>
               </div>
 
               <div className="modal-body px-4">
@@ -267,6 +248,28 @@ export default function BfPendingExpense() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* ================= MODAL FOOTER WITH ACTIONS ================= */}
+              <div className="modal-footer">
+                <button
+                  className="btn btn-success"
+                  onClick={() => takeAction("Approve", selectedExpense._id)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => takeAction("Hold", selectedExpense._id)}
+                >
+                  Hold
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => takeAction("Reject", selectedExpense._id)}
+                >
+                  Reject
+                </button>
               </div>
             </div>
           </div>

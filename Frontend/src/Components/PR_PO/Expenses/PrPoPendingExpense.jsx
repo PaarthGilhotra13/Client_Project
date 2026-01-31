@@ -107,6 +107,7 @@ export default function PrPoPendingExpense() {
           if (res?.data?.success) {
             Swal.fire("Success", res.data.message, "success");
             fetchPending();
+            handleCloseModal(); // close modal after action
           } else {
             Swal.fire("Error", res.data.message, "error");
           }
@@ -187,32 +188,12 @@ export default function PrPoPendingExpense() {
                         <span className="badge bg-warning">Pending</span>
                       </td>
                       <td>
-                        <div className="btn-group">
-                          <button
-                            className="btn btn-primary btn-sm"
-                            onClick={() => handleViewClick(el)}
-                          >
-                            View
-                          </button>
-                          <button
-                            className="btn btn-success btn-sm ms-1"
-                            onClick={() => takeAction("Approve", el._id)}
-                          >
-                            Approve
-                          </button>
-                          <button
-                            className="btn btn-secondary btn-sm ms-1"
-                            onClick={() => takeAction("Hold", el._id)}
-                          >
-                            Hold
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm ms-1"
-                            onClick={() => takeAction("Reject", el._id)}
-                          >
-                            Reject
-                          </button>
-                        </div>
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => handleViewClick(el)}
+                        >
+                          View
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -240,8 +221,9 @@ export default function PrPoPendingExpense() {
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i}
-                    className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
-                      }`}
+                    className={`btn me-1 ${
+                      currentPage === i + 1 ? "btn-primary" : "btn-light"
+                    }`}
                     onClick={() => setCurrentPage(i + 1)}
                   >
                     {i + 1}
@@ -261,7 +243,7 @@ export default function PrPoPendingExpense() {
         </div>
       )}
 
-      {/* Modal (UNCHANGED UI) */}
+      {/* Modal with Approve/Hold/Reject */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
@@ -295,53 +277,41 @@ export default function PrPoPendingExpense() {
                     <strong>Ticket ID:</strong>
                     <p>{selectedExpense.ticketId}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Store:</strong>
                     <p>{selectedExpense.storeId?.storeName}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Expense Head:</strong>
                     <p>{selectedExpense.expenseHeadId?.name}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Amount:</strong>
                     <p>₹ {selectedExpense.amount}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Policy:</strong>
                     <p>{selectedExpense.policy || "-"}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Nature of Expense:</strong>
                     <p>{selectedExpense.natureOfExpense || "-"}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>RCA:</strong>
                     <p>{selectedExpense.rca || "-"}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Remarks:</strong>
                     <p>{selectedExpense.remark || "-"}</p>
                   </div>
-
                   <div className="col-md-6">
                     <strong>Status:</strong>
                     <p>
-                      <span className="badge bg-warning text-dark">
-                        Pending
-                      </span>
+                      <span className="badge bg-warning text-dark">Pending</span>
                     </p>
                   </div>
 
-                  {/* ATTACHMENT */}
-                  {/* ATTACHMENTS */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
@@ -373,14 +343,34 @@ export default function PrPoPendingExpense() {
                         )}
                     </p>
                   </div>
-
                 </div>
+              </div>
+
+              {/* Modal Footer with Actions */}
+              <div className="modal-footer">
+                <button
+                  className="btn btn-success"
+                  onClick={() => takeAction("Approve", selectedExpense._id)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => takeAction("Hold", selectedExpense._id)}
+                >
+                  Hold
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => takeAction("Reject", selectedExpense._id)}
+                >
+                  Reject
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
-
     </main>
   );
 }
