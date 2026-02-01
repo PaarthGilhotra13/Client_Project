@@ -460,15 +460,21 @@ const myExpenses = (req, res) => {
             message: errMsgs
         });
     }
+
     // base filter
     let filter = {
         raisedBy: req.body.userId,
         status: true
     };
 
-    // OPTIONAL status filter (Pending / Approved / Hold / Declined)
+    // OPTIONAL status filter
     if (req.body.currentStatus) {
         filter.currentStatus = req.body.currentStatus.trim();
+    }
+
+    // 🔥 IMPORTANT: exclude CLOSED tickets from Approved page
+    if (req.body.excludePostApprovalStage) {
+        filter.postApprovalStage = { $ne: req.body.excludePostApprovalStage };
     }
 
     expenseModel.find(filter)

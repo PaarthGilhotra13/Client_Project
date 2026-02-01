@@ -20,7 +20,7 @@ const expenseApprovalSchema = new mongoose.Schema({
 
     action: {
         type: String,
-        enum: ["Approved", "Rejected", "Hold"],
+        enum: ["Approved", "Rejected", "Hold","Closed"],
         required: true
     },
 

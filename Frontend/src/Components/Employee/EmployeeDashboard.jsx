@@ -12,7 +12,6 @@ export default function FacilityManagerDashboard() {
 
         ApiServices.FMDashboard()
             .then((res) => {
-                console.log("FM DASHBOARD RESPONSE 👉", res.data);
                 setData(res?.data?.data || {});
                 setLoad(false);
             })

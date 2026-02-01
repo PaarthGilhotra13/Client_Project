@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-export default function FmSidebar() {
+export default function ZCSidebar() {
   const handleSidebarClose = () => {
     if (window.innerWidth <= 1024) {
       document.body.classList.remove("toggle-sidebar"); // if you're toggling class on body
@@ -15,7 +15,7 @@ export default function FmSidebar() {
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={"/fm"}
+              to={"/ZonalCommercial"}
               onClick={handleSidebarClose}
             >
               <i className="bi bi-grid" />
@@ -25,7 +25,7 @@ export default function FmSidebar() {
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
-              to={"/fm/viewAnnouncement"}
+              to={"/ZonalCommercial/viewAnnouncement"}
               onClick={handleSidebarClose}
             >
               <i className="bi bi-megaphone" />
@@ -33,17 +33,6 @@ export default function FmSidebar() {
             </Link>
           </li>
           {/* End Dashboard Nav */}
-
-          <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/fm/addExpenses"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-plus " />
-              <span>Add Expenses</span>
-            </Link>
-          </li>
 
           {/* Start Expense Nav */}
           <li className="nav-item">
@@ -62,40 +51,15 @@ export default function FmSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/fm/approvedExpenses"} onClick={handleSidebarClose}>
+                <Link to={"/ZonalCommercial/approvedTickets"} onClick={handleSidebarClose}>
                   <i className="bi bi-check-circle fs-6" />
                   <span>Approved </span>
                 </Link>
               </li>
               <li>
-                <Link to={"/fm/holdExpenses"} onClick={handleSidebarClose}>
-                  <i className="bi bi-pause-circle fs-6" />
-                  <span>Hold </span>
-                </Link>
-              </li>
-              <li>
-                <Link to={"/fm/pendingExpenses"} onClick={handleSidebarClose}>
+                <Link to={"/ZonalCommercial/pendingTickets"} onClick={handleSidebarClose}>
                   <i className="bi bi-clock fs-6" />
                   <span>Pending </span>
-                </Link>
-              </li>
-              
-              <li>
-                <Link
-                  to={"/fm/rejectedExpenses"}
-                  onClick={handleSidebarClose}
-                >
-                  <i className="bi bi-x-circle fs-6" />
-                  <span>Rejected</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to={"/fm/closedExpenses"}
-                  onClick={handleSidebarClose}
-                >
-                  <i className="bi bi-x-circle fs-6" />
-                  <span>Closed Expenses</span>
                 </Link>
               </li>
             </ul>
@@ -111,7 +75,7 @@ export default function FmSidebar() {
               <span>History</span>
             </Link>
           </li> */}
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
               to={"/fm/trackApproval"}
@@ -120,7 +84,7 @@ export default function FmSidebar() {
               <i className="bi bi-hourglass-split text-warning" />
               <span>Track Approval</span>
             </Link>
-          </li>
+          </li> */}
         </ul>
       </aside>
       {/* End Sidebar*/}

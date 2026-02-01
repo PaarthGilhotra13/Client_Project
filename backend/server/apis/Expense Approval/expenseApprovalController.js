@@ -20,7 +20,7 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        /* 1️⃣ Fetch Expense */
+        /* ================= 1️⃣ FETCH EXPENSE ================= */
         const expense = await expenseModel
             .findById(expenseId)
             .populate("policyId");
@@ -41,7 +41,15 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        /* 2️⃣ Fetch Approver */
+        if (!expense.currentApprovalLevel) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Approval level missing on expense"
+            });
+        }
+
+        /* ================= 2️⃣ FETCH APPROVER ================= */
         const approver = await userModel.findById(approverId);
 
         if (!approver || !approver.designation) {
@@ -52,10 +60,15 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        const approverLevel = approver.designation.toUpperCase();
+        /* ================= 3️⃣ NORMALIZE LEVELS ================= */
+        const normalizeLevel = (val) =>
+            val?.toUpperCase().replace(/\s+/g, "").replace(/\//g, "").trim();
 
-        /* 3️⃣ Validate approval level */
-        if (expense.currentApprovalLevel !== approverLevel) {
+        const approverLevel = normalizeLevel(approver.designation);
+        const expenseLevel = normalizeLevel(expense.currentApprovalLevel);
+
+        /* ================= 4️⃣ VALIDATE FLOW ================= */
+        if (approverLevel !== expenseLevel) {
             return res.send({
                 status: 422,
                 success: false,
@@ -63,19 +76,37 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        /* 4️⃣ Save approval history */
+        /* ================= 5️⃣ PREVENT DUPLICATE APPROVAL ================= */
+        const alreadyApproved = await expenseApprovalModel.findOne({
+            expenseId: expense._id,
+            approverId,
+            action: "Approved"
+        });
+
+        if (alreadyApproved) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "You have already approved this expense"
+            });
+        }
+
+        /* ================= 6️⃣ SAVE APPROVAL HISTORY ================= */
         await expenseApprovalModel.create({
             expenseId: expense._id,
-            level: approverLevel,
+            level: expense.currentApprovalLevel,
             approverId,
             comment: comment || "",
             action: "Approved",
-            status: "Approved"
+            status: "Approved",
+            actionAt: new Date()
         });
 
-        /* 5️⃣ Decide next level */
+        /* ================= 7️⃣ POLICY FLOW ================= */
         const policyLevels = expense.policyId?.approvalLevels || [];
-        const currentIndex = policyLevels.indexOf(approverLevel);
+        const normalizedPolicyLevels = policyLevels.map(l => normalizeLevel(l));
+
+        const currentIndex = normalizedPolicyLevels.indexOf(approverLevel);
 
         if (currentIndex === -1) {
             return res.send({
@@ -87,42 +118,20 @@ const approveExpense = async (req, res) => {
 
         const nextLevel = policyLevels[currentIndex + 1];
 
-        /* =======================
-           🔥 FINAL DECISION LOGIC
-           ======================= */
-
+        /* ================= 8️⃣ FINAL DECISION ================= */
+        /* ================= 7️⃣ FINAL DECISION ================= */
         if (nextLevel) {
-            // 🔁 Move to next approver
             expense.currentApprovalLevel = nextLevel;
             expense.currentStatus = "Pending";
         } else {
-            // ✅ Final approval reached
-            const isMultiLevel = policyLevels.length > 1;
-
-            if (expense.natureOfExpense === "OPEX") {
-                // 🔁 OPEX → always FM execution
-                expense.currentStatus = "Approved";
-                expense.postApprovalStage = "FM_PENDING";
-                expense.currentApprovalLevel = "FM";
-
-            } else if (
-                expense.natureOfExpense === "CAPEX" &&
-                isMultiLevel
-            ) {
-                // 🔁 CAPEX + multi-level → FM execution
-                expense.currentStatus = "Approved";
-                expense.postApprovalStage = "FM_PENDING";
-                expense.currentApprovalLevel = "FM";
-
-            } else {
-                // ❌ CAPEX + single-level → direct close
-                expense.currentStatus = "Closed";
-                expense.postApprovalStage = "CLOSED";
-                expense.currentApprovalLevel = null;
-            }
+            // ✅ LAST APPROVER (single OR multi level)
+            expense.currentStatus = "Approved";
+            expense.currentApprovalLevel = "FM";
+            expense.postApprovalStage = "FM_PENDING"; // 🔥 VERY IMPORTANT
         }
 
-        /* Reset hold fields if any */
+
+        /* ================= 9️⃣ RESET HOLD DATA ================= */
         expense.heldFromLevel = null;
         expense.holdComment = "";
 
@@ -133,7 +142,7 @@ const approveExpense = async (req, res) => {
             success: true,
             message: nextLevel
                 ? `Approved & sent to ${nextLevel}`
-                : "Expense approved successfully"
+                : "Expense approved & sent to FM"
         });
 
     } catch (err) {
@@ -145,9 +154,6 @@ const approveExpense = async (req, res) => {
         });
     }
 };
-
-
-
 
 /* ================= HOLD EXPENSE ================= */
 const holdExpense = async (req, res) => {
@@ -741,14 +747,20 @@ const expenseAction = async (req, res) => {
 //         if (!userId || !action || !level) {
 //             return res.send({
 //                 success: false,
-//                 message: "userId & Action required"
+//                 message: "userId, action & level required"
 //             });
 //         }
-//         const data = await expenseApprovalModel.find({
-//             approverId: userId,
-//             action: action,   // Approved | Hold | Rejected
-//             level: level
-//         })
+
+//         // 1️⃣ History fetch (case-insensitive level)
+//         const history = await expenseApprovalModel
+//             .find({
+//                 approverId: userId,
+//                 action: action,
+//                 level: {
+//                     $regex: `^${level}$`,
+//                     $options: "i" // ZONAL_HEAD / Zonal_Head safe
+//                 }
+//             })
 //             .populate({
 //                 path: "expenseId",
 //                 populate: {
@@ -757,13 +769,40 @@ const expenseAction = async (req, res) => {
 //             })
 //             .sort({ actionAt: -1 });
 
-//         res.send({
+//         let filtered = [];
+
+//         /* ================= APPROVED / REJECTED ================= */
+//         if (action === "Approved" || action === "Rejected") {
+//             /**
+//              * ✅ History based
+//              * Expense chahe next level pe chala gaya ho
+//              * ya FM ke paas wapas aa gaya ho
+//              * tab bhi yahan dikhega
+//              */
+//             filtered = history.filter(h => h.expenseId);
+//         }
+
+//         /* ================= HOLD ================= */
+//         else if (action === "Hold") {
+//             /**
+//              * ✅ Sirf ACTIVE hold
+//              * FM resubmit ke baad hold se gayab ho jaayega
+//              */
+//             filtered = history.filter(h =>
+//                 h.expenseId &&
+//                 h.expenseId.currentStatus === "Hold" &&
+//                 h.expenseId.heldFromLevel === level
+//             );
+//         }
+
+//         return res.send({
 //             success: true,
-//             data
+//             data: filtered
 //         });
 
 //     } catch (err) {
-//         res.send({
+//         console.log("myApprovalActions error:", err);
+//         return res.send({
 //             success: false,
 //             message: "Approval list fetch failed"
 //         });
@@ -774,6 +813,7 @@ const myApprovalActions = async (req, res) => {
     try {
         const { userId, action, level } = req.body;
 
+        /* ================= VALIDATION ================= */
         if (!userId || !action || !level) {
             return res.send({
                 success: false,
@@ -781,42 +821,50 @@ const myApprovalActions = async (req, res) => {
             });
         }
 
-        // 1️⃣ History fetch (case-insensitive level)
+        /* ================= FETCH HISTORY ================= */
         const history = await expenseApprovalModel
             .find({
                 approverId: userId,
                 action: action,
                 level: {
                     $regex: `^${level}$`,
-                    $options: "i" // ZONAL_HEAD / Zonal_Head safe
+                    $options: "i" // case-insensitive
                 }
             })
             .populate({
                 path: "expenseId",
-                populate: {
-                    path: "storeId expenseHeadId raisedBy"
-                }
+                populate: [
+                    { path: "storeId" },
+                    { path: "expenseHeadId" },
+                    { path: "raisedBy" }
+                ]
             })
-            .sort({ actionAt: -1 });
+            .sort({ actionAt: -1 }); // latest first
 
         let filtered = [];
 
-        /* ================= APPROVED / REJECTED ================= */
-        if (action === "Approved" || action === "Rejected") {
+        /* ================= APPROVED / REJECTED / CLOSED ================= */
+        if (["Approved", "Rejected", "Closed"].includes(action)) {
             /**
-             * ✅ History based
-             * Expense chahe next level pe chala gaya ho
-             * ya FM ke paas wapas aa gaya ho
-             * tab bhi yahan dikhega
+             * One row per expense
+             * Latest action only
              */
-            filtered = history.filter(h => h.expenseId);
+            const uniqueMap = new Map();
+
+            history.forEach(h => {
+                if (h.expenseId && !uniqueMap.has(h.expenseId._id.toString())) {
+                    uniqueMap.set(h.expenseId._id.toString(), h);
+                }
+            });
+
+            filtered = Array.from(uniqueMap.values());
         }
 
         /* ================= HOLD ================= */
         else if (action === "Hold") {
             /**
-             * ✅ Sirf ACTIVE hold
-             * FM resubmit ke baad hold se gayab ho jaayega
+             * Only ACTIVE holds
+             * FM resubmit ke baad hat jaayega
              */
             filtered = history.filter(h =>
                 h.expenseId &&
@@ -838,6 +886,8 @@ const myApprovalActions = async (req, res) => {
         });
     }
 };
+
+
 
 const adminExpensesByStatus = async (req, res) => {
     try {
@@ -899,13 +949,13 @@ const adminExpensesByStatus = async (req, res) => {
 
 const uploadWcrInvoice = async (req, res) => {
     try {
-        const { expenseId } = req.body;
+        const { expenseId, fmId } = req.body;
 
-        if (!expenseId) {
+        if (!expenseId || !fmId) {
             return res.send({
                 status: 422,
                 success: false,
-                message: "expenseId is required"
+                message: "expenseId & fmId are required"
             });
         }
 
@@ -920,7 +970,7 @@ const uploadWcrInvoice = async (req, res) => {
             });
         }
 
-        /* 2️⃣ Validate FM stage */
+        /* 2️⃣ Validate FM Stage */
         if (
             expense.currentApprovalLevel !== "FM" ||
             expense.postApprovalStage !== "FM_PENDING"
@@ -933,7 +983,11 @@ const uploadWcrInvoice = async (req, res) => {
         }
 
         /* 3️⃣ Validate files */
-        if (!req.files || !req.files.wcr || !req.files.invoice) {
+        if (
+            !req.files ||
+            !req.files.wcr ||
+            !req.files.invoice
+        ) {
             return res.send({
                 status: 422,
                 success: false,
@@ -941,16 +995,41 @@ const uploadWcrInvoice = async (req, res) => {
             });
         }
 
-        /* 4️⃣ Save attachments (Cloudinary assumed) */
-        expense.wcrAttachment = req.files.wcr[0].path;
-        expense.invoiceAttachment = req.files.invoice[0].path;
+        /* =======================
+           🔥 CLOUDINARY UPLOAD (FINAL FIX)
+           ======================= */
 
-        /* 5️⃣ Move to Zonal Commercial */
-        expense.postApprovalStage = "ZC_VERIFY";
+        try {
+            const wcrUrl = await uploadImg(req.files.wcr[0].buffer);
+            const invoiceUrl = await uploadImg(req.files.invoice[0].buffer);
+
+            expense.wcrAttachment = wcrUrl;
+            expense.invoiceAttachment = invoiceUrl;
+        } catch (err) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Cloudinary Error"
+            });
+        }
+
+        /* 4️⃣ Move to Zonal Commercial */
         expense.currentApprovalLevel = "ZONAL_COMMERCIAL";
-        expense.currentStatus = "Pending";
+        expense.postApprovalStage = "ZC_VERIFY";
+        expense.currentStatus = "Approved";
 
         await expense.save();
+
+        /* 5️⃣ Save Approval History (ENUM SAFE) */
+        await expenseApprovalModel.create({
+            expenseId: expense._id,
+            level: "FM",
+            approverId: fmId,
+            action: "Approved",
+            status: "Approved",
+            comment: "WCR & Invoice Uploaded",
+            actionAt: new Date()
+        });
 
         return res.send({
             status: 200,
@@ -970,17 +1049,16 @@ const uploadWcrInvoice = async (req, res) => {
 
 const verifyAndCloseExpense = async (req, res) => {
     try {
-        const { expenseId, prismId, comment } = req.body;
+        const { expenseId, prismId, comment, approverId } = req.body;
 
-        if (!expenseId || !prismId) {
+        if (!expenseId || !prismId || !approverId) {
             return res.send({
                 status: 422,
                 success: false,
-                message: "expenseId & prismId are required"
+                message: "expenseId, prismId & approverId are required"
             });
         }
 
-        /* 1️⃣ Fetch Expense */
         const expense = await expenseModel.findById(expenseId);
 
         if (!expense) {
@@ -991,7 +1069,6 @@ const verifyAndCloseExpense = async (req, res) => {
             });
         }
 
-        /* 2️⃣ Validate ZC stage */
         if (
             expense.currentApprovalLevel !== "ZONAL_COMMERCIAL" ||
             expense.postApprovalStage !== "ZC_VERIFY"
@@ -1003,7 +1080,6 @@ const verifyAndCloseExpense = async (req, res) => {
             });
         }
 
-        /* 3️⃣ Validate attachments */
         if (!expense.wcrAttachment || !expense.invoiceAttachment) {
             return res.send({
                 status: 422,
@@ -1012,21 +1088,26 @@ const verifyAndCloseExpense = async (req, res) => {
             });
         }
 
-        /* 4️⃣ Save Prism ID */
-        expense.prismId = prismId;
+        if (expense.currentStatus === "Closed") {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Expense already closed"
+            });
+        }
 
-        /* 5️⃣ Close Ticket */
+        /* 🔐 Atomic update */
+        expense.prismId = prismId;
         expense.currentStatus = "Closed";
         expense.postApprovalStage = "CLOSED";
         expense.currentApprovalLevel = null;
 
         await expense.save();
 
-        /* 6️⃣ Save audit history (recommended) */
         await expenseApprovalModel.create({
             expenseId: expense._id,
             level: "ZONAL_COMMERCIAL",
-            approverId: req.userId || null,
+            approverId,
             comment: comment || "",
             action: "Closed",
             status: "Closed"
@@ -1049,4 +1130,30 @@ const verifyAndCloseExpense = async (req, res) => {
 };
 
 
-module.exports = { approveExpense, holdExpense, rejectExpense, approvalHistory, clmPendingExpenses, pendingForProcurement, pendingForBF, pendingForZH, expenseAction, myApprovalActions, resubmitHeldExpense, adminExpensesByStatus, prPoPendingExpenses,uploadWcrInvoice,verifyAndCloseExpense }
+const zonalCommercialPending = async (req, res) => {
+    try {
+        const data = await expenseModel
+            .find({
+                currentApprovalLevel: "ZONAL_COMMERCIAL",
+                postApprovalStage: "ZC_VERIFY",
+                status: true
+            })
+            .populate("storeId expenseHeadId raisedBy")
+            .sort({ createdAt: -1 });
+
+        return res.send({
+            success: true,
+            data
+        });
+
+    } catch (err) {
+        console.log("ZC Pending Error:", err);
+        return res.send({
+            success: false,
+            message: "Failed to fetch ZC pending expenses"
+        });
+    }
+};
+
+
+module.exports = { approveExpense, holdExpense, rejectExpense, approvalHistory, clmPendingExpenses, pendingForProcurement, pendingForBF, pendingForZH, expenseAction, myApprovalActions, resubmitHeldExpense, adminExpensesByStatus, prPoPendingExpenses, uploadWcrInvoice, verifyAndCloseExpense, zonalCommercialPending }
