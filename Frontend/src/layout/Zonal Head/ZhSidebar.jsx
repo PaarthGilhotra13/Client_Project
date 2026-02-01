@@ -22,7 +22,7 @@ export default function ZhSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
               to={"/ZonalHead/viewAnnouncement"}
@@ -31,7 +31,7 @@ export default function ZhSidebar() {
               <i className="bi bi-megaphone" />
               <span>Announcement</span>
             </Link>
-          </li>
+          </li> */}
           {/* End Dashboard Nav */}
 
           {/* Start Expense Nav */}
@@ -57,18 +57,17 @@ export default function ZhSidebar() {
                 </Link>
               </li>
               <li>
-                <Link to={"/ZonalHead/holdExpenses"} onClick={handleSidebarClose}>
-                  <i className="bi bi-pause-circle fs-6" />
-                  <span>Hold </span>
-                </Link>
-              </li>
-              <li>
                 <Link to={"/ZonalHead/pendingExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-clock fs-6" />
                   <span>Pending </span>
                 </Link>
               </li>
-              
+              <li>
+                <Link to={"/ZonalHead/holdExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-pause-circle fs-6" />
+                  <span>Hold </span>
+                </Link>
+              </li>
               <li>
                 <Link
                   to={"/ZonalHead/rejectedExpenses"}

@@ -51,7 +51,7 @@ const expenseSchema = new mongoose.Schema({
 
     currentStatus: {
         type: String,
-        enum: ["Pending", "Approved", "Hold", "Rejected"],
+        enum: ["Pending", "Approved", "Hold", "Rejected", "Closed"],
         default: "Pending"
     },
 

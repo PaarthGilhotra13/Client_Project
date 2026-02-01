@@ -2,8 +2,6 @@ const expenseApprovalModel = require("../Expense Approval/expenseApprovalModel")
 
 const getZHDashboard = async (req, res) => {
   try {
-    console.log("🔥 ZONAL HEAD DASHBOARD API HIT");
-
     const ZH_LEVEL = "Zonal Head";
 
     /* ================= TOTAL REQUESTS ================= */

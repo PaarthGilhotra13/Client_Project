@@ -22,7 +22,7 @@ export default function FmSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
               to={"/fm/viewAnnouncement"}
@@ -31,7 +31,7 @@ export default function FmSidebar() {
               <i className="bi bi-megaphone" />
               <span>Announcement</span>
             </Link>
-          </li>
+          </li> */}
           {/* End Dashboard Nav */}
 
           <li className="nav-item">
@@ -68,18 +68,17 @@ export default function FmSidebar() {
                 </Link>
               </li>
               <li>
-                <Link to={"/fm/holdExpenses"} onClick={handleSidebarClose}>
-                  <i className="bi bi-pause-circle fs-6" />
-                  <span>Hold </span>
-                </Link>
-              </li>
-              <li>
                 <Link to={"/fm/pendingExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-clock fs-6" />
                   <span>Pending </span>
                 </Link>
               </li>
-              
+              <li>
+                <Link to={"/fm/holdExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-pause-circle fs-6" />
+                  <span>Hold </span>
+                </Link>
+              </li>
               <li>
                 <Link
                   to={"/fm/rejectedExpenses"}
@@ -87,6 +86,15 @@ export default function FmSidebar() {
                 >
                   <i className="bi bi-x-circle fs-6" />
                   <span>Rejected</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to={"/fm/closedExpenses"}
+                  onClick={handleSidebarClose}
+                >
+                  <i className="bi bi-door-closed fs-6" />
+                  <span>Closed Expenses</span>
                 </Link>
               </li>
             </ul>

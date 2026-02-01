@@ -103,6 +103,7 @@ const add = (req, res) => {
 const getAll = (req, res) => {
     procureModel.find(req.body)
         .populate("userId")
+        .populate("storeId")
         .then((procureData) => {
             if (procureData.length == 0) {
                 res.send({

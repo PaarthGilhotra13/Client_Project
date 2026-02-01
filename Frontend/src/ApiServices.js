@@ -413,6 +413,15 @@ class ApiServices {
    AdminExpensesByStatus(data) {
       return axios.post(BaseURL + "/apis/expense-approval/adminExpensesByStatus", data, { headers: getToken() })
    }
+   UploadWcrInvoice(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/uploadWcrInvoice", data, { headers: getToken() })
+   }
+   VerifyAndCloseExpense(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/verifyAndCloseExpense", data, { headers: getToken() })
+   }
+   ZcPendingExpense(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/zcPendingExpense", data, { headers: getToken() })
+   }
 
 
    //Announcement

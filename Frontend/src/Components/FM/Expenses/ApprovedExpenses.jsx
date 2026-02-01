@@ -1,4 +1,4 @@
-// Approved expense (FM - Execution Pending)
+// Approved expense (FM)
 import { useEffect, useState } from "react";
 import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
@@ -10,276 +10,290 @@ export default function ApprovedExpenses() {
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
-  // ================= PAGINATION =================
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const [wcrFile, setWcrFile] = useState(null);
+  const [invoiceFile, setInvoiceFile] = useState(null);
 
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
 
-    if (!userId) {
-      Swal.fire("Error", "User not logged in", "error");
-      setLoad(false);
-      return;
-    }
-
-    // 🔥 UPDATED LOGIC (NO UI CHANGE)
     ApiServices.MyExpenses({
-      userId: userId,
+      userId,
       currentStatus: "Approved",
       currentApprovalLevel: "FM",
       postApprovalStage: "FM_PENDING",
     })
       .then((res) => {
-        if (res?.data?.success) {
-          setData(res?.data?.data || []);
-        } else {
-          setData([]);
-        }
-        setTimeout(() => setLoad(false), 500);
+        setData(res?.data?.success ? res.data.data || [] : []);
+        setLoad(false);
       })
       .catch(() => {
         setData([]);
-        setTimeout(() => setLoad(false), 500);
+        setLoad(false);
       });
   }, []);
 
-  /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
+    setWcrFile(null);
+    setInvoiceFile(null);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
+    setWcrFile(null);
+    setInvoiceFile(null);
   };
 
-  // ================= PAGINATION LOGIC =================
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const showPagination = data.length > itemsPerPage;
+  const handleUploadDocs = () => {
+    if (!wcrFile || !invoiceFile) {
+      return Swal.fire("Error", "WCR & Invoice both are required", "error");
+    }
 
-  const currentExpenses = data.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+    const formData = new FormData();
+    formData.append("expenseId", selectedExpense._id);
+    formData.append("wcr", wcrFile);
+    formData.append("invoice", invoiceFile);
+    formData.append("fmId", sessionStorage.getItem("userId"));
+
+    ApiServices.UploadWcrInvoice(formData)
+      .then((res) => {
+        if (res?.data?.success) {
+          Swal.fire("Success", res.data.message, "success");
+          setShowModal(false);
+
+          // FM ka kaam complete → list se hata do
+          setData((prev) =>
+            prev.filter((e) => e._id !== selectedExpense._id)
+          );
+        } else {
+          Swal.fire("Error", res.data.message, "error");
+        }
+      })
+      .catch(() => {
+        Swal.fire("Error", "Upload failed", "error");
+      });
+  };
 
   return (
-    <>
-      <main className="main" id="main">
-        <PageTitle child="Approved Expenses" />
+    <main className="main" id="main">
+      <PageTitle child="Approved Expenses" />
 
-        {/* Loader */}
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-md-12">
-              <ScaleLoader
-                color="#6776f4"
-                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-                size={200}
-                loading={load}
-              />
+      {load ? (
+        <ScaleLoader
+          color="#6776f4"
+          cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+        />
+      ) : (
+        <div className="container-fluid mt-4 table-responsive">
+          <table className="table table-hover table-striped">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Ticket ID</th>
+                <th>Store</th>
+                <th>Expense Head</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {data.length > 0 ? (
+                data.map((el, i) => (
+                  <tr key={el._id}>
+                    <td>{i + 1}</td>
+                    <td>{el.ticketId}</td>
+                    <td>{el.storeId?.storeName}</td>
+                    <td>{el.expenseHeadId?.name}</td>
+                    <td>₹ {el.amount}</td>
+                    <td>
+                      <span className="badge bg-success">Approved</span>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={() => handleViewClick(el)}
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center text-muted">
+                    No Approved Expenses
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ================= MODAL ================= */}
+      {showModal && selectedExpense && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Expense Details</h5>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              <div className="modal-body px-4">
+                {/* ===== EXISTING DETAILS (UNCHANGED) ===== */}
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <strong>Ticket ID:</strong>
+                    <p>{selectedExpense.ticketId}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Store:</strong>
+                    <p>{selectedExpense.storeId?.storeName}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Expense Head:</strong>
+                    <p>{selectedExpense.expenseHeadId?.name}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Amount:</strong>
+                    <p>₹ {selectedExpense.amount}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Policy:</strong>
+                    <p>{selectedExpense.policy || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Nature of Expense:</strong>
+                    <p>{selectedExpense.natureOfExpense || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>RCA:</strong>
+                    <p>{selectedExpense.rca || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Remarks:</strong>
+                    <p>{selectedExpense.remark || "-"}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Status:</strong>
+                    <p>
+                      <span className="badge bg-success">Approved</span>
+                    </p>
+                  </div>
+                  <div className="col-md-6">
+                    <strong>Created At:</strong>
+                    <p>
+                      {new Date(
+                        selectedExpense.createdAt
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="col-12">
+                    <strong>Attachments:</strong>
+                    <p>
+                      {/* Original Attachment */}
+                      {selectedExpense.attachment && (
+                        <a
+                          href={selectedExpense.attachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-primary me-2"
+                        >
+                          Original 
+                        </a>
+                      )}
+
+                      {/* Resubmitted Attachment */}
+                      {selectedExpense.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success me-2"
+                        >
+                          Resubmitted 
+                        </a>
+                      )}
+
+                      {/* No attachment case */}
+                      {!selectedExpense.attachment &&
+                        !selectedExpense.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
+                    </p>
+                  </div>
+
+                </div>
+
+                {/* ===== NEW : WCR / INVOICE UPLOAD (ONLY ADDITION) ===== */}
+                <hr />
+                <h6 className="fw-bold text-primary">
+                  Upload Execution Documents
+                </h6>
+
+                <div className="row g-3 mt-2">
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">Upload WCR</label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      onChange={(e) => setWcrFile(e.target.files[0])}
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      Upload Invoice
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      onChange={(e) => setInvoiceFile(e.target.files[0])}
+                    />
+                  </div>
+
+                  <div className="col-12 text-end mt-3">
+                    <button
+                      className="btn btn-success"
+                      onClick={handleUploadDocs}
+                    >
+                      Submit WCR & Invoice
+                    </button>
+                  </div>
+                </div>
+                {/* ===== END NEW SECTION ===== */}
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Table */}
-        {!load && (
-          <div className="container-fluid">
-            <div className="row justify-content-center">
-              <div className="col-lg-12 mt-4 table-responsive">
-                <table className="table table-hover table-striped">
-                  <thead className="table-dark">
-                    <tr>
-                      <th>Sr. No</th>
-                      <th>Ticket ID</th>
-                      <th>Store</th>
-                      <th>Expense Head</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Created At</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {currentExpenses.length > 0 ? (
-                      currentExpenses.map((el, index) => (
-                        <tr key={el._id}>
-                          <td>
-                            {(currentPage - 1) * itemsPerPage + index + 1}
-                          </td>
-                          <td>{el.ticketId}</td>
-                          <td>{el.storeId?.storeName}</td>
-                          <td>{el.expenseHeadId?.name}</td>
-                          <td>₹ {el.amount}</td>
-                          <td>
-                            <span className="badge bg-success">Approved</span>
-                          </td>
-                          <td>
-                            {new Date(el.createdAt).toLocaleDateString()}
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-sm btn-primary"
-                              onClick={() => handleViewClick(el)}
-                            >
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="8" className="text-center text-muted">
-                          No Approved Expenses Found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Pagination */}
-            {showPagination && (
-              <div className="d-flex justify-content-center mt-3">
-                <button
-                  className="btn btn-secondary me-2"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((p) => p - 1)}
-                >
-                  Previous
-                </button>
-
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i}
-                    className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
-                      }`}
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-
-                <button
-                  className="btn btn-secondary ms-2"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((p) => p + 1)}
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ================= MODAL ================= */}
-        {showModal && selectedExpense && (
-          <div
-            className="modal show d-block"
-            tabIndex="-1"
-            style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog modal-lg">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Expense Details</h5>
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    style={{
-                      width: "30px",
-                      height: "30px",
-                      backgroundColor: "red",
-                      color: "white",
-                      fontWeight: "bold",
-                      border: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                    }}
-                  >
-                    &times;
-                  </button>
-                </div>
-
-                <div className="modal-body px-4">
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <strong>Ticket ID:</strong>
-                      <p>{selectedExpense.ticketId}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Store:</strong>
-                      <p>{selectedExpense.storeId?.storeName}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Expense Head:</strong>
-                      <p>{selectedExpense.expenseHeadId?.name}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Amount:</strong>
-                      <p>₹ {selectedExpense.amount}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Policy:</strong>
-                      <p>{selectedExpense.policy || "-"}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Nature of Expense:</strong>
-                      <p>{selectedExpense.natureOfExpense || "-"}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>RCA:</strong>
-                      <p>{selectedExpense.rca || "-"}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Remarks:</strong>
-                      <p>{selectedExpense.remark || "-"}</p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Status:</strong>
-                      <p>
-                        <span className="badge bg-success">Approved</span>
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <strong>Created At:</strong>
-                      <p>
-                        {new Date(
-                          selectedExpense.createdAt
-                        ).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="col-12">
-                      <strong>Attachment:</strong>
-                      <p>
-                        {selectedExpense.attachment ? (
-                          <a
-                            href={selectedExpense.attachment}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-sm btn-primary"
-                          >
-                            View Attachment
-                          </a>
-                        ) : (
-                          <span className="text-muted">No Attachment</span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-    </>
+      )}
+    </main>
   );
 }

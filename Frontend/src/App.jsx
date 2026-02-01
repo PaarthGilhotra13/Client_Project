@@ -85,6 +85,10 @@ import PrPoPendingExpense from "./Components/PR_PO/Expenses/PrPoPendingExpense"
 import PrPoApprovedExpense from "./Components/PR_PO/Expenses/PrPoApprovedExpense"
 import PrPoRejectedExpense from "./Components/PR_PO/Expenses/PrPoRejectedExpense"
 import PrPoHoldExpense from "./Components/PR_PO/Expenses/PrPoHoldExpense"
+import ClosedExpenses from "./Components/FM/Expenses/ClosedExpenses"
+import ZCMaster from "./layout/Zonal Commercial/ZCMaster"
+import ZcPendingTickets from "./Components/Zonal_Commercial/ZcPendingTickets"
+import ZcApprovedTickets from "./Components/Zonal_Commercial/ZcApprovedTickets"
 
 
 function App() {
@@ -161,6 +165,7 @@ function App() {
             <Route path="/fm/holdExpenses" element={<HoldExpenses />} />
             <Route path="/fm/pendingExpenses" element={<PendingExpenses />} />
             <Route path="/fm/rejectedExpenses" element={<RejectedExpenses />} />
+            <Route path="/fm/closedExpenses" element={<ClosedExpenses />} />
             <Route path="/fm/expenseTrackingCard/:id" element={<ExpenseTracking />} />
             <Route path="/fm/trackApproval" element={<TrackApproval />} />
             <Route path="/fm/fmProfile" element={<FMProfile />} />
@@ -201,6 +206,13 @@ function App() {
             <Route path="/PR_PO/holdExpenses" element={<PrPoHoldExpense />} />
             <Route path="/PR_PO/approvedExpenses" element={<PrPoApprovedExpense />} />
             <Route path="/PR_PO/rejectedExpenses" element={<PrPoRejectedExpense />} />
+
+          </Route>
+
+          <Route path="/ZonalCommercial" element={<ZCMaster />}>
+            <Route path="/ZonalCommercial" element={<EmployeeDashboard />} />
+            <Route path="/ZonalCommercial/pendingTickets" element={<ZcPendingTickets />} />
+            <Route path="/ZonalCommercial/approvedTickets" element={<ZcApprovedTickets />} />
 
           </Route>
 
