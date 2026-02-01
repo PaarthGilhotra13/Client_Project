@@ -22,7 +22,7 @@ export default function BfSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
               to={"/BusinessFinance/viewAnnouncement"}
@@ -31,7 +31,7 @@ export default function BfSidebar() {
               <i className="bi bi-megaphone" />
               <span>Announcement</span>
             </Link>
-          </li>
+          </li> */}
           {/* End Dashboard Nav */}
 
 
@@ -52,15 +52,15 @@ export default function BfSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/BusinessFinance/pendingExpenses"} onClick={handleSidebarClose}>
-                  <i className="bi bi-clock fs-6" />
-                  <span>Pending </span>
-                </Link>
-              </li>
-              <li>
                 <Link to={"/BusinessFinance/approvedExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-check-circle fs-6" />
                   <span>Approved </span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/BusinessFinance/pendingExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-clock fs-6" />
+                  <span>Pending </span>
                 </Link>
               </li>
               <li>

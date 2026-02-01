@@ -22,7 +22,7 @@ export default function PRPOSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
               to={"/PR_PO/viewAnnouncement"}
@@ -31,7 +31,7 @@ export default function PRPOSidebar() {
               <i className="bi bi-megaphone" />
               <span>Announcement</span>
             </Link>
-          </li>
+          </li> */}
           {/* End Dashboard Nav */}
 
 
@@ -52,15 +52,15 @@ export default function PRPOSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/PR_PO/pendingExpenses"} onClick={handleSidebarClose}>
-                  <i className="bi bi-clock fs-6" />
-                  <span>Pending </span>
-                </Link>
-              </li>
-              <li>
                 <Link to={"/PR_PO/approvedExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-check-circle fs-6" />
                   <span>Approved </span>
+                </Link>
+              </li>
+              <li>
+                <Link to={"/PR_PO/pendingExpenses"} onClick={handleSidebarClose}>
+                  <i className="bi bi-clock fs-6" />
+                  <span>Pending </span>
                 </Link>
               </li>
               <li>

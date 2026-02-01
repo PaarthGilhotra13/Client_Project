@@ -203,7 +203,9 @@ export default function ApprovedExpenses() {
                   </div>
                   <div className="col-md-6">
                     <strong>Status:</strong>
-                    <span className="badge bg-success">Approved</span>
+                    <p>
+                      <span className="badge bg-success">Approved</span>
+                    </p>
                   </div>
                   <div className="col-md-6">
                     <strong>Created At:</strong>
