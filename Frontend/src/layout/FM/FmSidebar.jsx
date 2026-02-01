@@ -93,7 +93,7 @@ export default function FmSidebar() {
                   to={"/fm/closedExpenses"}
                   onClick={handleSidebarClose}
                 >
-                  <i className="bi bi-x-circle fs-6" />
+                  <i className="bi bi-door-closed fs-6" />
                   <span>Closed Expenses</span>
                 </Link>
               </li>
