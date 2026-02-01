@@ -22,17 +22,6 @@ export default function AdminSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          {/* End Dashboard Nav */}
-          {/* Start Dashboard Nav */}
-          {/* <li className="nav-item">
-                        <Link className="nav-link collapsed" to={"/admin/announcement"} onClick={handleSidebarClose}>
-                            <i className="bi bi-megaphone" />
-                            <span>Announcement</span>
-                        </Link>
-                    </li> */}
-          {/* End Dashboard Nav */}
-
-          {/* Start Zone Nav */}
           <li className="nav-item">
             <Link
               className="nav-link collapsed"
@@ -377,16 +366,6 @@ export default function AdminSidebar() {
               className="nav-content collapse "
               data-bs-parent="#sidebar-nav"
             >
-
-              <li>
-                <Link
-                  to={"/admin/allPendingExpenses"}
-                  onClick={handleSidebarClose}
-                >
-                  <i className="bi bi-hourglass-split fs-6" />
-                  <span>Pending Expenses</span>
-                </Link>
-              </li>
               <li>
                 <Link
                   to={"/admin/allApprovedExpenses"}
@@ -394,6 +373,15 @@ export default function AdminSidebar() {
                 >
                   <i className="bi bi-check-circle fs-6" />
                   <span>Approved Expenses</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to={"/admin/allPendingExpenses"}
+                  onClick={handleSidebarClose}
+                >
+                  <i className="bi bi-hourglass-split fs-6" />
+                  <span>Pending Expenses</span>
                 </Link>
               </li>
               <li>
@@ -414,79 +402,6 @@ export default function AdminSidebar() {
             </ul>
           </li>
           {/* End Employee Nav */}
-          {/* Start Task Nav */}
-          {/* <li className="nav-item">
-                        <Link
-                            className="nav-link collapsed"
-                            data-bs-target="#task-nav"
-                            data-bs-toggle="collapse"
-
-                        >
-                            <i className="bi bi-card-checklist" />
-                            <span>Task</span>
-                            <i className="bi bi-chevron-down ms-auto" />
-                        </Link>
-                        <ul
-                            id="task-nav"
-                            className="nav-content collapse "
-                            data-bs-parent="#sidebar-nav"
-                        >
-                            <li>
-                                <Link to={"/admin/addTask"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-plus fs-5" />
-                                    <span>Add Task</span>
-
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/manageTask"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-card-list fs-6" />
-                                    <span>Manage Task</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/viewProgress"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-file-earmark-text fs-6" />
-                                    <span>View Progress</span>
-                                </Link>
-                            </li>
-
-                        </ul>
-                    </li> */}
-          {/* End Task Nav */}
-          {/* Start Coins Nav */}
-          {/* <li className="nav-item">
-                        <Link
-                            className="nav-link collapsed"
-                            data-bs-target="#coins-nav"
-                            data-bs-toggle="collapse"
-
-                        >
-                            <i className="bi bi-coin" />
-                            <span>Coins</span>
-                            <i className="bi bi-chevron-down ms-auto" />
-                        </Link>
-                        <ul
-                            id="coins-nav"
-                            className="nav-content collapse "
-                            data-bs-parent="#sidebar-nav"
-                        >
-                            <li>
-                                <Link to={"/admin/addCoins"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-plus fs-5" />
-                                    <span>Add Coins</span>
-
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to={"/admin/manageCoins"} onClick={handleSidebarClose}>
-                                    <i className="bi bi-card-list fs-6" />
-                                    <span>Manage Coins</span>
-                                </Link>
-                            </li>
-
-                        </ul>
-                    </li> */}
         </ul>
       </aside>
       {/* End Sidebar*/}

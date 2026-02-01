@@ -22,7 +22,7 @@ export default function ZCSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          <li className="nav-item">
+          {/* <li className="nav-item">
             <Link
               className="nav-link collapsed"
               to={"/ZonalCommercial/viewAnnouncement"}
@@ -31,7 +31,7 @@ export default function ZCSidebar() {
               <i className="bi bi-megaphone" />
               <span>Announcement</span>
             </Link>
-          </li>
+          </li> */}
           {/* End Dashboard Nav */}
 
           {/* Start Expense Nav */}
@@ -65,26 +65,7 @@ export default function ZCSidebar() {
             </ul>
           </li>
           {/* End Expenses Nav */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/dailyProgress"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-clipboard-check" />
-              <span>History</span>
-            </Link>
-          </li> */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/fm/trackApproval"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-hourglass-split text-warning" />
-              <span>Track Approval</span>
-            </Link>
-          </li> */}
+          
         </ul>
       </aside>
       {/* End Sidebar*/}
