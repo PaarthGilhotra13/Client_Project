@@ -89,6 +89,11 @@ import ClosedExpenses from "./Components/FM/Expenses/ClosedExpenses"
 import ZCMaster from "./layout/Zonal Commercial/ZCMaster"
 import ZcPendingTickets from "./Components/Zonal_Commercial/ZcPendingTickets"
 import ZcApprovedTickets from "./Components/Zonal_Commercial/ZcApprovedTickets"
+import ManageBusinessFinance from "./Components/Business_FInance/ManageBusinessFinance"
+import ManagePrPo from "./Components/PR_PO/ManagePrPo"
+import ManageProcurement from "./Components/Procurement/ManageProcurement"
+import ManageMissingBridge from "./Components/Admin/Missing_Bridge/ManageMissingBridge"
+import ManageZonalCommercial from "./Components/Zonal_Commercial/ManageZonalCommercial"
 
 
 function App() {
@@ -107,6 +112,11 @@ function App() {
             <Route path="/admin/zonalHead/" element={<ManageZonalHead />} />
             <Route path="/admin/CLMs/" element={<ManageCLM />} />
             <Route path="/admin/FMs/" element={<ManageFM />} />
+            <Route path="/admin/Procurement/" element={<ManageProcurement />} />
+            <Route path="/admin/prPo/" element={<ManagePrPo />} />
+            <Route path="/admin/businessFinance/" element={<ManageBusinessFinance />} />
+            <Route path="/admin/missingBridge/" element={<ManageMissingBridge />} />
+            <Route path="/admin/zonalCommercial/" element={<ManageZonalCommercial />} />
 
             {/* Zone */}
             <Route path="/admin/addZone" element={<AddZone />} />
