@@ -214,6 +214,33 @@ const add = (req, res) => {
 
                     expenseObj.save()
                         .then(data => {
+                            /* ================= SEND NOTIFICATION ================= */
+
+                            let notifyUserId = null;
+
+                            // example: agar level CLM hai
+                            if (nextApprovalLevel === "CLM") {
+                                notifyUserId = req.body.clmId;   // ya jo bhi tu use karta hai
+                            }
+                            else if (nextApprovalLevel === "ZH") {
+                                notifyUserId = req.body.zhId;
+                            }
+                            else if (nextApprovalLevel === "BF") {
+                                notifyUserId = req.body.bfId;
+                            }
+                            else if (nextApprovalLevel === "PROCUREMENT") {
+                                notifyUserId = req.body.procurementId;
+                            }
+
+                            if (notifyUserId) {
+                                sendNotification(
+                                    notifyUserId,
+                                    "New Expense Submitted",
+                                    `Expense ${data.ticketId} is pending for your approval`,
+                                    data._id
+                                );
+                            }
+
                             res.send({
                                 status: 200,
                                 success: true,
@@ -251,9 +278,9 @@ const add = (req, res) => {
 
 const getAll = (req, res) => {
     expenseModel.find(req.body)
-    .populate("storeId")
-    .populate("expenseHeadId")
-    .populate("raisedBy")
+        .populate("storeId")
+        .populate("expenseHeadId")
+        .populate("raisedBy")
         .then(data => {
             res.send({
                 status: 200,

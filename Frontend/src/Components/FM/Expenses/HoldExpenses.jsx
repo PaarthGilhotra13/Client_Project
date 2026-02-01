@@ -11,6 +11,8 @@ export default function HoldExpenses() {
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [resubmitFile, setResubmitFile] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -199,6 +201,7 @@ export default function HoldExpenses() {
                         </td>
                         <td>
                           <button
+                            type="button"
                             className="btn btn-sm btn-primary"
                             onClick={() => handleViewClick(el)}
                           >
@@ -233,9 +236,8 @@ export default function HoldExpenses() {
               {[...Array(totalPages)].map((_, i) => (
                 <button
                   key={i}
-                  className={`btn me-1 ${
-                    currentPage === i + 1 ? "btn-primary" : "btn-light"
-                  }`}
+                  className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                    }`}
                   onClick={() => setCurrentPage(i + 1)}
                 >
                   {i + 1}
@@ -253,29 +255,141 @@ export default function HoldExpenses() {
           )}
         </div>
       )}
-
       {/* Modal */}
+      {/* ================= MODAL ================= */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1055 }}
         >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
-                <button className="btn-close" onClick={handleCloseModal} />
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "50%",
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                >
+                  &times;
+                </button>
               </div>
 
-              <div className="modal-body">
-                <p><strong>Ticket ID:</strong> {selectedExpense.ticketId}</p>
-                <p><strong>Store:</strong> {selectedExpense.storeId?.storeName}</p>
-                <p><strong>Expense Head:</strong> {selectedExpense.expenseHeadId?.name}</p>
-                <p><strong>Amount:</strong> ₹ {selectedExpense.amount}</p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  <span className="badge bg-warning text-dark">Hold</span>
-                </p>
+              <div className="modal-body px-4">
+                <div className="row g-3">
+
+                  <div className="col-md-6">
+                    <strong>Ticket ID:</strong>
+                    <p>{selectedExpense.ticketId}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Store:</strong>
+                    <p>{selectedExpense.storeId?.storeName}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Expense Head:</strong>
+                    <p>{selectedExpense.expenseHeadId?.name}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Amount:</strong>
+                    <p>₹ {selectedExpense.amount}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Policy:</strong>
+                    <p>{selectedExpense.policy || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Nature of Expense:</strong>
+                    <p>{selectedExpense.natureOfExpense || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>RCA:</strong>
+                    <p>{selectedExpense.rca || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Remarks:</strong>
+                    <p>{selectedExpense.remark || "-"}</p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Status:</strong>
+                    <p>
+                      <span className="badge bg-warning text-dark">Hold</span>
+                    </p>
+                  </div>
+
+                  <div className="col-md-6">
+                    <strong>Hold Comment:</strong>
+                    <p>{selectedExpense.holdComment || "-"}</p>
+                  </div>
+
+                  {/* ===== ATTACHMENTS ===== */}
+                  <div className="col-12">
+                    <strong>Attachment:</strong>
+                    <p>
+                      {selectedExpense.attachment && (
+                        <a
+                          href={selectedExpense.attachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-primary me-2"
+                        >
+                          Original
+                        </a>
+                      )}
+
+                      {selectedExpense.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.resubmittedAttachment}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          Resubmitted
+                        </a>
+                      )}
+
+                      {!selectedExpense.attachment &&
+                        !selectedExpense.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
+                    </p>
+                  </div>
+
+                  {/* ===== RESUBMIT FILE ===== */}
+                  <div className="col-12">
+                    <label className="form-label">
+                      Upload New Attachment (Required)
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      onChange={(e) => setResubmitFile(e.target.files[0])}
+                    />
+                  </div>
+
+                </div>
               </div>
 
               <div className="modal-footer">
@@ -291,6 +405,8 @@ export default function HoldExpenses() {
           </div>
         </div>
       )}
+
+
     </main>
   );
 }

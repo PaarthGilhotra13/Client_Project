@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     email: { type: String, default: "" },
     password: { type: String, default: "" },
     storeId: [{ type: mongoose.Schema.Types.ObjectId, ref: "storeData" }],
-    userType: { type: Number, default: "" }, //1- Admin, 2- Employee, 3- FM, 4- CLM, 5- Zonal Head, 6- Business Finance,  7- Procurement
+    userType: { type: Number, default: "" }, //1- Admin, 2- Employee, 3- FM, 4- CLM, 5- Zonal Head, 6- Business Finance,  7- Procurement, 8-Pr/Po, 9-Zonal Commercial, 10-Missing Bridge 
     designation: { type: String, default: "" },
     status: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now() },

@@ -6,6 +6,9 @@ const clmController=require("../apis/CLM/clmController")
 const fmController=require("../apis/Facility Manager/facilityManagerController")
 const bfController=require("../apis/Business Finance/businessFinanceController")
 const procureController=require("../apis/Procurement/procurementController")
+const prpoController=require("../apis/PrPo/PrPoController")
+const zonalCommercialController=require("../apis/Zonal Commercial/zonalCommercialController")
+const missingBridgeController=require("../apis/Missing Bridge/missingBridgeController")
 const zoneController=require("../apis/Zone/zoneController")
 const cityController=require("../apis/City/cityController")
 const storeCategoryController=require("../apis/Store Category/storeCategoryController")
@@ -83,6 +86,30 @@ routes.post("/procure/single",procureController.getSingle)
 routes.post("/procure/update",procureController.updatePr)
 routes.post("/procure/delete",procureController.delprocure)
 routes.post("/procure/changeStatus",procureController.changeStatus)
+
+// Pr/Po
+routes.post("/pr-po/add",prpoController.add)
+routes.post("/pr-po/all",prpoController.getAll)
+routes.post("/pr-po/single",prpoController.getSingle)
+routes.post("/pr-po/update",prpoController.updatePrPo)
+routes.post("/pr-po/delete",prpoController.delPrPo)
+routes.post("/pr-po/changeStatus",prpoController.changeStatus)
+
+// Zonal Commercial
+routes.post("/zonalCommercial/add",zonalCommercialController.add)
+routes.post("/zonalCommercial/all",zonalCommercialController.getAll)
+routes.post("/zonalCommercial/single",zonalCommercialController.getSingle)
+routes.post("/zonalCommercial/update",zonalCommercialController.updateZonalCommercial)
+routes.post("/zonalCommercial/delete",zonalCommercialController.delZonalCommercial)
+routes.post("/zonalCommercial/changeStatus",zonalCommercialController.changeStatus)
+
+// Missing Bridge
+routes.post("/missingBridge/add",missingBridgeController.add)
+routes.post("/missingBridge/all",missingBridgeController.getAll)
+routes.post("/missingBridge/single",missingBridgeController.getSingle)
+routes.post("/missingBridge/update",missingBridgeController.updateMissingBridge)
+routes.post("/missingBridge/delete",missingBridgeController.delMissingBridge)
+routes.post("/missingBridge/changeStatus",missingBridgeController.changeStatus)
 
 // Zone
 routes.post("/zone/add",zoneController.add)
@@ -164,11 +191,14 @@ routes.post("/expense-approval/clm/pending",expenseApprovalController.clmPending
 routes.post("/expense-approval/zh/pending",expenseApprovalController.pendingForZH)
 routes.post("/expense-approval/bf/pending",expenseApprovalController.pendingForBF)
 routes.post("/expense-approval/procure/pending",expenseApprovalController.pendingForProcurement)
+routes.post("/expense-approval/pr-po/pending",expenseApprovalController.prPoPendingExpenses)
 routes.post("/expense-approval/action",expenseApprovalController.expenseAction)
 routes.post("/expense-approval/myApprovedAction",expenseApprovalController.myApprovalActions)
 routes.post("/expense-approval/reSubmitHeldExpense",upload.single("attachment"),expenseApprovalController.resubmitHeldExpense)
 routes.post("/expense-approval/approval-history",expenseApprovalController.approvalHistory);
 routes.post("/expense-approval/adminExpensesByStatus",expenseApprovalController.adminExpensesByStatus);
+routes.post("/expense-approval/verifyAndCloseExpense",expenseApprovalController.verifyAndCloseExpense);
+routes.post("/expense-approval/uploadWcrInvoice",expenseApprovalController.uploadWcrInvoice);
 
 // Dashboard
 routes.get("/dashboard",adminDashboardController.getDashboard)

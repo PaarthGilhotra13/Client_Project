@@ -16,14 +16,14 @@ const expenseSchema = new mongoose.Schema({
         required: true
     },
 
-    natureOfExpense: { 
-        type: String, 
-        default: "" 
+    natureOfExpense: {
+        type: String,
+        default: ""
     },
 
-    amount: { 
-        type: Number, 
-        required: true 
+    amount: {
+        type: Number,
+        required: true
     },
 
     remark: { type: String, default: "" },
@@ -38,15 +38,15 @@ const expenseSchema = new mongoose.Schema({
     },
 
     // 🔹 FIRST TIME FM UPLOAD
-    attachment: { 
-        type: String, 
-        default: "" 
+    attachment: {
+        type: String,
+        default: ""
     },
 
     // 🔹 CURRENT FLOW TRACKING
-    currentApprovalLevel: { 
-        type: String, 
-        default: null 
+    currentApprovalLevel: {
+        type: String,
+        default: null
     },
 
     currentStatus: {
@@ -61,32 +61,47 @@ const expenseSchema = new mongoose.Schema({
         required: true
     },
 
-    status: { 
-        type: Boolean, 
-        default: true 
+    status: {
+        type: Boolean,
+        default: true
     },
 
-    createdAt: { 
-        type: Date, 
-        default: Date.now  
+    createdAt: {
+        type: Date,
+        default: Date.now
     },
 
     // 🔹 FM RE-UPLOAD AFTER HOLD
-    resubmittedAttachment: { 
-        type: String, 
-        default: "" 
+    resubmittedAttachment: {
+        type: String,
+        default: ""
     },
 
     // 🔹 HOLD DETAILS
-    holdComment: { 
-        type: String, 
-        default: "" 
+    holdComment: {
+        type: String,
+        default: ""
     },
 
-    heldFromLevel: { 
-        type: String, 
-        default: null 
-    }
+    heldFromLevel: {
+        type: String,
+        default: null
+    },
+    postApprovalStage: {
+        type: String,
+        enum: [
+            "NONE",          // normal approval flow
+            "FM_PENDING",    // FM ko WCR + Invoice upload karna hai
+            "ZC_VERIFY",     // Zonal Commercial verify karega
+            "CLOSED"         // final close
+        ],
+        default: "NONE"
+    },
+
+    wcrAttachment: { type: String, default: "" },
+    invoiceAttachment: { type: String, default: "" },
+    prismId: { type: String, default: "" }
+
 });
 
 module.exports = mongoose.model("expenseData", expenseSchema);

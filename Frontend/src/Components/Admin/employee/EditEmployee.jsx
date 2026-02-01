@@ -11,7 +11,7 @@ export default function EditEmployee() {
     const [email, setEmail] = useState("");
     const [designation, setDesignation] = useState("");
 
-    // STORE (ARRAY + ORDER)
+    // STORE
     const [stores, setStores] = useState([]);
     const [storeIds, setStoreIds] = useState([]);
     const [storeOrder, setStoreOrder] = useState([]);
@@ -34,8 +34,16 @@ export default function EditEmployee() {
         if (oldDesignation === "FM") apiCall = ApiServices.GetSingleFm;
         else if (oldDesignation === "CLM") apiCall = ApiServices.GetSingleClm;
         else if (oldDesignation === "Zonal_Head") apiCall = ApiServices.GetSingleZh;
-        else if (oldDesignation === "Business_Finance") apiCall = ApiServices.GetSingleBf;
-        else if (oldDesignation === "Procurement") apiCall = ApiServices.GetSingleProcurement;
+        else if (oldDesignation === "Zonal_Commercial")
+            apiCall = ApiServices.GetSingleZonalCommercial;
+        else if (oldDesignation === "Missing_Bridge")
+            apiCall = ApiServices.GetSingleMissingBridge;
+        else if (oldDesignation === "Business_Finance")
+            apiCall = ApiServices.GetSingleBf;
+        else if (oldDesignation === "Procurement")
+            apiCall = ApiServices.GetSingleProcurement;
+        else if (oldDesignation === "PR/PO")
+            apiCall = ApiServices.GetSinglePrPo;
         else return;
 
         apiCall({ _id: params.id }).then((res) => {
@@ -45,23 +53,22 @@ export default function EditEmployee() {
             setEmail(emp?.email);
             setDesignation(emp?.designation);
 
-            // ✅ STORE ARRAY PREFILL
-            const ids = emp?.storeId?.map(s => s._id) || [];
+            const ids = emp?.storeId?.map((s) => s._id) || [];
             setStoreIds(ids);
             setStoreOrder(ids);
 
-            // ✅ ZONE PREFILL
+            // zone prefill ONLY if exists
             if (emp?.zoneId) setZoneId(emp.zoneId);
 
             setTimeout(() => setLoad(false), 800);
         });
 
         ApiServices.GetAllStore({ status: "true" })
-            .then(res => setStores(res?.data?.data || []))
+            .then((res) => setStores(res?.data?.data || []))
             .catch(() => { });
 
         ApiServices.GetAllZone?.({ status: "true" })
-            .then(res => setZones(res?.data?.data || []))
+            .then((res) => setZones(res?.data?.data || []))
             .catch(() => { });
     }, []);
 
@@ -71,8 +78,8 @@ export default function EditEmployee() {
         let order = [...storeOrder];
 
         if (ids.includes(store._id)) {
-            ids = ids.filter(id => id !== store._id);
-            order = order.filter(id => id !== store._id);
+            ids = ids.filter((id) => id !== store._id);
+            order = order.filter((id) => id !== store._id);
         } else {
             ids.push(store._id);
             order.push(store._id);
@@ -96,12 +103,13 @@ export default function EditEmployee() {
             _id: params.id,
             name,
             contact,
-            storeId: storeIds, // ARRAY
+            storeId: storeIds,
             newDesignation: designation,
             oldDesignation,
         };
 
-        if (designation === "Zonal_Head") {
+        // ✅ zone ONLY for ZH & Missing Bridge
+        if (["Zonal_Head", "Missing_Bridge"].includes(designation)) {
             payload.zoneId = zoneId;
         }
 
@@ -113,8 +121,11 @@ export default function EditEmployee() {
                 FM: ApiServices.UpdateFm,
                 CLM: ApiServices.UpdateClm,
                 Zonal_Head: ApiServices.UpdateZh,
+                Zonal_Commercial: ApiServices.UpdateZonalCommercial,
+                Missing_Bridge: ApiServices.UpdateMissingBridge,
                 Business_Finance: ApiServices.UpdateBf,
                 Procurement: ApiServices.UpdateProcurement,
+                "PR/PO": ApiServices.UpdatePrPo,
             };
             apiCall = updateMap[oldDesignation];
         }
@@ -152,7 +163,12 @@ export default function EditEmployee() {
                             <form className="row g-3" onSubmit={handleForm}>
                                 <div className="col-12">
                                     <label>Name</label>
-                                    <input className="form-control" value={name} onChange={e => setName(e.target.value)} required />
+                                    <input
+                                        className="form-control"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                    />
                                 </div>
 
                                 <div className="col-12">
@@ -162,20 +178,41 @@ export default function EditEmployee() {
 
                                 <div className="col-12">
                                     <label>Contact</label>
-                                    <input className="form-control" value={contact} onChange={e => setContact(e.target.value)} required />
+                                    <input
+                                        className="form-control"
+                                        value={contact}
+                                        onChange={(e) => setContact(e.target.value)}
+                                        required
+                                    />
                                 </div>
 
                                 {/* DESIGNATION */}
                                 <div className="col-12">
                                     <label>Designation</label>
                                     <div className="dropdown">
-                                        <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                                        <button
+                                            className="form-control text-start dropdown-toggle"
+                                            data-bs-toggle="dropdown"
+                                        >
                                             {designation}
                                         </button>
                                         <ul className="dropdown-menu w-100">
-                                            {["FM", "CLM", "Zonal_Head", "Business_Finance", "Procurement"].map(d => (
+                                            {[
+                                                "FM",
+                                                "CLM",
+                                                "Zonal_Head",
+                                                "Zonal_Commercial",
+                                                "Missing_Bridge",
+                                                "Business_Finance",
+                                                "Procurement",
+                                                "PR/PO",
+                                            ].map((d) => (
                                                 <li key={d}>
-                                                    <button className="dropdown-item" type="button" onClick={() => setDesignation(d)}>
+                                                    <button
+                                                        className="dropdown-item"
+                                                        type="button"
+                                                        onClick={() => setDesignation(d)}
+                                                    >
                                                         {d}
                                                     </button>
                                                 </li>
@@ -184,19 +221,26 @@ export default function EditEmployee() {
                                     </div>
                                 </div>
 
-                                {/* STORE MULTI SELECT */}
+                                {/* STORE */}
                                 <div className="col-12">
                                     <label>Store</label>
                                     <div className="dropdown">
-                                        <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                                        <button
+                                            className="form-control text-start dropdown-toggle"
+                                            data-bs-toggle="dropdown"
+                                        >
                                             {storeIds.length > 0
-                                                ? `${storeIds.length} Store${storeIds.length > 1 ? "s" : ""} Selected`
+                                                ? `${storeIds.length} Store${storeIds.length > 1 ? "s" : ""
+                                                } Selected`
                                                 : "Select Store"}
                                         </button>
 
                                         <ul className="dropdown-menu w-100">
-                                            {stores.map(el => (
-                                                <li key={el._id} className="dropdown-item d-flex justify-content-between">
+                                            {stores.map((el) => (
+                                                <li
+                                                    key={el._id}
+                                                    className="dropdown-item d-flex justify-content-between"
+                                                >
                                                     <div className="form-check">
                                                         <input
                                                             type="checkbox"
@@ -217,20 +261,27 @@ export default function EditEmployee() {
                                     </div>
                                 </div>
 
-                                {/* ZONE */}
-                                {designation === "Zonal_Head" && (
+                                {/* ZONE – ONLY FOR ZH & MISSING BRIDGE */}
+                                {["Zonal_Head", "Missing_Bridge"].includes(designation) && (
                                     <div className="col-12">
                                         <label>Zone</label>
                                         <div className="dropdown">
-                                            <button className="form-control text-start dropdown-toggle" data-bs-toggle="dropdown">
+                                            <button
+                                                className="form-control text-start dropdown-toggle"
+                                                data-bs-toggle="dropdown"
+                                            >
                                                 {zoneId
-                                                    ? zones.find(z => z._id === zoneId)?.zoneName
+                                                    ? zones.find((z) => z._id === zoneId)?.zoneName
                                                     : "Select Zone"}
                                             </button>
                                             <ul className="dropdown-menu w-100">
-                                                {zones.map(z => (
+                                                {zones.map((z) => (
                                                     <li key={z._id}>
-                                                        <button className="dropdown-item" type="button" onClick={() => setZoneId(z._id)}>
+                                                        <button
+                                                            className="dropdown-item"
+                                                            type="button"
+                                                            onClick={() => setZoneId(z._id)}
+                                                        >
                                                             {z.zoneName}
                                                         </button>
                                                     </li>
@@ -241,12 +292,14 @@ export default function EditEmployee() {
                                 )}
 
                                 <div className="text-center">
-                                    <button className="btn" style={{ background: "#6776f4", color: "white" }}>
+                                    <button
+                                        className="btn"
+                                        style={{ background: "#6776f4", color: "white" }}
+                                    >
                                         Submit
                                     </button>
                                 </div>
                             </form>
-
                         </div>
                     </div>
                 </div>

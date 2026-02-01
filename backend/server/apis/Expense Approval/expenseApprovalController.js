@@ -8,93 +8,6 @@ const { uploadImg } = require("../../utilities/helper");
 
 
 /* ================= APPROVE EXPENSE ================= */
-// const approveExpense = async (req, res) => {
-//     try {
-//         const { expenseId, approverId, comment } = req.body;
-
-//         if (!expenseId || !approverId) {
-//             return res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "expenseId & approverId are required"
-//             });
-//         }
-
-//         const expense = await expenseModel
-//             .findById(expenseId)
-//             .populate("policyId");
-
-//         if (!expense) {
-//             return res.send({
-//                 status: 404,
-//                 success: false,
-//                 message: "Expense not found"
-//             });
-//         }
-
-//         if (!expense.currentApprovalLevel) {
-//             return res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "No approval pending for this expense"
-//             });
-//         }
-
-//         if (!expense.policyId || !expense.policyId.approvalLevels) {
-//             return res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "Approval policy missing"
-//             });
-//         }
-
-//         const levels = expense.policyId.approvalLevels;
-//         const currentIndex = levels.indexOf(expense.currentApprovalLevel);
-
-//         if (currentIndex === -1) {
-//             return res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "Invalid approval level"
-//             });
-//         }
-
-//         /* ===== SAVE APPROVAL HISTORY ===== */
-//         await expenseApprovalModel.create({
-//             expenseId,
-//             level: expense.currentApprovalLevel,
-//             approverId,
-//             comment: comment || "",
-//             action: "Approved",
-//             status: "Approved"
-//         });
-
-//         /* ===== MOVE TO NEXT LEVEL OR FINAL APPROVE ===== */
-//         if (currentIndex === levels.length - 1) {
-//             expense.currentStatus = "Approved";
-//             expense.currentApprovalLevel = null;
-//         } else {
-//             expense.currentApprovalLevel = levels[currentIndex + 1];
-//         }
-
-//         await expense.save();
-
-//         res.send({
-//             status: 200,
-//             success: true,
-//             message: "Expense Approved Successfully"
-//         });
-
-//     } catch (err) {
-//         console.log("Approve Error:", err);
-//         res.send({
-//             status: 500,
-//             success: false,
-//             message: "Approve failed"
-//         });
-//     }
-// };
-
 const approveExpense = async (req, res) => {
     try {
         const { expenseId, approverId, comment } = req.body;
@@ -108,7 +21,10 @@ const approveExpense = async (req, res) => {
         }
 
         /* 1️⃣ Fetch Expense */
-        const expense = await expenseModel.findById(expenseId).populate("policyId");
+        const expense = await expenseModel
+            .findById(expenseId)
+            .populate("policyId");
+
         if (!expense) {
             return res.send({
                 status: 422,
@@ -127,6 +43,7 @@ const approveExpense = async (req, res) => {
 
         /* 2️⃣ Fetch Approver */
         const approver = await userModel.findById(approverId);
+
         if (!approver || !approver.designation) {
             return res.send({
                 status: 422,
@@ -170,16 +87,42 @@ const approveExpense = async (req, res) => {
 
         const nextLevel = policyLevels[currentIndex + 1];
 
+        /* =======================
+           🔥 FINAL DECISION LOGIC
+           ======================= */
+
         if (nextLevel) {
             // 🔁 Move to next approver
             expense.currentApprovalLevel = nextLevel;
             expense.currentStatus = "Pending";
         } else {
-            // ✅ Final approval
-            expense.currentApprovalLevel = null;
-            expense.currentStatus = "Approved";
+            // ✅ Final approval reached
+            const isMultiLevel = policyLevels.length > 1;
+
+            if (expense.natureOfExpense === "OPEX") {
+                // 🔁 OPEX → always FM execution
+                expense.currentStatus = "Approved";
+                expense.postApprovalStage = "FM_PENDING";
+                expense.currentApprovalLevel = "FM";
+
+            } else if (
+                expense.natureOfExpense === "CAPEX" &&
+                isMultiLevel
+            ) {
+                // 🔁 CAPEX + multi-level → FM execution
+                expense.currentStatus = "Approved";
+                expense.postApprovalStage = "FM_PENDING";
+                expense.currentApprovalLevel = "FM";
+
+            } else {
+                // ❌ CAPEX + single-level → direct close
+                expense.currentStatus = "Closed";
+                expense.postApprovalStage = "CLOSED";
+                expense.currentApprovalLevel = null;
+            }
         }
 
+        /* Reset hold fields if any */
         expense.heldFromLevel = null;
         expense.holdComment = "";
 
@@ -202,6 +145,7 @@ const approveExpense = async (req, res) => {
         });
     }
 };
+
 
 
 
@@ -665,6 +609,56 @@ const pendingForProcurement = async (req, res) => {
     }
 };
 
+const prPoPendingExpenses = async (req, res) => {
+    try {
+        const errMsgs = [];
+
+        if (!req.body.userId) errMsgs.push("userId is required");
+
+        if (errMsgs.length > 0) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: errMsgs,
+            });
+        }
+
+        const userId = req.body.userId;
+
+        // ✅ Check PR/PO user exists
+        const prpoUser = await userModel.findById(userId);
+
+        if (!prpoUser) {
+            return res.send({
+                success: false,
+                message: "PR/PO user not found",
+            });
+        }
+
+        // ✅ Fetch pending expenses for PR/PO
+        const expenses = await expenseModel
+            .find({
+                currentApprovalLevel: "PR/PO",
+                currentStatus: "Pending",
+            })
+            .populate("storeId")
+            .populate("expenseHeadId")
+            .populate("raisedBy")
+            .sort({ createdAt: -1 });
+
+        return res.send({
+            success: true,
+            message: "PR/PO pending expenses fetched successfully",
+            data: expenses,
+        });
+    } catch (error) {
+        console.log("PR/PO Pending Expense Error:", error);
+        return res.send({
+            success: false,
+            message: "Something went wrong",
+        });
+    }
+};
 
 
 const expenseAction = async (req, res) => {
@@ -903,6 +897,156 @@ const adminExpensesByStatus = async (req, res) => {
     }
 };
 
+const uploadWcrInvoice = async (req, res) => {
+    try {
+        const { expenseId } = req.body;
+
+        if (!expenseId) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "expenseId is required"
+            });
+        }
+
+        /* 1️⃣ Fetch Expense */
+        const expense = await expenseModel.findById(expenseId);
+
+        if (!expense) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Expense not found"
+            });
+        }
+
+        /* 2️⃣ Validate FM stage */
+        if (
+            expense.currentApprovalLevel !== "FM" ||
+            expense.postApprovalStage !== "FM_PENDING"
+        ) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Expense not eligible for WCR/Invoice upload"
+            });
+        }
+
+        /* 3️⃣ Validate files */
+        if (!req.files || !req.files.wcr || !req.files.invoice) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "WCR & Invoice both are required"
+            });
+        }
+
+        /* 4️⃣ Save attachments (Cloudinary assumed) */
+        expense.wcrAttachment = req.files.wcr[0].path;
+        expense.invoiceAttachment = req.files.invoice[0].path;
+
+        /* 5️⃣ Move to Zonal Commercial */
+        expense.postApprovalStage = "ZC_VERIFY";
+        expense.currentApprovalLevel = "ZONAL_COMMERCIAL";
+        expense.currentStatus = "Pending";
+
+        await expense.save();
+
+        return res.send({
+            status: 200,
+            success: true,
+            message: "WCR & Invoice uploaded, sent to Zonal Commercial"
+        });
+
+    } catch (err) {
+        console.log("WCR Upload Error:", err);
+        return res.send({
+            status: 500,
+            success: false,
+            message: "Upload failed"
+        });
+    }
+};
+
+const verifyAndCloseExpense = async (req, res) => {
+    try {
+        const { expenseId, prismId, comment } = req.body;
+
+        if (!expenseId || !prismId) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "expenseId & prismId are required"
+            });
+        }
+
+        /* 1️⃣ Fetch Expense */
+        const expense = await expenseModel.findById(expenseId);
+
+        if (!expense) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Expense not found"
+            });
+        }
+
+        /* 2️⃣ Validate ZC stage */
+        if (
+            expense.currentApprovalLevel !== "ZONAL_COMMERCIAL" ||
+            expense.postApprovalStage !== "ZC_VERIFY"
+        ) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Expense not eligible for verification"
+            });
+        }
+
+        /* 3️⃣ Validate attachments */
+        if (!expense.wcrAttachment || !expense.invoiceAttachment) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "WCR & Invoice must be uploaded before verification"
+            });
+        }
+
+        /* 4️⃣ Save Prism ID */
+        expense.prismId = prismId;
+
+        /* 5️⃣ Close Ticket */
+        expense.currentStatus = "Closed";
+        expense.postApprovalStage = "CLOSED";
+        expense.currentApprovalLevel = null;
+
+        await expense.save();
+
+        /* 6️⃣ Save audit history (recommended) */
+        await expenseApprovalModel.create({
+            expenseId: expense._id,
+            level: "ZONAL_COMMERCIAL",
+            approverId: req.userId || null,
+            comment: comment || "",
+            action: "Closed",
+            status: "Closed"
+        });
+
+        return res.send({
+            status: 200,
+            success: true,
+            message: "Expense verified and closed successfully"
+        });
+
+    } catch (err) {
+        console.log("ZC Verify Error:", err);
+        return res.send({
+            status: 500,
+            success: false,
+            message: "Verification failed"
+        });
+    }
+};
 
 
-module.exports = { approveExpense, holdExpense, rejectExpense, approvalHistory, clmPendingExpenses, pendingForProcurement, pendingForBF, pendingForZH, expenseAction, myApprovalActions, resubmitHeldExpense, adminExpensesByStatus }
+module.exports = { approveExpense, holdExpense, rejectExpense, approvalHistory, clmPendingExpenses, pendingForProcurement, pendingForBF, pendingForZH, expenseAction, myApprovalActions, resubmitHeldExpense, adminExpensesByStatus, prPoPendingExpenses,uploadWcrInvoice,verifyAndCloseExpense }

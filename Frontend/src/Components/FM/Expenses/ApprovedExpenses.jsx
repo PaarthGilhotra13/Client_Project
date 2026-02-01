@@ -1,4 +1,4 @@
-//Approved expense
+// Approved expense (FM - Execution Pending)
 import { useEffect, useState } from "react";
 import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
@@ -13,7 +13,7 @@ export default function ApprovedExpenses() {
 
   // ================= PAGINATION =================
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20; // You can adjust as needed
+  const itemsPerPage = 20;
 
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
@@ -24,9 +24,12 @@ export default function ApprovedExpenses() {
       return;
     }
 
+    // 🔥 UPDATED LOGIC (NO UI CHANGE)
     ApiServices.MyExpenses({
       userId: userId,
       currentStatus: "Approved",
+      currentApprovalLevel: "FM",
+      postApprovalStage: "FM_PENDING",
     })
       .then((res) => {
         if (res?.data?.success) {
@@ -104,7 +107,9 @@ export default function ApprovedExpenses() {
                     {currentExpenses.length > 0 ? (
                       currentExpenses.map((el, index) => (
                         <tr key={el._id}>
-                          <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                          <td>
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
                           <td>{el.ticketId}</td>
                           <td>{el.storeId?.storeName}</td>
                           <td>{el.expenseHeadId?.name}</td>
@@ -112,7 +117,9 @@ export default function ApprovedExpenses() {
                           <td>
                             <span className="badge bg-success">Approved</span>
                           </td>
-                          <td>{new Date(el.createdAt).toLocaleDateString()}</td>
+                          <td>
+                            {new Date(el.createdAt).toLocaleDateString()}
+                          </td>
                           <td>
                             <button
                               className="btn btn-sm btn-primary"
@@ -149,9 +156,8 @@ export default function ApprovedExpenses() {
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i}
-                    className={`btn me-1 ${
-                      currentPage === i + 1 ? "btn-primary" : "btn-light"
-                    }`}
+                    className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                      }`}
                     onClick={() => setCurrentPage(i + 1)}
                   >
                     {i + 1}
@@ -244,7 +250,11 @@ export default function ApprovedExpenses() {
                     </div>
                     <div className="col-md-6">
                       <strong>Created At:</strong>
-                      <p>{new Date(selectedExpense.createdAt).toLocaleDateString()}</p>
+                      <p>
+                        {new Date(
+                          selectedExpense.createdAt
+                        ).toLocaleDateString()}
+                      </p>
                     </div>
                     <div className="col-12">
                       <strong>Attachment:</strong>

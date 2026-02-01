@@ -15,10 +15,12 @@ export default function EditApprovalPolicy() {
     const { id } = useParams();
     const nav = useNavigate();
 
+    // ✅ UPDATED ROLES (PR/PO ADDED)
     const roles = [
         "CLM",
         "ZONAL_HEAD",
         "BUSINESS_FINANCE",
+        "PR/PO",
         "PROCUREMENT"
     ];
 
@@ -132,7 +134,7 @@ export default function EditApprovalPolicy() {
                                         />
                                     </div>
 
-                                    {/* APPROVAL LEVELS (SAME UI AS ADD) */}
+                                    {/* APPROVAL LEVELS */}
                                     <div className="col-12">
                                         <label className="form-label">Approval Levels</label>
                                         <div className="border rounded p-2">
