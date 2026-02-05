@@ -1,16 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
-import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-import ApiServices from '../../ApiServices';
 
 export default function AdminHeader() {
-    const [showModal, setShowModal] = useState(false);
+    // const [showModal, setShowModal] = useState(false);
     const [load, setLoad] = useState(false)
     var [profile, setProfile] = useState([])
-    const handleShowModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
+    // const handleShowModal = () => setShowModal(true);
+    // const handleCloseModal = () => setShowModal(false);
     const nav = useNavigate()
     const addSidebar = () => {
         document.body.classList.toggle('toggle-sidebar');
@@ -65,7 +63,7 @@ export default function AdminHeader() {
             {/* ======= Header ======= */}
             <header id="header" className="header fixed-top d-flex align-items-center">
                 <div className="d-flex align-items-center justify-content-between">
-                    <Link to="/employee" className="logo d-flex align-items-center ms-3">
+                    <Link to="/admin" className="logo d-flex align-items-center ms-3">
                         <img src="/assets/img/logo4.png" alt="" />
                         <span className="d-lg-block" style={{ color: "#25353e" }}>R&M Tool</span>
                     </Link>
