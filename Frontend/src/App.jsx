@@ -96,6 +96,7 @@ import ManageZonalCommercial from "./Components/Zonal_Commercial/ManageZonalComm
 import ZonalHeadDashboard from "./Components/Zonal_Head/ZonalHeadDashboard"
 import FacilityManagerDashboard from "./Components/Employee/FacilityManagerDashboard"
 import AssignedRequests from "./Components/FM/Expenses/AssignedRequest"
+import CLMDashboard from "./Components/CLM/ClmDashboard"
 
 
 function App() {
@@ -184,7 +185,7 @@ function App() {
             <Route path="/fm/fmProfile" element={<FMProfile />} />
           </Route>
           <Route path="/clm" element={<ClmMaster />}>
-            <Route path="/clm" element={<FacilityManagerDashboard />} />
+            <Route path="/clm" element={<CLMDashboard />} />
             <Route path="/clm/approvedExpenses" element={<ClmApprovedExpenses />} />
             <Route path="/clm/holdExpenses" element={<ClmHoldExpenses />} />
             <Route path="/clm/pendingExpenses" element={<ClmPendingExpense />} />
