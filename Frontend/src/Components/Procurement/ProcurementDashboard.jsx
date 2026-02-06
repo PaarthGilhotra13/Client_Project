@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import ApiServices from "../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 
-export default function BusinessFinanceDashboard() {
+export default function ProcurementDashboard() {
   const userId = sessionStorage.getItem("userId");
 
   const [load, setLoad] = useState(false);
@@ -20,32 +20,32 @@ export default function BusinessFinanceDashboard() {
     setLoad(true);
 
     Promise.all([
-      // 🔵 Pending (Business Finance)
+      // 🔵 Pending (Procurement)
       ApiServices.MyApprovalActions({
         userId,
         action: "Pending",
-        level: "BUSINESS_FINANCE",
+        level: "PROCUREMENT",
       }),
 
       // 🟡 Hold
       ApiServices.MyApprovalActions({
         userId,
         action: "Hold",
-        level: "BUSINESS_FINANCE",
+        level: "PROCUREMENT",
       }),
 
       // 🟢 Approved
       ApiServices.MyApprovalActions({
         userId,
         action: "Approved",
-        level: "BUSINESS_FINANCE",
+        level: "PROCUREMENT",
       }),
 
       // 🔴 Rejected
       ApiServices.MyApprovalActions({
         userId,
         action: "Rejected",
-        level: "BUSINESS_FINANCE",
+        level: "PROCUREMENT",
       }),
     ])
       .then(([pendingRes, holdRes, approvedRes, rejectedRes]) => {
@@ -59,7 +59,7 @@ export default function BusinessFinanceDashboard() {
         setLoad(false);
       })
       .catch((err) => {
-        console.log("❌ BUSINESS FINANCE DASHBOARD ERROR", err);
+        console.log("❌ PROCUREMENT DASHBOARD ERROR", err);
         setLoad(false);
       });
   }, [userId]);
@@ -81,7 +81,7 @@ export default function BusinessFinanceDashboard() {
 
       <div className="container-fluid my-4">
         <h3 style={{ color: "#012970" }}>
-          <strong>Business Finance Dashboard</strong>
+          <strong>Procurement Dashboard</strong>
         </h3>
 
         <div className="row mt-4">
@@ -90,7 +90,7 @@ export default function BusinessFinanceDashboard() {
             value={counts.pending}
             color="#17A2B8"
             icon="bi-hourglass-split"
-            link="/businessFinance/pendingExpenses"
+            link="/procurement/pendingExpenses"
           />
 
           <Card
@@ -98,7 +98,7 @@ export default function BusinessFinanceDashboard() {
             value={counts.hold}
             color="#6c757d"
             icon="bi-pause-circle-fill"
-            link="/businessFinance/holdExpenses"
+            link="/procurement/holdExpenses"
           />
 
           <Card
@@ -106,7 +106,7 @@ export default function BusinessFinanceDashboard() {
             value={counts.approved}
             color="#28A745"
             icon="bi-check-circle-fill"
-            link="/businessFinance/approvedExpenses"
+            link="/procurement/approvedExpenses"
           />
 
           <Card
@@ -114,7 +114,7 @@ export default function BusinessFinanceDashboard() {
             value={counts.rejected}
             color="#DC3545"
             icon="bi-x-circle-fill"
-            link="/businessFinance/rejectedExpenses"
+            link="/procurement/rejectedExpenses"
           />
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function BusinessFinanceDashboard() {
   );
 }
 
-/* 🔹 CARD – SAME UI AS FM / CLM / ZH */
+/* 🔹 CARD – SAME UI (DON’T TOUCH) */
 function Card({ title, value, color, icon, link }) {
   return (
     <div className="col-xxl-4 col-md-6 mb-4">

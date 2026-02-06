@@ -97,6 +97,9 @@ import ZonalHeadDashboard from "./Components/Zonal_Head/ZonalHeadDashboard"
 import FacilityManagerDashboard from "./Components/Employee/FacilityManagerDashboard"
 import AssignedRequests from "./Components/FM/Expenses/AssignedRequest"
 import CLMDashboard from "./Components/CLM/ClmDashboard"
+import BusinessFinanceDashboard from "./Components/Business_FInance/BusinessFinanceDashboard"
+import ProcurementDashboard from "./Components/Procurement/ProcurementDashboard"
+import PrPoDashboard from "./Components/PR_PO/PrPoDashboard"
 
 
 function App() {
@@ -201,21 +204,21 @@ function App() {
             <Route path="/ZonalHead/zhprofile" element={<ZonalProfile />} />
           </Route>
           <Route path="/BusinessFinance" element={<BfMaster />}>
-            <Route path="/BusinessFinance" element={<FacilityManagerDashboard />} />
+            <Route path="/BusinessFinance" element={<BusinessFinanceDashboard />} />
             <Route path="/BusinessFinance/approvedExpenses" element={<BfApprovedExpenses />} />
             <Route path="/BusinessFinance/holdExpenses" element={<BfHoldExpense />} />
             <Route path="/BusinessFinance/pendingExpenses" element={<BfPendingExpense />} />
             <Route path="/BusinessFinance/rejectedExpenses" element={<BfRejectedExpense />} />
           </Route>
           <Route path="/Procurement" element={<ProcureMaster />}>
-            <Route path="/Procurement" element={<FacilityManagerDashboard />} />
+            <Route path="/Procurement" element={<ProcurementDashboard />} />
             <Route path="/Procurement/approvedExpenses" element={<ProcureApprovedExpenses />} />
             <Route path="/Procurement/holdExpenses" element={<ProcureHoldExpenses />} />
             <Route path="/Procurement/pendingExpenses" element={<ProcurePendingExpense />} />
             <Route path="/Procurement/rejectedExpenses" element={<ProcureRejectedExpenses />} />
           </Route>
           <Route path="/PR_PO" element={<PRPOMaster />}>
-            <Route path="/PR_PO" element={<FacilityManagerDashboard />} />
+            <Route path="/PR_PO" element={<PrPoDashboard />} />
             <Route path="/PR_PO/pendingExpenses" element={<PrPoPendingExpense />} />
             <Route path="/PR_PO/holdExpenses" element={<PrPoHoldExpense />} />
             <Route path="/PR_PO/approvedExpenses" element={<PrPoApprovedExpense />} />

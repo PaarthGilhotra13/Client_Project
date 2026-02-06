@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import ApiServices from "../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 
-export default function BusinessFinanceDashboard() {
+export default function PrPoDashboard() {
   const userId = sessionStorage.getItem("userId");
 
   const [load, setLoad] = useState(false);
   const [counts, setCounts] = useState({
-    pending: 0,
+    pendingApprovals: 0,
     hold: 0,
     approved: 0,
     rejected: 0,
@@ -20,37 +20,33 @@ export default function BusinessFinanceDashboard() {
     setLoad(true);
 
     Promise.all([
-      // 🔵 Pending (Business Finance)
-      ApiServices.MyApprovalActions({
-        userId,
-        action: "Pending",
-        level: "BUSINESS_FINANCE",
-      }),
+      // 🔵 PENDING → ALAG API
+      ApiServices.GetPrPoPendingExpenses({ userId }),
 
-      // 🟡 Hold
+      // 🟡 HOLD → MyApprovalActions
       ApiServices.MyApprovalActions({
         userId,
         action: "Hold",
-        level: "BUSINESS_FINANCE",
+        level: "PR/PO",
       }),
 
-      // 🟢 Approved
+      // 🟢 APPROVED
       ApiServices.MyApprovalActions({
         userId,
         action: "Approved",
-        level: "BUSINESS_FINANCE",
+        level: "PR/PO",
       }),
 
-      // 🔴 Rejected
+      // 🔴 REJECTED
       ApiServices.MyApprovalActions({
         userId,
         action: "Rejected",
-        level: "BUSINESS_FINANCE",
+        level: "PR/PO",
       }),
     ])
       .then(([pendingRes, holdRes, approvedRes, rejectedRes]) => {
         setCounts({
-          pending: pendingRes?.data?.data?.length || 0,
+          pendingApprovals: pendingRes?.data?.data?.length || 0,
           hold: holdRes?.data?.data?.length || 0,
           approved: approvedRes?.data?.data?.length || 0,
           rejected: rejectedRes?.data?.data?.length || 0,
@@ -59,7 +55,7 @@ export default function BusinessFinanceDashboard() {
         setLoad(false);
       })
       .catch((err) => {
-        console.log("❌ BUSINESS FINANCE DASHBOARD ERROR", err);
+        console.log("❌ PR/PO DASHBOARD ERROR", err);
         setLoad(false);
       });
   }, [userId]);
@@ -81,16 +77,16 @@ export default function BusinessFinanceDashboard() {
 
       <div className="container-fluid my-4">
         <h3 style={{ color: "#012970" }}>
-          <strong>Business Finance Dashboard</strong>
+          <strong>PR / PO Dashboard</strong>
         </h3>
 
         <div className="row mt-4">
           <Card
             title="Pending Approvals"
-            value={counts.pending}
+            value={counts.pendingApprovals}
             color="#17A2B8"
             icon="bi-hourglass-split"
-            link="/businessFinance/pendingExpenses"
+            link="/PR_PO/pendingExpenses"
           />
 
           <Card
@@ -98,7 +94,7 @@ export default function BusinessFinanceDashboard() {
             value={counts.hold}
             color="#6c757d"
             icon="bi-pause-circle-fill"
-            link="/businessFinance/holdExpenses"
+            link="/PR_PO/holdExpenses"
           />
 
           <Card
@@ -106,7 +102,7 @@ export default function BusinessFinanceDashboard() {
             value={counts.approved}
             color="#28A745"
             icon="bi-check-circle-fill"
-            link="/businessFinance/approvedExpenses"
+            link="/PR_PO/approvedExpenses"
           />
 
           <Card
@@ -114,7 +110,7 @@ export default function BusinessFinanceDashboard() {
             value={counts.rejected}
             color="#DC3545"
             icon="bi-x-circle-fill"
-            link="/businessFinance/rejectedExpenses"
+            link="/PR_PO/rejectedExpenses"
           />
         </div>
       </div>
@@ -122,7 +118,7 @@ export default function BusinessFinanceDashboard() {
   );
 }
 
-/* 🔹 CARD – SAME UI AS FM / CLM / ZH */
+/* 🔹 CARD – SAME UI */
 function Card({ title, value, color, icon, link }) {
   return (
     <div className="col-xxl-4 col-md-6 mb-4">
