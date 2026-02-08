@@ -422,6 +422,9 @@ class ApiServices {
    ZcPendingExpense(data) {
       return axios.post(BaseURL + "/apis/expense-approval/zcPendingExpense", data, { headers: getToken() })
    }
+   PrpoEmailAndClose(data) {
+      return axios.post(BaseURL + "/apis/expense-approval/prpoEmailAndClose", data, { headers: getToken() })
+   }
 
 
    //Announcement

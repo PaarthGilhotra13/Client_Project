@@ -12,7 +12,9 @@ export default function ApprovedExpenses() {
   const [showModal, setShowModal] = useState(false);
   const [wcrFile, setWcrFile] = useState(null);
   const [invoiceFile, setInvoiceFile] = useState(null);
+  const [fmComment, setFmComment] = useState("");
 
+  /* ================= FETCH APPROVED (FM PENDING) ================= */
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
 
@@ -32,10 +34,12 @@ export default function ApprovedExpenses() {
       });
   }, []);
 
+  /* ================= VIEW MODAL ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
     setWcrFile(null);
     setInvoiceFile(null);
+    setFmComment("");
     setShowModal(true);
   };
 
@@ -44,29 +48,37 @@ export default function ApprovedExpenses() {
     setShowModal(false);
     setWcrFile(null);
     setInvoiceFile(null);
+    setFmComment("");
   };
 
+  /* ================= UPLOAD WCR + INVOICE + COMMENT ================= */
   const handleUploadDocs = () => {
-    if (!wcrFile || !invoiceFile) {
-      return Swal.fire("Error", "WCR & Invoice both are required", "error");
+    if (!wcrFile || !invoiceFile || !fmComment.trim()) {
+      return Swal.fire(
+        "Error",
+        "WCR, Invoice & FM Comment are required",
+        "error"
+      );
     }
 
     const formData = new FormData();
     formData.append("expenseId", selectedExpense._id);
     formData.append("wcr", wcrFile);
     formData.append("invoice", invoiceFile);
+    formData.append("fmComment", fmComment);
     formData.append("fmId", sessionStorage.getItem("userId"));
 
     ApiServices.UploadWcrInvoice(formData)
       .then((res) => {
         if (res?.data?.success) {
           Swal.fire("Success", res.data.message, "success");
-          setShowModal(false);
 
-          // FM ka kaam complete → list se hata do
+          // FM ka kaam complete → list se remove
           setData((prev) =>
             prev.filter((e) => e._id !== selectedExpense._id)
           );
+
+          handleCloseModal();
         } else {
           Swal.fire("Error", res.data.message, "error");
         }
@@ -138,7 +150,6 @@ export default function ApprovedExpenses() {
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
-          tabIndex="-1"
           style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
         >
           <div className="modal-dialog modal-lg">
@@ -153,13 +164,9 @@ export default function ApprovedExpenses() {
                     height: "30px",
                     backgroundColor: "red",
                     color: "white",
-                    fontWeight: "bold",
                     border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
                     fontSize: "18px",
+                    cursor: "pointer",
                   }}
                 >
                   &times;
@@ -167,7 +174,7 @@ export default function ApprovedExpenses() {
               </div>
 
               <div className="modal-body px-4">
-                {/* ===== EXISTING DETAILS (UNCHANGED) ===== */}
+                {/* ===== DETAILS (UNCHANGED) ===== */}
                 <div className="row g-3">
                   <div className="col-md-6">
                     <strong>Ticket ID:</strong>
@@ -201,24 +208,10 @@ export default function ApprovedExpenses() {
                     <strong>Remarks:</strong>
                     <p>{selectedExpense.remark || "-"}</p>
                   </div>
-                  <div className="col-md-6">
-                    <strong>Status:</strong>
-                    <p>
-                      <span className="badge bg-success">Approved</span>
-                    </p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Created At:</strong>
-                    <p>
-                      {new Date(
-                        selectedExpense.createdAt
-                      ).toLocaleDateString()}
-                    </p>
-                  </div>
+
                   <div className="col-12">
                     <strong>Attachments:</strong>
                     <p>
-                      {/* Original Attachment */}
                       {selectedExpense.attachment && (
                         <a
                           href={selectedExpense.attachment}
@@ -226,11 +219,9 @@ export default function ApprovedExpenses() {
                           rel="noopener noreferrer"
                           className="btn btn-sm btn-primary me-2"
                         >
-                          Original 
+                          Original
                         </a>
                       )}
-
-                      {/* Resubmitted Attachment */}
                       {selectedExpense.resubmittedAttachment && (
                         <a
                           href={selectedExpense.resubmittedAttachment}
@@ -238,21 +229,18 @@ export default function ApprovedExpenses() {
                           rel="noopener noreferrer"
                           className="btn btn-sm btn-success me-2"
                         >
-                          Resubmitted 
+                          Resubmitted
                         </a>
                       )}
-
-                      {/* No attachment case */}
                       {!selectedExpense.attachment &&
                         !selectedExpense.resubmittedAttachment && (
                           <span className="text-muted">No Attachment</span>
                         )}
                     </p>
                   </div>
-
                 </div>
 
-                {/* ===== NEW : WCR / INVOICE UPLOAD (ONLY ADDITION) ===== */}
+                {/* ===== FM EXECUTION SECTION ===== */}
                 <hr />
                 <h6 className="fw-bold text-primary">
                   Upload Execution Documents
@@ -279,6 +267,19 @@ export default function ApprovedExpenses() {
                     />
                   </div>
 
+                  <div className="col-12">
+                    <label className="form-label fw-bold">
+                      FM Comment <span className="text-danger">*</span>
+                    </label>
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      placeholder="Enter execution comment"
+                      value={fmComment}
+                      onChange={(e) => setFmComment(e.target.value)}
+                    />
+                  </div>
+
                   <div className="col-12 text-end mt-3">
                     <button
                       className="btn btn-success"
@@ -288,7 +289,7 @@ export default function ApprovedExpenses() {
                     </button>
                   </div>
                 </div>
-                {/* ===== END NEW SECTION ===== */}
+                {/* ===== END ===== */}
               </div>
             </div>
           </div>

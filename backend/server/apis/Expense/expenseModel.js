@@ -92,6 +92,7 @@ const expenseSchema = new mongoose.Schema({
         enum: [
             "NONE",          // normal approval flow
             "FM_PENDING",    // FM ko WCR + Invoice upload karna hai
+            "PRPO_EMAIL", 
             "ZC_VERIFY",     // Zonal Commercial verify karega
             "CLOSED"         // final close
         ],
@@ -100,7 +101,25 @@ const expenseSchema = new mongoose.Schema({
 
     wcrAttachment: { type: String, default: "" },
     invoiceAttachment: { type: String, default: "" },
-    prismId: { type: String, default: "" }
+    fmComment: { type: String, default: "" },
+    prismId: { type: String, default: "" },
+    prComment: {
+        type: String,
+        default: ""
+    },
+
+    poComment: {
+        type: String,
+        default: ""
+    },
+    prPoEmailSubject: {
+        type: String,
+        default: ""
+    },
+    prPoAttachment: {     // 🆕
+        type: String,
+        default: ""
+    },
 
 });
 

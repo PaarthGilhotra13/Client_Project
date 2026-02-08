@@ -78,6 +78,15 @@ export default function PRPOSidebar() {
                   <span>Rejected</span>
                 </Link>
               </li>
+              <li>
+                <Link
+                  to={"/PR_PO/closedExpenses"}
+                  onClick={handleSidebarClose}
+                >
+                  <i className="bi bi-door-closed fs-6" />
+                  <span>Closed Expenses</span>
+                </Link>
+              </li>
             </ul>
           </li>
           {/* End Expenses Nav */}

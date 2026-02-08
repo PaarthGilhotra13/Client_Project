@@ -183,7 +183,7 @@ routes.post("/approvalPolicy/delete", approvalPolicyController.delApprovalPolicy
 routes.post("/approvalPolicy/changeStatus", approvalPolicyController.changeStatus)
 
 //Expense Approval
-routes.post("/expense-approval/approve", expenseApprovalController.approveExpense)
+routes.post("/expense-approval/approve", upload.single("attachment") ,expenseApprovalController.approveExpense)
 routes.post("/expense-approval/hold", expenseApprovalController.holdExpense)
 routes.post("/expense-approval/reject", expenseApprovalController.rejectExpense)
 routes.post("/expense-approval/history", expenseApprovalController.approvalHistory)
@@ -203,6 +203,7 @@ routes.post("/expense-approval/uploadWcrInvoice", upload.fields([
     { name: "invoice", maxCount: 1 }
 ]), expenseApprovalController.uploadWcrInvoice);
 routes.post("/expense-approval/zcPendingExpense", expenseApprovalController.zonalCommercialPending);
+routes.post("/expense-approval/prpoEmailAndClose", expenseApprovalController.prpoEmailAndClose);
 
 
 // Dashboard

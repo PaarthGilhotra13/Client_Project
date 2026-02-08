@@ -11,13 +11,20 @@ export default function PrPoPendingExpense() {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  // PR/PO inputs
+  const [prComment, setPrComment] = useState("");
+  const [poComment, setPoComment] = useState("");
+  const [attachmentFile, setAttachmentFile] = useState(null);
+  const [emailSubject, setEmailSubject] = useState("");
+
   // Search
   const [searchTerm, setSearchTerm] = useState("");
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
-
+  const isEmailStage =
+    selectedExpense?.postApprovalStage === "PRPO_EMAIL";
   const userId = sessionStorage.getItem("userId");
 
   /* ================= FETCH PENDING (PR/PO) ================= */
@@ -69,68 +76,137 @@ export default function PrPoPendingExpense() {
   /* ================= MODAL ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
+    setPrComment("");
+    setPoComment("");
+    setAttachmentFile(null);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
-    setSelectedExpense(null);
     setShowModal(false);
+    setSelectedExpense(null);
+    setPrComment("");
+    setPoComment("");
+    setAttachmentFile(null);
+    setEmailSubject("");
+
   };
 
-  /* ================= ACTION HANDLER (PR/PO) ================= */
-  const takeAction = (type, expenseId) => {
-    Swal.fire({
-      title: `Confirm ${type}`,
-      input: "textarea",
-      inputPlaceholder: "Enter comment (optional)",
-      showCancelButton: true,
-      confirmButtonText: type,
-    }).then((result) => {
-      if (!result.isConfirmed) return;
+  /* ================= ACTION HANDLER ================= */
+  const takeAction = (type) => {
+    if (isEmailStage) {
+      return Swal.fire(
+        "Error",
+        "This expense is already approved. Please close it using Email Subject.",
+        "warning"
+      );
+    }
+    if (type === "Approve") {
+      if (!prComment.trim() || !poComment.trim()) {
+        return Swal.fire(
+          "Error",
+          "PR & PO comments are mandatory for approval",
+          "error"
+        );
+      }
+    }
 
-      const payload = {
-        expenseId,
-        approverId: userId,
-        comment: result.value || "",
-      };
+    const formData = new FormData();
+    formData.append("expenseId", selectedExpense._id);
+    formData.append("approverId", userId);
 
-      setLoad(true);
+    // 🔥 APPROVE CASE
+    if (type === "Approve") {
+      formData.append("prComment", prComment);
+      formData.append("poComment", poComment);
+      formData.append(
+        "comment",
+        `PR: ${prComment} | PO: ${poComment}`
+      );
+    }
 
-      let apiCall;
-      if (type === "Approve") apiCall = ApiServices.ApproveExpense;
-      if (type === "Hold") apiCall = ApiServices.HoldExpense;
-      if (type === "Reject") apiCall = ApiServices.RejectExpense;
+    // 🔥 HOLD / REJECT CASE
+    if (type === "Hold" || type === "Reject") {
+      if (!prComment.trim()) {
+        return Swal.fire(
+          "Error",
+          "Comment is mandatory",
+          "error"
+        );
+      }
+      formData.append("comment", prComment);
+    }
 
-      apiCall(payload)
-        .then((res) => {
-          setLoad(false);
-          if (res?.data?.success) {
-            Swal.fire("Success", res.data.message, "success");
-            fetchPending();
-            handleCloseModal(); // close modal after action
-          } else {
-            Swal.fire("Error", res.data.message, "error");
-          }
-        })
-        .catch(() => {
-          setLoad(false);
-          Swal.fire("Error", "Something went wrong", "error");
-        });
-    });
+    if (attachmentFile) {
+      formData.append("attachment", attachmentFile);
+    }
+
+    setLoad(true);
+
+    let apiCall;
+    if (type === "Approve") apiCall = ApiServices.ApproveExpense;
+    if (type === "Hold") apiCall = ApiServices.HoldExpense;
+    if (type === "Reject") apiCall = ApiServices.RejectExpense;
+
+    apiCall(formData)
+      .then((res) => {
+        setLoad(false);
+        if (res?.data?.success) {
+          Swal.fire("Success", res.data.message, "success");
+          handleCloseModal();
+          fetchPending();
+        } else {
+          Swal.fire("Error", res.data.message, "error");
+        }
+      })
+      .catch(() => {
+        setLoad(false);
+        Swal.fire("Error", "Something went wrong", "error");
+      });
+  };
+
+  const closeExpense = () => {
+    if (!emailSubject.trim()) {
+      return Swal.fire(
+        "Error",
+        "Email subject is mandatory",
+        "error"
+      );
+    }
+
+    setLoad(true);
+
+    ApiServices.PrpoEmailAndClose({
+      expenseId: selectedExpense._id,
+      emailSubject: emailSubject,
+      approverId: userId
+    })
+      .then((res) => {
+        setLoad(false);
+        if (res?.data?.success) {
+          Swal.fire("Success", res.data.message, "success");
+          handleCloseModal();
+          fetchPending();
+        } else {
+          Swal.fire("Error", res.data.message, "error");
+        }
+      })
+      .catch(() => {
+        setLoad(false);
+        Swal.fire("Error", "Something went wrong", "error");
+      });
   };
 
   return (
     <main className="main" id="main">
       <PageTitle child="Pending Expenses (PR/PO)" />
 
-      {/* Loader */}
       <ScaleLoader
         color="#6776f4"
         cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
         loading={load}
       />
 
-      {/* Search + CSV */}
       {!load && (
         <div className="container-fluid mb-3">
           <div className="row align-items-center">
@@ -158,7 +234,6 @@ export default function PrPoPendingExpense() {
         </div>
       )}
 
-      {/* Table */}
       {!load && (
         <div className="container-fluid">
           <div className="col-lg-12 mt-4 table-responsive">
@@ -174,7 +249,6 @@ export default function PrPoPendingExpense() {
                   <th>Action</th>
                 </tr>
               </thead>
-
               <tbody>
                 {currentExpenses.length ? (
                   currentExpenses.map((el, index) => (
@@ -206,44 +280,11 @@ export default function PrPoPendingExpense() {
                 )}
               </tbody>
             </table>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="d-flex justify-content-center mt-3">
-                <button
-                  className="btn btn-secondary me-2"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((p) => p - 1)}
-                >
-                  Previous
-                </button>
-
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i}
-                    className={`btn me-1 ${
-                      currentPage === i + 1 ? "btn-primary" : "btn-light"
-                    }`}
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-
-                <button
-                  className="btn btn-secondary ms-2"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((p) => p + 1)}
-                >
-                  Next
-                </button>
-              </div>
-            )}
           </div>
         </div>
       )}
 
-      {/* Modal with Approve/Hold/Reject */}
+      {/* VIEW MODAL */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
@@ -272,101 +313,165 @@ export default function PrPoPendingExpense() {
               </div>
 
               <div className="modal-body px-4">
+                {/* DETAILS */}
                 <div className="row g-3">
-                  <div className="col-md-6">
-                    <strong>Ticket ID:</strong>
-                    <p>{selectedExpense.ticketId}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Store:</strong>
-                    <p>{selectedExpense.storeId?.storeName}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Expense Head:</strong>
-                    <p>{selectedExpense.expenseHeadId?.name}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Amount:</strong>
-                    <p>₹ {selectedExpense.amount}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Policy:</strong>
-                    <p>{selectedExpense.policy || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Nature of Expense:</strong>
-                    <p>{selectedExpense.natureOfExpense || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>RCA:</strong>
-                    <p>{selectedExpense.rca || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Remarks:</strong>
-                    <p>{selectedExpense.remark || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Status:</strong>
-                    <p>
-                      <span className="badge bg-warning text-dark">Pending</span>
-                    </p>
-                  </div>
-
-                  <div className="col-12">
-                    <strong>Attachment:</strong>
-                    <p>
-                      {selectedExpense.attachment && (
-                        <a
-                          href={selectedExpense.attachment}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-primary me-2"
-                        >
-                          Original
-                        </a>
-                      )}
-
-                      {selectedExpense.resubmittedAttachment && (
-                        <a
-                          href={selectedExpense.resubmittedAttachment}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-success"
-                        >
-                          Resubmitted
-                        </a>
-                      )}
-
-                      {!selectedExpense.attachment &&
-                        !selectedExpense.resubmittedAttachment && (
-                          <span className="text-muted">No Attachment</span>
-                        )}
-                    </p>
-                  </div>
+                  <div className="col-md-6"><strong>Ticket ID:</strong><p>{selectedExpense.ticketId}</p></div>
+                  <div className="col-md-6"><strong>Store:</strong><p>{selectedExpense.storeId?.storeName}</p></div>
+                  <div className="col-md-6"><strong>Expense Head:</strong><p>{selectedExpense.expenseHeadId?.name}</p></div>
+                  <div className="col-md-6"><strong>Amount:</strong><p>₹ {selectedExpense.amount}</p></div>
+                  <div className="col-md-6"><strong>Policy:</strong><p>{selectedExpense.policy || "-"}</p></div>
+                  <div className="col-md-6"><strong>Nature:</strong><p>{selectedExpense.natureOfExpense || "-"}</p></div>
+                  <div className="col-md-6"><strong>RCA:</strong><p>{selectedExpense.rca || "-"}</p></div>
+                  <div className="col-md-6"><strong>Remarks:</strong><p>{selectedExpense.remark || "-"}</p></div>
                 </div>
-              </div>
+                <hr />
 
-              {/* Modal Footer with Actions */}
-              <div className="modal-footer">
+                <div className="col-12">
+                  <strong>Attachments:</strong>
+                  <p className="mt-2">
+                    {selectedExpense.attachment && (
+                      <a
+                        href={selectedExpense.attachment}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-sm btn-primary me-2"
+                      >
+                        Original
+                      </a>
+                    )}
+
+                    {selectedExpense.resubmittedAttachment && (
+                      <a
+                        href={selectedExpense.resubmittedAttachment}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-sm btn-success"
+                      >
+                        Resubmitted
+                      </a>
+                    )}
+
+                    {!selectedExpense.attachment &&
+                      !selectedExpense.resubmittedAttachment && (
+                        <span className="text-muted">No Attachment</span>
+                      )}
+                  </p>
+                </div>
+                {selectedExpense.fmComment && (
+                  <div className="mt-2">
+                    <strong>FM Comment:</strong>
+                    <p>{selectedExpense.fmComment}</p>
+                  </div>
+                )}
+
+                {selectedExpense.wcrAttachment && (
+                  <a
+                    href={selectedExpense.wcrAttachment}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-sm btn-info me-2"
+                  >
+                    WCR
+                  </a>
+                )}
+
+                {selectedExpense.invoiceAttachment && (
+                  <a
+                    href={selectedExpense.invoiceAttachment}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-sm btn-warning"
+                  >
+                    Invoice
+                  </a>
+                )}
+
+                <hr />
+
+                {/* PR / PO INPUTS */}
+                {!isEmailStage && (
+                  <>
+                    <label className="form-label fw-bold">PR Comment *</label>
+                    <textarea
+                      className="form-control"
+                      value={prComment}
+                      onChange={(e) => setPrComment(e.target.value)}
+                    />
+
+                    <label className="form-label fw-bold mt-2">PO Comment *</label>
+                    <textarea
+                      className="form-control"
+                      value={poComment}
+                      onChange={(e) => setPoComment(e.target.value)}
+                    />
+
+                    <label className="form-label fw-bold mt-2">Attachment</label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      onChange={(e) => setAttachmentFile(e.target.files[0])}
+                    />
+                  </>
+                )}
+
+              </div>
+              {/* {isEmailStage && (
+                <>
+                  <label className="form-label fw-bold mt-3">
+                    Email Subject *
+                  </label>
+                  <input
+                    className="form-control"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    placeholder="Enter email subject"
+                  />
+                </>
+              )}
+
+              {!isEmailStage && (
+                <>
+                  <button onClick={() => takeAction("Approve")}>Approve</button>
+                  <button onClick={() => takeAction("Hold")}>Hold</button>
+                  <button onClick={() => takeAction("Reject")}>Reject</button>
+                </>
+              )}
+
+              {isEmailStage && (
                 <button
                   className="btn btn-success"
-                  onClick={() => takeAction("Approve", selectedExpense._id)}
+                  onClick={closeExpense}
                 >
-                  Approve
+                  Close
                 </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => takeAction("Hold", selectedExpense._id)}
-                >
-                  Hold
-                </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => takeAction("Reject", selectedExpense._id)}
-                >
-                  Reject
-                </button>
-              </div>
+              )} */}
+
+              {selectedExpense?.currentApprovalLevel === "PR/PO" &&
+                selectedExpense?.postApprovalStage === "PRPO_EMAIL" && (
+                  <>
+                    <div className="col-12">
+                      <label className="form-label fw-bold">Email Subject *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter email subject"
+                        value={emailSubject}
+                        onChange={(e) => setEmailSubject(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="col-12 text-end mt-3">
+                      <button
+                        className="btn btn-success w-100"
+                        onClick={closeExpense}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </>
+                )}
+
+
             </div>
           </div>
         </div>

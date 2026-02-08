@@ -124,12 +124,13 @@ const { uploadImg } = require("../../utilities/helper");
 const add = (req, res) => {
     var errMsgs = [];
 
+    /* ========== BASIC VALIDATIONS ========== */
     if (!req.body.ticketId) errMsgs.push("ticketId is required");
     if (!req.body.storeId) errMsgs.push("storeId is required");
     if (!req.body.expenseHeadId) errMsgs.push("expenseHeadId is required");
     if (!req.body.natureOfExpense) errMsgs.push("natureOfExpense is required");
     if (!req.body.amount) errMsgs.push("amount is required");
-    if (!req.body.policy) errMsgs.push("policy is required");
+    if (!req.body.policy) errMsgs.push("policy is required"); // ✅ category / label
     if (!req.body.raisedBy) errMsgs.push("raisedBy is required");
     if (!req.file) errMsgs.push("attachment is required");
 
@@ -157,94 +158,63 @@ const add = (req, res) => {
                 });
             }
 
-            /* ===== FIND APPROVAL POLICY BASED ON AMOUNT ===== */
-            approvalPolicyModel.findOne({
-                minAmount: { $lte: req.body.amount },
-                maxAmount: { $gte: req.body.amount },
-                status: true
-            })
-                .then(async (policyData) => {
+            /* ================================================= */
+            /* ================= CAPEX FLOW ==================== */
+            /* ================================================= */
+            if (req.body.natureOfExpense === "CAPEX") {
 
-                    if (!policyData) {
-                        return res.send({
-                            status: 422,
-                            success: false,
-                            message: "No approval policy found for this amount"
-                        });
-                    }
-
-                    /* ===== SET NEXT APPROVAL LEVEL ===== */
-                    let nextApprovalLevel = null;
-                    if (policyData.approvalLevels.length > 0) {
-                        nextApprovalLevel = policyData.approvalLevels[0];
-                    }
-
-                    /* ===== CREATE EXPENSE OBJECT ===== */
+                (async () => {
                     let expenseObj = new expenseModel();
 
                     expenseObj.ticketId = req.body.ticketId;
                     expenseObj.storeId = req.body.storeId;
                     expenseObj.expenseHeadId = req.body.expenseHeadId;
-                    expenseObj.natureOfExpense = req.body.natureOfExpense;
+                    expenseObj.natureOfExpense = "CAPEX";
                     expenseObj.amount = req.body.amount;
                     expenseObj.remark = req.body.remark || "";
                     expenseObj.rca = req.body.rca || "";
 
-                    expenseObj.policy = req.body.policy;      // string only
-                    expenseObj.policyId = policyData._id;     // internal reference
+                    // ✅ Frontend policy = category / label
+                    expenseObj.policy = req.body.policy;
 
-                    if (req.file) {
-                        try {
-                            let url = await uploadImg(req.file.buffer)
-                            expenseObj.attachment = url
-                        }
-                        catch (err) {
-                            res.send({
-                                status: 422,
-                                success: false,
-                                message: "Cloudinary Error"
-                            })
-                        }
+                    // ❌ Approval policy bypass
+                    expenseObj.policyId = null;
+                    expenseObj.postApprovalStage = null;
+
+                    try {
+                        let url = await uploadImg(req.file.buffer);
+                        expenseObj.attachment = url;
+                    } catch (err) {
+                        return res.send({
+                            status: 422,
+                            success: false,
+                            message: "Cloudinary Error"
+                        });
                     }
-                    expenseObj.currentApprovalLevel = nextApprovalLevel;
-                    expenseObj.currentStatus = "Pending";
 
+                    // 🔥 CAPEX always starts from ZONAL_HEAD
+                    expenseObj.currentApprovalLevel = "ZONAL_HEAD";
+                    expenseObj.currentStatus = "Pending";
                     expenseObj.raisedBy = req.body.raisedBy;
                     expenseObj.status = true;
 
                     expenseObj.save()
                         .then(data => {
-                            /* ================= SEND NOTIFICATION ================= */
 
-                            let notifyUserId = null;
-
-                            // example: agar level CLM hai
-                            if (nextApprovalLevel === "CLM") {
-                                notifyUserId = req.body.clmId;   // ya jo bhi tu use karta hai
-                            }
-                            else if (nextApprovalLevel === "ZH") {
-                                notifyUserId = req.body.zhId;
-                            }
-                            else if (nextApprovalLevel === "BF") {
-                                notifyUserId = req.body.bfId;
-                            }
-                            else if (nextApprovalLevel === "PROCUREMENT") {
-                                notifyUserId = req.body.procurementId;
-                            }
-
-                            if (notifyUserId) {
+                            // 🔔 Notify Zonal Head
+                            if (req.body.zhId) {
                                 sendNotification(
-                                    notifyUserId,
-                                    "New Expense Submitted",
-                                    `Expense ${data.ticketId} is pending for your approval`,
+                                    req.body.zhId,
+                                    "New CAPEX Expense Submitted",
+                                    `CAPEX Expense ${data.ticketId} is pending for your approval`,
                                     data._id
                                 );
                             }
 
-                            res.send({
+                            return res.send({
                                 status: 200,
                                 success: true,
-                                message: "Expense Added Successfully",
+                                message: "CAPEX Expense Added Successfully",
                                 data
                             });
                         })
@@ -255,15 +225,114 @@ const add = (req, res) => {
                                 message: "Expense Not Added"
                             });
                         });
+                })();
 
+            } else {
+
+                /* ================================================= */
+                /* ================= OPEX FLOW ===================== */
+                /* ================================================= */
+
+                approvalPolicyModel.findOne({
+                    minAmount: { $lte: req.body.amount },
+                    maxAmount: { $gte: req.body.amount },
+                    status: true
                 })
-                .catch(() => {
-                    res.send({
-                        status: 422,
-                        success: false,
-                        message: "Approval policy lookup failed"
+                    .then(async (policyData) => {
+
+                        if (!policyData) {
+                            return res.send({
+                                status: 422,
+                                success: false,
+                                message: "No approval policy found for this amount"
+                            });
+                        }
+
+                        let nextApprovalLevel = null;
+                        if (policyData.approvalLevels.length > 0) {
+                            nextApprovalLevel = policyData.approvalLevels[0];
+                        }
+
+                        let expenseObj = new expenseModel();
+
+                        expenseObj.ticketId = req.body.ticketId;
+                        expenseObj.storeId = req.body.storeId;
+                        expenseObj.expenseHeadId = req.body.expenseHeadId;
+                        expenseObj.natureOfExpense = "OPEX";
+                        expenseObj.amount = req.body.amount;
+                        expenseObj.remark = req.body.remark || "";
+                        expenseObj.rca = req.body.rca || "";
+
+                        // ✅ Frontend policy = category / label
+                        expenseObj.policy = req.body.policy;
+
+                        // ✅ Backend approval policy (amount-based)
+                        expenseObj.policyId = policyData._id;
+
+                        try {
+                            let url = await uploadImg(req.file.buffer);
+                            expenseObj.attachment = url;
+                        } catch (err) {
+                            return res.send({
+                                status: 422,
+                                success: false,
+                                message: "Cloudinary Error"
+                            });
+                        }
+
+                        expenseObj.currentApprovalLevel = nextApprovalLevel;
+                        expenseObj.currentStatus = "Pending";
+                        expenseObj.raisedBy = req.body.raisedBy;
+                        expenseObj.status = true;
+
+                        expenseObj.save()
+                            .then(data => {
+
+                                let notifyUserId = null;
+
+                                if (nextApprovalLevel === "CLM") {
+                                    notifyUserId = req.body.clmId;
+                                } else if (nextApprovalLevel === "ZH") {
+                                    notifyUserId = req.body.zhId;
+                                } else if (nextApprovalLevel === "BF") {
+                                    notifyUserId = req.body.bfId;
+                                } else if (nextApprovalLevel === "PROCUREMENT") {
+                                    notifyUserId = req.body.procurementId;
+                                }
+
+                                if (notifyUserId) {
+                                    sendNotification(
+                                        notifyUserId,
+                                        "New Expense Submitted",
+                                        `Expense ${data.ticketId} is pending for your approval`,
+                                        data._id
+                                    );
+                                }
+
+                                res.send({
+                                    status: 200,
+                                    success: true,
+                                    message: "Expense Added Successfully",
+                                    data
+                                });
+                            })
+                            .catch(() => {
+                                res.send({
+                                    status: 422,
+                                    success: false,
+                                    message: "Expense Not Added"
+                                });
+                            });
+
+                    })
+                    .catch(() => {
+                        res.send({
+                            status: 422,
+                            success: false,
+                            message: "Approval policy lookup failed"
+                        });
                     });
-                });
+            }
 
         })
         .catch(() => {
@@ -274,6 +343,9 @@ const add = (req, res) => {
             });
         });
 };
+
+
+
 
 
 const getAll = (req, res) => {

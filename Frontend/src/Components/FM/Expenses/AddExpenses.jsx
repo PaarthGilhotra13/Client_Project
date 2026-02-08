@@ -63,16 +63,6 @@ export default function AddExpenses() {
     e.preventDefault();
     if (load) return;
 
-    // 🔒 CAPEX RULE (MANDATORY)
-    if (natureOfExpense === "CAPEX" && Number(expenseValue) < 10000) {
-      Swal.fire(
-        "Invalid Selection",
-        "CAPEX is allowed only for amount ≥ 10000",
-        "error"
-      );
-      return;
-    }
-
     if (
       !storeId ||
       !storeCategoryId ||
@@ -354,14 +344,6 @@ export default function AddExpenses() {
                           type="button"
                           className="dropdown-item"
                           onClick={() => {
-                            if (Number(expenseValue) < 10000) {
-                              Swal.fire(
-                                "Not Allowed",
-                                "CAPEX is allowed only for amount ≥ 10000",
-                                "warning"
-                              );
-                              return;
-                            }
                             setNatureOfExpense("CAPEX");
                           }}
                         >
