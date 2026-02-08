@@ -12,12 +12,17 @@ export default function ManageEmployee() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredData, setFilteredData] = useState([]);
 
-  // Modal
+  // 🔹 Filter
+  const [showFilter, setShowFilter] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedStoreName, setSelectedStoreName] = useState("");
+
+  // 🔹 Modal
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalContent, setModalContent] = useState([]);
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 40;
 
@@ -25,7 +30,6 @@ export default function ManageEmployee() {
   const fetchAllStaff = async () => {
     try {
       setLoad(true);
-
       const responses = await Promise.all([
         ApiServices.GetAllFm(),
         ApiServices.GetAllClm(),
@@ -42,8 +46,7 @@ export default function ManageEmployee() {
       );
 
       setData(allData || []);
-    } catch (err) {
-      console.log("Error is", err);
+    } catch {
       setData([]);
     }
     setTimeout(() => setLoad(false), 500);
@@ -52,6 +55,33 @@ export default function ManageEmployee() {
   useEffect(() => {
     fetchAllStaff();
   }, []);
+
+  // ================= STORE EXTRACTOR =================
+  const getStores = (emp) => {
+    if (Array.isArray(emp.storeId)) return emp.storeId;
+    if (Array.isArray(emp.storeIds)) return emp.storeIds;
+    if (Array.isArray(emp.stores)) return emp.stores;
+    return [];
+  };
+
+  // ================= STORE LIST =================
+  const allStores = Array.from(
+    new Set(
+      data
+        .flatMap((emp) => getStores(emp))
+        .map((s) => s?.storeName)
+        .filter(Boolean)
+    )
+  );
+
+  // ================= YEAR LIST =================
+  const years = Array.from(
+    new Set(
+      data
+        .map((emp) => emp?.createdAt && new Date(emp.createdAt).getFullYear())
+        .filter(Boolean)
+    )
+  ).sort((a, b) => b - a);
 
   // ================= FILTER =================
   useEffect(() => {
@@ -63,67 +93,42 @@ export default function ManageEmployee() {
           emp?.name?.toLowerCase().includes(lower) ||
           emp?.empcode?.toLowerCase().includes(lower)
         );
+      })
+      .filter((emp) => {
+        if (!selectedMonth && !selectedYear) return true;
+        if (!emp.createdAt) return false;
+
+        const d = new Date(emp.createdAt);
+        const m = d.getMonth() + 1;
+        const y = d.getFullYear();
+
+        if (selectedMonth && selectedYear)
+          return m === Number(selectedMonth) && y === Number(selectedYear);
+        if (selectedMonth) return m === Number(selectedMonth);
+        if (selectedYear) return y === Number(selectedYear);
+        return true;
+      })
+      .filter((emp) => {
+        if (!selectedStoreName) return true;
+        return getStores(emp).some(
+          (s) => s.storeName === selectedStoreName
+        );
       });
 
     setFilteredData(filtered);
     setCurrentPage(1);
-  }, [searchTerm, data]);
+  }, [
+    searchTerm,
+    data,
+    selectedMonth,
+    selectedYear,
+    selectedStoreName,
+  ]);
 
   const currentEmployees = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  // ================= STATUS CHANGE =================
-  function changeInactiveStatus(id, designation) {
-    Swal.fire({
-      title: "Confirm Status Change",
-      text: "Are you sure you want to change the status?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        let payload = {
-          _id: id,
-          status: "false",
-        };
-
-        let apiCall;
-        if (designation === "FM") apiCall = ApiServices.ChangeStatusFm;
-        else if (designation === "CLM") apiCall = ApiServices.ChangeStatusClm;
-        else if (designation === "Zonal_Head") apiCall = ApiServices.ChangeStatusZh;
-        else if (designation === "Zonal_Commercial")
-          apiCall = ApiServices.ChangeStatusZonalCommercial;
-        else if (designation === "Missing_Bridge")
-          apiCall = ApiServices.ChangeStatusMissingBridge;
-        else if (designation === "Business_Finance")
-          apiCall = ApiServices.ChangeStatusBf;
-        else if (designation === "Procurement")
-          apiCall = ApiServices.ChangeStatusProcurement;
-        else if (designation === "PR/PO")
-          apiCall = ApiServices.ChangeStatusPrPo;
-        else {
-          Swal.fire("Error", "Invalid designation", "error");
-          return;
-        }
-
-        apiCall(payload)
-          .then((res) => {
-            Swal.fire({
-              title: res?.data?.message,
-              icon: "success",
-              timer: 1500,
-              showConfirmButton: false,
-            });
-            fetchAllStaff();
-          })
-          .catch(() => {
-            Swal.fire("Error", "Something went wrong", "error");
-          });
-      }
-    });
-  }
 
   // ================= CSV =================
   const csvData = filteredData.map((emp, idx) => ({
@@ -132,37 +137,129 @@ export default function ManageEmployee() {
     name: emp.name,
     email: emp.email,
     contact: emp.contact,
-    stores: emp?.storeId?.map((s) => s.storeName).join(", "),
+    stores: getStores(emp).map((s) => s.storeName).join(", "),
     designation: emp.designation,
   }));
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <>
       <main className={`main ${modalOpen ? "blur-background" : ""}`} id="main">
         <PageTitle child="Manage Employee" />
 
-        {/* Search + CSV */}
-        <div className="container-fluid mb-3">
-          <div className="row align-items-center">
-            <div className="col-md-6">
+        {/* 🔍 SEARCH + ACTION BAR */}
+        <div className="container-fluid mb-3 position-relative">
+          <div className="row">
+            <div className="col-12 d-flex align-items-center gap-3">
+              {/* Search */}
               <input
                 className="form-control"
+                style={{ maxWidth: "420px" }}
                 placeholder="Search by Name or ID"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div>
-            <div className="col-md-6 text-end">
-              <CSVLink data={csvData} className="btn btn-primary btn-sm">
-                Download CSV
-              </CSVLink>
+
+              {/* RIGHT ACTIONS (FIXED) */}
+              <div className="ms-auto d-flex gap-2">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setShowFilter(!showFilter)}
+                >
+                  <i className="bi bi-funnel"></i> Filter
+                </button>
+
+                <CSVLink
+                  data={csvData}
+                  className="btn btn-primary btn-sm"
+                >
+                  Download CSV
+                </CSVLink>
+              </div>
             </div>
           </div>
+
+          {/* 🔽 FILTER PANEL */}
+          {showFilter && (
+            <div
+              className="card p-3 shadow position-absolute"
+              style={{ right: "0", top: "45px", zIndex: 10, width: "340px" }}
+            >
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label mb-1">Month</label>
+                  <select
+                    className="form-select form-select-sm"
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                  >
+                    <option value="">All</option>
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i} value={i + 1}>
+                        {new Date(0, i).toLocaleString("default", {
+                          month: "long",
+                        })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-6">
+                  <label className="form-label mb-1">Year</label>
+                  <select
+                    className="form-select form-select-sm"
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                  >
+                    <option value="">All</option>
+                    {years.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label mb-1">Store</label>
+                  <select
+                    className="form-select form-select-sm"
+                    value={selectedStoreName}
+                    onChange={(e) => setSelectedStoreName(e.target.value)}
+                  >
+                    <option value="">All Stores</option>
+                    {allStores.map((s, i) => (
+                      <option key={i} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="col-12 d-flex justify-content-between mt-2">
+                  <button
+                    className="btn btn-sm btn-light"
+                    onClick={() => {
+                      setSelectedMonth("");
+                      setSelectedYear("");
+                      setSelectedStoreName("");
+                      setShowFilter(false);
+                    }}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={() => setShowFilter(false)}
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Table */}
+        {/* TABLE */}
         <div className="container-fluid">
           <ScaleLoader
             color="#6776f4"
@@ -194,40 +291,28 @@ export default function ManageEmployee() {
                       <td>{el.name}</td>
                       <td>{el.email}</td>
                       <td>{el.contact}</td>
-
                       <td>
                         <span
                           style={{ color: "blue", cursor: "pointer" }}
                           onClick={() => {
                             setModalTitle(`${el.name} - Stores`);
-                            setModalContent(el.storeId || []);
+                            setModalContent(getStores(el));
                             setModalOpen(true);
                           }}
                         >
                           View Stores
                         </span>
                       </td>
-
                       <td>{el.designation}</td>
                       <td>{el.status ? "Active" : "Inactive"}</td>
                       <td>
-                        <div className="btn-group">
-                          <Link
-                            to={`/admin/editEmployee/${el._id}`}
-                            state={{ designation: el.designation }}
-                            className="btn btn-primary me-2"
-                          >
-                            <i className="bi bi-pen"></i>
-                          </Link>
-                          <button
-                            className="btn btn-secondary"
-                            onClick={() =>
-                              changeInactiveStatus(el._id, el.designation)
-                            }
-                          >
-                            <i className="bi bi-x-circle"></i>
-                          </button>
-                        </div>
+                        <Link
+                          to={`/admin/editEmployee/${el._id}`}
+                          state={{ designation: el.designation }}
+                          className="btn btn-primary btn-sm"
+                        >
+                          <i className="bi bi-pen"></i>
+                        </Link>
                       </td>
                     </tr>
                   ))
@@ -252,12 +337,15 @@ export default function ManageEmployee() {
               className="btn-close position-absolute top-0 end-0 m-2"
               onClick={() => setModalOpen(false)}
             ></button>
-
             <h5>{modalTitle}</h5>
             <ul>
-              {modalContent.map((s, i) => (
-                <li key={i}>{s.storeName}</li>
-              ))}
+              {modalContent.length ? (
+                modalContent.map((s, i) => (
+                  <li key={i}>{s.storeName || "Unnamed Store"}</li>
+                ))
+              ) : (
+                <li className="text-muted">No Stores Assigned</li>
+              )}
             </ul>
           </div>
         </div>

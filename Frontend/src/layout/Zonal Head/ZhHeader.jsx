@@ -74,7 +74,7 @@ export default function ZhHeader() {
     <>
       <header id="header" className="header fixed-top d-flex align-items-center">
         <div className="d-flex align-items-center justify-content-start">
-          <Link to="/employee" className="logo d-flex align-items-center ms-3">
+          <Link to="/ZonalHead" className="logo d-flex align-items-center ms-3">
             <img src="/assets/img/logo4.png" alt="Logo" />
             <span className="d-lg-block" style={{ color: "#25353e" }}>
               R&M Tool

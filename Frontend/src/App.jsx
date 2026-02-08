@@ -9,7 +9,6 @@ import AddEmployee from "./Components/Admin/employee/AddEmployee"
 import ManageEmployee from "./Components/Admin/employee/ManageEmployee"
 import EditEmployee from "./Components/Admin/employee/EditEmployee"
 import AdminDashboard from "./Components/Admin/AdminDashboard"
-import EmployeeDashboard from "./Components/Employee/EmployeeDashboard"
 import BlockedEmployee from "./Components/Admin/employee/BlockedEmployee"
 import AddZone from "./Components/Admin/Zone/AddZone"
 import ManageZone from "./Components/Admin/Zone/ManageZone"
@@ -77,6 +76,9 @@ import AllPendingExpense from "./Components/Admin/Expenses/AllPendingExpense"
 import AllApprovedExpense from "./Components/Admin/Expenses/AllApprovedExpense"
 import AllHoldExpense from "./Components/Admin/Expenses/AllHoldExpense"
 import AllRjectedExpense from "./Components/Admin/Expenses/AllRjectedExpense"
+import ManageZonalHead from "./Components/Zonal_Head/manageZonalHead"
+import ManageCLM from "./Components/CLM/ManageCLM"
+import ManageFM from "./Components/FM/ManageFM"
 import PRPOMaster from "./layout/PR_PO/PRPOMaster"
 import PrPoPendingExpense from "./Components/PR_PO/Expenses/PrPoPendingExpense"
 import PrPoApprovedExpense from "./Components/PR_PO/Expenses/PrPoApprovedExpense"
@@ -86,6 +88,18 @@ import ClosedExpenses from "./Components/FM/Expenses/ClosedExpenses"
 import ZCMaster from "./layout/Zonal Commercial/ZCMaster"
 import ZcPendingTickets from "./Components/Zonal_Commercial/ZcPendingTickets"
 import ZcApprovedTickets from "./Components/Zonal_Commercial/ZcApprovedTickets"
+import ManageBusinessFinance from "./Components/Business_FInance/ManageBusinessFinance"
+import ManagePrPo from "./Components/PR_PO/ManagePrPo"
+import ManageProcurement from "./Components/Procurement/ManageProcurement"
+import ManageMissingBridge from "./Components/Admin/Missing_Bridge/ManageMissingBridge"
+import ManageZonalCommercial from "./Components/Zonal_Commercial/ManageZonalCommercial"
+import ZonalHeadDashboard from "./Components/Zonal_Head/ZonalHeadDashboard"
+import FacilityManagerDashboard from "./Components/Employee/FacilityManagerDashboard"
+import AssignedRequests from "./Components/FM/Expenses/AssignedRequest"
+import CLMDashboard from "./Components/CLM/ClmDashboard"
+import BusinessFinanceDashboard from "./Components/Business_FInance/BusinessFinanceDashboard"
+import ProcurementDashboard from "./Components/Procurement/ProcurementDashboard"
+import PrPoDashboard from "./Components/PR_PO/PrPoDashboard"
 
 
 function App() {
@@ -101,6 +115,14 @@ function App() {
             <Route path="/admin/manageEmployee" element={<ManageEmployee />} />
             <Route path="/admin/blockedEmployee" element={<BlockedEmployee />} />
             <Route path="/admin/editEmployee/:id" element={<EditEmployee />} />
+            <Route path="/admin/zonalHead/" element={<ManageZonalHead />} />
+            <Route path="/admin/CLMs/" element={<ManageCLM />} />
+            <Route path="/admin/FMs/" element={<ManageFM />} />
+            <Route path="/admin/Procurement/" element={<ManageProcurement />} />
+            <Route path="/admin/prPo/" element={<ManagePrPo />} />
+            <Route path="/admin/businessFinance/" element={<ManageBusinessFinance />} />
+            <Route path="/admin/missingBridge/" element={<ManageMissingBridge />} />
+            <Route path="/admin/zonalCommercial/" element={<ManageZonalCommercial />} />
 
             {/* Zone */}
             <Route path="/admin/addZone" element={<AddZone />} />
@@ -153,10 +175,11 @@ function App() {
           </Route>
 
           <Route path="/fm" element={<FmMaster />}>
-            <Route path="/fm" element={<EmployeeDashboard />} />
+            <Route path="/fm" element={<FacilityManagerDashboard />} />
             <Route path="/fm/addExpenses" element={<AddExpenses />} />
             <Route path="/fm/approvedExpenses" element={<ApprovedExpenses />} />
             <Route path="/fm/holdExpenses" element={<HoldExpenses />} />
+            <Route path="/fm/assignedRequest" element={<AssignedRequests />} />
             <Route path="/fm/pendingExpenses" element={<PendingExpenses />} />
             <Route path="/fm/rejectedExpenses" element={<RejectedExpenses />} />
             <Route path="/fm/closedExpenses" element={<ClosedExpenses />} />
@@ -165,7 +188,7 @@ function App() {
             <Route path="/fm/fmProfile" element={<FMProfile />} />
           </Route>
           <Route path="/clm" element={<ClmMaster />}>
-            <Route path="/clm" element={<EmployeeDashboard />} />
+            <Route path="/clm" element={<CLMDashboard />} />
             <Route path="/clm/approvedExpenses" element={<ClmApprovedExpenses />} />
             <Route path="/clm/holdExpenses" element={<ClmHoldExpenses />} />
             <Route path="/clm/pendingExpenses" element={<ClmPendingExpense />} />
@@ -173,7 +196,7 @@ function App() {
             <Route path="/clm/clmProfile" element={<CLMProfile />} />
           </Route>
           <Route path="/ZonalHead" element={<ZhMaster />}>
-            <Route path="/ZonalHead" element={<EmployeeDashboard />} />
+            <Route path="/ZonalHead" element={<ZonalHeadDashboard />} />
             <Route path="/ZonalHead/approvedExpenses" element={<ZhApprovedExpenses />} />
             <Route path="/ZonalHead/holdExpenses" element={<ZhHoldExpenses />} />
             <Route path="/ZonalHead/pendingExpenses" element={<ZhPendingExpenses />} />
@@ -181,21 +204,21 @@ function App() {
             <Route path="/ZonalHead/zhprofile" element={<ZonalProfile />} />
           </Route>
           <Route path="/BusinessFinance" element={<BfMaster />}>
-            <Route path="/BusinessFinance" element={<EmployeeDashboard />} />
+            <Route path="/BusinessFinance" element={<BusinessFinanceDashboard />} />
             <Route path="/BusinessFinance/approvedExpenses" element={<BfApprovedExpenses />} />
             <Route path="/BusinessFinance/holdExpenses" element={<BfHoldExpense />} />
             <Route path="/BusinessFinance/pendingExpenses" element={<BfPendingExpense />} />
             <Route path="/BusinessFinance/rejectedExpenses" element={<BfRejectedExpense />} />
           </Route>
           <Route path="/Procurement" element={<ProcureMaster />}>
-            <Route path="/Procurement" element={<EmployeeDashboard />} />
+            <Route path="/Procurement" element={<ProcurementDashboard />} />
             <Route path="/Procurement/approvedExpenses" element={<ProcureApprovedExpenses />} />
             <Route path="/Procurement/holdExpenses" element={<ProcureHoldExpenses />} />
             <Route path="/Procurement/pendingExpenses" element={<ProcurePendingExpense />} />
             <Route path="/Procurement/rejectedExpenses" element={<ProcureRejectedExpenses />} />
           </Route>
           <Route path="/PR_PO" element={<PRPOMaster />}>
-            <Route path="/PR_PO" element={<EmployeeDashboard />} />
+            <Route path="/PR_PO" element={<PrPoDashboard />} />
             <Route path="/PR_PO/pendingExpenses" element={<PrPoPendingExpense />} />
             <Route path="/PR_PO/holdExpenses" element={<PrPoHoldExpense />} />
             <Route path="/PR_PO/approvedExpenses" element={<PrPoApprovedExpense />} />
@@ -204,7 +227,7 @@ function App() {
           </Route>
 
           <Route path="/ZonalCommercial" element={<ZCMaster />}>
-            <Route path="/ZonalCommercial" element={<EmployeeDashboard />} />
+            <Route path="/ZonalCommercial" element={<FacilityManagerDashboard />} />
             <Route path="/ZonalCommercial/pendingTickets" element={<ZcPendingTickets />} />
             <Route path="/ZonalCommercial/approvedTickets" element={<ZcApprovedTickets />} />
 
