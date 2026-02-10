@@ -13,16 +13,23 @@ export default function ApprovedExpenses() {
   const [wcrFile, setWcrFile] = useState(null);
   const [invoiceFile, setInvoiceFile] = useState(null);
   const [fmComment, setFmComment] = useState("");
+  const [approvalHistory, setApprovalHistory] = useState([]);
 
   /* ================= FETCH APPROVED (FM PENDING) ================= */
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
 
+    // ApiServices.MyExpenses({
+    //   userId,
+    //   currentStatus: "Approved",
+    //   currentApprovalLevel: "FM",
+    //   postApprovalStage: "FM_PENDING",
+    // })
     ApiServices.MyExpenses({
       userId,
       currentStatus: "Approved",
       currentApprovalLevel: "FM",
-      postApprovalStage: "FM_PENDING",
+      postApprovalStage: "FM_PENDING"
     })
       .then((res) => {
         setData(res?.data?.success ? res.data.data || [] : []);
@@ -41,7 +48,16 @@ export default function ApprovedExpenses() {
     setInvoiceFile(null);
     setFmComment("");
     setShowModal(true);
+
+    ApiServices.ExpenseHistory({ expenseId: expense._id })
+      .then(res => {
+        setApprovalHistory(res?.data?.data || []);
+      })
+      .catch(() => {
+        setApprovalHistory([]);
+      });
   };
+
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
@@ -239,6 +255,73 @@ export default function ApprovedExpenses() {
                     </p>
                   </div>
                 </div>
+                <hr />
+                <h6 className="fw-bold text-secondary">Approval History</h6>
+
+                {approvalHistory.length ? (
+                  approvalHistory.map((h, i) => (
+                    <div key={i} className="border rounded p-2 mb-2">
+                      <p className="mb-1">
+                        <strong>{h.level}</strong> — {h.action}
+                      </p>
+                      <p className="mb-1">{h.comment || "-"}</p>
+                      <small className="text-muted">
+                        {new Date(h.actionAt).toLocaleString()}
+                      </small>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted">No approval history found</p>
+                )}
+
+                {/* ===== PR / PO DETAILS (ONLY IF APPLICABLE) ===== */}
+                {(selectedExpense.natureOfExpense === "CAPEX" ||
+                  selectedExpense.prComment ||
+                  selectedExpense.poComment ||
+                  selectedExpense.prAttachment ||
+                  selectedExpense.poAttachment) && (
+                    <>
+                      <hr />
+                      <h6 className="fw-bold text-secondary">PR / PO Details</h6>
+
+                      {selectedExpense.prComment && (
+                        <p>
+                          <strong>PR Comment:</strong> {selectedExpense.prComment}
+                        </p>
+                      )}
+
+                      {selectedExpense.poComment && (
+                        <p>
+                          <strong>PO Comment:</strong> {selectedExpense.poComment}
+                        </p>
+                      )}
+
+                      <div className="mt-2">
+                        {selectedExpense.prAttachment && (
+                          <a
+                            href={selectedExpense.prAttachment}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="btn btn-sm btn-outline-primary me-2"
+                          >
+                            View PR Attachment
+                          </a>
+                        )}
+
+                        {selectedExpense.poAttachment && (
+                          <a
+                            href={selectedExpense.poAttachment}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="btn btn-sm btn-outline-secondary"
+                          >
+                            View PO Attachment
+                          </a>
+                        )}
+                      </div>
+                    </>
+                  )}
+
 
                 {/* ===== FM EXECUTION SECTION ===== */}
                 <hr />

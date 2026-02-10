@@ -90,35 +90,39 @@ const expenseSchema = new mongoose.Schema({
     postApprovalStage: {
         type: String,
         enum: [
-            "NONE",          // normal approval flow
-            "FM_PENDING",    // FM ko WCR + Invoice upload karna hai
-            "PRPO_EMAIL", 
-            "ZC_VERIFY",     // Zonal Commercial verify karega
-            "CLOSED"         // final close
+            "NONE",        // normal approval flow
+            "FM_PENDING",  // FM ko WCR + Invoice upload karna hai
+            "PRPO_EMAIL",  // PR/PO ko email subject dalna hai
+            "ZC_VERIFY",   // Zonal Commercial verify karega (OPEX)
+            "CLOSED"       // final close
         ],
         default: "NONE"
     },
-
     wcrAttachment: { type: String, default: "" },
     invoiceAttachment: { type: String, default: "" },
     fmComment: { type: String, default: "" },
     prismId: { type: String, default: "" },
     prComment: {
         type: String,
-        default: ""
+        default: null
     },
 
     poComment: {
         type: String,
-        default: ""
+        default: null
     },
     prPoEmailSubject: {
         type: String,
-        default: ""
+        default: null
     },
-    prPoAttachment: {     // 🆕
-        type: String,
-        default: ""
+    prAttachment: {
+        type: String,     // Cloudinary URL
+        default: null,
+    },
+
+    poAttachment: {
+        type: String,     // Cloudinary URL
+        default: null,
     },
 
 });

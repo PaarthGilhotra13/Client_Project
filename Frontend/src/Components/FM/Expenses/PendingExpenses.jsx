@@ -29,17 +29,22 @@ export default function PendingExpense() {
       return;
     }
 
+    // ApiServices.MyExpenses({
+    //   userId: userId,
+    //   currentStatus: "Pending",
+    // })
     ApiServices.MyExpenses({
-      userId: userId,
-      currentStatus: "Pending",
+      userId,
+      // currentApprovalLevel: "FM",
+      currentStatus: "Pending"
     })
       .then((res) => {
-        if (res?.data?.success) {
-          setData(res.data.data || []);
-        } else {
-          setData([]);
-        }
-      })
+      if (res?.data?.success) {
+        setData(res.data.data || []);
+      } else {
+        setData([]);
+      }
+    })
       .finally(() => setLoad(false));
   }, []);
 
@@ -224,24 +229,24 @@ export default function PendingExpense() {
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
                 <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    style={{
-                      width: "30px",
-                      height: "30px",
-                      backgroundColor: "red",
-                      color: "white",
-                      fontWeight: "bold",
-                      border: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                    }}
-                  >
-                    &times;
-                  </button>
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                >
+                  &times;
+                </button>
               </div>
 
               <div className="modal-body px-4">

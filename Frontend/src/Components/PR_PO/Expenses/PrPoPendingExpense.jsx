@@ -14,7 +14,8 @@ export default function PrPoPendingExpense() {
   // PR/PO inputs
   const [prComment, setPrComment] = useState("");
   const [poComment, setPoComment] = useState("");
-  const [attachmentFile, setAttachmentFile] = useState(null);
+  const [prAttachment, setPrAttachment] = useState(null);
+  const [poAttachment, setPoAttachment] = useState(null);
   const [emailSubject, setEmailSubject] = useState("");
 
   // Search
@@ -23,7 +24,14 @@ export default function PrPoPendingExpense() {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  const isPrPoStage =
+    selectedExpense?.currentApprovalLevel === "PR/PO" &&
+    (
+      selectedExpense?.postApprovalStage === "NONE" ||
+      selectedExpense?.postApprovalStage === null
+    );
   const isEmailStage =
+    selectedExpense?.currentApprovalLevel === "PR/PO" &&
     selectedExpense?.postApprovalStage === "PRPO_EMAIL";
   const userId = sessionStorage.getItem("userId");
 
@@ -76,77 +84,169 @@ export default function PrPoPendingExpense() {
   /* ================= MODAL ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
+
+    // 🔄 RESET ALL INPUTS
     setPrComment("");
     setPoComment("");
-    setAttachmentFile(null);
+    setPrAttachment(null);
+    setPoAttachment(null);
+    setEmailSubject("");
+
     setShowModal(true);
   };
+
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedExpense(null);
+
+    // 🔄 RESET EVERYTHING
     setPrComment("");
     setPoComment("");
-    setAttachmentFile(null);
+    setPrAttachment(null);
+    setPoAttachment(null);
     setEmailSubject("");
-
   };
 
   /* ================= ACTION HANDLER ================= */
-  const takeAction = (type) => {
-    if (isEmailStage) {
-      return Swal.fire(
-        "Error",
-        "This expense is already approved. Please close it using Email Subject.",
-        "warning"
-      );
-    }
-    if (type === "Approve") {
-      if (!prComment.trim() || !poComment.trim()) {
-        return Swal.fire(
-          "Error",
-          "PR & PO comments are mandatory for approval",
-          "error"
-        );
-      }
-    }
+  // const takeAction = (type) => {
+  //   // if (isEmailStage) {
+  //   //   return Swal.fire(
+  //   //     "Error",
+  //   //     "This expense is already approved. Please close it using Email Subject.",
+  //   //     "warning"
+  //   //   );
+  //   // }
+  //   // if (type === "Approve") {
+  //   //   if (!prComment.trim() || !poComment.trim()) {
+  //   //     return Swal.fire(
+  //   //       "Error",
+  //   //       "PR & PO comments are mandatory for approval",
+  //   //       "error"
+  //   //     );
+  //   //   }
+  //   // }
 
+  //   const formData = new FormData();
+  //   formData.append("expenseId", selectedExpense._id);
+  //   formData.append("approverId", userId);
+
+  //   // // 🔥 APPROVE CASE
+  //   // if (type === "Approve") {
+  //   //   formData.append("prComment", prComment);
+  //   //   formData.append("poComment", poComment);
+  //   //   formData.append(
+  //   //     "comment",
+  //   //     `PR: ${prComment} | PO: ${poComment}`
+  //   //   );
+  //   // }
+
+  //   // 🔥 HOLD / REJECT CASE
+  //   // if (type === "Hold" || type === "Reject") {
+  //   //   if (!prComment.trim()) {
+  //   //     return Swal.fire(
+  //   //       "Error",
+  //   //       "Comment is mandatory",
+  //   //       "error"
+  //   //     );
+  //   //   }
+  //   //   formData.append("comment", prComment);
+  //   // }
+  //   if (isPrPoStage) {
+  //     if (type === "Approve") {
+  //       if (!prComment.trim() || !poComment.trim()) {
+  //         return Swal.fire(
+  //           "Error",
+  //           "PR & PO comments are mandatory",
+  //           "error"
+  //         );
+  //       }
+  //     }
+
+  //     if ((type === "Hold" || type === "Reject") && !prComment.trim()) {
+  //       return Swal.fire(
+  //         "Error",
+  //         "Comment is mandatory",
+  //         "error"
+  //       );
+  //     }
+  //   }
+  //   if (type === "Approve") {
+  //     formData.append("prComment", prComment);
+  //     formData.append("poComment", poComment);
+  //     formData.append("comment", `PR: ${prComment} | PO: ${poComment}`);
+
+  //     if (prAttachment) formData.append("prAttachment", prAttachment);
+  //     if (poAttachment) formData.append("poAttachment", poAttachment);
+  //   }
+
+  //   if (type === "Hold" || type === "Reject") {
+  //     formData.append("comment", prComment);
+  //   }
+
+  //   if (prAttachment) formData.append("prAttachment", prAttachment);
+  //   if (poAttachment) formData.append("poAttachment", poAttachment);
+
+  //   setLoad(true);
+
+  //   let apiCall;
+  //   if (type === "Approve") apiCall = ApiServices.ApproveExpense;
+  //   if (type === "Hold") apiCall = ApiServices.HoldExpense;
+  //   if (type === "Reject") apiCall = ApiServices.RejectExpense;
+
+  //   apiCall(formData)
+  //     .then((res) => {
+  //       setLoad(false);
+  //       if (res?.data?.success) {
+  //         Swal.fire("Success", res.data.message, "success");
+  //         handleCloseModal();
+  //         fetchPending();
+  //       } else {
+  //         Swal.fire("Error", res.data.message, "error");
+  //       }
+  //     })
+  //     .catch(() => {
+  //       setLoad(false);
+  //       Swal.fire("Error", "Something went wrong", "error");
+  //     });
+  // };
+
+  const takeAction = (type) => {
     const formData = new FormData();
+
     formData.append("expenseId", selectedExpense._id);
     formData.append("approverId", userId);
 
-    // 🔥 APPROVE CASE
-    if (type === "Approve") {
-      formData.append("prComment", prComment);
-      formData.append("poComment", poComment);
-      formData.append(
-        "comment",
-        `PR: ${prComment} | PO: ${poComment}`
+    // ================= COMMON VALIDATION =================
+    if (!prComment.trim() || !poComment.trim()) {
+      return Swal.fire(
+        "Error",
+        "PR & PO comments are mandatory",
+        "error"
       );
     }
 
-    // 🔥 HOLD / REJECT CASE
-    if (type === "Hold" || type === "Reject") {
-      if (!prComment.trim()) {
-        return Swal.fire(
-          "Error",
-          "Comment is mandatory",
-          "error"
-        );
-      }
-      formData.append("comment", prComment);
+    // ================= COMMON FIELDS =================
+    formData.append("prComment", prComment);
+    formData.append("poComment", poComment);
+    formData.append("comment", `PR: ${prComment} | PO: ${poComment}`);
+
+    // ================= OPTIONAL ATTACHMENTS =================
+    if (prAttachment instanceof File) {
+      formData.append("prAttachment", prAttachment);
     }
 
-    if (attachmentFile) {
-      formData.append("attachment", attachmentFile);
+    if (poAttachment instanceof File) {
+      formData.append("poAttachment", poAttachment);
     }
 
-    setLoad(true);
-
+    // ================= API CALL =================
     let apiCall;
     if (type === "Approve") apiCall = ApiServices.ApproveExpense;
     if (type === "Hold") apiCall = ApiServices.HoldExpense;
     if (type === "Reject") apiCall = ApiServices.RejectExpense;
+
+    setLoad(true);
 
     apiCall(formData)
       .then((res) => {
@@ -178,7 +278,7 @@ export default function PrPoPendingExpense() {
 
     ApiServices.PrpoEmailAndClose({
       expenseId: selectedExpense._id,
-      emailSubject: emailSubject,
+      prPoEmailSubject: emailSubject,
       approverId: userId
     })
       .then((res) => {
@@ -389,62 +489,56 @@ export default function PrPoPendingExpense() {
                 <hr />
 
                 {/* PR / PO INPUTS */}
-                {!isEmailStage && (
+                {isPrPoStage && (
                   <>
-                    <label className="form-label fw-bold">PR Comment *</label>
-                    <textarea
-                      className="form-control"
-                      value={prComment}
-                      onChange={(e) => setPrComment(e.target.value)}
-                    />
+                    {/* PR ROW */}
+                    <div className="row mt-2">
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">PR Comment *</label>
+                        <input
+                          className="form-control"
+                          rows={3}
+                          value={prComment}
+                          onChange={(e) => setPrComment(e.target.value)}
+                        />
+                      </div>
 
-                    <label className="form-label fw-bold mt-2">PO Comment *</label>
-                    <textarea
-                      className="form-control"
-                      value={poComment}
-                      onChange={(e) => setPoComment(e.target.value)}
-                    />
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">PR Attachment (optional)</label>
+                        <input
+                          type="file"
+                          className="form-control"
+                          onChange={(e) => setPrAttachment(e.target.files[0])}
+                        />
+                      </div>
+                    </div>
 
-                    <label className="form-label fw-bold mt-2">Attachment</label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      onChange={(e) => setAttachmentFile(e.target.files[0])}
-                    />
+                    {/* PO ROW */}
+                    <div className="row mt-3">
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">PO Comment *</label>
+                        <input
+                          className="form-control"
+                          rows={3}
+                          value={poComment}
+                          onChange={(e) => setPoComment(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">PO Attachment (optional)</label>
+                        <input
+                          type="file"
+                          className="form-control"
+                          onChange={(e) => setPoAttachment(e.target.files[0])}
+                        />
+                      </div>
+                    </div>
                   </>
                 )}
 
               </div>
-              {/* {isEmailStage && (
-                <>
-                  <label className="form-label fw-bold mt-3">
-                    Email Subject *
-                  </label>
-                  <input
-                    className="form-control"
-                    value={emailSubject}
-                    onChange={(e) => setEmailSubject(e.target.value)}
-                    placeholder="Enter email subject"
-                  />
-                </>
-              )}
 
-              {!isEmailStage && (
-                <>
-                  <button onClick={() => takeAction("Approve")}>Approve</button>
-                  <button onClick={() => takeAction("Hold")}>Hold</button>
-                  <button onClick={() => takeAction("Reject")}>Reject</button>
-                </>
-              )}
-
-              {isEmailStage && (
-                <button
-                  className="btn btn-success"
-                  onClick={closeExpense}
-                >
-                  Close
-                </button>
-              )} */}
 
               {selectedExpense?.currentApprovalLevel === "PR/PO" &&
                 selectedExpense?.postApprovalStage === "PRPO_EMAIL" && (
@@ -470,6 +564,31 @@ export default function PrPoPendingExpense() {
                     </div>
                   </>
                 )}
+              {isPrPoStage && (
+                // <div className="col-12 text-end mt-3">
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-success "
+                    onClick={() => takeAction("Approve")}
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    className="btn btn-warning "
+                    onClick={() => takeAction("Hold")}
+                  >
+                    Hold
+                  </button>
+
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => takeAction("Reject")}
+                  >
+                    Reject
+                  </button>
+                </div>
+              )}
 
 
             </div>

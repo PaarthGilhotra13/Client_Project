@@ -486,39 +486,55 @@ const getSingle = (req, res) => {
         });
 };
 
-/* ===================== CHANGE STATUS ===================== */
-// const changeStatus = (req, res) => {
-//     const allowedStatus = ['Draft', 'Pending', 'Approved', 'Rejected', 'Hold']
+// const myExpenses = (req, res) => {
+//     var errMsgs = [];
 
-//     if (!req.body._id || !allowedStatus.includes(req.body.status)) {
+//     if (!req.body.userId) errMsgs.push("userId is required");
+
+//     if (errMsgs.length > 0) {
 //         return res.send({
 //             status: 422,
 //             success: false,
-//             message: "Invalid status or _id"
-//         })
+//             message: errMsgs
+//         });
 //     }
 
-//     expenseModel.findOne({ _id: req.body._id })
-//         .then(expense => {
-//             if (!expense) {
-//                 return res.send({ status: 422, success: false, message: "Expense not Found" })
-//             }
+//     // base filter
+//     let filter = {
+//         raisedBy: req.body.userId,
+//         status: true
+//     };
 
-//             expense.status = req.body.status
-//             expense.save()
-//                 .then(data => {
-//                     res.send({
-//                         status: 200,
-//                         success: true,
-//                         message: "Status Updated Successfully",
-//                         data
-//                     })
-//                 })
+//     // OPTIONAL status filter
+//     if (req.body.currentStatus) {
+//         filter.currentStatus = req.body.currentStatus.trim();
+//     }
+
+//     // 🔥 IMPORTANT: exclude CLOSED tickets from Approved page
+//     if (req.body.excludePostApprovalStage) {
+//         filter.postApprovalStage = { $ne: req.body.excludePostApprovalStage };
+//     }
+
+//     expenseModel.find(filter)
+//         .populate("storeId expenseHeadId policyId")
+//         .sort({ createdAt: -1 })
+//         .then(data => {
+//             res.send({
+//                 status: 200,
+//                 success: true,
+//                 message: "My Expense List",
+//                 data
+//             });
 //         })
 //         .catch(() => {
-//             res.send({ status: 422, success: false, message: "Something Went Wrong" })
-//         })
-// }
+//             res.send({
+//                 status: 422,
+//                 success: false,
+//                 message: "Something Went Wrong"
+//             });
+//         });
+// };
+
 
 const myExpenses = (req, res) => {
     var errMsgs = [];
@@ -529,229 +545,73 @@ const myExpenses = (req, res) => {
         return res.send({
             status: 422,
             success: false,
-            message: errMsgs
+            message: errMsgs,
         });
     }
 
-    // base filter
+    /* ================= BASE FILTER ================= */
     let filter = {
         raisedBy: req.body.userId,
-        status: true
+        status: true,
     };
 
-    // OPTIONAL status filter
+    /* ================= OPTIONAL STATUS ================= */
     if (req.body.currentStatus) {
         filter.currentStatus = req.body.currentStatus.trim();
     }
 
-    // 🔥 IMPORTANT: exclude CLOSED tickets from Approved page
-    if (req.body.excludePostApprovalStage) {
-        filter.postApprovalStage = { $ne: req.body.excludePostApprovalStage };
+    /* ================= OPTIONAL APPROVAL LEVEL ================= */
+    if (req.body.currentApprovalLevel) {
+        filter.currentApprovalLevel = req.body.currentApprovalLevel.trim();
     }
 
-    expenseModel.find(filter)
+    /* ================= OPTIONAL POST STAGE ================= */
+    if (req.body.postApprovalStage) {
+        filter.postApprovalStage = req.body.postApprovalStage.trim();
+    }
+
+    /* ========================================================= */
+    /* 🔥 SAFETY: FM Pending page (ONLY approval pending) */
+    /* ========================================================= */
+    if (
+        req.body.currentApprovalLevel === "FM" &&
+        req.body.currentStatus === "Pending" &&
+        !req.body.postApprovalStage
+    ) {
+        // exclude FM WCR stage
+        filter.postApprovalStage = "NONE";
+    }
+
+    /* ========================================================= */
+    /* 🔥 OPTIONAL EXCLUDE (backward compatible) */
+    /* ========================================================= */
+    if (req.body.excludePostApprovalStage) {
+        filter.postApprovalStage = {
+            $ne: req.body.excludePostApprovalStage,
+        };
+    }
+
+    expenseModel
+        .find(filter)
         .populate("storeId expenseHeadId policyId")
         .sort({ createdAt: -1 })
-        .then(data => {
+        .then((data) => {
             res.send({
                 status: 200,
                 success: true,
                 message: "My Expense List",
-                data
+                data,
             });
         })
         .catch(() => {
             res.send({
                 status: 422,
                 success: false,
-                message: "Something Went Wrong"
+                message: "Something Went Wrong",
             });
         });
 };
 
 
-// const approve = (req, res) => {
-//     var errMsgs = [];
-
-//     if (!req.body._id) errMsgs.push("_id is required");
-//     if (!req.body.userRole) errMsgs.push("userRole is required");
-
-//     if (errMsgs.length > 0) {
-//         return res.send({
-//             status: 422,
-//             success: false,
-//             message: errMsgs
-//         });
-//     }
-
-//     expenseModel.findOne({ _id: req.body._id, status: true })
-//         .then(expense => {
-
-//             if (!expense) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "Expense not Found"
-//                 });
-//             }
-
-//             // role check
-//             if (expense.currentApprovalLevel !== req.body.userRole) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "You are not authorized to approve this expense"
-//                 });
-//             }
-
-//             approvalPolicyModel.findOne({ _id: expense.policyId })
-//                 .then(policy => {
-
-//                     const levels = policy.approvalLevels;
-//                     const currentIndex = levels.indexOf(req.body.userRole);
-
-//                     // last approval
-//                     if (currentIndex === levels.length - 1) {
-//                         expense.currentApprovalLevel = null;
-//                         expense.currentStatus = "Approved";
-//                     } else {
-//                         expense.currentApprovalLevel = levels[currentIndex + 1];
-//                         expense.currentStatus = "Pending";
-//                     }
-
-//                     expense.save()
-//                         .then(data => {
-//                             res.send({
-//                                 status: 200,
-//                                 success: true,
-//                                 message: "Expense Approved Successfully",
-//                                 data
-//                             });
-//                         });
-//                 });
-
-//         })
-//         .catch(() => {
-//             res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "Something Went Wrong"
-//             });
-//         });
-// };
-
-// const hold = (req, res) => {
-//     var errMsgs = [];
-
-//     if (!req.body._id) errMsgs.push("_id is required");
-//     if (!req.body.userRole) errMsgs.push("userRole is required");
-//     if (!req.body.remark) errMsgs.push("remark is required");
-
-//     if (errMsgs.length > 0) {
-//         return res.send({
-//             status: 422,
-//             success: false,
-//             message: errMsgs
-//         });
-//     }
-
-//     expenseModel.findOne({ _id: req.body._id, status: true })
-//         .then(expense => {
-
-//             if (!expense) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "Expense not Found"
-//                 });
-//             }
-
-//             if (expense.currentApprovalLevel !== req.body.userRole) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "You are not authorized to hold this expense"
-//                 });
-//             }
-
-//             expense.currentStatus = "Hold";
-//             expense.remark = req.body.remark;
-
-//             expense.save()
-//                 .then(data => {
-//                     res.send({
-//                         status: 200,
-//                         success: true,
-//                         message: "Expense Put On Hold",
-//                         data
-//                     });
-//                 });
-//         })
-//         .catch(() => {
-//             res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "Something Went Wrong"
-//             });
-//         });
-// };
-
-/* ===================== REJECT EXPENSE ===================== */
-// const reject = (req, res) => {
-//     var errMsgs = [];
-
-//     if (!req.body._id) errMsgs.push("_id is required");
-//     if (!req.body.userRole) errMsgs.push("userRole is required");
-//     if (!req.body.remark) errMsgs.push("remark is required");
-
-//     if (errMsgs.length > 0) {
-//         return res.send({
-//             status: 422,
-//             success: false,
-//             message: errMsgs
-//         });
-//     }
-
-//     expenseModel.findOne({ _id: req.body._id, status: true })
-//         .then(expense => {
-
-//             if (!expense) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "Expense not Found"
-//                 });
-//             }
-
-//             if (expense.currentApprovalLevel !== req.body.userRole) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "You are not authorized to reject this expense"
-//                 });
-//             }
-
-//             expense.currentStatus = "Rejected";
-//             expense.currentApprovalLevel = null;
-//             expense.remark = req.body.remark;
-
-//             expense.save()
-//                 .then(data => {
-//                     res.send({
-//                         status: 200,
-//                         success: true,
-//                         message: "Expense Rejected Successfully",
-//                         data
-//                     });
-//                 });
-//         })
-//         .catch(() => {
-//             res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "Something Went Wrong"
-//             });
-//         });
-// };
 
 module.exports = { add, getAll, getSingle, myExpenses }

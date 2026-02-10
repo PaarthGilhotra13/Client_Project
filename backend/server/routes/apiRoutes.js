@@ -183,9 +183,30 @@ routes.post("/approvalPolicy/delete", approvalPolicyController.delApprovalPolicy
 routes.post("/approvalPolicy/changeStatus", approvalPolicyController.changeStatus)
 
 //Expense Approval
-routes.post("/expense-approval/approve", upload.single("attachment") ,expenseApprovalController.approveExpense)
-routes.post("/expense-approval/hold", expenseApprovalController.holdExpense)
-routes.post("/expense-approval/reject", expenseApprovalController.rejectExpense)
+const prpoUpload = upload.fields([
+    { name: "prAttachment", maxCount: 1 },
+    { name: "poAttachment", maxCount: 1 }
+]);
+
+routes.post(
+    "/expense-approval/approve",
+    prpoUpload,
+    expenseApprovalController.approveExpense
+);
+
+routes.post(
+    "/expense-approval/hold",
+    prpoUpload,
+    expenseApprovalController.holdExpense
+);
+
+routes.post(
+    "/expense-approval/reject",
+    prpoUpload,
+    expenseApprovalController.rejectExpense
+);
+
+
 routes.post("/expense-approval/history", expenseApprovalController.approvalHistory)
 routes.post("/expense-approval/clm/pending", expenseApprovalController.clmPendingExpenses)
 routes.post("/expense-approval/zh/pending", expenseApprovalController.pendingForZH)
