@@ -20,7 +20,6 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        /* ================= 1️⃣ FETCH EXPENSE ================= */
         const expense = await expenseModel.findById(expenseId).populate("policyId");
         if (!expense) {
             return res.send({
@@ -38,7 +37,6 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        /* ================= 2️⃣ FETCH APPROVER ================= */
         const approver = await userModel.findById(approverId);
         if (!approver || !approver.designation) {
             return res.send({
@@ -48,7 +46,6 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        /* ================= 3️⃣ NORMALIZE ================= */
         const normalize = (v) =>
             v?.toUpperCase().replace(/\s+/g, "").replace(/\//g, "").trim();
 
@@ -63,49 +60,60 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        /* ================= 🔥 CAPEX RULES ================= */
-        if (expense.natureOfExpense === "CAPEX") {
-            if (
-                ["ZONAL_HEAD", "BUSINESS_FINANCE", "PROCUREMENT"].includes(
-                    expense.currentApprovalLevel
-                )
-            ) {
-                if (!comment?.trim()) {
-                    return res.send({
-                        status: 422,
-                        success: false,
-                        message: "Comment is mandatory for CAPEX approval",
-                    });
-                }
+        /* ================= PR/PO UNIVERSAL LOGIC ================= */
+        const prFile = req.files?.prAttachment?.[0];
+        const poFile = req.files?.poAttachment?.[0];
+
+        if (expense.currentApprovalLevel === "PR/PO") {
+
+            if (!prComment?.trim() || !poComment?.trim()) {
+                return res.send({
+                    status: 422,
+                    success: false,
+                    message: "PR & PO comment are required",
+                });
             }
 
-            /* ================= CAPEX FLOW ================= */
-            if (expense.natureOfExpense === "CAPEX") {
+            expense.prComment = prComment.trim();
+            expense.poComment = poComment.trim();
 
-                /* ===== PR/PO → FM (FINAL APPROVAL) ===== */
-                if (expense.currentApprovalLevel === "PR/PO") {
-
-                    // ✅ approval complete (OPEX style)
-                    expense.currentStatus = "Approved";
-
-                    // FM ko bhejo for WCR + Invoice
-                    expense.currentApprovalLevel = "FM";
-                    expense.postApprovalStage = "FM_PENDING";
-
-                    // cleanup
-                    expense.heldFromLevel = null;
-                    expense.holdComment = "";
-
-                    await expense.save();
-
-                    return res.send({
-                        status: 200,
-                        success: true,
-                        message: "PR/PO approved and sent to FM for WCR & Invoice"
-                    });
+            try {
+                if (prFile) {
+                    expense.prAttachment = await uploadImg(prFile.buffer);
                 }
+                if (poFile) {
+                    expense.poAttachment = await uploadImg(poFile.buffer);
+                }
+            } catch (err) {
+                return res.send({
+                    status: 422,
+                    success: false,
+                    message: "PR/PO attachment upload failed",
+                });
+            }
+        }
 
-                /* ===== NORMAL CAPEX CHAIN (AS IS) ===== */
+        /* ================= SAVE APPROVAL HISTORY ================= */
+        await expenseApprovalModel.create({
+            expenseId,
+            level: expense.currentApprovalLevel,
+            approverId,
+            action: "Approved",
+            comment:
+                expense.currentApprovalLevel === "PR/PO"
+                    ? `PR: ${expense.prComment} | PO: ${expense.poComment}`
+                    : comment || "",
+            actionAt: new Date(),
+        });
+
+        /* ================= CAPEX FLOW ================= */
+        if (expense.natureOfExpense === "CAPEX") {
+
+            if (expense.currentApprovalLevel === "PR/PO") {
+                expense.currentApprovalLevel = "FM";
+                expense.currentStatus = "Approved";
+                expense.postApprovalStage = "FM_PENDING";
+            } else {
                 const CAPEX_FLOW = [
                     "ZONAL_HEAD",
                     "BUSINESS_FINANCE",
@@ -116,92 +124,7 @@ const approveExpense = async (req, res) => {
                 const idx = CAPEX_FLOW.map(normalize).indexOf(approverLevel);
                 expense.currentApprovalLevel = CAPEX_FLOW[idx + 1];
                 expense.currentStatus = "Pending";
-
-                expense.heldFromLevel = null;
-                expense.holdComment = "";
-
-                await expense.save();
-
-                return res.send({
-                    status: 200,
-                    success: true,
-                    message: "CAPEX approved",
-                });
             }
-
-        }
-
-        /* ================= 4️⃣ DUPLICATE CHECK ================= */
-        const alreadyApproved = await expenseApprovalModel.findOne({
-            expenseId,
-            approverId,
-            level: expense.currentApprovalLevel,
-            action: "Approved",
-        });
-
-        if (alreadyApproved) {
-            return res.send({
-                status: 422,
-                success: false,
-                message: "Already approved",
-            });
-        }
-
-        /* ================= 5️⃣ PR/PO ATTACHMENTS ================= */
-        const prFile = req.files?.prAttachment?.[0];
-        const poFile = req.files?.poAttachment?.[0];
-
-        /* ================= 6️⃣ SAVE APPROVAL HISTORY ================= */
-        await expenseApprovalModel.create({
-            expenseId,
-            level: expense.currentApprovalLevel,
-            approverId,
-            action: "Approved",
-            comment:
-                expense.currentApprovalLevel === "PR/PO"
-                    ? `PR: ${prComment} | PO: ${poComment}`
-                    : comment || "",
-            actionAt: new Date(),
-        });
-
-        /* ===================================================== */
-        /* ================= CAPEX FLOW ======================== */
-        /* ===================================================== */
-
-        if (expense.natureOfExpense === "CAPEX") {
-            /* ===== PR/PO → FM ===== */
-            if (expense.currentApprovalLevel === "PR/PO") {
-
-                // 🔥 PR/PO approve → FM WCR stage
-                expense.currentApprovalLevel = "FM";
-                expense.currentStatus = "Pending";
-                expense.postApprovalStage = "FM_PENDING";
-
-                // clean old hold data
-                expense.heldFromLevel = null;
-                expense.holdComment = "";
-
-                await expense.save();
-
-                return res.send({
-                    status: 200,
-                    success: true,
-                    message: "PR/PO approved & sent to FM for WCR/Invoice"
-                });
-            }
-
-
-            /* ===== NORMAL CAPEX CHAIN ===== */
-            const CAPEX_FLOW = [
-                "ZONAL_HEAD",
-                "BUSINESS_FINANCE",
-                "PROCUREMENT",
-                "PR/PO",
-            ];
-
-            const idx = CAPEX_FLOW.map(normalize).indexOf(approverLevel);
-            expense.currentApprovalLevel = CAPEX_FLOW[idx + 1];
-            expense.currentStatus = "Pending";
 
             expense.heldFromLevel = null;
             expense.holdComment = "";
@@ -215,10 +138,7 @@ const approveExpense = async (req, res) => {
             });
         }
 
-        /* ===================================================== */
-        /* ================= OPEX FLOW (AS IS) ================= */
-        /* ===================================================== */
-
+        /* ================= OPEX FLOW ================= */
         const levels = expense.policyId?.approvalLevels || [];
         const idx = levels.map(normalize).indexOf(approverLevel);
         const next = levels[idx + 1];
@@ -242,6 +162,7 @@ const approveExpense = async (req, res) => {
             success: true,
             message: "Expense approved",
         });
+
     } catch (err) {
         console.log("Approve Error:", err);
         return res.send({
@@ -251,8 +172,6 @@ const approveExpense = async (req, res) => {
         });
     }
 };
-
-
 
 
 /* ================= HOLD EXPENSE ================= */
@@ -268,7 +187,6 @@ const holdExpense = async (req, res) => {
             });
         }
 
-        /* 1️⃣ Fetch Expense */
         const expense = await expenseModel.findById(expenseId);
         if (!expense) {
             return res.send({
@@ -278,7 +196,6 @@ const holdExpense = async (req, res) => {
             });
         }
 
-        /* 2️⃣ Fetch Approver */
         const approver = await userModel.findById(approverId);
         if (!approver || !approver.designation) {
             return res.send({
@@ -290,29 +207,46 @@ const holdExpense = async (req, res) => {
 
         const approverLevel = approver.designation.toUpperCase();
 
-        /* 3️⃣ Approval History */
+        let prAttachmentUrl = null;
+        let poAttachmentUrl = null;
+
+        try {
+            if (req.files?.prAttachment?.length > 0) {
+                prAttachmentUrl = await uploadImg(req.files.prAttachment[0].buffer);
+            }
+            if (req.files?.poAttachment?.length > 0) {
+                poAttachmentUrl = await uploadImg(req.files.poAttachment[0].buffer);
+            }
+        } catch (err) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Attachment upload failed",
+            });
+        }
+
         await expenseApprovalModel.create({
             expenseId: expense._id,
             level: approverLevel,
             approverId,
-            comment,               // combined PR + PO
+            comment,
             action: "Hold",
             status: "Hold",
         });
 
-        /* 4️⃣ Expense Update */
+        expense.holdHistory.push({
+            heldBy: approverId,
+            level: approverLevel,
+            comment: comment.trim(),
+            prAttachment: prAttachmentUrl,
+            poAttachment: poAttachmentUrl
+        });
+
         expense.currentStatus = "Hold";
-        expense.holdComment = comment;
+        expense.holdComment = comment.trim();
         expense.heldFromLevel = approverLevel;
-
-        // 🔥 Always send back to FM
         expense.currentApprovalLevel = "FM";
-
-        // 🔥 VERY IMPORTANT: reset stage
         expense.postApprovalStage = "NONE";
-
-        // clear old resubmission
-        expense.resubmittedAttachment = "";
 
         await expense.save();
 
@@ -331,8 +265,6 @@ const holdExpense = async (req, res) => {
         });
     }
 };
-
-
 
 
 /* ================= REJECT EXPENSE ================= */
@@ -357,21 +289,17 @@ const rejectExpense = async (req, res) => {
             });
         }
 
-        /* 1️⃣ Approval History */
         await expenseApprovalModel.create({
             expenseId,
             level: expense.currentApprovalLevel,
             approverId,
-            comment,               // combined PR + PO
+            comment: comment.trim(),
             action: "Rejected",
             status: "Rejected",
         });
 
-        /* 2️⃣ Final Reject */
         expense.currentStatus = "Rejected";
         expense.currentApprovalLevel = null;
-
-        // 🔥 mark final stage
         expense.postApprovalStage = "CLOSED";
 
         await expense.save();
@@ -392,18 +320,23 @@ const rejectExpense = async (req, res) => {
     }
 };
 
-
-
-
 const resubmitHeldExpense = async (req, res) => {
     try {
-        const { expenseId } = req.body;
+        const { expenseId, fmComment } = req.body;
 
         if (!expenseId) {
             return res.send({
                 status: 422,
                 success: false,
                 message: "expenseId is required"
+            });
+        }
+
+        if (!fmComment?.trim()) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "FM comment is required"
             });
         }
 
@@ -434,9 +367,10 @@ const resubmitHeldExpense = async (req, res) => {
             });
         }
 
+        let uploadedUrl;
+
         try {
-            const url = await uploadImg(req.file.buffer);
-            expense.resubmittedAttachment = url; // 🔥 NEW attachment
+            uploadedUrl = await uploadImg(req.file.buffer);
         } catch (err) {
             return res.send({
                 status: 422,
@@ -445,10 +379,21 @@ const resubmitHeldExpense = async (req, res) => {
             });
         }
 
+        /* ================= PUSH INTO RESUBMISSION HISTORY ================= */
+
+        expense.resubmissions.push({
+            attachment: uploadedUrl,
+            fmComment: fmComment.trim(),
+            heldFromLevel: expense.heldFromLevel
+        });
+
         /* ================= MOVE BACK TO SAME LEVEL ================= */
+
         expense.currentStatus = "Pending";
-        expense.currentApprovalLevel = expense.heldFromLevel; // 🔥 SAME LEVEL
+        expense.currentApprovalLevel = expense.heldFromLevel; // same level pe wapas
+
         expense.heldFromLevel = null;
+        expense.holdComment = "";
 
         await expense.save();
 
@@ -468,6 +413,7 @@ const resubmitHeldExpense = async (req, res) => {
         });
     }
 };
+
 
 /* ================= APPROVAL HISTORY ================= */
 const approvalHistory = async (req, res) => {
@@ -1053,13 +999,13 @@ const adminExpensesByStatus = async (req, res) => {
 
 const uploadWcrInvoice = async (req, res) => {
     try {
-        const { expenseId, fmComment } = req.body;
+        const { expenseId, fmComment, fmId } = req.body;
 
-        if (!expenseId || !fmComment?.trim()) {
+        if (!expenseId || !fmComment?.trim() || !fmId) {
             return res.send({
                 status: 422,
                 success: false,
-                message: "expenseId & fmComment are required",
+                message: "expenseId, fmId & fmComment are required",
             });
         }
 
@@ -1071,22 +1017,49 @@ const uploadWcrInvoice = async (req, res) => {
             });
         }
 
-        const wcrFile = req.files.wcr[0];
-        const invoiceFile = req.files.invoice[0];
-
-        const wcrUrl = await uploadImg(wcrFile.buffer);
-        const invoiceUrl = await uploadImg(invoiceFile.buffer);
+        const wcrUrl = await uploadImg(req.files.wcr[0].buffer);
+        const invoiceUrl = await uploadImg(req.files.invoice[0].buffer);
 
         const expense = await expenseModel.findById(expenseId);
 
+        if (!expense) {
+            return res.send({
+                status: 422,
+                success: false,
+                message: "Expense not found",
+            });
+        }
+
+        /* ================= SAVE EXECUTION DATA ================= */
         expense.wcrAttachment = wcrUrl;
         expense.invoiceAttachment = invoiceUrl;
-        expense.fmComment = fmComment;
+        expense.executionUploadedAt = new Date();
+        expense.fmComment = fmComment.trim();
 
-        // 🔥 FM submit → PR/PO email stage
-        expense.currentApprovalLevel = "PR/PO";
-        expense.currentStatus = "Pending";
-        expense.postApprovalStage = "PRPO_EMAIL";
+        /* ================= FLOW ================= */
+
+        if (expense.natureOfExpense === "CAPEX") {
+
+            expense.currentApprovalLevel = "PR/PO";
+            expense.currentStatus = "Pending";
+            expense.postApprovalStage = "PRPO_EMAIL";
+
+        } else {
+
+            expense.currentApprovalLevel = "ZONAL_COMMERCIAL";
+            expense.currentStatus = "Pending";
+            expense.postApprovalStage = "ZC_VERIFY";
+        }
+
+        /* ================= HISTORY ENTRY ================= */
+        await expenseApprovalModel.create({
+            expenseId: expense._id,
+            level: "FM",
+            approverId: fmId,
+            action: "Approved", // keep as Approved for enum safety
+            comment: `Execution Uploaded: ${fmComment.trim()}`,
+            actionAt: new Date()
+        });
 
         await expense.save();
 
@@ -1105,10 +1078,6 @@ const uploadWcrInvoice = async (req, res) => {
         });
     }
 };
-
-
-
-
 
 
 const verifyAndCloseExpense = async (req, res) => {

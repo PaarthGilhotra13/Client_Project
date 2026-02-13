@@ -72,16 +72,55 @@ const expenseSchema = new mongoose.Schema({
     },
 
     // 🔹 FM RE-UPLOAD AFTER HOLD
-    resubmittedAttachment: {
-        type: String,
-        default: ""
-    },
+    // 🔹 RESUBMISSION HISTORY
+    resubmissions: [
+        {
+            attachment: String,
+            fmComment: String,
+            heldFromLevel: String,
+            submittedAt: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ],
 
     // 🔹 HOLD DETAILS
     holdComment: {
         type: String,
         default: ""
     },
+    // 🔹 HOLD HISTORY TRACKING
+    holdHistory: [
+        {
+            heldBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "userData"
+            },
+            level: {
+                type: String
+            },
+            comment: {
+                type: String
+            },
+
+            prAttachment: {
+                type: String,
+                default: null
+            },
+
+            poAttachment: {
+                type: String,
+                default: null
+            },
+
+            heldAt: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ],
+
 
     heldFromLevel: {
         type: String,

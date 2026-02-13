@@ -594,6 +594,7 @@ const myExpenses = (req, res) => {
     expenseModel
         .find(filter)
         .populate("storeId expenseHeadId policyId")
+        .populate("holdHistory.heldBy", "name designation")
         .sort({ createdAt: -1 })
         .then((data) => {
             res.send({
