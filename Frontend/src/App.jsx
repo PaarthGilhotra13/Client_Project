@@ -100,6 +100,8 @@ import CLMDashboard from "./Components/CLM/ClmDashboard"
 import BusinessFinanceDashboard from "./Components/Business_FInance/BusinessFinanceDashboard"
 import ProcurementDashboard from "./Components/Procurement/ProcurementDashboard"
 import PrPoDashboard from "./Components/PR_PO/PrPoDashboard"
+import AllExpenses from "./Components/Admin/Expenses/AllExpenses"
+import TodayRequests from "./Components/Admin/Expenses/TodayRequests"
 
 
 function App() {
@@ -171,6 +173,8 @@ function App() {
             <Route path="/admin/allApprovedExpenses" element={<AllApprovedExpense />} />
             <Route path="/admin/allHoldExpenses" element={<AllHoldExpense />} />
             <Route path="/admin/allRejectedExpenses" element={<AllRjectedExpense />} />
+            <Route path="/admin/allExpenses" element={<AllExpenses />} />
+            <Route path="/admin/todayRequests" element={<TodayRequests />} />
 
           </Route>
 

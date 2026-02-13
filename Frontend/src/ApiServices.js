@@ -468,12 +468,6 @@ class ApiServices {
    Dashboard() {
       return axios.get(BaseURL + "/apis/dashboard", { headers: getToken() });
    }
-   FMDashboard() {
-      return axios.get(BaseURL + "/apis/fm/dashboard", { headers: getToken() });
-   }
-   ZonalHeadDashboard() {
-      return axios.get(BaseURL + "/apis/zh/dashboard", { headers: getToken() });
-   }
 
 }
 
