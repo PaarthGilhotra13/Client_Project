@@ -1,4 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import ApiServices from "../../ApiServices";
+import axios from "axios";
 export default function AdminSidebar() {
   const handleSidebarClose = () => {
     if (window.innerWidth <= 1024) {
@@ -6,11 +9,43 @@ export default function AdminSidebar() {
       document.getElementById("sidebar").classList.remove("active"); // if you're toggling class on sidebar
     }
   };
+
+  // ✅ Export Expenses
+  const downloadCSV = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+
+      const res = await axios.get(
+        "http://localhost:3000/admin/export-sheet",
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `expense-report_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+    } catch (err) {
+      console.log("CSV DOWNLOAD ERROR:", err);
+    }
+  };
+
+
   return (
     <>
       {/* ======= Sidebar ======= */}
       <aside id="sidebar" className="sidebar">
-        <ul className="sidebar-nav" id="sidebar-nav" style={{ cursor: "default" }}>
+        <ul
+          className="sidebar-nav"
+          id="sidebar-nav"
+          style={{ cursor: "default" }}
+        >
           {/* Start Dashboard Nav */}
           <li className="nav-item">
             <Link
@@ -27,7 +62,6 @@ export default function AdminSidebar() {
               className="nav-link collapsed"
               data-bs-target="#zone-nav"
               data-bs-toggle="collapse"
-
             >
               <i className="bi bi-globe" />
               <span>Zone</span>
@@ -42,7 +76,6 @@ export default function AdminSidebar() {
                 <Link to={"/admin/addZone"} onClick={handleSidebarClose}>
                   <i className="bi bi-plus fs-5" />
                   <span>Add Zone</span>
-
                 </Link>
               </li>
               <li>
@@ -57,8 +90,6 @@ export default function AdminSidebar() {
                   <span>Blocked Zone</span>
                 </Link>
               </li>
-
-
             </ul>
           </li>
           {/* End Zone Nav */}
@@ -69,7 +100,6 @@ export default function AdminSidebar() {
               className="nav-link collapsed"
               data-bs-target="#state-nav"
               data-bs-toggle="collapse"
-
             >
               <i className="bi bi-map" />
               <span>State</span>
@@ -84,7 +114,6 @@ export default function AdminSidebar() {
                 <Link to={"/admin/addState"} onClick={handleSidebarClose}>
                   <i className="bi bi-plus fs-5" />
                   <span>Add State</span>
-
                 </Link>
               </li>
               <li>
@@ -99,8 +128,6 @@ export default function AdminSidebar() {
                   <span>Blocked State</span>
                 </Link>
               </li>
-
-
             </ul>
           </li>
           {/* End State Nav */}
@@ -111,7 +138,6 @@ export default function AdminSidebar() {
               className="nav-link collapsed"
               data-bs-target="#city-nav"
               data-bs-toggle="collapse"
-
             >
               <i className="bi bi-geo-alt" />
               <span>City</span>
@@ -126,7 +152,6 @@ export default function AdminSidebar() {
                 <Link to={"/admin/addCity"} onClick={handleSidebarClose}>
                   <i className="bi bi-plus fs-5" />
                   <span>Add City</span>
-
                 </Link>
               </li>
               <li>
@@ -141,8 +166,6 @@ export default function AdminSidebar() {
                   <span>Blocked City</span>
                 </Link>
               </li>
-
-
             </ul>
           </li>
           {/* End City Nav */}
@@ -153,7 +176,6 @@ export default function AdminSidebar() {
               className="nav-link collapsed"
               data-bs-target="#StoreCategory-nav"
               data-bs-toggle="collapse"
-
             >
               <i className="bi bi-tags" />
               <span>Store Category</span>
@@ -165,26 +187,32 @@ export default function AdminSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/admin/addStoreCategory"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/addStoreCategory"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-plus fs-5" />
                   <span>Add Store Category</span>
-
                 </Link>
               </li>
               <li>
-                <Link to={"/admin/manageStoreCategory"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/manageStoreCategory"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-card-list fs-6" />
                   <span>Manage Store Category</span>
                 </Link>
               </li>
               <li>
-                <Link to={"/admin/blockedStoreCategory"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/blockedStoreCategory"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-slash-circle text-danger  fs-6" />
                   <span>Blocked Store Category</span>
                 </Link>
               </li>
-
-
             </ul>
           </li>
           {/* End Store Category Nav */}
@@ -195,7 +223,6 @@ export default function AdminSidebar() {
               className="nav-link collapsed"
               data-bs-target="#Store-nav"
               data-bs-toggle="collapse"
-
             >
               <i className="bi bi-shop" />
               <span>Store</span>
@@ -210,7 +237,6 @@ export default function AdminSidebar() {
                 <Link to={"/admin/addStore"} onClick={handleSidebarClose}>
                   <i className="bi bi-plus fs-5" />
                   <span>Add Store</span>
-
                 </Link>
               </li>
               <li>
@@ -225,7 +251,6 @@ export default function AdminSidebar() {
                   <span>Blocked Store </span>
                 </Link>
               </li>
-
             </ul>
           </li>
           {/* End Store  Nav */}
@@ -236,7 +261,6 @@ export default function AdminSidebar() {
               className="nav-link collapsed"
               data-bs-target="#ExpenseHead-nav"
               data-bs-toggle="collapse"
-
             >
               <i className="bi bi-receipt" />
               <span>Expense Head</span>
@@ -251,22 +275,26 @@ export default function AdminSidebar() {
                 <Link to={"/admin/addExpenseHead"} onClick={handleSidebarClose}>
                   <i className="bi bi-plus fs-5" />
                   <span>Add Expense Head</span>
-
                 </Link>
               </li>
               <li>
-                <Link to={"/admin/manageExpenseHead"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/manageExpenseHead"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-card-list fs-6" />
                   <span>Manage Expense Head</span>
                 </Link>
               </li>
               <li>
-                <Link to={"/admin/blockedExpenseHead"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/blockedExpenseHead"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-slash-circle text-danger  fs-6" />
                   <span>Blocked Expense Head</span>
                 </Link>
               </li>
-
             </ul>
           </li>
           {/* End Expense Head Nav */}
@@ -277,7 +305,6 @@ export default function AdminSidebar() {
               className="nav-link collapsed"
               data-bs-target="#ApprovalPolicy-nav"
               data-bs-toggle="collapse"
-
             >
               <i className="bi bi-check-circle" />
               <span>Approval Policy</span>
@@ -289,25 +316,32 @@ export default function AdminSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/admin/addApprovalPolicy"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/addApprovalPolicy"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-plus fs-5" />
                   <span>Add Approval Policy</span>
-
                 </Link>
               </li>
               <li>
-                <Link to={"/admin/manageApprovalPolicy"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/manageApprovalPolicy"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-card-list fs-6" />
                   <span>Manage Approval Policy</span>
                 </Link>
               </li>
               <li>
-                <Link to={"/admin/blockedApprovalPolicy"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/blockedApprovalPolicy"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-slash-circle text-danger  fs-6" />
                   <span>Blocked Approval Policy</span>
                 </Link>
               </li>
-
             </ul>
           </li>
           {/* End Approval Policy Nav */}
@@ -385,7 +419,10 @@ export default function AdminSidebar() {
                 </Link>
               </li>
               <li>
-                <Link to={"/admin/allHoldExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/admin/allHoldExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-pause-circle fs-6" />
                   <span>Hold Expenses</span>
                 </Link>
@@ -402,6 +439,13 @@ export default function AdminSidebar() {
             </ul>
           </li>
           {/* End Employee Nav */}
+
+          <li className="nav-item">
+            <button className="btn btn-success w-100" onClick={downloadCSV}>
+              <i className="bi bi-download me-2"></i>
+              Download Expense CSV
+            </button>
+          </li>
         </ul>
       </aside>
       {/* End Sidebar*/}
