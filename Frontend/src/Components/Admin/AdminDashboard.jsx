@@ -3,9 +3,27 @@ import PageTitle from "../PageTitle";
 import { useEffect, useState } from "react";
 import ApiServices from "../../ApiServices";
 import { Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const [load, setLoad] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+
+    const urlFilters = {
+      date: params.get("date") || "",
+      month: params.get("month") || "",
+      year: params.get("year") || "",
+      state: params.get("state") || "",
+      zone: params.get("zone") || "",
+    };
+
+    setFilters(urlFilters);
+    fetchDashboardData(urlFilters);
+  }, [location.search]);
 
   /* ================= FILTER UI STATE ================= */
   const [filters, setFilters] = useState({
@@ -23,14 +41,17 @@ export default function AdminDashboard() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
   const handleResetFilters = () => {
-  setFilters({
-    date: "",
-    month: "",
-    year: "",
-    state: "",
-    zone: "",
-  });
-};
+    const resetObj = {
+      date: "",
+      month: "",
+      year: "",
+      state: "",
+      zone: "",
+    };
+
+    navigate("");
+  };
+
 
   /* ================= DASHBOARD DATA STATE ================= */
   const [data, setData] = useState({
@@ -79,11 +100,47 @@ export default function AdminDashboard() {
   };
 
   /* ================= DASHBOARD LOGIC (UNCHANGED) ================= */
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (appliedFilters = {}) => {
     setLoad(true);
     try {
       const expenseRes = await ApiServices.GetAllExpense();
-      const expenses = expenseRes?.data?.data || [];
+      let expenses = expenseRes?.data?.data || [];
+
+      /* ================= APPLY FILTER LOGIC ================= */
+
+      expenses = expenses.filter((e) => {
+
+        const createdDate = new Date(e.createdAt);
+
+        // Date Filter
+        if (appliedFilters.date && createdDate.getDate() !== Number(appliedFilters.date)) {
+          return false;
+        }
+
+        // Month Filter
+        if (appliedFilters.month && (createdDate.getMonth() + 1) !== Number(appliedFilters.month)) {
+          return false;
+        }
+
+        // Year Filter
+        if (appliedFilters.year && createdDate.getFullYear() !== Number(appliedFilters.year)) {
+          return false;
+        }
+
+        // State Filter
+        if (appliedFilters.state && e.storeId?.stateId !== appliedFilters.state) {
+          return false;
+        }
+
+        // Zone Filter
+        if (appliedFilters.zone && e.storeId?.zoneId !== appliedFilters.zone) {
+          return false;
+        }
+
+        return true;
+      });
+
+      /* ================= DASHBOARD CALCULATION ================= */
 
       const todayDate = new Date().toISOString().split("T")[0];
 
@@ -99,7 +156,20 @@ export default function AdminDashboard() {
         arr.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
       const approvedRes = await ApiServices.AdminExpensesByStatus({ status: "Approved" });
-      const approvedList = approvedRes?.data?.data || [];
+      let approvedList = approvedRes?.data?.data || [];
+
+      // Apply same filters to approved list
+      approvedList = approvedList.filter((e) => {
+        const createdDate = new Date(e.createdAt);
+
+        if (appliedFilters.date && createdDate.getDate() !== Number(appliedFilters.date)) return false;
+        if (appliedFilters.month && (createdDate.getMonth() + 1) !== Number(appliedFilters.month)) return false;
+        if (appliedFilters.year && createdDate.getFullYear() !== Number(appliedFilters.year)) return false;
+        if (appliedFilters.state && e.storeId?.stateId !== appliedFilters.state) return false;
+        if (appliedFilters.zone && e.storeId?.zoneId !== appliedFilters.zone) return false;
+
+        return true;
+      });
 
       const roleRes = await ApiServices.Dashboard();
       const roleData = roleRes?.data?.data || {};
@@ -134,20 +204,25 @@ export default function AdminDashboard() {
         totalZonalCommercial: roleData.totalZonalCommercial ?? 0,
         totalMissingBridgeUsers: roleData.totalMissingBridgeUsers ?? 0,
       });
+
     } finally {
       setLoad(false);
     }
   };
 
   /* ================= REQUEST CARDS ================= */
+  const buildLink = (base) =>
+    `${base}?${new URLSearchParams(filters).toString()}`;
+
   const requestCards = [
-    { title: "Total Requests", count: data.totalRequests, amount: data.totalAmount, color: "#4B49AC", icon: "bi-collection", link: "/admin/allExpenses" },
-    { title: "Pending Requests", count: data.pendingRequests, amount: data.pendingAmount, color: "#FFC107", icon: "bi-hourglass-split", link: "/admin/allPendingExpenses" },
-    { title: "Approved Requests", count: data.approvedRequests, amount: data.approvedAmount, color: "#20C997", icon: "bi-check-circle", link: "/admin/allApprovedExpenses" },
-    { title: "Rejected Requests", count: data.rejectedRequests, amount: data.rejectedAmount, color: "#FF6B6B", icon: "bi-x-circle", link: "/admin/allRejectedExpenses" },
-    { title: "In-Process", count: data.inProcessRequests, amount: data.holdAmount, color: "#4D96FF", icon: "bi-arrow-repeat", link: "/admin/allHoldExpenses" },
-    { title: "Today’s New Requests", count: data.todayRequests, amount: data.todayAmount, color: "#00B8D9", icon: "bi-calendar-event", link: "/admin/todayRequests" },
+    { title: "Total Requests", count: data.totalRequests, amount: data.totalAmount, color: "#4B49AC", icon: "bi-collection", link: buildLink("/admin/allExpenses") },
+    { title: "Pending Requests", count: data.pendingRequests, amount: data.pendingAmount, color: "#FFC107", icon: "bi-hourglass-split", link: buildLink("/admin/allPendingExpenses") },
+    { title: "Approved Requests", count: data.approvedRequests, amount: data.approvedAmount, color: "#20C997", icon: "bi-check-circle", link: buildLink("/admin/allApprovedExpenses") },
+    { title: "Rejected Requests", count: data.rejectedRequests, amount: data.rejectedAmount, color: "#FF6B6B", icon: "bi-x-circle", link: buildLink("/admin/allRejectedExpenses") },
+    { title: "In-Process", count: data.inProcessRequests, amount: data.holdAmount, color: "#4D96FF", icon: "bi-arrow-repeat", link: buildLink("/admin/allHoldExpenses") },
+    { title: "Today’s New Requests", count: data.todayRequests, amount: data.todayAmount, color: "#00B8D9", icon: "bi-calendar-event", link: buildLink("/admin/todayRequests") },
   ];
+
 
   const roleCards = [
     { title: "Total Users", value: data.totalUsers, color: "#6F42C1", icon: "bi-people", link: "/admin/manageEmployee" },
@@ -160,6 +235,11 @@ export default function AdminDashboard() {
     { title: "Zonal Commercial", value: data.totalZonalCommercial, color: "#20c997", icon: "bi-briefcase", link: "/admin/zonalCommercial" },
     { title: "Missing Bridge", value: data.totalMissingBridgeUsers, color: "#dc3545", icon: "bi-exclamation-octagon", link: "/admin/missingBridge" },
   ];
+  const handleApplyFilters = () => {
+    const query = new URLSearchParams(filters).toString();
+    navigate(`?${query}`);
+  };
+
 
   return (
     <main id="main" className="main">
@@ -168,7 +248,7 @@ export default function AdminDashboard() {
       {/* ================= FILTER UI (RESTORED) ================= */}
       <div className="card mb-3">
         <div className="card-body">
-          <h6 className="fw-bold mb-3">Filters</h6>
+          <h6 className="fw-bold mt-3">Filters</h6>
           <div className="row g-3 align-items-end">
             <div className="col-md-2">
               <label className="form-label">Date</label>
@@ -188,8 +268,8 @@ export default function AdminDashboard() {
                 onChange={(e) => handleFilterChange("month", e.target.value)}>
                 <option value="">Select Month</option>
                 {[
-                  "January","February","March","April","May","June",
-                  "July","August","September","October","November","December"
+                  "January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December"
                 ].map((m, j) => (
                   <option key={j} value={j + 1}>{m}</option>
                 ))}
@@ -230,7 +310,7 @@ export default function AdminDashboard() {
               </select>
             </div>
             <div className="col-md-12 d-flex gap-2 mt-2">
-              <button className="btn btn-primary">Apply</button>
+              <button className="btn btn-primary" onClick={handleApplyFilters}>Apply</button>
               <button className="btn btn-secondary" onClick={handleResetFilters}>Reset</button>
             </div>
           </div>

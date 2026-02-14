@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import PageTitle from "../../PageTitle";
 import { ScaleLoader } from "react-spinners";
-import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
 import { useLocation } from "react-router-dom";
 
-export default function AdminPendingExpense() {
+export default function AllClosedExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -28,11 +27,11 @@ export default function AdminPendingExpense() {
     state: queryParams.get("state"),
     zone: queryParams.get("zone"),
   };
-  /* ================= FETCH PENDING ================= */
-  const fetchPending = () => {
+  /* ================= FETCH CLOSED ================= */
+  const fetchClosed = () => {
     setLoad(true);
 
-    ApiServices.AdminExpensesByStatus({ status: "Pending" })
+    ApiServices.AdminExpensesByStatus({ status: "Closed" })
       .then((res) => {
         if (res?.data?.success) {
 
@@ -83,14 +82,17 @@ export default function AdminPendingExpense() {
 
 
   useEffect(() => {
-    fetchPending();
+    fetchClosed();
   }, []);
 
+
+
   /* ================= SEARCH ================= */
-  const filteredData = data.filter((el) =>
-    el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredData = data.filter(
+    (el) =>
+      el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   /* ================= PAGINATION ================= */
@@ -107,7 +109,10 @@ export default function AdminPendingExpense() {
     Store: el.storeId?.storeName,
     ExpenseHead: el.expenseHeadId?.name,
     Amount: el.amount,
-    Status: "Pending",
+    Status: "Closed",
+    ClosedOn: el.updatedAt
+      ? new Date(el.updatedAt).toLocaleDateString()
+      : "-",
   }));
 
   /* ================= MODAL ================= */
@@ -131,7 +136,7 @@ export default function AdminPendingExpense() {
 
   return (
     <main className="main" id="main">
-      <PageTitle child="Pending Expenses (Admin)" />
+      <PageTitle child="Closed Expenses (Admin)" />
 
       <ScaleLoader
         color="#6776f4"
@@ -141,12 +146,11 @@ export default function AdminPendingExpense() {
       />
 
       {!load && (
-        <>
-          <div className="container-fluid mt-3">
-            <h6 className="fw-bold text-warning">
-              Total Pending Amount : ₹ {totalAmount.toLocaleString()}
-            </h6>
-          </div>
+        <><div className="container-fluid mt-3">
+          <h6 className="fw-bold text-success">
+            Total Closed Amount : ₹ {totalAmount.toLocaleString()}
+          </h6>
+        </div>
           {/* SEARCH + CSV */}
           <div className="container-fluid mt-2">
             <div className="row align-items-center">
@@ -165,7 +169,7 @@ export default function AdminPendingExpense() {
               <div className="col-md-6 text-end">
                 <CSVLink
                   data={csvData}
-                  filename="Admin_Pending_Expenses.csv"
+                  filename="Admin_Closed_Expenses.csv"
                   className="btn btn-primary btn-sm"
                 >
                   Download CSV
@@ -173,6 +177,7 @@ export default function AdminPendingExpense() {
               </div>
             </div>
           </div>
+
 
 
           {/* TABLE */}
@@ -188,12 +193,13 @@ export default function AdminPendingExpense() {
                       <th>Expense Head</th>
                       <th>Amount</th>
                       <th>Status</th>
+                      <th>Closed On</th>
                       <th>Action</th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {currentExpenses.length ? (
+                    {currentExpenses.length > 0 ? (
                       currentExpenses.map((el, index) => (
                         <tr key={el._id}>
                           <td>
@@ -204,13 +210,18 @@ export default function AdminPendingExpense() {
                           <td>{el.expenseHeadId?.name}</td>
                           <td>₹ {el.amount}</td>
                           <td>
-                            <span className="badge bg-warning">
-                              Pending
+                            <span className="badge bg-success">
+                              Closed
                             </span>
                           </td>
                           <td>
+                            {el.actionAt
+                              ? new Date(el.actionAt).toLocaleDateString()
+                              : "-"}
+                          </td>
+                          <td>
                             <button
-                              className="btn btn-primary btn-sm"
+                              className="btn btn-sm btn-primary"
                               onClick={() => handleViewClick(el)}
                             >
                               View
@@ -220,8 +231,8 @@ export default function AdminPendingExpense() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={7} className="text-center text-muted">
-                          No Pending Expenses Found
+                        <td colSpan="8" className="text-center text-muted">
+                          No Closed Expenses Found
                         </td>
                       </tr>
                     )}
@@ -267,7 +278,7 @@ export default function AdminPendingExpense() {
         </>
       )}
 
-      {/* MODAL (NO ACTION BUTTONS) */}
+      {/* MODAL */}
       {showModal && selectedExpense && (
         <div
           className="modal show d-block"
@@ -275,6 +286,7 @@ export default function AdminPendingExpense() {
         >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
+
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
                 <button
@@ -286,8 +298,8 @@ export default function AdminPendingExpense() {
 
               <div className="modal-body px-4">
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-                  <div className="row g-3">
 
+                  <div className="row g-3">
                     <div className="col-md-6">
                       <div className="text-muted small">Ticket ID</div>
                       <div className="fw-semibold">
@@ -318,31 +330,12 @@ export default function AdminPendingExpense() {
 
                     <div className="col-md-6">
                       <div className="text-muted small">Status</div>
-                      <span className="badge bg-warning px-3 py-2">
-                        Pending
+                      <span className="badge bg-success px-3 py-2">
+                        Closed
                       </span>
                     </div>
-
-                    <div className="col-12">
-                      <div className="text-muted small mb-1">Attachments</div>
-
-                      {selectedExpense.attachment ? (
-                        <a
-                          href={selectedExpense.attachment}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="btn btn-sm btn-primary"
-                        >
-                          View Attachment
-                        </a>
-                      ) : (
-                        <span className="text-muted">No Attachment</span>
-                      )}
-                    </div>
-
                   </div>
 
-                  {/* Timeline */}
                   <ExpenseTimeline
                     expense={selectedExpense}
                     approvalHistory={approvalHistory}
@@ -350,6 +343,7 @@ export default function AdminPendingExpense() {
 
                 </div>
               </div>
+
             </div>
           </div>
         </div>

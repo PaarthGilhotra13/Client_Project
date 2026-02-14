@@ -103,6 +103,7 @@ import PrPoDashboard from "./Components/PR_PO/PrPoDashboard"
 import AllExpenses from "./Components/Admin/Expenses/AllExpenses"
 import TodayRequests from "./Components/Admin/Expenses/TodayRequests"
 import PrPoClosedExpense from "./Components/PR_PO/Expenses/PrPoClosedExpenses"
+import AllClosedExpense from "./Components/Admin/Expenses/AllClosedExpense"
 
 
 function App() {
@@ -174,6 +175,7 @@ function App() {
             <Route path="/admin/allApprovedExpenses" element={<AllApprovedExpense />} />
             <Route path="/admin/allHoldExpenses" element={<AllHoldExpense />} />
             <Route path="/admin/allRejectedExpenses" element={<AllRjectedExpense />} />
+            <Route path="/admin/allClosedExpenses" element={<AllClosedExpense />} />
             <Route path="/admin/allExpenses" element={<AllExpenses />} />
             <Route path="/admin/todayRequests" element={<TodayRequests />} />
 

@@ -436,6 +436,15 @@ export default function AdminSidebar() {
                   <span>Rejected Expenses</span>
                 </Link>
               </li>
+              <li>
+                <Link
+                  to={"/admin/allClosedExpenses"}
+                  onClick={handleSidebarClose}
+                >
+                  <i className="bi bi-door-closed fs-6" />
+                  <span>Closed Expenses</span>
+                </Link>
+              </li>
             </ul>
           </li>
           {/* End Employee Nav */}

@@ -226,23 +226,26 @@ const add = (req, res) => {
         });
 };
 
-const getAll = (req, res) => {
-    expenseModel.find(req.body)
-        .populate("storeId")
-        .populate("expenseHeadId")
-        .populate("raisedBy")
-        .then(data => {
-            res.send({
-                status: 200,
-                success: true,
-                message: "Expense List",
-                data
-            })
-        })
-        .catch(() => {
-            res.send({ status: 422, success: false, message: "Something Went Wrong" })
-        })
-}
+const getAll = async (req, res) => {
+    try {
+        const expenses = await expenseModel
+            .find()
+            .populate("storeId expenseHeadId raisedBy")
+            .sort({ createdAt: -1 });
+
+        res.send({
+            success: true,
+            data: expenses
+        });
+
+    } catch (err) {
+        res.send({
+            success: false,
+            message: "Failed to fetch expenses"
+        });
+    }
+};
+
 
 const getSingle = (req, res) => {
 

@@ -951,58 +951,162 @@ const myApprovalActions = async (req, res) => {
 
 
 
+// const adminExpensesByStatus = async (req, res) => {
+//     try {
+//         const { status } = req.body;
+//         // status = Pending | Approved | Hold | Rejected | Closed
+
+//         /* ================= PENDING ================= */
+//         if (status === "Pending") {
+//             const pending = await expenseModel
+//                 .find({ currentStatus: "Pending" })
+//                 .populate("raisedBy")
+//                 .populate({
+//                     path: "storeId",
+//                     populate: [
+//                         { path: "stateId" },
+//                         { path: "zoneId" }
+//                     ]
+//                 })
+//                 .populate("expenseHeadId")
+//                 .sort({ createdAt: -1 });
+
+//             return res.send({
+//                 success: true,
+//                 data: pending.map(e => ({
+//                     ...e.toObject(),
+//                     currentAt: e.currentApprovalLevel
+//                 }))
+//             });
+//         }
+
+//         /* ================= CLOSED ================= */
+//         if (status === "Closed") {
+
+//             const approvals = await expenseApprovalModel
+//                 .find({ action: "Closed" })
+//                 .populate({
+//                     path: "expenseId",
+//                     populate: [
+//                         { path: "storeId" },
+//                         { path: "expenseHeadId" }
+//                     ]
+//                 })
+//                 .populate("approverId")
+//                 .sort({ actionAt: -1 });
+
+//             const map = new Map();
+
+//             approvals.forEach(a => {
+//                 if (!a.expenseId) return;
+
+//                 const id = a.expenseId._id.toString();
+
+//                 if (!map.has(id)) {
+//                     map.set(id, {
+//                         ...a.expenseId.toObject(),
+//                         actionAt: a.actionAt, // 👈 this is real closed date
+//                         actionBy: a.approverId?.name || "-"
+//                     });
+//                 }
+//             });
+
+//             return res.send({
+//                 success: true,
+//                 data: Array.from(map.values())
+//             });
+//         }
+
+
+//         /* ================= APPROVED / HOLD / REJECTED ================= */
+//         const approvals = await expenseApprovalModel
+//             .find({ action: status })
+//             .populate({
+//                 path: "expenseId",
+//                 populate: [
+//                     { path: "raisedBy" },
+//                     {
+//                         path: "storeId",
+//                         populate: [
+//                             { path: "stateId" },
+//                             { path: "zoneId" }
+//                         ]
+//                     },
+//                     { path: "expenseHeadId" }
+//                 ]
+//             })
+//             .populate("approverId")
+//             .sort({ actionAt: -1 });
+
+//         const map = new Map();
+
+//         approvals.forEach(a => {
+//             if (!a.expenseId) return;
+
+//             const id = a.expenseId._id.toString();
+
+//             if (!map.has(id)) {
+//                 map.set(id, {
+//                     ...a.expenseId.toObject(),
+
+//                     action: a.action,
+//                     actionBy: a.approverId?.name || "-",
+//                     actionLevel: a.level,
+//                     actionAt: a.actionAt,
+//                     comment: a.comment || "-"
+//                 });
+//             }
+//         });
+
+//         return res.send({
+//             success: true,
+//             data: Array.from(map.values())
+//         });
+
+//     } catch (err) {
+//         return res.send({
+//             success: false,
+//             message: "Admin expense fetch failed"
+//         });
+//     }
+// };
+
 const adminExpensesByStatus = async (req, res) => {
     try {
         const { status } = req.body;
-        // status = Pending | Approved | Hold | Rejected
+        // status = Pending | Approved | Hold | Rejected | Closed
 
-        // 🔹 PENDING (direct from expense)
-        if (status === "Pending") {
-            const pending = await expenseModel
-                .find({ currentStatus: "Pending" })
-                .populate("storeId expenseHeadId raisedBy");
-
+        if (!status) {
             return res.send({
-                success: true,
-                data: pending.map(e => ({
-                    ...e.toObject(),
-                    currentAt: e.currentApprovalLevel // 👈 pending kahaan hai
-                }))
+                success: false,
+                message: "Status is required"
             });
         }
 
-        // 🔹 APPROVED / HOLD / REJECTED (from approval history)
-        const approvals = await expenseApprovalModel
-            .find({ action: status })
-            .populate("expenseId approverId")
-            .sort({ actionAt: -1 });
+        /* ================= FETCH FROM EXPENSE MODEL ================= */
+        const expenses = await expenseModel
+            .find({ currentStatus: status })
+            .populate("raisedBy")
+            .populate({
+                path: "storeId",
+                populate: [
+                    { path: "stateId" },
+                    { path: "zoneId" }
+                ]
+            })
+            .populate("expenseHeadId")
+            .sort({ createdAt: -1 });
 
-        const map = new Map();
-
-        approvals.forEach(a => {
-            if (!a.expenseId) return;
-
-            const id = a.expenseId._id.toString();
-
-            if (!map.has(id)) {
-                map.set(id, {
-                    ...a.expenseId.toObject(),
-                    action: a.action,
-                    actionBy: a.approverId?.name || "-",
-                    actionLevel: a.level,
-                    actionAt: a.actionAt,
-                    comment: a.comment || "-"
-                });
-            }
-        });
-
-        res.send({
+        return res.send({
             success: true,
-            data: Array.from(map.values())
+            data: expenses.map(e => ({
+                ...e.toObject(),
+                currentAt: e.currentApprovalLevel
+            }))
         });
 
     } catch (err) {
-        res.send({
+        return res.send({
             success: false,
             message: "Admin expense fetch failed"
         });
