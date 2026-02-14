@@ -4,6 +4,8 @@ import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
+
 
 export default function ApprovedExpenses() {
   const [data, setData] = useState([]);
@@ -14,17 +16,14 @@ export default function ApprovedExpenses() {
   const [invoiceFile, setInvoiceFile] = useState(null);
   const [fmComment, setFmComment] = useState("");
   const [approvalHistory, setApprovalHistory] = useState([]);
+  const [fmCommentError, setFmCommentError] = useState(false);
+  const [wcrError, setWcrError] = useState(false);
+  const [invoiceError, setInvoiceError] = useState(false);
+
 
   /* ================= FETCH APPROVED (FM PENDING) ================= */
   useEffect(() => {
     const userId = sessionStorage.getItem("userId");
-
-    // ApiServices.MyExpenses({
-    //   userId,
-    //   currentStatus: "Approved",
-    //   currentApprovalLevel: "FM",
-    //   postApprovalStage: "FM_PENDING",
-    // })
     ApiServices.MyExpenses({
       userId,
       currentStatus: "Approved",
@@ -69,12 +68,17 @@ export default function ApprovedExpenses() {
 
   /* ================= UPLOAD WCR + INVOICE + COMMENT ================= */
   const handleUploadDocs = () => {
-    if (!wcrFile || !invoiceFile || !fmComment.trim()) {
-      return Swal.fire(
-        "Error",
-        "WCR, Invoice & FM Comment are required",
-        "error"
-      );
+
+    const isWcrMissing = !wcrFile;
+    const isInvoiceMissing = !invoiceFile;
+    const isCommentMissing = !fmComment.trim();
+
+    setWcrError(isWcrMissing);
+    setInvoiceError(isInvoiceMissing);
+    setFmCommentError(isCommentMissing);
+
+    if (isWcrMissing || isInvoiceMissing || isCommentMissing) {
+      return;
     }
 
     const formData = new FormData();
@@ -87,14 +91,14 @@ export default function ApprovedExpenses() {
     ApiServices.UploadWcrInvoice(formData)
       .then((res) => {
         if (res?.data?.success) {
-          Swal.fire("Success", res.data.message, "success");
 
-          // FM ka kaam complete → list se remove
           setData((prev) =>
             prev.filter((e) => e._id !== selectedExpense._id)
           );
 
+          setApprovalHistory([]);
           handleCloseModal();
+
         } else {
           Swal.fire("Error", res.data.message, "error");
         }
@@ -103,33 +107,7 @@ export default function ApprovedExpenses() {
         Swal.fire("Error", "Upload failed", "error");
       });
   };
-  const buildTimeline = () => {
-    const timeline = [];
 
-    // ORIGINAL
-    if (selectedExpense?.attachment) {
-      timeline.push({
-        type: "ORIGINAL",
-        attachment: selectedExpense.attachment,
-        date: selectedExpense.createdAt
-      });
-    }
-
-    // APPROVAL HISTORY
-    (approvalHistory || []).forEach((item) => {
-      timeline.push({
-        type: item.action.toUpperCase(),
-        level: item.level,
-        comment: item.comment,
-        date: item.actionAt
-      });
-    });
-
-    // SORT BY DATE
-    timeline.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    return timeline;
-  };
 
   return (
     <main className="main" id="main">
@@ -286,120 +264,11 @@ export default function ApprovedExpenses() {
                   </div>
 
                   {/* ===== FULL TIMELINE ===== */}
-                  <div className="col-12 mt-4">
-                    <h5 className="text-primary">Approval Timeline</h5>
+                  <ExpenseTimeline
+                    expense={selectedExpense}
+                    approvalHistory={approvalHistory}
+                  />
 
-                    {buildTimeline(selectedExpense).map((item, index) => (
-                      <div
-                        key={index}
-                        className={`p-3 mb-3 rounded shadow-sm ${item.type === "HOLD"
-                            ? "bg-light border-start border-danger border-4"
-                            : item.type === "RESUBMIT"
-                              ? "bg-white border-start border-success border-4"
-                              : "bg-white border-start border-primary border-4"
-                          }`}
-                      >
-                        {/* ORIGINAL */}
-                        {item.type === "ORIGINAL" && (
-                          <>
-                            <h6 className="text-primary mb-2">
-                              Original Expense Submitted
-                            </h6>
-                            <a
-                              href={item.attachment}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="btn btn-sm btn-primary"
-                            >
-                              View Original Attachment
-                            </a>
-                          </>
-                        )}
-
-                        {/* HOLD */}
-                        {item.type === "HOLD" && (
-                          <>
-                            <h6 className="text-danger mb-2">
-                              {item.heldByName
-                                ? `${item.heldByName} (${item.heldByDesignation?.replace(/_/g, " ")})`
-                                : item.level}{" "}
-                              placed on HOLD
-                            </h6>
-
-                            <p>
-                              <strong>Comment:</strong> {item.comment}
-                            </p>
-
-                            {item.prAttachment && (
-                              <a
-                                href={item.prAttachment}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn btn-sm btn-info me-2"
-                              >
-                                PR Attachment
-                              </a>
-                            )}
-
-                            {item.poAttachment && (
-                              <a
-                                href={item.poAttachment}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn btn-sm btn-secondary"
-                              >
-                                PO Attachment
-                              </a>
-                            )}
-                          </>
-                        )}
-
-                        {/* APPROVED */}
-                        {item.type === "APPROVED" && (
-                          <>
-                            <h6 className="text-success mb-2">
-                              {item.level} Approved
-                            </h6>
-
-                            <p>
-                              <strong>Comment:</strong> {item.comment || "-"}
-                            </p>
-                          </>
-                        )}
-
-                        {/* RESUBMIT */}
-                        {item.type === "RESUBMIT" && (
-                          <>
-                            <h6 className="text-success mb-2">
-                              FM Resubmitted
-                            </h6>
-
-                            <p>
-                              <strong>FM Comment:</strong> {item.comment}
-                            </p>
-
-                            {item.attachment && (
-                              <a
-                                href={item.attachment}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn btn-sm btn-success"
-                              >
-                                FM Attachment
-                              </a>
-                            )}
-                          </>
-                        )}
-
-                        <div
-                          className="text-muted mt-2"
-                          style={{ fontSize: "12px" }}
-                        >
-                          {new Date(item.date).toLocaleString()}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
 
                   {/* ===== FM EXECUTION SECTION ===== */}
                   <div className="row mt-4 g-3">
@@ -409,9 +278,19 @@ export default function ApprovedExpenses() {
                       </label>
                       <input
                         type="file"
-                        className="form-control"
-                        onChange={(e) => setWcrFile(e.target.files[0])}
+                        className={`form-control ${wcrError ? "is-invalid" : ""}`}
+                        onChange={(e) => {
+                          setWcrFile(e.target.files[0]);
+                          if (e.target.files[0]) setWcrError(false);
+                        }}
                       />
+
+                      {wcrError && (
+                        <div className="invalid-feedback">
+                          WCR is required
+                        </div>
+                      )}
+
                     </div>
 
                     <div className="col-6">
@@ -420,9 +299,19 @@ export default function ApprovedExpenses() {
                       </label>
                       <input
                         type="file"
-                        className="form-control"
-                        onChange={(e) => setInvoiceFile(e.target.files[0])}
+                        className={`form-control ${invoiceError ? "is-invalid" : ""}`}
+                        onChange={(e) => {
+                          setInvoiceFile(e.target.files[0]);
+                          if (e.target.files[0]) setInvoiceError(false);
+                        }}
                       />
+
+                      {invoiceError && (
+                        <div className="invalid-feedback">
+                          Invoice is required
+                        </div>
+                      )}
+
                     </div>
 
                     <div className="col-12">
@@ -430,10 +319,20 @@ export default function ApprovedExpenses() {
                         FM Comment (Required)
                       </label>
                       <input
-                        className="form-control"
+                        className={`form-control ${fmCommentError ? "is-invalid" : ""}`}
                         value={fmComment}
-                        onChange={(e) => setFmComment(e.target.value)}
+                        onChange={(e) => {
+                          setFmComment(e.target.value);
+                          if (e.target.value.trim()) setFmCommentError(false);
+                        }}
                       />
+
+                      {fmCommentError && (
+                        <div className="invalid-feedback">
+                          FM Comment is required
+                        </div>
+                      )}
+
                     </div>
                   </div>
 

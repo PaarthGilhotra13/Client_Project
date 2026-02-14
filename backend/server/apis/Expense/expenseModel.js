@@ -163,7 +163,9 @@ const expenseSchema = new mongoose.Schema({
         type: String,     // Cloudinary URL
         default: null,
     },
-
+    executionUploadedAt: {
+        type: Date,
+    },
 });
 
 module.exports = mongoose.model("expenseData", expenseSchema);

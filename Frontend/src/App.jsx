@@ -102,6 +102,7 @@ import ProcurementDashboard from "./Components/Procurement/ProcurementDashboard"
 import PrPoDashboard from "./Components/PR_PO/PrPoDashboard"
 import AllExpenses from "./Components/Admin/Expenses/AllExpenses"
 import TodayRequests from "./Components/Admin/Expenses/TodayRequests"
+import PrPoClosedExpense from "./Components/PR_PO/Expenses/PrPoClosedExpenses"
 
 
 function App() {
@@ -227,6 +228,7 @@ function App() {
             <Route path="/PR_PO/holdExpenses" element={<PrPoHoldExpense />} />
             <Route path="/PR_PO/approvedExpenses" element={<PrPoApprovedExpense />} />
             <Route path="/PR_PO/rejectedExpenses" element={<PrPoRejectedExpense />} />
+            <Route path="/PR_PO/closedExpenses" element={<PrPoClosedExpense />} />
 
           </Route>
 

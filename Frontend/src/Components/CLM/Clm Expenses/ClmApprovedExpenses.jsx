@@ -4,12 +4,14 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
 
 export default function ClmApprovedExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [approvalHistory, setApprovalHistory] = useState([]);
 
   // Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,7 +73,16 @@ export default function ClmApprovedExpense() {
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
     setShowModal(true);
+
+    ApiServices.ExpenseHistory({ expenseId: expense.expenseId?._id })
+      .then((res) => {
+        setApprovalHistory(res?.data?.data || []);
+      })
+      .catch(() => {
+        setApprovalHistory([]);
+      });
   };
+
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
@@ -189,9 +200,8 @@ export default function ClmApprovedExpense() {
                   {[...Array(totalPages)].map((_, i) => (
                     <button
                       key={i}
-                      className={`btn me-1 ${
-                        currentPage === i + 1 ? "btn-primary" : "btn-light"
-                      }`}
+                      className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                        }`}
                       onClick={() => setCurrentPage(i + 1)}
                     >
                       {i + 1}
@@ -223,93 +233,104 @@ export default function ClmApprovedExpense() {
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
                 <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    style={{
-                      width: "30px",
-                      height: "30px",
-                      backgroundColor: "red",
-                      color: "white",
-                      fontWeight: "bold",
-                      border: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                    }}
-                  >
-                    &times;
-                  </button>
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                >
+                  &times;
+                </button>
               </div>
 
               <div className="modal-body px-4">
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <strong>Ticket ID:</strong>
-                    <p>{selectedExpense.expenseId?.ticketId}</p>
-                  </div>
 
-                  <div className="col-md-6">
-                    <strong>Store:</strong>
-                    <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
-                  </div>
+                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+                  <div className="row g-3">
 
-                  <div className="col-md-6">
-                    <strong>Expense Head:</strong>
-                    <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
-                  </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Ticket ID</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.expenseId?.ticketId}
+                      </div>
+                    </div>
 
-                  <div className="col-md-6">
-                    <strong>Amount:</strong>
-                    <p>₹ {selectedExpense.expenseId?.amount}</p>
-                  </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Store</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.expenseId?.storeId?.storeName}
+                      </div>
+                    </div>
 
-                  <div className="col-md-6">
-                    <strong>Policy:</strong>
-                    <p>{selectedExpense.expenseId?.policy || "-"}</p>
-                  </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Expense Head</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.expenseId?.expenseHeadId?.name}
+                      </div>
+                    </div>
 
-                  <div className="col-md-6">
-                    <strong>Nature of Expense:</strong>
-                    <p>{selectedExpense.expenseId?.natureOfExpense || "-"}</p>
-                  </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Amount</div>
+                      <div className="fw-semibold text-success">
+                        ₹ {selectedExpense.expenseId?.amount}
+                      </div>
+                    </div>
 
-                  <div className="col-md-6">
-                    <strong>RCA:</strong>
-                    <p>{selectedExpense.expenseId?.rca || "-"}</p>
-                  </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Policy</div>
+                      <div>{selectedExpense.expenseId?.policy || "-"}</div>
+                    </div>
 
-                  <div className="col-md-6">
-                    <strong>Remarks:</strong>
-                    <p>{selectedExpense.expenseId?.remark || "-"}</p>
-                  </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Nature of Expense</div>
+                      <div>{selectedExpense.expenseId?.natureOfExpense || "-"}</div>
+                    </div>
 
-                  <div className="col-md-6">
-                    <strong>Status:</strong>
-                    <p>
-                      <span className="badge bg-success">Approved</span>
-                    </p>
-                  </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">RCA</div>
+                      <div>{selectedExpense.expenseId?.rca || "-"}</div>
+                    </div>
 
-                  <div className="col-md-6">
-                    <strong>Approved On:</strong>
-                    <p>
-                      {selectedExpense.actionAt
-                        ? new Date(selectedExpense.actionAt).toLocaleDateString()
-                        : "-"}
-                    </p>
-                  </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Remarks</div>
+                      <div>{selectedExpense.expenseId?.remark || "-"}</div>
+                    </div>
 
-                  {/* Attachments */}
-                  <div className="col-12">
-                    <strong>Attachment:</strong>
-                    <p>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Status</div>
+                      <span className="badge bg-success px-3 py-2">
+                        Approved
+                      </span>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Approved On</div>
+                      <div>
+                        {selectedExpense.actionAt
+                          ? new Date(selectedExpense.actionAt).toLocaleString()
+                          : "-"}
+                      </div>
+                    </div>
+
+                    {/* Attachments */}
+                    <div className="col-12">
+                      <div className="text-muted small mb-1">Attachments</div>
+
                       {selectedExpense.expenseId?.attachment && (
                         <a
                           href={selectedExpense.expenseId.attachment}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="noreferrer"
                           className="btn btn-sm btn-primary me-2"
                         >
                           Original
@@ -320,7 +341,7 @@ export default function ClmApprovedExpense() {
                         <a
                           href={selectedExpense.expenseId.resubmittedAttachment}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="noreferrer"
                           className="btn btn-sm btn-success"
                         >
                           Resubmitted
@@ -331,10 +352,20 @@ export default function ClmApprovedExpense() {
                         !selectedExpense.expenseId?.resubmittedAttachment && (
                           <span className="text-muted">No Attachment</span>
                         )}
-                    </p>
+                    </div>
+
                   </div>
+
+                  {/* Timeline */}
+                  <ExpenseTimeline
+                    expense={selectedExpense.expenseId}
+                    approvalHistory={approvalHistory}
+                  />
+
                 </div>
+
               </div>
+
             </div>
           </div>
         </div>

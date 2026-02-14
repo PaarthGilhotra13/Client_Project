@@ -4,12 +4,14 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
 
 export default function ZhPendingExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [approvalHistory, setApprovalHistory] = useState([]);
 
   // Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,16 +73,45 @@ export default function ZhPendingExpense() {
     Swal.fire({
       title: `Confirm ${type}`,
       input: "textarea",
-      inputPlaceholder: "Enter comment (optional)",
+      inputPlaceholder: "Enter comment...",
       showCancelButton: true,
       confirmButtonText: type,
+      cancelButtonText: "Cancel",
+
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return "Required";
+        }
+      },
+
+      didOpen: () => {
+        const textarea = Swal.getInput();
+
+        textarea.style.transition = "0.2s ease";
+
+        textarea.addEventListener("input", () => {
+          if (textarea.value.trim()) {
+            textarea.style.border = "1px solid #ced4da";
+          }
+        });
+      },
+
+      preConfirm: (value) => {
+        if (!value || !value.trim()) {
+          const textarea = Swal.getInput();
+          textarea.style.border = "2px solid red";
+          return false;
+        }
+        return value;
+      }
+
     }).then((result) => {
       if (!result.isConfirmed) return;
 
       const payload = {
         expenseId,
         approverId: userId,
-        comment: result.value || "",
+        comment: result.value.trim(),
       };
 
       setLoad(true);
@@ -96,7 +127,7 @@ export default function ZhPendingExpense() {
           if (res?.data?.success) {
             Swal.fire("Success", res.data.message, "success");
             fetchPending();
-            handleCloseModal(); // Close modal after action
+            handleCloseModal();
           } else {
             Swal.fire("Error", res.data.message, "error");
           }
@@ -112,6 +143,14 @@ export default function ZhPendingExpense() {
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
     setShowModal(true);
+
+    ApiServices.ExpenseHistory({ expenseId: expense._id })
+      .then((res) => {
+        setApprovalHistory(res?.data?.data || []);
+      })
+      .catch(() => {
+        setApprovalHistory([]);
+      });
   };
   const handleCloseModal = () => {
     setSelectedExpense(null);
@@ -232,9 +271,8 @@ export default function ZhPendingExpense() {
                   {[...Array(totalPages)].map((_, i) => (
                     <button
                       key={i}
-                      className={`btn me-1 ${
-                        currentPage === i + 1 ? "btn-primary" : "btn-light"
-                      }`}
+                      className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                        }`}
                       onClick={() => setCurrentPage(i + 1)}
                     >
                       {i + 1}
@@ -288,55 +326,68 @@ export default function ZhPendingExpense() {
               </div>
 
               <div className="modal-body px-4">
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <strong>Ticket ID:</strong>
-                    <p>{selectedExpense.ticketId}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Store:</strong>
-                    <p>{selectedExpense.storeId?.storeName}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Expense Head:</strong>
-                    <p>{selectedExpense.expenseHeadId?.name}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Amount:</strong>
-                    <p>₹ {selectedExpense.amount}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Policy:</strong>
-                    <p>{selectedExpense.policy || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Nature of Expense:</strong>
-                    <p>{selectedExpense.natureOfExpense || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>RCA:</strong>
-                    <p>{selectedExpense.rca || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Remarks:</strong>
-                    <p>{selectedExpense.remark || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Status:</strong>
-                    <p>
-                      <span className="badge bg-warning">Pending</span>
-                    </p>
-                  </div>
 
-                  {/* Attachments */}
-                  <div className="col-12">
-                    <strong>Attachment:</strong>
-                    <p>
+                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+                  <div className="row g-3">
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Ticket ID</div>
+                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Store</div>
+                      <div className="fw-semibold">{selectedExpense.storeId?.storeName}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Expense Head</div>
+                      <div className="fw-semibold">{selectedExpense.expenseHeadId?.name}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Amount</div>
+                      <div className="fw-semibold text-success">
+                        ₹ {selectedExpense.amount}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Policy</div>
+                      <div>{selectedExpense.policy || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Nature of Expense</div>
+                      <div>{selectedExpense.natureOfExpense || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">RCA</div>
+                      <div>{selectedExpense.rca || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Remarks</div>
+                      <div>{selectedExpense.remark || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Status</div>
+                      <span className="badge bg-warning px-3 py-2">
+                        {selectedExpense.currentStatus}
+                      </span>
+                    </div>
+
+                    {/* Attachments */}
+                    <div className="col-12">
+                      <div className="text-muted small mb-1">Attachments</div>
+
                       {selectedExpense.attachment && (
                         <a
                           href={selectedExpense.attachment}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="noreferrer"
                           className="btn btn-sm btn-primary me-2"
                         >
                           Original
@@ -347,7 +398,7 @@ export default function ZhPendingExpense() {
                         <a
                           href={selectedExpense.resubmittedAttachment}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel="noreferrer"
                           className="btn btn-sm btn-success"
                         >
                           Resubmitted
@@ -358,9 +409,18 @@ export default function ZhPendingExpense() {
                         !selectedExpense.resubmittedAttachment && (
                           <span className="text-muted">No Attachment</span>
                         )}
-                    </p>
+                    </div>
+
                   </div>
+
+                  {/* Timeline */}
+                  <ExpenseTimeline
+                    expense={selectedExpense}
+                    approvalHistory={approvalHistory}
+                  />
+
                 </div>
+
               </div>
 
               {/* Modal Footer with Actions */}

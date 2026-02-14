@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { ScaleLoader } from "react-spinners";
 import ApiServices from "../../ApiServices";
 import PageTitle from "../PageTitle";
+import ExpenseTimeline from "../common/ExpenseTimeline";
 
 export default function ZcPendingTickets() {
     const [data, setData] = useState([]);
@@ -11,6 +12,7 @@ export default function ZcPendingTickets() {
     const [selected, setSelected] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [prismId, setPrismId] = useState("");
+    const [approvalHistory, setApprovalHistory] = useState([]);
 
     const userId = sessionStorage.getItem("userId");
 
@@ -34,7 +36,16 @@ export default function ZcPendingTickets() {
         setSelected(exp);
         setPrismId("");
         setShowModal(true);
+
+        ApiServices.ExpenseHistory({ expenseId: exp._id })
+            .then((res) => {
+                setApprovalHistory(res?.data?.data || []);
+            })
+            .catch(() => {
+                setApprovalHistory([]);
+            });
     };
+
 
     const handleClose = () => {
         setSelected(null);
@@ -148,154 +159,95 @@ export default function ZcPendingTickets() {
                             </div>
 
                             <div className="modal-body px-4">
-                                {/* ===== SAME DETAILS AS FM APPROVED PAGE ===== */}
-                                <div className="row g-3">
-                                    <div className="col-md-6">
-                                        <strong>Ticket ID:</strong>
-                                        <p>{selected.ticketId}</p>
+
+                                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+
+                                    {/* ================= BASIC DETAILS ================= */}
+                                    <div className="row g-3">
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Ticket ID</div>
+                                            <div className="fw-semibold">{selected.ticketId}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Store</div>
+                                            <div className="fw-semibold">{selected.storeId?.storeName}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Expense Head</div>
+                                            <div className="fw-semibold">{selected.expenseHeadId?.name}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Amount</div>
+                                            <div className="fw-semibold text-success">₹ {selected.amount}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Policy</div>
+                                            <div className="fw-semibold">{selected.policy || "-"}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Nature of Expense</div>
+                                            <div className="fw-semibold">{selected.natureOfExpense || "-"}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Status</div>
+                                            <span className="badge bg-warning px-3 py-2">
+                                                Pending Verification
+                                            </span>
+                                        </div>
+
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <strong>Store:</strong>
-                                        <p>{selected.storeId?.storeName}</p>
+                                    {/* ================= TIMELINE ================= */}
+                                    <ExpenseTimeline
+                                        expense={selected}
+                                        approvalHistory={approvalHistory}
+                                    />
+
+                                    {/* ================= ZC ACTION ================= */}
+                                    <div className="mt-4">
+                                        <h6 className="fw-semibold text-primary">
+                                            Zonal Commercial Action
+                                        </h6>
+
+                                        <div className="row g-3 mt-2">
+
+                                            <div className="col-md-6">
+                                                <label className="form-label fw-semibold">
+                                                    Prism ID *
+                                                </label>
+                                                <input
+                                                    className="form-control"
+                                                    value={prismId}
+                                                    onChange={(e) => setPrismId(e.target.value)}
+                                                    placeholder="Enter Prism ID"
+                                                />
+                                            </div>
+
+                                        </div>
+
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <strong>Expense Head:</strong>
-                                        <p>{selected.expenseHeadId?.name}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Amount:</strong>
-                                        <p>₹ {selected.amount}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Policy:</strong>
-                                        <p>{selected.policy || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Nature of Expense:</strong>
-                                        <p>{selected.natureOfExpense || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>RCA:</strong>
-                                        <p>{selected.rca || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Remarks:</strong>
-                                        <p>{selected.remark || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Status:</strong>
-                                        <span className="badge bg-warning">Pending Verification</span>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Created At:</strong>
-                                        <p>{new Date(selected.createdAt).toLocaleDateString()}</p>
-                                    </div>
-
-                                    {/* ===== ATTACHMENTS (ORIGINAL + RESUBMITTED) ===== */}
-                                    <div className="col-12">
-                                        <strong>Attachments:</strong>
-                                        <p>
-                                            {selected.attachment && (
-                                                <a
-                                                    href={selected.attachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-primary me-2"
-                                                >
-                                                    Original Attachment
-                                                </a>
-                                            )}
-
-                                            {selected.resubmittedAttachment && (
-                                                <a
-                                                    href={selected.resubmittedAttachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-success me-2"
-                                                >
-                                                    Resubmitted Attachment
-                                                </a>
-                                            )}
-
-                                            {!selected.attachment &&
-                                                !selected.resubmittedAttachment && (
-                                                    <span className="text-muted">No Attachment</span>
-                                                )}
-                                        </p>
-                                    </div>
-
-                                    {/* ===== WCR & INVOICE (FM UPLOADED) ===== */}
-                                    <div className="col-12">
-                                        <strong>Execution Documents:</strong>
-                                        <p>
-                                            {selected.wcrAttachment && (
-                                                <a
-                                                    href={selected.wcrAttachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-info me-2"
-                                                >
-                                                    WCR
-                                                </a>
-                                            )}
-
-                                            {selected.invoiceAttachment && (
-                                                <a
-                                                    href={selected.invoiceAttachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-secondary me-2"
-                                                >
-                                                    Invoice
-                                                </a>
-                                            )}
-
-                                            {!selected.wcrAttachment &&
-                                                !selected.invoiceAttachment && (
-                                                    <span className="text-muted">
-                                                        No execution documents
-                                                    </span>
-                                                )}
-                                        </p>
-                                    </div>
                                 </div>
+                            </div>
 
-                                {/* ===== ZC ACTION ===== */}
-                                <hr />
-                                <h6 className="fw-bold text-primary">Zonal Commercial Action</h6>
-
-                                <div className="row g-3 mt-2">
-                                    <div className="col-md-6">
-                                        <label className="form-label fw-bold">Prism ID</label>
-                                        <input
-                                            className="form-control"
-                                            value={prismId}
-                                            onChange={(e) => setPrismId(e.target.value)}
-                                            placeholder="Enter Prism ID"
-                                        />
-                                    </div>
-
-                                    <div className="col-12 text-end mt-3">
-                                        <button
-                                            className="btn btn-success"
-                                            onClick={handleVerifyClose}
-                                        >
-                                            Verify & Close Ticket
-                                        </button>
-                                    </div>
-                                </div>
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-success"
+                                    onClick={handleVerifyClose}
+                                >
+                                    Verify & Close Ticket
+                                </button>
                             </div>
                         </div>
                     </div>
+
                 </div>
             )}
 

@@ -5,6 +5,7 @@ import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import { CSVLink } from "react-csv";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
 
 export default function HoldExpenses() {
   const [data, setData] = useState([]);
@@ -14,6 +15,10 @@ export default function HoldExpenses() {
   const [resubmitFile, setResubmitFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [fmComment, setFmComment] = useState("");
+  const [fileError, setFileError] = useState(false);
+  const [commentError, setCommentError] = useState(false);
+  const [approvalHistory, setApprovalHistory] = useState([]);
+
   // Search
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -22,8 +27,8 @@ export default function HoldExpenses() {
   const itemsPerPage = 20;
 
   /* ================= FETCH HOLD EXPENSES ================= */
+  const userId = sessionStorage.getItem("userId");
   useEffect(() => {
-    const userId = sessionStorage.getItem("userId");
 
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
@@ -76,26 +81,39 @@ export default function HoldExpenses() {
     setResubmitFile(null);
     setFmComment("");
     setShowModal(true);
+
+    ApiServices.ExpenseHistory({ expenseId: expense._id })
+      .then((res) => {
+        setApprovalHistory(res?.data?.data || []);
+      })
+      .catch(() => {
+        setApprovalHistory([]);
+      });
   };
+
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setResubmitFile(null);
+    setFmComment("");
+    setFileError(false);
+    setCommentError(false);
     setShowModal(false);
   };
   /* ================= RESUBMIT ================= */
   const handleResubmit = () => {
-    if (!resubmitFile) {
-      Swal.fire("Error", "Please upload attachment", "error");
-      return;
-    }
-    if (!fmComment.trim()) {
-      Swal.fire("Error", "Please enter comment", "error");
-      return;
-    }
+
+    const isFileMissing = !resubmitFile;
+    const isCommentMissing = !fmComment.trim();
+
+    setFileError(isFileMissing);
+    setCommentError(isCommentMissing);
+
+    if (isFileMissing || isCommentMissing) return;
 
     const formData = new FormData();
     formData.append("expenseId", selectedExpense._id);
+    formData.append("approverId", userId);
     formData.append("attachment", resubmitFile);
     formData.append("fmComment", fmComment);
 
@@ -104,17 +122,18 @@ export default function HoldExpenses() {
     ApiServices.ReSubmitHeldExpense(formData)
       .then((res) => {
         if (res?.data?.success) {
-          Swal.fire("Success", "Expense resubmitted successfully", "success");
+
           handleCloseModal();
           setLoad(true);
 
           ApiServices.MyExpenses({
-            userId: sessionStorage.getItem("userId"),
+            userId,
             currentStatus: "Hold",
           }).then((res) => {
             setData(res?.data?.data || []);
             setLoad(false);
           });
+
         } else {
           Swal.fire("Error", "Resubmission failed", "error");
         }
@@ -123,51 +142,6 @@ export default function HoldExpenses() {
         Swal.fire("Error", "Something went wrong", "error");
       })
       .finally(() => setSubmitting(false));
-  };
-  
-  const buildTimeline = (expense) => {
-    if (!expense) return [];
-
-    const timeline = [];
-
-    // 1️⃣ Original Upload (First Entry)
-    if (expense.attachment) {
-      timeline.push({
-        type: "ORIGINAL",
-        attachment: expense.attachment,
-        date: expense.createdAt
-      });
-    }
-
-    const holds = expense.holdHistory || [];
-    const resubs = expense.resubmissions || [];
-
-    for (let i = 0; i < holds.length; i++) {
-
-      // HOLD
-      timeline.push({
-        type: "HOLD",
-        level: holds[i].level,
-        heldByName: holds[i].heldBy?.name,
-        heldByDesignation: holds[i].heldBy?.designation,
-        comment: holds[i].comment,
-        prAttachment: holds[i].prAttachment,
-        poAttachment: holds[i].poAttachment,
-        date: holds[i].heldAt
-      });
-
-      // FM RESUBMIT
-      if (resubs[i]) {
-        timeline.push({
-          type: "RESUBMIT",
-          comment: resubs[i].fmComment,
-          attachment: resubs[i].attachment,
-          date: resubs[i].submittedAt
-        });
-      }
-    }
-
-    return timeline;
   };
 
   return (
@@ -306,7 +280,6 @@ export default function HoldExpenses() {
           )}
         </div>
       )}
-      {/* Modal */}
       {/* ================= MODAL ================= */}
       {showModal && selectedExpense && (
         <div
@@ -342,226 +315,152 @@ export default function HoldExpenses() {
               <div className="modal-body px-4">
                 {/* <div className="row g-3"> */}
 
-                  <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-                    <div className="row g-3">
+                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+                  <div className="row g-3">
 
-                      <div className="col-md-6">
-                        <div>
-                          <div className="text-muted small">Ticket ID</div>
-                          <div className="fw-semibold">{selectedExpense.ticketId}</div>
-                        </div>
+                    <div className="col-md-6">
+                      <div>
+                        <div className="text-muted small">Ticket ID</div>
+                        <div className="fw-semibold">{selectedExpense.ticketId}</div>
                       </div>
-
-                      <div className="col-md-6">
-                        <div>
-                          <div className="text-muted small">Store</div>
-                          <div className="fw-semibold">{selectedExpense.storeId?.storeName}</div>
-                        </div>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div>
-                          <div className="text-muted small">Expense Head</div>
-                          <div className="fw-semibold">{selectedExpense.expenseHeadId?.name}</div>
-                        </div>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div>
-                          <div className="text-muted small">Amount</div>
-                          <div className="fw-semibold text-success">₹ {selectedExpense.amount}</div>
-                        </div>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div>
-                          <div className="text-muted small">Policy</div>
-                          <div className="fw-semibold">{selectedExpense.policy || "-"}</div>
-                        </div>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div>
-                          <div className="text-muted small">Nature of Expense</div>
-                          <div className="fw-semibold">{selectedExpense.natureOfExpense}</div>
-                        </div>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div>
-                          <div className="text-muted small">RCA</div>
-                          <div>{selectedExpense.rca || "-"}</div>
-                        </div>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div>
-                          <div className="text-muted small">Remarks</div>
-                          <div>{selectedExpense.remark || "-"}</div>
-                        </div>
-                      </div>
-
-                      {/* Status + Hold Comment */}
-                      <div className="col-md-6">
-                        <div className="text-muted small">Status</div>
-                        <span className="badge bg-warning text-dark px-3 py-2">
-                          {selectedExpense.currentStatus}
-                        </span>
-                      </div>
-
-                      <div className="col-md-6">
-                        <div className="text-muted small">Latest Hold Comment</div>
-                        <div className="text-danger fw-semibold">
-                          {selectedExpense.holdComment || "-"}
-                        </div>
-                      </div>
-
                     </div>
 
-                    {/* ===== ATTACHMENTS ===== */}
-
-
-                    {/* ===== HOLD HISTORY ===== */}
-                    {/* ===== FULL TIMELINE ===== */}
-                    <div className="col-12 mt-4">
-                      <h5 className="text-primary">Approval Timeline</h5>
-
-                      {buildTimeline(selectedExpense).map((item, index) => (
-
-                        <div
-                          key={index}
-                          className={`p-3 mb-3 rounded shadow-sm ${item.type === "HOLD"
-                            ? "bg-light border-start border-danger border-4"
-                            : item.type === "RESUBMIT"
-                              ? "bg-white border-start border-success border-4"
-                              : "bg-white border-start border-primary border-4"
-                            }`}
-                        >
-
-                          {/* ORIGINAL */}
-                          {item.type === "ORIGINAL" && (
-                            <>
-                              <h6 className="text-primary mb-2">
-                                Original Expense Submitted
-                              </h6>
-
-                              <a
-                                href={item.attachment}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="btn btn-sm btn-primary"
-                              >
-                                View Original Attachment
-                              </a>
-                            </>
-                          )}
-
-                          {/* HOLD */}
-                          {item.type === "HOLD" && (
-                            <>
-                              <h6 className="text-danger mb-2">
-                                {item.heldByName
-                                  ? `${item.heldByName} (${item.heldByDesignation?.replace(/_/g, " ")})`
-                                  : item.level}{" "}
-                                placed on HOLD
-                              </h6>
-
-                              <p><strong>Comment:</strong> {item.comment}</p>
-
-                              {item.prAttachment && (
-                                <a
-                                  href={item.prAttachment}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="btn btn-sm btn-info me-2"
-                                >
-                                  PR Attachment
-                                </a>
-                              )}
-
-                              {item.poAttachment && (
-                                <a
-                                  href={item.poAttachment}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="btn btn-sm btn-secondary"
-                                >
-                                  PO Attachment
-                                </a>
-                              )}
-                            </>
-                          )}
-
-                          {/* FM RESUBMIT */}
-                          {item.type === "RESUBMIT" && (
-                            <>
-                              <h6 className="text-success mb-2">
-                                FM Resubmitted
-                              </h6>
-
-                              <p><strong>FM Comment:</strong> {item.comment}</p>
-
-                              {item.attachment && (
-                                <a
-                                  href={item.attachment}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="btn btn-sm btn-success"
-                                >
-                                  FM Attachment
-                                </a>
-                              )}
-                            </>
-                          )}
-
-                          <div className="text-muted mt-2" style={{ fontSize: "12px" }}>
-                            {new Date(item.date).toLocaleString()}
-                          </div>
-                        </div>
-                      ))}
-
+                    <div className="col-md-6">
+                      <div>
+                        <div className="text-muted small">Store</div>
+                        <div className="fw-semibold">{selectedExpense.storeId?.storeName}</div>
+                      </div>
                     </div>
 
+                    <div className="col-md-6">
+                      <div>
+                        <div className="text-muted small">Expense Head</div>
+                        <div className="fw-semibold">{selectedExpense.expenseHeadId?.name}</div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div>
+                        <div className="text-muted small">Amount</div>
+                        <div className="fw-semibold text-success">₹ {selectedExpense.amount}</div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div>
+                        <div className="text-muted small">Policy</div>
+                        <div className="fw-semibold">{selectedExpense.policy || "-"}</div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div>
+                        <div className="text-muted small">Nature of Expense</div>
+                        <div className="fw-semibold">{selectedExpense.natureOfExpense}</div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div>
+                        <div className="text-muted small">RCA</div>
+                        <div>{selectedExpense.rca || "-"}</div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div>
+                        <div className="text-muted small">Remarks</div>
+                        <div>{selectedExpense.remark || "-"}</div>
+                      </div>
+                    </div>
+
+                    {/* Status + Hold Comment */}
+                    <div className="col-md-6">
+                      <div className="text-muted small">Status</div>
+                      <span className="badge bg-warning text-dark px-3 py-2">
+                        {selectedExpense.currentStatus}
+                      </span>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Latest Hold Comment</div>
+                      <div className="text-danger fw-semibold">
+                        {selectedExpense.holdComment || "-"}
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* ===== ATTACHMENTS ===== */}
 
 
-                    {/* ===== RESUBMIT FILE ===== */}
-                    <div className="col-6">
+                  {/* ===== FULL TIMELINE ===== */}
+                  <ExpenseTimeline
+                    expense={selectedExpense}
+                    approvalHistory={approvalHistory}
+                  />
+
+
+
+                  {/* ===== RESUBMIT FILE ===== */}
+                  <div className="row mt-4 g-3">
+                    <div className="col-md-6">
                       <label className="form-label">
                         Upload New Attachment (Required)
                       </label>
                       <input
                         type="file"
-                        className="form-control"
-                        onChange={(e) => setResubmitFile(e.target.files[0])}
+                        className={`form-control ${fileError ? "is-invalid" : ""}`}
+                        onChange={(e) => {
+                          setResubmitFile(e.target.files[0]);
+                          if (e.target.files[0]) setFileError(false);
+                        }}
                       />
+
+                      {fileError && (
+                        <div className="invalid-feedback">
+                          Attachment is required
+                        </div>
+                      )}
+
                     </div>
                     <div className="col-6">
                       <label className="form-label">FM Comment (Required)</label>
                       <input
-                        className="form-control"
-                        rows="3"
+                        className={`form-control ${commentError ? "is-invalid" : ""}`}
                         value={fmComment}
-                        onChange={(e) => setFmComment(e.target.value)}
+                        onChange={(e) => {
+                          setFmComment(e.target.value);
+                          if (e.target.value.trim()) setCommentError(false);
+                        }}
                       />
+
+                      {commentError && (
+                        <div className="invalid-feedback">
+                          FM Comment is required
+                        </div>
+                      )}
+
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="modal-footer">
-                  <button
-                    className="btn btn-success"
-                    disabled={submitting}
-                    onClick={handleResubmit}
-                  >
-                    {submitting ? "Submitting..." : "Resubmit"}
-                  </button>
-                </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-success"
+                  disabled={submitting}
+                  onClick={handleResubmit}
+                >
+                  {submitting ? "Submitting..." : "Resubmit"}
+                </button>
               </div>
             </div>
           </div>
+        </div>
       )}
 
 
-        </main>
-      );
+    </main>
+  );
 }

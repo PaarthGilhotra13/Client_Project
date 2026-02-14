@@ -4,12 +4,17 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
 
 export default function PrPoPendingExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [approvalHistory, setApprovalHistory] = useState([]);
+  const [prError, setPrError] = useState(false);
+  const [poError, setPoError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
 
   // PR/PO inputs
   const [prComment, setPrComment] = useState("");
@@ -84,133 +89,36 @@ export default function PrPoPendingExpense() {
   /* ================= MODAL ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
-
-    // 🔄 RESET ALL INPUTS
     setPrComment("");
     setPoComment("");
     setPrAttachment(null);
     setPoAttachment(null);
     setEmailSubject("");
-
     setShowModal(true);
+    ApiServices.ExpenseHistory({ expenseId: expense._id })
+      .then((res) => {
+        setApprovalHistory(res?.data?.data || []);
+      })
+      .catch(() => {
+        setApprovalHistory([]);
+      });
   };
 
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedExpense(null);
-
-    // 🔄 RESET EVERYTHING
     setPrComment("");
     setPoComment("");
+    setPrError(false);
+    setPoError(false);
+    setEmailError(false);
     setPrAttachment(null);
     setPoAttachment(null);
     setEmailSubject("");
   };
 
   /* ================= ACTION HANDLER ================= */
-  // const takeAction = (type) => {
-  //   // if (isEmailStage) {
-  //   //   return Swal.fire(
-  //   //     "Error",
-  //   //     "This expense is already approved. Please close it using Email Subject.",
-  //   //     "warning"
-  //   //   );
-  //   // }
-  //   // if (type === "Approve") {
-  //   //   if (!prComment.trim() || !poComment.trim()) {
-  //   //     return Swal.fire(
-  //   //       "Error",
-  //   //       "PR & PO comments are mandatory for approval",
-  //   //       "error"
-  //   //     );
-  //   //   }
-  //   // }
-
-  //   const formData = new FormData();
-  //   formData.append("expenseId", selectedExpense._id);
-  //   formData.append("approverId", userId);
-
-  //   // // 🔥 APPROVE CASE
-  //   // if (type === "Approve") {
-  //   //   formData.append("prComment", prComment);
-  //   //   formData.append("poComment", poComment);
-  //   //   formData.append(
-  //   //     "comment",
-  //   //     `PR: ${prComment} | PO: ${poComment}`
-  //   //   );
-  //   // }
-
-  //   // 🔥 HOLD / REJECT CASE
-  //   // if (type === "Hold" || type === "Reject") {
-  //   //   if (!prComment.trim()) {
-  //   //     return Swal.fire(
-  //   //       "Error",
-  //   //       "Comment is mandatory",
-  //   //       "error"
-  //   //     );
-  //   //   }
-  //   //   formData.append("comment", prComment);
-  //   // }
-  //   if (isPrPoStage) {
-  //     if (type === "Approve") {
-  //       if (!prComment.trim() || !poComment.trim()) {
-  //         return Swal.fire(
-  //           "Error",
-  //           "PR & PO comments are mandatory",
-  //           "error"
-  //         );
-  //       }
-  //     }
-
-  //     if ((type === "Hold" || type === "Reject") && !prComment.trim()) {
-  //       return Swal.fire(
-  //         "Error",
-  //         "Comment is mandatory",
-  //         "error"
-  //       );
-  //     }
-  //   }
-  //   if (type === "Approve") {
-  //     formData.append("prComment", prComment);
-  //     formData.append("poComment", poComment);
-  //     formData.append("comment", `PR: ${prComment} | PO: ${poComment}`);
-
-  //     if (prAttachment) formData.append("prAttachment", prAttachment);
-  //     if (poAttachment) formData.append("poAttachment", poAttachment);
-  //   }
-
-  //   if (type === "Hold" || type === "Reject") {
-  //     formData.append("comment", prComment);
-  //   }
-
-  //   if (prAttachment) formData.append("prAttachment", prAttachment);
-  //   if (poAttachment) formData.append("poAttachment", poAttachment);
-
-  //   setLoad(true);
-
-  //   let apiCall;
-  //   if (type === "Approve") apiCall = ApiServices.ApproveExpense;
-  //   if (type === "Hold") apiCall = ApiServices.HoldExpense;
-  //   if (type === "Reject") apiCall = ApiServices.RejectExpense;
-
-  //   apiCall(formData)
-  //     .then((res) => {
-  //       setLoad(false);
-  //       if (res?.data?.success) {
-  //         Swal.fire("Success", res.data.message, "success");
-  //         handleCloseModal();
-  //         fetchPending();
-  //       } else {
-  //         Swal.fire("Error", res.data.message, "error");
-  //       }
-  //     })
-  //     .catch(() => {
-  //       setLoad(false);
-  //       Swal.fire("Error", "Something went wrong", "error");
-  //     });
-  // };
-
   const takeAction = (type) => {
     const formData = new FormData();
 
@@ -218,13 +126,14 @@ export default function PrPoPendingExpense() {
     formData.append("approverId", userId);
 
     // ================= COMMON VALIDATION =================
-    if (!prComment.trim() || !poComment.trim()) {
-      return Swal.fire(
-        "Error",
-        "PR & PO comments are mandatory",
-        "error"
-      );
-    }
+    const isPrMissing = !prComment.trim();
+    const isPoMissing = !poComment.trim();
+
+    setPrError(isPrMissing);
+    setPoError(isPoMissing);
+
+    if (isPrMissing || isPoMissing) return;
+
 
     // ================= COMMON FIELDS =================
     formData.append("prComment", prComment);
@@ -266,13 +175,9 @@ export default function PrPoPendingExpense() {
   };
 
   const closeExpense = () => {
-    if (!emailSubject.trim()) {
-      return Swal.fire(
-        "Error",
-        "Email subject is mandatory",
-        "error"
-      );
-    }
+    const isEmailMissing = !emailSubject.trim();
+    setEmailError(isEmailMissing);
+    if (isEmailMissing) return;
 
     setLoad(true);
 
@@ -413,182 +318,202 @@ export default function PrPoPendingExpense() {
               </div>
 
               <div className="modal-body px-4">
-                {/* DETAILS */}
-                <div className="row g-3">
-                  <div className="col-md-6"><strong>Ticket ID:</strong><p>{selectedExpense.ticketId}</p></div>
-                  <div className="col-md-6"><strong>Store:</strong><p>{selectedExpense.storeId?.storeName}</p></div>
-                  <div className="col-md-6"><strong>Expense Head:</strong><p>{selectedExpense.expenseHeadId?.name}</p></div>
-                  <div className="col-md-6"><strong>Amount:</strong><p>₹ {selectedExpense.amount}</p></div>
-                  <div className="col-md-6"><strong>Policy:</strong><p>{selectedExpense.policy || "-"}</p></div>
-                  <div className="col-md-6"><strong>Nature:</strong><p>{selectedExpense.natureOfExpense || "-"}</p></div>
-                  <div className="col-md-6"><strong>RCA:</strong><p>{selectedExpense.rca || "-"}</p></div>
-                  <div className="col-md-6"><strong>Remarks:</strong><p>{selectedExpense.remark || "-"}</p></div>
-                </div>
-                <hr />
 
-                <div className="col-12">
-                  <strong>Attachments:</strong>
-                  <p className="mt-2">
-                    {selectedExpense.attachment && (
-                      <a
-                        href={selectedExpense.attachment}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-primary me-2"
-                      >
-                        Original
-                      </a>
-                    )}
+                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
 
-                    {selectedExpense.resubmittedAttachment && (
-                      <a
-                        href={selectedExpense.resubmittedAttachment}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-sm btn-success"
-                      >
-                        Resubmitted
-                      </a>
-                    )}
+                  {/* ================= BASIC DETAILS ================= */}
+                  <div className="row g-3">
 
-                    {!selectedExpense.attachment &&
-                      !selectedExpense.resubmittedAttachment && (
-                        <span className="text-muted">No Attachment</span>
-                      )}
-                  </p>
-                </div>
-                {selectedExpense.fmComment && (
-                  <div className="mt-2">
-                    <strong>FM Comment:</strong>
-                    <p>{selectedExpense.fmComment}</p>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Ticket ID</div>
+                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Store</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.storeId?.storeName}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Expense Head</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.expenseHeadId?.name}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Amount</div>
+                      <div className="fw-semibold text-success">
+                        ₹ {selectedExpense.amount}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Policy</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.policy || "-"}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Nature of Expense</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.natureOfExpense || "-"}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">RCA</div>
+                      <div>{selectedExpense.rca || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Remarks</div>
+                      <div>{selectedExpense.remark || "-"}</div>
+                    </div>
+
                   </div>
-                )}
 
-                {selectedExpense.wcrAttachment && (
-                  <a
-                    href={selectedExpense.wcrAttachment}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn btn-sm btn-info me-2"
-                  >
-                    WCR
-                  </a>
-                )}
+                  {/* ================= TIMELINE ================= */}
+                  <div className="mt-4">
+                    <ExpenseTimeline
+                      expense={selectedExpense}
+                      approvalHistory={approvalHistory}
+                    />
+                  </div>
+                  {/* ================= PR / PO SECTION ================= */}
+                  {isPrPoStage && (
+                    <>
+                      <div className="row mt-4 g-3">
 
-                {selectedExpense.invoiceAttachment && (
-                  <a
-                    href={selectedExpense.invoiceAttachment}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn btn-sm btn-warning"
-                  >
-                    Invoice
-                  </a>
-                )}
+                        {/* PR */}
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold">
+                            PR Comment *
+                          </label>
+                          <input
+                            className={`form-control ${prError ? "is-invalid" : ""}`}
+                            value={prComment}
+                            onChange={(e) => {
+                              setPrComment(e.target.value);
+                              if (e.target.value.trim()) setPrError(false);
+                            }}
+                          />
 
-                <hr />
+                          {prError && (
+                            <div className="invalid-feedback">
+                              PR Comment is required
+                            </div>
+                          )}
 
-                {/* PR / PO INPUTS */}
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold">
+                            PR Attachment (Optional)
+                          </label>
+                          <input
+                            type="file"
+                            className="form-control"
+                            onChange={(e) => setPrAttachment(e.target.files[0])}
+                          />
+                        </div>
+
+                        {/* PO */}
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold">
+                            PO Comment *
+                          </label>
+                          <input
+                            className={`form-control ${poError ? "is-invalid" : ""}`}
+                            value={poComment}
+                            onChange={(e) => {
+                              setPoComment(e.target.value);
+                              if (e.target.value.trim()) setPoError(false);
+                            }}
+                          />
+
+                          {poError && (
+                            <div className="invalid-feedback">
+                              PO Comment is required
+                            </div>
+                          )}
+
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label fw-semibold">
+                            PO Attachment (Optional)
+                          </label>
+                          <input
+                            type="file"
+                            className="form-control"
+                            onChange={(e) => setPoAttachment(e.target.files[0])}
+                          />
+                        </div>
+
+                      </div>
+                    </>
+                  )}
+
+                  {/* ================= EMAIL STAGE ================= */}
+                  {isEmailStage && (
+                    <div className="row mt-4">
+                      <div className="col-12">
+                        <label className="form-label fw-semibold">
+                          Email Subject *
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={emailSubject}
+                          onChange={(e) => setEmailSubject(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+              <div className="modal-footer">
+
                 {isPrPoStage && (
                   <>
-                    {/* PR ROW */}
-                    <div className="row mt-2">
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">PR Comment *</label>
-                        <input
-                          className="form-control"
-                          rows={3}
-                          value={prComment}
-                          onChange={(e) => setPrComment(e.target.value)}
-                        />
-                      </div>
+                    <button
+                      className="btn btn-success"
+                      onClick={() => takeAction("Approve")}
+                    >
+                      Approve
+                    </button>
 
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">PR Attachment (optional)</label>
-                        <input
-                          type="file"
-                          className="form-control"
-                          onChange={(e) => setPrAttachment(e.target.files[0])}
-                        />
-                      </div>
-                    </div>
+                    <button
+                      className="btn btn-warning"
+                      onClick={() => takeAction("Hold")}
+                    >
+                      Hold
+                    </button>
 
-                    {/* PO ROW */}
-                    <div className="row mt-3">
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">PO Comment *</label>
-                        <input
-                          className="form-control"
-                          rows={3}
-                          value={poComment}
-                          onChange={(e) => setPoComment(e.target.value)}
-                        />
-                      </div>
-
-                      <div className="col-md-6">
-                        <label className="form-label fw-bold">PO Attachment (optional)</label>
-                        <input
-                          type="file"
-                          className="form-control"
-                          onChange={(e) => setPoAttachment(e.target.files[0])}
-                        />
-                      </div>
-                    </div>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => takeAction("Reject")}
+                    >
+                      Reject
+                    </button>
                   </>
+                )}
+
+                {isEmailStage && (
+                  <button
+                    className="btn btn-success"
+                    onClick={closeExpense}
+                  >
+                    Close
+                  </button>
                 )}
 
               </div>
-
-
-              {selectedExpense?.currentApprovalLevel === "PR/PO" &&
-                selectedExpense?.postApprovalStage === "PRPO_EMAIL" && (
-                  <>
-                    <div className="col-12">
-                      <label className="form-label fw-bold">Email Subject *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Enter email subject"
-                        value={emailSubject}
-                        onChange={(e) => setEmailSubject(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="col-12 text-end mt-3">
-                      <button
-                        className="btn btn-success w-100"
-                        onClick={closeExpense}
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </>
-                )}
-              {isPrPoStage && (
-                // <div className="col-12 text-end mt-3">
-                <div className="modal-footer">
-                  <button
-                    className="btn btn-success "
-                    onClick={() => takeAction("Approve")}
-                  >
-                    Approve
-                  </button>
-
-                  <button
-                    className="btn btn-warning "
-                    onClick={() => takeAction("Hold")}
-                  >
-                    Hold
-                  </button>
-
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => takeAction("Reject")}
-                  >
-                    Reject
-                  </button>
-                </div>
-              )}
 
 
             </div>

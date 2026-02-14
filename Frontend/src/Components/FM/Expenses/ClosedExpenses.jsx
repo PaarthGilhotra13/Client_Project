@@ -4,6 +4,8 @@ import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
+
 
 export default function ClosedTickets() {
     const [data, setData] = useState([]);
@@ -17,7 +19,7 @@ export default function ClosedTickets() {
     useEffect(() => {
         ApiServices.MyExpenses({
             userId,
-            currentStatus: "Closed",
+            includeExecutionStage: true
         })
             .then((res) => {
                 setData(res?.data?.success ? res.data.data || [] : []);
@@ -45,52 +47,9 @@ export default function ClosedTickets() {
 
     const handleCloseModal = () => {
         setSelectedExpense(null);
-        console.log(selectedExpense.createdAt)
-        console.log(selectedExpense.updatedAt)
+        setApprovalHistory([]);
         setShowModal(false);
     };
-    const buildTimeline = (expense) => {
-        if (!expense) return [];
-
-        const timeline = [];
-
-        // ORIGINAL
-        if (expense.attachment) {
-            timeline.push({
-                type: "ORIGINAL",
-                attachment: expense.attachment,
-                date: expense.createdAt,
-            });
-        }
-
-        // APPROVAL HISTORY
-        (approvalHistory || []).forEach(item => {
-            timeline.push({
-                type: item.action?.toUpperCase(),
-                level: item.level,
-                comment: item.comment,
-                date: item.actionAt,
-            });
-        });
-
-        // EXECUTION
-        if (expense.wcrAttachment || expense.invoiceAttachment) {
-            timeline.push({
-                type: "EXECUTION",
-                wcr: expense.wcrAttachment,
-                invoice: expense.invoiceAttachment,
-                date: expense.executionUploadedAt || expense.updatedAt || expense.createdAt,
-            });
-        }
-
-        timeline.sort((a, b) =>
-            new Date(a.date || 0) - new Date(b.date || 0)
-        );
-
-        return timeline;
-    };
-
-
     return (
         <main className="main" id="main">
             <PageTitle child="Closed Tickets" />
@@ -105,7 +64,7 @@ export default function ClosedTickets() {
                     <table className="table table-hover table-striped">
                         <thead className="table-dark">
                             <tr>
-                                <th>#</th>
+                                <th>S.No</th>
                                 <th>Ticket ID</th>
                                 <th>Store</th>
                                 <th>Expense Head</th>
@@ -125,7 +84,11 @@ export default function ClosedTickets() {
                                         <td>{el.expenseHeadId?.name}</td>
                                         <td>₹ {el.amount}</td>
                                         <td>
-                                            <span className="badge bg-secondary">Closed</span>
+                                            {el.currentStatus === "Closed" ? (
+                                                <span className="badge bg-secondary">Closed</span>
+                                            ) : (
+                                                <span className="badge bg-warning text-dark">Pending</span>
+                                            )}
                                         </td>
                                         <td>
                                             <button
@@ -222,104 +185,27 @@ export default function ClosedTickets() {
 
                                         <div className="col-md-6">
                                             <div className="text-muted small">Status</div>
-                                            <span className="badge bg-secondary px-3 py-2">
-                                                Closed
-                                            </span>
+
+                                            {selectedExpense.currentStatus === "Closed" ? (
+                                                <span className="badge bg-secondary px-3 py-2">
+                                                    Closed
+                                                </span>
+                                            ) : (
+                                                <span className="badge bg-warning text-dark px-3 py-2">
+                                                    Pending
+                                                </span>
+                                            )}
                                         </div>
+
 
                                     </div>
 
                                     {/* ===== TIMELINE ===== */}
-                                    <div className="col-12 mt-4">
-                                        <h5 className="text-primary">Approval Timeline</h5>
+                                    <ExpenseTimeline
+                                        expense={selectedExpense}
+                                        approvalHistory={approvalHistory}
+                                    />
 
-                                        {buildTimeline(selectedExpense).map((item, index) => (
-                                            <div
-                                                key={index}
-                                                className={`p-3 mb-3 rounded shadow-sm ${item.type === "HOLD"
-                                                    ? "bg-light border-start border-danger border-4"
-                                                    : item.type === "APPROVED"
-                                                        ? "bg-white border-start border-success border-4"
-                                                        : item.type === "REJECTED"
-                                                            ? "bg-light border-start border-danger border-4"
-                                                            : item.type === "EXECUTION"
-                                                                ? "bg-white border-start border-info border-4"
-                                                                : "bg-white border-start border-primary border-4"
-                                                    }`}
-                                            >
-
-                                                {item.type === "ORIGINAL" && (
-                                                    <>
-                                                        <h6 className="text-primary mb-2">
-                                                            Original Expense Submitted
-                                                        </h6>
-                                                        <a
-                                                            href={item.attachment}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="btn btn-sm btn-primary"
-                                                        >
-                                                            View Original Attachment
-                                                        </a>
-                                                    </>
-                                                )}
-
-                                                {item.type === "EXECUTION" && (
-                                                    <>
-                                                        <h6 className="text-info mb-2">
-                                                            FM Uploaded Execution Documents
-                                                        </h6>
-
-                                                        {item.wcr && (
-                                                            <a
-                                                                href={item.wcr}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="btn btn-sm btn-info me-2"
-                                                            >
-                                                                WCR
-                                                            </a>
-                                                        )}
-
-                                                        {item.invoice && (
-                                                            <a
-                                                                href={item.invoice}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="btn btn-sm btn-secondary"
-                                                            >
-                                                                Invoice
-                                                            </a>
-                                                        )}
-                                                    </>
-                                                )}
-
-                                                {["APPROVED", "REJECTED", "HOLD"].includes(item.type) && (
-                                                    <>
-                                                        <h6
-                                                            className={`mb-2 ${item.type === "APPROVED"
-                                                                ? "text-success"
-                                                                : "text-danger"
-                                                                }`}
-                                                        >
-                                                            {item.level} {item.type}
-                                                        </h6>
-                                                        <p>
-                                                            <strong>Comment:</strong>{" "}
-                                                            {item.comment || "-"}
-                                                        </p>
-                                                    </>
-                                                )}
-
-                                                <div
-                                                    className="text-muted mt-2"
-                                                    style={{ fontSize: "12px" }}
-                                                >
-                                                    {new Date(item.date).toLocaleString()}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
 
                                 </div>
                             </div>

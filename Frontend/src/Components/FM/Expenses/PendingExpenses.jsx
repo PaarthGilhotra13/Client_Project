@@ -4,12 +4,14 @@ import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import { CSVLink } from "react-csv";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
 
 export default function PendingExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [approvalHistory, setApprovalHistory] = useState([]);
 
   // Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,23 +30,18 @@ export default function PendingExpense() {
       setLoad(false);
       return;
     }
-
-    // ApiServices.MyExpenses({
-    //   userId: userId,
-    //   currentStatus: "Pending",
-    // })
     ApiServices.MyExpenses({
       userId,
       // currentApprovalLevel: "FM",
       currentStatus: "Pending"
     })
       .then((res) => {
-      if (res?.data?.success) {
-        setData(res.data.data || []);
-      } else {
-        setData([]);
-      }
-    })
+        if (res?.data?.success) {
+          setData(res.data.data || []);
+        } else {
+          setData([]);
+        }
+      })
       .finally(() => setLoad(false));
   }, []);
 
@@ -70,7 +67,16 @@ export default function PendingExpense() {
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
     setShowModal(true);
+
+    ApiServices.ExpenseHistory({ expenseId: expense._id })
+      .then((res) => {
+        setApprovalHistory(res?.data?.data || []);
+      })
+      .catch(() => {
+        setApprovalHistory([]);
+      });
   };
+
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
@@ -250,60 +256,58 @@ export default function PendingExpense() {
               </div>
 
               <div className="modal-body px-4">
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <strong>Ticket ID:</strong>
-                    <p>{selectedExpense.ticketId}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Store:</strong>
-                    <p>{selectedExpense.storeId?.storeName}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Expense Head:</strong>
-                    <p>{selectedExpense.expenseHeadId?.name}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Amount:</strong>
-                    <p>₹ {selectedExpense.amount}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Policy:</strong>
-                    <p>{selectedExpense.policy || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Nature of Expense:</strong>
-                    <p>{selectedExpense.natureOfExpense || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>RCA:</strong>
-                    <p>{selectedExpense.rca || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Remarks:</strong>
-                    <p>{selectedExpense.remark || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Status:</strong>
-                    <p>
-                      <span className="badge bg-warning text-dark">
+                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+                  <div className="row g-3">
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Ticket ID</div>
+                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Store:</div>
+                      <div className="fw-semibold">{selectedExpense.storeId?.storeName}</div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Expense Head:</div>
+                      <div className="fw-semibold">{selectedExpense.expenseHeadId?.name}</div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Amount:</div>
+                      <div className="fw-semibold">₹ {selectedExpense.amount}</div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Policy:</div>
+                      <div className="fw-semibold">{selectedExpense.policy || "-"}</div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Nature of Expense:</div>
+                      <div className="fw-semibold">{selectedExpense.natureOfExpense || "-"}</div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">RCA:</div>
+                      <div className="fw-semibold">{selectedExpense.rca || "-"}</div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Remarks:</div>
+                      <div className="fw-semibold">{selectedExpense.remark || "-"}</div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Status</div>
+                      <span className="badge bg-warning text-dark px-3 py-2">
                         Pending
                       </span>
-                    </p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Created At:</strong>
-                    <p>
-                      {new Date(
-                        selectedExpense.createdAt
-                      ).toLocaleDateString()}
-                    </p>
-                  </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="text-muted small">Created At:</div>
+                      <div className="fw-semibold">
+                        {new Date(
+                          selectedExpense.createdAt
+                        ).toLocaleDateString()}
+                      </div>
+                    </div>
+                    {/* <div className="col-12 mt-3">
+                      <div className="text-muted small mb-2">Attachments</div>
 
-                  {/* 🔥 FIXED ATTACHMENT LOGIC (UI SAME) */}
-                  <div className="col-12">
-                    <strong>Attachment:</strong>
-                    <p>
                       {selectedExpense.attachment && (
                         <a
                           href={selectedExpense.attachment}
@@ -311,10 +315,8 @@ export default function PendingExpense() {
                           rel="noopener noreferrer"
                           className="btn btn-sm btn-primary me-2"
                         >
-                          View Original
+                          Original
                         </a>
-
-
                       )}
 
                       {selectedExpense.resubmittedAttachment && (
@@ -324,28 +326,24 @@ export default function PendingExpense() {
                           rel="noopener noreferrer"
                           className="btn btn-sm btn-success"
                         >
-                          View Resubmitted
+                          Resubmitted
                         </a>
-
-
                       )}
 
                       {!selectedExpense.attachment &&
                         !selectedExpense.resubmittedAttachment && (
-                          <span className="text-muted">No Attachment</span>
+                          <div className="text-muted">No Attachment</div>
                         )}
-                    </p>
+                    </div> */}
+
+                    {/* 🔥 FIXED ATTACHMENT LOGIC (UI SAME) */}
+                    <ExpenseTimeline
+                      expense={selectedExpense}
+                      approvalHistory={approvalHistory}
+                    />
+
                   </div>
                 </div>
-                {/* <p><strong>Ticket ID:</strong> {selectedExpense.ticketId}</p>
-                <p><strong>Store:</strong> {selectedExpense.storeId?.storeName}</p>
-                <p><strong>Expense Head:</strong> {selectedExpense.expenseHeadId?.name}</p>
-                <p><strong>Amount:</strong> ₹ {selectedExpense.amount}</p>
-                <p><strong>Policy:</strong> {selectedExpense.policy || "-"}</p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  <span className="badge bg-warning text-dark">Pending</span>
-                </p> */}
               </div>
             </div>
           </div>

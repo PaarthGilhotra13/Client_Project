@@ -4,6 +4,7 @@ import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
 
 export default function RejectedExpenses() {
   const [data, setData] = useState([]);
@@ -51,6 +52,7 @@ export default function RejectedExpenses() {
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
+    setApprovalHistory([]);
     setShowModal(false);
   };
 
@@ -61,35 +63,6 @@ export default function RejectedExpenses() {
     currentPage * itemsPerPage
   );
 
-  const buildTimeline = (expense) => {
-    if (!expense) return [];
-
-    const timeline = [];
-
-    // ORIGINAL SUBMISSION
-    if (expense.attachment) {
-      timeline.push({
-        type: "ORIGINAL",
-        attachment: expense.attachment,
-        date: expense.createdAt,
-      });
-    }
-
-    // APPROVAL HISTORY
-    (approvalHistory || []).forEach((item) => {
-      timeline.push({
-        type: item.action?.toUpperCase(),
-        level: item.level,
-        comment: item.comment,
-        date: item.actionAt,
-      });
-    });
-
-    // SORT CHRONOLOGICALLY
-    timeline.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    return timeline;
-  };
 
   return (
     <main className="main" id="main">
@@ -294,83 +267,11 @@ export default function RejectedExpenses() {
                   </div>
 
                   {/* ===== FULL TIMELINE ===== */}
-                  <div className="col-12 mt-4">
-                    <h5 className="text-primary">Approval Timeline</h5>
+                  <ExpenseTimeline
+                    expense={selectedExpense}
+                    approvalHistory={approvalHistory}
+                  />
 
-                    {buildTimeline(selectedExpense).map((item, index) => (
-                      <div
-                        key={index}
-                        className={`p-3 mb-3 rounded shadow-sm ${item.type === "HOLD"
-                          ? "bg-light border-start border-danger border-4"
-                          : item.type === "APPROVED"
-                            ? "bg-white border-start border-success border-4"
-                            : item.type === "REJECTED"
-                              ? "bg-light border-start border-danger border-4"
-                              : "bg-white border-start border-primary border-4"
-                          }`}
-                      >
-                        {/* ORIGINAL */}
-                        {item.type === "ORIGINAL" && (
-                          <>
-                            <h6 className="text-primary mb-2">
-                              Original Expense Submitted
-                            </h6>
-                            <a
-                              href={item.attachment}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="btn btn-sm btn-primary"
-                            >
-                              View Original Attachment
-                            </a>
-                          </>
-                        )}
-
-                        {/* REJECTED */}
-                        {item.type === "REJECTED" && (
-                          <>
-                            <h6 className="text-danger mb-2">
-                              {item.level} Rejected
-                            </h6>
-                            <p>
-                              <strong>Comment:</strong> {item.comment || "-"}
-                            </p>
-                          </>
-                        )}
-
-                        {/* APPROVED */}
-                        {item.type === "APPROVED" && (
-                          <>
-                            <h6 className="text-success mb-2">
-                              {item.level} Approved
-                            </h6>
-                            <p>
-                              <strong>Comment:</strong> {item.comment || "-"}
-                            </p>
-                          </>
-                        )}
-
-                        {/* HOLD */}
-                        {item.type === "HOLD" && (
-                          <>
-                            <h6 className="text-danger mb-2">
-                              {item.level} placed on HOLD
-                            </h6>
-                            <p>
-                              <strong>Comment:</strong> {item.comment || "-"}
-                            </p>
-                          </>
-                        )}
-
-                        <div
-                          className="text-muted mt-2"
-                          style={{ fontSize: "12px" }}
-                        >
-                          {new Date(item.date).toLocaleString()}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
 
                 </div>
               </div>

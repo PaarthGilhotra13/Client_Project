@@ -4,12 +4,14 @@ import Swal from "sweetalert2";
 import { ScaleLoader } from "react-spinners";
 import ApiServices from "../../ApiServices";
 import PageTitle from "../PageTitle";
+import ExpenseTimeline from "../common/ExpenseTimeline";
 
 export default function ZcApprovedTickets() {
     const [data, setData] = useState([]);
     const [load, setLoad] = useState(true);
     const [selected, setSelected] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [approvalHistory, setApprovalHistory] = useState([]);
 
     const userId = sessionStorage.getItem("userId");
 
@@ -31,9 +33,18 @@ export default function ZcApprovedTickets() {
 
 
     const handleView = (exp) => {
-        setSelected(exp.expenseId); // ⚠️ coming from history
+        setSelected(exp.expenseId);
         setShowModal(true);
+
+        ApiServices.ExpenseHistory({ expenseId: exp.expenseId._id })
+            .then((res) => {
+                setApprovalHistory(res?.data?.data || []);
+            })
+            .catch(() => {
+                setApprovalHistory([]);
+            });
     };
+
 
     const handleClose = () => {
         setSelected(null);
@@ -128,121 +139,73 @@ export default function ZcApprovedTickets() {
                             </div>
 
                             <div className="modal-body px-4">
-                                <div className="row g-3">
-                                    <div className="col-md-6">
-                                        <strong>Ticket ID:</strong>
-                                        <p>{selected.ticketId}</p>
+
+                                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+
+                                    {/* ================= BASIC DETAILS ================= */}
+                                    <div className="row g-3">
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Ticket ID</div>
+                                            <div className="fw-semibold">{selected.ticketId}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Store</div>
+                                            <div className="fw-semibold">{selected.storeId?.storeName}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Expense Head</div>
+                                            <div className="fw-semibold">{selected.expenseHeadId?.name}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Amount</div>
+                                            <div className="fw-semibold text-success">
+                                                ₹ {selected.amount}
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Policy</div>
+                                            <div className="fw-semibold">{selected.policy || "-"}</div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Nature of Expense</div>
+                                            <div className="fw-semibold">
+                                                {selected.natureOfExpense || "-"}
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Prism ID</div>
+                                            <div className="fw-semibold">
+                                                {selected.prismId || "-"}
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Status</div>
+                                            <span className="badge bg-success px-3 py-2">
+                                                Closed
+                                            </span>
+                                        </div>
+
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <strong>Store:</strong>
-                                        <p>{selected.storeId?.storeName}</p>
-                                    </div>
+                                    {/* ================= TIMELINE ================= */}
+                                    <ExpenseTimeline
+                                        expense={selected}
+                                        approvalHistory={approvalHistory}
+                                    />
 
-                                    <div className="col-md-6">
-                                        <strong>Expense Head:</strong>
-                                        <p>{selected.expenseHeadId?.name}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Amount:</strong>
-                                        <p>₹ {selected.amount}</p>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <strong>Nature of Expense:</strong>
-                                        <p>{selected.natureOfExpense || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Policy:</strong>
-                                        <p>{selected.policy || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>RCA:</strong>
-                                        <p>{selected.rca || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Remark:</strong>
-                                        <p>{selected.remark || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Raised By:</strong>
-                                        <p>{selected.raisedBy?.name || selected.raisedBy?.fullName || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Created At:</strong>
-                                        <p>{new Date(selected.createdAt).toLocaleString()}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Prism ID:</strong>
-                                        <p>{selected.prismId || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Status:</strong>
-                                        <span className="badge bg-success">
-                                            Closed
-                                        </span>
-                                    </div>
-
-                                    <div className="col-12">
-                                        <strong>Attachments:</strong>
-                                        <p>
-                                            {selected.attachment && (
-                                                <a
-                                                    href={selected.attachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-primary me-2"
-                                                >
-                                                    Original Attachment
-                                                </a>
-                                            )}
-                                            {selected.resubmittedAttachment && (
-                                                <a
-                                                    href={selected.resubmittedAttachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-success me-2"
-                                                >
-                                                    Resubmitted Attachment
-                                                </a>
-                                            )}
-                                        </p>
-                                    </div>
-
-                                    <div className="col-12">
-                                        <strong>Execution Documents:</strong>
-                                        <p>
-                                            {selected.wcrAttachment && (
-                                                <a
-                                                    href={selected.wcrAttachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-info me-2"
-                                                >
-                                                    WCR
-                                                </a>
-                                            )}
-                                            {selected.invoiceAttachment && (
-                                                <a
-                                                    href={selected.invoiceAttachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-secondary me-2"
-                                                >
-                                                    Invoice
-                                                </a>
-                                            )}
-                                        </p>
-                                    </div>
                                 </div>
+
                             </div>
+
+
 
                         </div>
                     </div>

@@ -5,12 +5,14 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
 
 export default function PrpoHoldExpense() {
     const [data, setData] = useState([]);
     const [load, setLoad] = useState(true);
     const [selectedExpense, setSelectedExpense] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [approvalHistory, setApprovalHistory] = useState([]);
 
     // Search
     const [searchTerm, setSearchTerm] = useState("");
@@ -78,10 +80,22 @@ export default function PrpoHoldExpense() {
     }));
 
     /* ================= MODAL ================= */
-    const handleViewClick = (expense) => {
+    const handleViewClick = (item) => {
+
+        const expense = item.expenseId;
+
         setSelectedExpense(expense);
         setShowModal(true);
+
+        ApiServices.ExpenseHistory({ expenseId: expense._id })
+            .then((res) => {
+                setApprovalHistory(res?.data?.data || []);
+            })
+            .catch(() => {
+                setApprovalHistory([]);
+            });
     };
+
 
     const handleCloseModal = () => {
         setSelectedExpense(null);
@@ -216,65 +230,64 @@ export default function PrpoHoldExpense() {
                             </div>
 
                             <div className="modal-body px-4">
-                                <div className="row g-3">
-                                    <div className="col-md-6">
-                                        <strong>Ticket ID:</strong>
-                                        <p>{selectedExpense.expenseId?.ticketId}</p>
+
+                                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+
+                                    <div className="row g-3">
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Ticket ID</div>
+                                            <div className="fw-semibold">
+                                                {selectedExpense.ticketId}
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Store</div>
+                                            <div className="fw-semibold">
+                                                {selectedExpense.storeId?.storeName}
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Expense Head</div>
+                                            <div className="fw-semibold">
+                                                {selectedExpense.expenseHeadId?.name}
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Amount</div>
+                                            <div className="fw-semibold text-success">
+                                                ₹ {selectedExpense.amount}
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Status</div>
+                                            <span className="badge bg-secondary px-3 py-2">
+                                                Hold
+                                            </span>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="text-muted small">Hold Comment</div>
+                                            <div className="text-danger fw-semibold">
+                                                {selectedExpense.holdComment || "-"}
+                                            </div>
+                                        </div>
+
                                     </div>
 
-                                    <div className="col-md-6">
-                                        <strong>Store:</strong>
-                                        <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
-                                    </div>
+                                    {/* ================= TIMELINE ================= */}
+                                    <ExpenseTimeline
+                                        expense={selectedExpense}
+                                        approvalHistory={approvalHistory}
+                                    />
 
-                                    <div className="col-md-6">
-                                        <strong>Expense Head:</strong>
-                                        <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Amount:</strong>
-                                        <p>₹ {selectedExpense.expenseId?.amount}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Status:</strong>
-                                        <span className="badge bg-secondary">Hold</span>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Hold Comment:</strong>
-                                        <p>{selectedExpense.comment || "-"}</p>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <strong>Action Date:</strong>
-                                        <p>
-                                            {new Date(
-                                                selectedExpense.actionAt
-                                            ).toLocaleDateString()}
-                                        </p>
-                                    </div>
-
-                                    <div className="col-12">
-                                        <strong>Attachment:</strong>
-                                        <p>
-                                            {selectedExpense.expenseId?.attachment ? (
-                                                <a
-                                                    href={selectedExpense.expenseId.attachment}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-primary"
-                                                >
-                                                    Download Attachment
-                                                </a>
-                                            ) : (
-                                                <span className="text-muted">No Attachment</span>
-                                            )}
-                                        </p>
-                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>

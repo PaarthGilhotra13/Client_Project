@@ -1,125 +1,7 @@
-// paarth 
 const expenseModel = require("./expenseModel");
 const approvalPolicyModel = require("../Approval Policy/approvalPolicyModel");
 const userModel = require("../User/userModel");
 const { uploadImg } = require("../../utilities/helper");
-
-// const add = (req, res) => {
-//     var errMsgs = [];
-//     if (!req.body.ticketId) errMsgs.push("ticketId is required");
-//     if (!req.body.storeId) errMsgs.push("storeId is required");
-//     if (!req.body.expenseHeadId) errMsgs.push("expenseHeadId is required");
-//     if (!req.body.natureOfExpense) errMsgs.push("natureOfExpense is required");
-//     if (!req.body.amount) errMsgs.push("amount is required");
-//     if (!req.body.remark) errMsgs.push("remark is required");
-//     if (!req.body.rca) errMsgs.push("rca is required");
-//     if (!req.body.policy) errMsgs.push("policy is required");
-//     if (!req.body.policyId) errMsgs.push("policyId is required");
-//     if (!req.file) errMsgs.push("attachment is required");
-
-//     if (errMsgs.length > 0) {
-//         return res.send({
-//             status: 422,
-//             success: false,
-//             message: errMsgs
-//         });
-//     }
-
-//     /* ===== CHECK ACTIVE EXPENSE FOR SAME TICKET ===== */
-//     expenseModel.findOne({
-//         ticketId: req.body.ticketId,
-//         currentStatus: { $in: ["Pending", "Hold"] },
-//         status: true
-//     })
-//         .then(existing => {
-
-//             if (existing) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "Active expense already exists for this ticket"
-//                 });
-//             }
-
-//             /* ===== FIND APPROVAL POLICY (VERIFY POLICY ID) ===== */
-//             approvalPolicyModel.findOne({
-//                 _id: req.body.policyId,
-//                 status: true
-//             })
-//                 .then(policyData => {
-
-//                     if (!policyData) {
-//                         return res.send({
-//                             status: 422,
-//                             success: false,
-//                             message: "Invalid approval policy"
-//                         });
-//                     }
-
-//                     /* ===== DETERMINE NEXT APPROVER ===== */
-//                     const approvalLevels = policyData.approvalLevels; // ["FM","CLM","ZONAL_HEAD"]
-//                     let nextApprovalLevel = null;
-
-//                     // FM submit karta hai → next approver
-//                     if (approvalLevels.length > 1) {
-//                         nextApprovalLevel = approvalLevels[1];
-//                     }
-
-//                     /* ===== CREATE EXPENSE OBJECT ===== */
-//                     let expenseObj = new expenseModel();
-//                     expenseObj.ticketId = req.body.ticketId;
-//                     expenseObj.storeId = req.body.storeId;
-//                     expenseObj.expenseHeadId = req.body.expenseHeadId;
-//                     expenseObj.natureOfExpense = req.body.natureOfExpense;
-//                     expenseObj.amount = req.body.amount;
-//                     expenseObj.remark = req.body.remark;
-//                     expenseObj.rca = req.body.rca;
-
-//                     //  POLICY DATA (DONO SAVE)
-//                     expenseObj.policy = req.body.policy;          // policy key/name
-//                     expenseObj.policyId = req.body.policyId;      // policy ObjectId
-
-//                     expenseObj.attachment = req.file.path;
-
-//                     expenseObj.currentStatus = "Pending";
-//                     expenseObj.currentApprovalLevel = nextApprovalLevel; //  CLM / next level
-//                     expenseObj.status = true;
-
-//                     expenseObj.save()
-//                         .then(data => {
-//                             res.send({
-//                                 status: 200,
-//                                 success: true,
-//                                 message: "Expense Submitted Successfully",
-//                                 data
-//                             });
-//                         })
-//                         .catch(() => {
-//                             res.send({
-//                                 status: 422,
-//                                 success: false,
-//                                 message: "Expense Not Added"
-//                             });
-//                         });
-
-//                 })
-//                 .catch(() => {
-//                     res.send({
-//                         status: 422,
-//                         success: false,
-//                         message: "Policy lookup failed"
-//                     });
-//                 });
-
-//         })
-//         .catch(() => {
-//             res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "Something Went Wrong"
-//             });
-//         });
-// };
 
 const add = (req, res) => {
     var errMsgs = [];
@@ -344,10 +226,6 @@ const add = (req, res) => {
         });
 };
 
-
-
-
-
 const getAll = (req, res) => {
     expenseModel.find(req.body)
         .populate("storeId")
@@ -365,86 +243,6 @@ const getAll = (req, res) => {
             res.send({ status: 422, success: false, message: "Something Went Wrong" })
         })
 }
-
-// const pendingReq = (req, res) => {
-//     var errMsgs = [];
-
-//     if (!req.body.userId) errMsgs.push("userId is required");
-//     if (!req.body.storeId) errMsgs.push("storeId is required");
-
-//     if (errMsgs.length > 0) {
-//         return res.send({
-//             status: 422,
-//             success: false,
-//             message: errMsgs
-//         });
-//     }
-
-//     /* ===== GET USER ROLE ===== */
-//     userModel.findOne({ _id: req.body.userId })
-//         .then(user => {
-
-//             if (!user) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "User not Found"
-//                 });
-//             }
-
-//             // userType → role mapping
-//             const roleMap = {
-//                 3: "FM",
-//                 4: "CLM",
-//                 5: "ZONAL_HEAD",
-//                 6: "BUSINESS_FINANCE",
-//                 7: "PROCUREMENT"
-//             };
-
-//             const userRole = roleMap[user.userType];
-
-//             if (!userRole) {
-//                 return res.send({
-//                     status: 422,
-//                     success: false,
-//                     message: "Invalid user role"
-//                 });
-//             }
-
-//             /* ===== FIND PENDING EXPENSES ===== */
-//             expenseModel.find({
-//                 currentApprovalLevel: userRole,
-//                 storeId: req.body.storeId,
-//                 currentStatus: "Pending",
-//                 status: true
-//             })
-//                 .populate("storeId expenseHeadId raisedBy")
-//                 .then(data => {
-//                     res.send({
-//                         status: 200,
-//                         success: true,
-//                         message: "Pending Expense List",
-//                         data
-//                     });
-//                 })
-//                 .catch(() => {
-//                     res.send({
-//                         status: 422,
-//                         success: false,
-//                         message: "Something Went Wrong"
-//                     });
-//                 });
-
-//         })
-//         .catch(() => {
-//             res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "Something Went Wrong"
-//             });
-//         });
-// };
-
 
 const getSingle = (req, res) => {
 
@@ -486,56 +284,6 @@ const getSingle = (req, res) => {
         });
 };
 
-// const myExpenses = (req, res) => {
-//     var errMsgs = [];
-
-//     if (!req.body.userId) errMsgs.push("userId is required");
-
-//     if (errMsgs.length > 0) {
-//         return res.send({
-//             status: 422,
-//             success: false,
-//             message: errMsgs
-//         });
-//     }
-
-//     // base filter
-//     let filter = {
-//         raisedBy: req.body.userId,
-//         status: true
-//     };
-
-//     // OPTIONAL status filter
-//     if (req.body.currentStatus) {
-//         filter.currentStatus = req.body.currentStatus.trim();
-//     }
-
-//     // 🔥 IMPORTANT: exclude CLOSED tickets from Approved page
-//     if (req.body.excludePostApprovalStage) {
-//         filter.postApprovalStage = { $ne: req.body.excludePostApprovalStage };
-//     }
-
-//     expenseModel.find(filter)
-//         .populate("storeId expenseHeadId policyId")
-//         .sort({ createdAt: -1 })
-//         .then(data => {
-//             res.send({
-//                 status: 200,
-//                 success: true,
-//                 message: "My Expense List",
-//                 data
-//             });
-//         })
-//         .catch(() => {
-//             res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "Something Went Wrong"
-//             });
-//         });
-// };
-
-
 const myExpenses = (req, res) => {
     var errMsgs = [];
 
@@ -554,41 +302,47 @@ const myExpenses = (req, res) => {
         raisedBy: req.body.userId,
         status: true,
     };
+    if (req.body.includeExecutionStage) {
 
-    /* ================= OPTIONAL STATUS ================= */
-    if (req.body.currentStatus) {
-        filter.currentStatus = req.body.currentStatus.trim();
-    }
+        filter.$or = [
+            { currentStatus: "Closed" },
+            {
+                postApprovalStage: { $in: ["PRPO_EMAIL", "ZC_VERIFY"] }
+            }
+        ];
 
-    /* ================= OPTIONAL APPROVAL LEVEL ================= */
-    if (req.body.currentApprovalLevel) {
-        filter.currentApprovalLevel = req.body.currentApprovalLevel.trim();
-    }
+    } else {
 
-    /* ================= OPTIONAL POST STAGE ================= */
-    if (req.body.postApprovalStage) {
-        filter.postApprovalStage = req.body.postApprovalStage.trim();
-    }
+        /* ================= OPTIONAL STATUS ================= */
+        if (req.body.currentStatus) {
+            filter.currentStatus = req.body.currentStatus.trim();
+        }
 
-    /* ========================================================= */
-    /* 🔥 SAFETY: FM Pending page (ONLY approval pending) */
-    /* ========================================================= */
-    if (
-        req.body.currentApprovalLevel === "FM" &&
-        req.body.currentStatus === "Pending" &&
-        !req.body.postApprovalStage
-    ) {
-        // exclude FM WCR stage
-        filter.postApprovalStage = "NONE";
-    }
+        /* ================= OPTIONAL APPROVAL LEVEL ================= */
+        if (req.body.currentApprovalLevel) {
+            filter.currentApprovalLevel = req.body.currentApprovalLevel.trim();
+        }
 
-    /* ========================================================= */
-    /* 🔥 OPTIONAL EXCLUDE (backward compatible) */
-    /* ========================================================= */
-    if (req.body.excludePostApprovalStage) {
-        filter.postApprovalStage = {
-            $ne: req.body.excludePostApprovalStage,
-        };
+        /* ================= OPTIONAL POST STAGE ================= */
+        if (req.body.postApprovalStage) {
+            filter.postApprovalStage = req.body.postApprovalStage.trim();
+        }
+
+        /* ========================================================= */
+        /* 🔥 SAFETY: FM Pending page */
+        /* ========================================================= */
+        if (
+            req.body.currentApprovalLevel === "FM" &&
+            req.body.currentStatus === "Pending" &&
+            !req.body.postApprovalStage
+        ) {
+            filter.postApprovalStage = "NONE";
+        }
+        if (req.body.excludePostApprovalStage) {
+            filter.postApprovalStage = {
+                $ne: req.body.excludePostApprovalStage,
+            };
+        }
     }
 
     expenseModel

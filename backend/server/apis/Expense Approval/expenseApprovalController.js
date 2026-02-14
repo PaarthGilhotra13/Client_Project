@@ -387,10 +387,21 @@ const resubmitHeldExpense = async (req, res) => {
             heldFromLevel: expense.heldFromLevel
         });
 
+        /* ================= CREATE APPROVAL HISTORY ENTRY ================= */
+
+        await expenseApprovalModel.create({
+            expenseId: expense._id,
+            level: "FM",
+            approverId: req.body.approverId,
+            action: "Resubmitted",
+            comment: fmComment.trim(),
+            actionAt: new Date()
+        });
+
         /* ================= MOVE BACK TO SAME LEVEL ================= */
 
         expense.currentStatus = "Pending";
-        expense.currentApprovalLevel = expense.heldFromLevel; // same level pe wapas
+        expense.currentApprovalLevel = expense.heldFromLevel;
 
         expense.heldFromLevel = null;
         expense.holdComment = "";
@@ -413,6 +424,7 @@ const resubmitHeldExpense = async (req, res) => {
         });
     }
 };
+
 
 
 /* ================= APPROVAL HISTORY ================= */
@@ -1147,15 +1159,22 @@ const verifyAndCloseExpense = async (req, res) => {
 
         await expense.save();
 
+        // await expenseApprovalModel.create({
+        //     expenseId: expense._id,
+        //     level: "ZONAL_COMMERCIAL",
+        //     approverId,
+        //     comment: prismId || "",
+        //     action: "Closed",
+        //     status: "Closed"
+        // });
         await expenseApprovalModel.create({
             expenseId: expense._id,
             level: "ZONAL_COMMERCIAL",
             approverId,
-            comment: comment || "",
             action: "Closed",
-            status: "Closed"
+            comment: prismId,  // ✅ YE HONA CHAHIYE
+            actionAt: new Date()
         });
-
         return res.send({
             status: 200,
             success: true,

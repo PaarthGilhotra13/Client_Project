@@ -4,12 +4,14 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
+import ExpenseTimeline from "../../common/ExpenseTimeline";
 
 export default function ProcureHoldExpense() {
   const [data, setData] = useState([]);
   const [load, setLoad] = useState(true);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [approvalHistory, setApprovalHistory] = useState([]);
 
   // Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -76,22 +78,19 @@ export default function ProcureHoldExpense() {
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
     setShowModal(true);
+
+    ApiServices.ExpenseHistory({ expenseId: expense.expenseId?._id })
+      .then((res) => {
+        setApprovalHistory(res?.data?.data || []);
+      })
+      .catch(() => {
+        setApprovalHistory([]);
+      });
   };
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
   };
-
-  /* ================= DOWNLOAD HANDLER ================= */
-  const handleDownload = (url) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = url.split("/").pop();
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <main className="main" id="main">
       <PageTitle child="Hold Expenses (Procurement)" />
@@ -153,7 +152,7 @@ export default function ProcureHoldExpense() {
                 </thead>
 
                 <tbody>
-                  {currentExpenses.length > 0 ? (
+                  {currentExpenses.length ? (
                     currentExpenses.map((el, index) => (
                       <tr key={el._id}>
                         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -178,7 +177,7 @@ export default function ProcureHoldExpense() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="9" className="text-center text-muted">
+                      <td colSpan={9} className="text-center text-muted">
                         No Hold Expenses Found
                       </td>
                     </tr>
@@ -200,9 +199,8 @@ export default function ProcureHoldExpense() {
                   {[...Array(totalPages)].map((_, i) => (
                     <button
                       key={i}
-                      className={`btn me-1 ${
-                        currentPage === i + 1 ? "btn-primary" : "btn-light"
-                      }`}
+                      className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
+                        }`}
                       onClick={() => setCurrentPage(i + 1)}
                     >
                       {i + 1}
@@ -252,53 +250,119 @@ export default function ProcureHoldExpense() {
               </div>
 
               <div className="modal-body px-4">
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <strong>Ticket ID:</strong>
-                    <p>{selectedExpense.expenseId?.ticketId}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Store:</strong>
-                    <p>{selectedExpense.expenseId?.storeId?.storeName}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Expense Head:</strong>
-                    <p>{selectedExpense.expenseId?.expenseHeadId?.name}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Amount:</strong>
-                    <p>₹ {selectedExpense.expenseId?.amount}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Status:</strong>
-                    <span className="badge bg-secondary">Hold</span>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Comment:</strong>
-                    <p>{selectedExpense.comment || "-"}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <strong>Action Date:</strong>
-                    <p>{new Date(selectedExpense.actionAt).toLocaleDateString()}</p>
-                  </div>
-                  <div className="col-12">
-                    <strong>Attachment:</strong>
-                    <p>
-                      {selectedExpense.expenseId?.attachment ? (
-                        <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() =>
-                            handleDownload(selectedExpense.expenseId.attachment)
-                          }
+
+                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+                  <div className="row g-3">
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Ticket ID</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.expenseId?.ticketId}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Store</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.expenseId?.storeId?.storeName}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Expense Head</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.expenseId?.expenseHeadId?.name}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Amount</div>
+                      <div className="fw-semibold text-success">
+                        ₹ {selectedExpense.expenseId?.amount}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Policy</div>
+                      <div>{selectedExpense.expenseId?.policy || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Nature of Expense</div>
+                      <div>{selectedExpense.expenseId?.natureOfExpense || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">RCA</div>
+                      <div>{selectedExpense.expenseId?.rca || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Remarks</div>
+                      <div>{selectedExpense.expenseId?.remark || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Status</div>
+                      <span className="badge bg-secondary px-3 py-2">
+                        Hold
+                      </span>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Hold Comment</div>
+                      <div>{selectedExpense.comment || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Action Date</div>
+                      <div>
+                        {new Date(selectedExpense.actionAt).toLocaleString()}
+                      </div>
+                    </div>
+
+                    {/* Attachments */}
+                    <div className="col-12">
+                      <div className="text-muted small mb-1">Attachments</div>
+
+                      {selectedExpense.expenseId?.attachment && (
+                        <a
+                          href={selectedExpense.expenseId.attachment}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-sm btn-primary me-2"
                         >
-                          Download Attachment
-                        </button>
-                      ) : (
-                        <span className="text-muted">No Attachment</span>
+                          Original
+                        </a>
                       )}
-                    </p>
+
+                      {selectedExpense.expenseId?.resubmittedAttachment && (
+                        <a
+                          href={selectedExpense.expenseId.resubmittedAttachment}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-sm btn-success"
+                        >
+                          Resubmitted
+                        </a>
+                      )}
+
+                      {!selectedExpense.expenseId?.attachment &&
+                        !selectedExpense.expenseId?.resubmittedAttachment && (
+                          <span className="text-muted">No Attachment</span>
+                        )}
+                    </div>
+
                   </div>
+
+                  {/* Timeline */}
+                  <ExpenseTimeline
+                    expense={selectedExpense.expenseId}
+                    approvalHistory={approvalHistory}
+                  />
+
                 </div>
+
               </div>
             </div>
           </div>
