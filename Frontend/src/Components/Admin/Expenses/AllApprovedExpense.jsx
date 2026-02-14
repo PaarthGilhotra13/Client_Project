@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import PageTitle from "../../PageTitle";
 import ApiServices from "../../../ApiServices";
@@ -11,6 +10,9 @@ export default function AllApprovedExpenses() {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  // ✅ NEW: total approved amount
+  const [totalApprovedAmount, setTotalApprovedAmount] = useState(0);
+
   /* ================= FETCH APPROVED EXPENSES ================= */
   const fetchApproved = () => {
     setLoad(true);
@@ -20,9 +22,18 @@ export default function AllApprovedExpenses() {
     })
       .then((res) => {
         if (res?.data?.success) {
-          setData(res.data.data || []);
+          const list = res.data.data || [];
+          setData(list);
+
+          // ✅ NEW: calculate total approved amount
+          const total = list.reduce(
+            (sum, e) => sum + Number(e.amount || 0),
+            0
+          );
+          setTotalApprovedAmount(total);
         } else {
           setData([]);
+          setTotalApprovedAmount(0);
         }
         setLoad(false);
       })
@@ -58,9 +69,18 @@ export default function AllApprovedExpenses() {
         loading={load}
       />
 
-      {/* ================= TABLE ================= */}
+      {/* ================= TOTAL APPROVED AMOUNT (NEW) ================= */}
       {!load && (
         <div className="container-fluid mt-3">
+          <h6 className="fw-bold text-success">
+            Total Approved Amount : ₹ {totalApprovedAmount.toLocaleString()}
+          </h6>
+        </div>
+      )}
+
+      {/* ================= TABLE ================= */}
+      {!load && (
+        <div className="container-fluid mt-2">
           <div className="table-responsive">
             <table className="table table-hover table-striped">
               <thead className="table-dark">
@@ -86,7 +106,6 @@ export default function AllApprovedExpenses() {
                       <td>{e.expenseHeadId?.name || "-"}</td>
                       <td>₹ {e.amount}</td>
 
-                      {/* ✅ ONLY NEW THING */}
                       <td>
                         {e.actionBy} ({e.actionLevel})
                       </td>
@@ -177,7 +196,6 @@ export default function AllApprovedExpenses() {
                     <p>₹ {selectedExpense.amount}</p>
                   </div>
 
-                  {/* ✅ ONLY ADDITION */}
                   <div className="col-md-6">
                     <strong>Approved By:</strong>
                     <p>
@@ -191,13 +209,12 @@ export default function AllApprovedExpenses() {
                     <p>
                       {selectedExpense.actionAt
                         ? new Date(
-                          selectedExpense.actionAt
-                        ).toLocaleDateString()
+                            selectedExpense.actionAt
+                          ).toLocaleDateString()
                         : "-"}
                     </p>
                   </div>
 
-                  {/* ATTACHMENTS (UNCHANGED) */}
                   <div className="col-12">
                     <strong>Attachment:</strong>
                     <p>
