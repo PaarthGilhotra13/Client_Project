@@ -23,9 +23,11 @@ const adminDashboardController = require("../apis/Dashboard/adminDashboardContro
 const fmDashboardController = require("../apis/Dashboard/fmDashboardController")
 const zhDashboardController = require("../apis/Dashboard/zhDashboardController");
 
-const multer = require("multer")
-const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
+// const multer = require("multer")
+// const storage = multer.memoryStorage()
+// const upload = multer({ storage: storage })
+
+const upload = require("../middleware/upload");
 
 //login
 routes.post("/user/login", userController.login)
@@ -215,14 +217,24 @@ routes.post("/expense-approval/procure/pending", expenseApprovalController.pendi
 routes.post("/expense-approval/pr-po/pending", expenseApprovalController.prPoPendingExpenses)
 routes.post("/expense-approval/action", expenseApprovalController.expenseAction)
 routes.post("/expense-approval/myApprovedAction", expenseApprovalController.myApprovalActions)
-routes.post("/expense-approval/reSubmitHeldExpense", upload.single("attachment"), expenseApprovalController.resubmitHeldExpense)
+routes.post(
+    "/expense-approval/reSubmitHeldExpense",
+    upload.single("resubmittedAttachment"),
+    expenseApprovalController.resubmitHeldExpense
+);
+
 routes.post("/expense-approval/approval-history", expenseApprovalController.approvalHistory);
 routes.post("/expense-approval/adminExpensesByStatus", expenseApprovalController.adminExpensesByStatus);
 routes.post("/expense-approval/verifyAndCloseExpense", expenseApprovalController.verifyAndCloseExpense);
-routes.post("/expense-approval/uploadWcrInvoice", upload.fields([
-    { name: "wcr", maxCount: 1 },
-    { name: "invoice", maxCount: 1 }
-]), expenseApprovalController.uploadWcrInvoice);
+routes.post(
+    "/expense-approval/uploadWcrInvoice",
+    upload.fields([
+        { name: "wcrAttachment", maxCount: 1 },
+        { name: "invoiceAttachment", maxCount: 1 }
+    ]),
+    expenseApprovalController.uploadWcrInvoice
+);
+
 routes.post("/expense-approval/zcPendingExpense", expenseApprovalController.zonalCommercialPending);
 routes.post("/expense-approval/prpoEmailAndClose", expenseApprovalController.prpoEmailAndClose);
 

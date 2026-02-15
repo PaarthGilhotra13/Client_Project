@@ -1,7 +1,6 @@
 const expenseModel = require("./expenseModel");
 const approvalPolicyModel = require("../Approval Policy/approvalPolicyModel");
 const userModel = require("../User/userModel");
-const { uploadImg } = require("../../utilities/helper");
 
 const add = (req, res) => {
     var errMsgs = [];
@@ -12,7 +11,7 @@ const add = (req, res) => {
     if (!req.body.expenseHeadId) errMsgs.push("expenseHeadId is required");
     if (!req.body.natureOfExpense) errMsgs.push("natureOfExpense is required");
     if (!req.body.amount) errMsgs.push("amount is required");
-    if (!req.body.policy) errMsgs.push("policy is required"); // ✅ category / label
+    if (!req.body.policy) errMsgs.push("policy is required");
     if (!req.body.raisedBy) errMsgs.push("raisedBy is required");
     if (!req.file) errMsgs.push("attachment is required");
 
@@ -62,19 +61,8 @@ const add = (req, res) => {
                     // ❌ Approval policy bypass
                     expenseObj.policyId = null;
                     expenseObj.postApprovalStage = null;
-
-                    try {
-                        let url = await uploadImg(req.file.buffer);
-                        expenseObj.attachment = url;
-                    } catch (err) {
-                        return res.send({
-                            status: 422,
-                            success: false,
-                            message: "Cloudinary Error"
-                        });
-                    }
-
                     // 🔥 CAPEX always starts from ZONAL_HEAD
+                    expenseObj.attachment = req.file.path;
                     expenseObj.currentApprovalLevel = "ZONAL_HEAD";
                     expenseObj.currentStatus = "Pending";
                     expenseObj.raisedBy = req.body.raisedBy;
@@ -150,18 +138,7 @@ const add = (req, res) => {
 
                         // ✅ Backend approval policy (amount-based)
                         expenseObj.policyId = policyData._id;
-
-                        try {
-                            let url = await uploadImg(req.file.buffer);
-                            expenseObj.attachment = url;
-                        } catch (err) {
-                            return res.send({
-                                status: 422,
-                                success: false,
-                                message: "Cloudinary Error"
-                            });
-                        }
-
+                        expenseObj.attachment = req.file.path;
                         expenseObj.currentApprovalLevel = nextApprovalLevel;
                         expenseObj.currentStatus = "Pending";
                         expenseObj.raisedBy = req.body.raisedBy;

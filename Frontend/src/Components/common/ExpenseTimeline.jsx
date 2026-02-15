@@ -1,7 +1,12 @@
+const Base_URL = "http://localhost:3000/";
+
 export default function ExpenseTimeline({ expense, approvalHistory }) {
     if (!expense) return null;
 
     const timeline = [];
+
+    const fileUrl = (path) =>
+        path ? Base_URL + path : null;
 
     /* ================= ORIGINAL ================= */
     if (expense.attachment) {
@@ -12,35 +17,32 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
         });
     }
 
-    /* ================= APPROVAL HISTORY (SINGLE LOOP) ================= */
+    /* ================= APPROVAL HISTORY ================= */
     (approvalHistory || []).forEach((item) => {
-
         const actionType = item.action?.toUpperCase();
 
-        if (actionType === "RESUBMITTED") {
+        const isPrPo =
+            item.level?.replace(/\s+/g, "").toUpperCase() === "PR/PO";
 
-            // Find matching resubmission (latest one)
-            const lastResubmission =
-                expense.resubmissions?.[expense.resubmissions.length - 1];
+        timeline.push({
+            type: actionType,
+            level: item.level,
+            comment: item.comment,
+            prAttachment: isPrPo ? expense.prAttachment : null,
+            poAttachment: isPrPo ? expense.poAttachment : null,
+            date: item.actionAt,
+        });
+    });
 
-            timeline.push({
-                type: "RESUBMITTED",
-                level: item.level,
-                comment: item.comment,
-                attachment: lastResubmission?.attachment,
-                date: item.actionAt,
-            });
-
-        } else {
-
-            timeline.push({
-                type: actionType,
-                level: item.level,
-                comment: item.comment,
-                date: item.actionAt,
-            });
-
-        }
+    /* ================= RESUBMISSIONS ================= */
+    (expense.resubmissions || []).forEach((resub) => {
+        timeline.push({
+            type: "RESUBMITTED",
+            attachment: resub.attachment,
+            comment: resub.fmComment,
+            level: resub.heldFromLevel,
+            date: resub.submittedAt,
+        });
     });
 
     /* ================= EXECUTION ================= */
@@ -53,6 +55,7 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
         });
     }
 
+    /* ================= SORT BY DATE ================= */
     timeline.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
 
     return (
@@ -62,29 +65,14 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
             {timeline.map((item, index) => (
                 <div
                     key={index}
-                    className={`p-3 mb-3 rounded shadow-sm ${item.type === "HOLD"
-                        ? "bg-light border-start border-danger border-4"
-                        : item.type === "APPROVED"
-                            ? "bg-white border-start border-success border-4"
-                            : item.type === "REJECTED"
-                                ? "bg-light border-start border-danger border-4"
-                                : item.type === "CLOSED"
-                                    ? "bg-light border-start border-secondary border-4"
-                                    : item.type === "EXECUTION"
-                                        ? "bg-white border-start border-info border-4"
-                                        : item.type === "RESUBMITTED"
-                                            ? "bg-light border-start border-warning border-4"
-                                            : "bg-white border-start border-primary border-4"
-                        }`}
+                    className="p-3 mb-3 rounded shadow-sm bg-white border-start border-4 border-primary"
                 >
-                    {/* ORIGINAL */}
+                    {/* ================= ORIGINAL ================= */}
                     {item.type === "ORIGINAL" && (
                         <>
-                            <h6 className="text-primary mb-2">
-                                Original Expense Submitted
-                            </h6>
+                            <h6 className="text-primary">Original Expense Submitted</h6>
                             <a
-                                href={item.attachment}
+                                href={fileUrl(item.attachment)}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="btn btn-sm btn-primary"
@@ -94,31 +82,67 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
                         </>
                     )}
 
-                    {/* HOLD */}
-                    {item.type === "HOLD" && (
-                        <>
-                            <h6 className="text-danger mb-2">
-                                {item.level} HOLD
-                            </h6>
-                            <p>
-                                <strong>Comment:</strong> {item.comment || "-"}
-                            </p>
-                        </>
-                    )}
+                    {/* ================= APPROVAL ACTIONS ================= */}
+                    {["APPROVED", "REJECTED", "HOLD", "CLOSED"].includes(
+                        item.type
+                    ) && (
+                            <>
+                                <h6 className="mb-2">
+                                    {item.level} {item.type}
+                                </h6>
 
-                    {/* RESUBMITTED */}
+                                <p>
+                                    <strong>
+                                        {item.type === "CLOSED" && item.level === "PR/PO"
+                                            ? "Email Subject:"
+                                            : item.type === "CLOSED" &&
+                                                item.level === "ZONAL_COMMERCIAL"
+                                                ? "Prism ID:"
+                                                : "Comment:"}
+                                    </strong>{" "}
+                                    {item.comment || "-"}
+                                </p>
+
+                                {/* PR Attachment */}
+                                {item.prAttachment && (
+                                    <a
+                                        href={fileUrl(item.prAttachment)}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="btn btn-sm btn-info me-2"
+                                    >
+                                        View PR Attachment
+                                    </a>
+                                )}
+
+                                {/* PO Attachment */}
+                                {item.poAttachment && (
+                                    <a
+                                        href={fileUrl(item.poAttachment)}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="btn btn-sm btn-secondary"
+                                    >
+                                        View PO Attachment
+                                    </a>
+                                )}
+                            </>
+                        )}
+
+                    {/* ================= RESUBMITTED ================= */}
                     {item.type === "RESUBMITTED" && (
                         <>
-                            <h6 className="text-warning mb-2">
+                            <h6 className="text-warning">
                                 {item.level} RESUBMITTED
                             </h6>
+
                             <p>
                                 <strong>Comment:</strong> {item.comment || "-"}
                             </p>
 
                             {item.attachment && (
                                 <a
-                                    href={item.attachment}
+                                    href={fileUrl(item.attachment)}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="btn btn-sm btn-warning text-dark"
@@ -129,43 +153,16 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
                         </>
                     )}
 
-                    {/* APPROVED / REJECTED / CLOSED */}
-                    {["APPROVED", "REJECTED", "CLOSED"].includes(item.type) && (
-                        <>
-                            <h6
-                                className={`mb-2 ${item.type === "APPROVED"
-                                    ? "text-success"
-                                    : item.type === "CLOSED"
-                                        ? "text-secondary"
-                                        : "text-danger"
-                                    }`}
-                            >
-                                {item.level} {item.type}
-                            </h6>
-                            <p>
-                                <strong>
-                                    {item.type === "CLOSED" && item.level === "PR/PO"
-                                        ? "Email Subject:"
-                                        : item.type === "CLOSED" && item.level === "ZONAL_COMMERCIAL"
-                                            ? "Prism ID:"
-                                            : "Comment:"}
-                                </strong>{" "}
-                                {item.comment || "-"}
-                            </p>
-
-                        </>
-                    )}
-
-                    {/* EXECUTION */}
+                    {/* ================= EXECUTION ================= */}
                     {item.type === "EXECUTION" && (
                         <>
-                            <h6 className="text-info mb-2">
+                            <h6 className="text-info">
                                 FM Uploaded Execution Documents
                             </h6>
 
                             {item.wcr && (
                                 <a
-                                    href={item.wcr}
+                                    href={fileUrl(item.wcr)}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="btn btn-sm btn-info me-2"
@@ -176,7 +173,7 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
 
                             {item.invoice && (
                                 <a
-                                    href={item.invoice}
+                                    href={fileUrl(item.invoice)}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="btn btn-sm btn-secondary"
@@ -187,7 +184,7 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
                         </>
                     )}
 
-                    {/* DATE */}
+                    {/* ================= DATE ================= */}
                     <div className="text-muted mt-2" style={{ fontSize: "12px" }}>
                         {new Date(item.date).toLocaleString()}
                     </div>
@@ -196,4 +193,3 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
         </div>
     );
 }
-

@@ -4,7 +4,6 @@ const approvalPolicyModel = require("../Approval Policy/approvalPolicyModel");
 const userModel = require("../User/userModel")
 const storeModel = require("../Store/storeModel")
 const zhModel = require("../Zonal Head/zonalHeadModel");
-const { uploadImg } = require("../../utilities/helper");
 
 
 /* ================= APPROVE EXPENSE ================= */
@@ -78,12 +77,15 @@ const approveExpense = async (req, res) => {
             expense.poComment = poComment.trim();
 
             try {
-                if (prFile) {
-                    expense.prAttachment = await uploadImg(prFile.buffer);
+
+                if (req.files?.prAttachment) {
+                    expense.prAttachment = req.files.prAttachment[0].path;
                 }
-                if (poFile) {
-                    expense.poAttachment = await uploadImg(poFile.buffer);
+
+                if (req.files?.poAttachment) {
+                    expense.poAttachment = req.files.poAttachment[0].path;
                 }
+
             } catch (err) {
                 return res.send({
                     status: 422,
@@ -91,6 +93,7 @@ const approveExpense = async (req, res) => {
                     message: "PR/PO attachment upload failed",
                 });
             }
+
         }
 
         /* ================= SAVE APPROVAL HISTORY ================= */
@@ -211,12 +214,15 @@ const holdExpense = async (req, res) => {
         let poAttachmentUrl = null;
 
         try {
+
             if (req.files?.prAttachment?.length > 0) {
-                prAttachmentUrl = await uploadImg(req.files.prAttachment[0].buffer);
+                prAttachmentUrl = req.files.prAttachment[0].path;
             }
+
             if (req.files?.poAttachment?.length > 0) {
-                poAttachmentUrl = await uploadImg(req.files.poAttachment[0].buffer);
+                poAttachmentUrl = req.files.poAttachment[0].path;
             }
+
         } catch (err) {
             return res.send({
                 status: 422,
@@ -224,6 +230,7 @@ const holdExpense = async (req, res) => {
                 message: "Attachment upload failed",
             });
         }
+
 
         await expenseApprovalModel.create({
             expenseId: expense._id,
@@ -367,15 +374,18 @@ const resubmitHeldExpense = async (req, res) => {
             });
         }
 
-        let uploadedUrl;
-
+        let uploadedUrl = null;
         try {
-            uploadedUrl = await uploadImg(req.file.buffer);
+
+            if (req.file) {
+                uploadedUrl = req.file.path;
+            }
+
         } catch (err) {
             return res.send({
                 status: 422,
                 success: false,
-                message: "Cloudinary Error"
+                message: "File upload failed"
             });
         }
 
@@ -801,76 +811,6 @@ const expenseAction = async (req, res) => {
     }
 };
 
-
-// const myApprovalActions = async (req, res) => {
-//     try {
-//         const { userId, action, level } = req.body;
-
-//         if (!userId || !action || !level) {
-//             return res.send({
-//                 success: false,
-//                 message: "userId, action & level required"
-//             });
-//         }
-
-//         // 1️⃣ History fetch (case-insensitive level)
-//         const history = await expenseApprovalModel
-//             .find({
-//                 approverId: userId,
-//                 action: action,
-//                 level: {
-//                     $regex: `^${level}$`,
-//                     $options: "i" // ZONAL_HEAD / Zonal_Head safe
-//                 }
-//             })
-//             .populate({
-//                 path: "expenseId",
-//                 populate: {
-//                     path: "storeId expenseHeadId raisedBy"
-//                 }
-//             })
-//             .sort({ actionAt: -1 });
-
-//         let filtered = [];
-
-//         /* ================= APPROVED / REJECTED ================= */
-//         if (action === "Approved" || action === "Rejected") {
-//             /**
-//              * ✅ History based
-//              * Expense chahe next level pe chala gaya ho
-//              * ya FM ke paas wapas aa gaya ho
-//              * tab bhi yahan dikhega
-//              */
-//             filtered = history.filter(h => h.expenseId);
-//         }
-
-//         /* ================= HOLD ================= */
-//         else if (action === "Hold") {
-//             /**
-//              * ✅ Sirf ACTIVE hold
-//              * FM resubmit ke baad hold se gayab ho jaayega
-//              */
-//             filtered = history.filter(h =>
-//                 h.expenseId &&
-//                 h.expenseId.currentStatus === "Hold" &&
-//                 h.expenseId.heldFromLevel === level
-//             );
-//         }
-
-//         return res.send({
-//             success: true,
-//             data: filtered
-//         });
-
-//     } catch (err) {
-//         console.log("myApprovalActions error:", err);
-//         return res.send({
-//             success: false,
-//             message: "Approval list fetch failed"
-//         });
-//     }
-// };
-
 const myApprovalActions = async (req, res) => {
     try {
         const { userId, action, level } = req.body;
@@ -949,128 +889,6 @@ const myApprovalActions = async (req, res) => {
     }
 };
 
-
-
-// const adminExpensesByStatus = async (req, res) => {
-//     try {
-//         const { status } = req.body;
-//         // status = Pending | Approved | Hold | Rejected | Closed
-
-//         /* ================= PENDING ================= */
-//         if (status === "Pending") {
-//             const pending = await expenseModel
-//                 .find({ currentStatus: "Pending" })
-//                 .populate("raisedBy")
-//                 .populate({
-//                     path: "storeId",
-//                     populate: [
-//                         { path: "stateId" },
-//                         { path: "zoneId" }
-//                     ]
-//                 })
-//                 .populate("expenseHeadId")
-//                 .sort({ createdAt: -1 });
-
-//             return res.send({
-//                 success: true,
-//                 data: pending.map(e => ({
-//                     ...e.toObject(),
-//                     currentAt: e.currentApprovalLevel
-//                 }))
-//             });
-//         }
-
-//         /* ================= CLOSED ================= */
-//         if (status === "Closed") {
-
-//             const approvals = await expenseApprovalModel
-//                 .find({ action: "Closed" })
-//                 .populate({
-//                     path: "expenseId",
-//                     populate: [
-//                         { path: "storeId" },
-//                         { path: "expenseHeadId" }
-//                     ]
-//                 })
-//                 .populate("approverId")
-//                 .sort({ actionAt: -1 });
-
-//             const map = new Map();
-
-//             approvals.forEach(a => {
-//                 if (!a.expenseId) return;
-
-//                 const id = a.expenseId._id.toString();
-
-//                 if (!map.has(id)) {
-//                     map.set(id, {
-//                         ...a.expenseId.toObject(),
-//                         actionAt: a.actionAt, // 👈 this is real closed date
-//                         actionBy: a.approverId?.name || "-"
-//                     });
-//                 }
-//             });
-
-//             return res.send({
-//                 success: true,
-//                 data: Array.from(map.values())
-//             });
-//         }
-
-
-//         /* ================= APPROVED / HOLD / REJECTED ================= */
-//         const approvals = await expenseApprovalModel
-//             .find({ action: status })
-//             .populate({
-//                 path: "expenseId",
-//                 populate: [
-//                     { path: "raisedBy" },
-//                     {
-//                         path: "storeId",
-//                         populate: [
-//                             { path: "stateId" },
-//                             { path: "zoneId" }
-//                         ]
-//                     },
-//                     { path: "expenseHeadId" }
-//                 ]
-//             })
-//             .populate("approverId")
-//             .sort({ actionAt: -1 });
-
-//         const map = new Map();
-
-//         approvals.forEach(a => {
-//             if (!a.expenseId) return;
-
-//             const id = a.expenseId._id.toString();
-
-//             if (!map.has(id)) {
-//                 map.set(id, {
-//                     ...a.expenseId.toObject(),
-
-//                     action: a.action,
-//                     actionBy: a.approverId?.name || "-",
-//                     actionLevel: a.level,
-//                     actionAt: a.actionAt,
-//                     comment: a.comment || "-"
-//                 });
-//             }
-//         });
-
-//         return res.send({
-//             success: true,
-//             data: Array.from(map.values())
-//         });
-
-//     } catch (err) {
-//         return res.send({
-//             success: false,
-//             message: "Admin expense fetch failed"
-//         });
-//     }
-// };
-
 const adminExpensesByStatus = async (req, res) => {
     try {
         const { status } = req.body;
@@ -1125,7 +943,7 @@ const uploadWcrInvoice = async (req, res) => {
             });
         }
 
-        if (!req.files?.wcr || !req.files?.invoice) {
+        if (!req.files?.wcrAttachment || !req.files?.invoiceAttachment) {
             return res.send({
                 status: 422,
                 success: false,
@@ -1133,8 +951,17 @@ const uploadWcrInvoice = async (req, res) => {
             });
         }
 
-        const wcrUrl = await uploadImg(req.files.wcr[0].buffer);
-        const invoiceUrl = await uploadImg(req.files.invoice[0].buffer);
+        let wcrUrl = null;
+        let invoiceUrl = null;
+
+        if (req.files?.wcrAttachment?.length > 0) {
+            wcrUrl = req.files.wcrAttachment[0].path;
+        }
+
+        if (req.files?.invoiceAttachment?.length > 0) {
+            invoiceUrl = req.files.invoiceAttachment[0].path;
+        }
+
 
         const expense = await expenseModel.findById(expenseId);
 

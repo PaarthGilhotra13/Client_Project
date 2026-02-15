@@ -11,6 +11,28 @@ app.use(cors());
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json({ limit: '40mb' }))
+
+app.use("/uploads", express.static("uploads"));
+const multer = require("multer");
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  if (err) {
+    return res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+
+  next();
+});
+
 const adminRoutes = require("./server/routes/adminRoutes")
 app.use("/admin", adminRoutes)
 const db = require("./server/config/db")

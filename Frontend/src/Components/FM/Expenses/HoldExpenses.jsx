@@ -114,7 +114,7 @@ export default function HoldExpenses() {
     const formData = new FormData();
     formData.append("expenseId", selectedExpense._id);
     formData.append("approverId", userId);
-    formData.append("attachment", resubmitFile);
+    formData.append("resubmittedAttachment", resubmitFile);
     formData.append("fmComment", fmComment);
 
     setSubmitting(true);

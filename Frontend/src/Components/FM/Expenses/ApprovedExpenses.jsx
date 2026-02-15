@@ -83,8 +83,8 @@ export default function ApprovedExpenses() {
 
     const formData = new FormData();
     formData.append("expenseId", selectedExpense._id);
-    formData.append("wcr", wcrFile);
-    formData.append("invoice", invoiceFile);
+    formData.append("wcrAttachment", wcrFile);
+    formData.append("invoiceAttachment", invoiceFile);
     formData.append("fmComment", fmComment);
     formData.append("fmId", sessionStorage.getItem("userId"));
 

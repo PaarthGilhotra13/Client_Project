@@ -367,7 +367,7 @@ class ApiServices {
       return axios.post(BaseURL + "/apis/approvalPolicy/changeStatus", data, { headers: getToken() })
    }
    ApprovalHistory(payload) {
-      return axios.post(BaseURL + "/apis/expense-approval/approval-history",payload,{ headers: getToken() });
+      return axios.post(BaseURL + "/apis/expense-approval/approval-history", payload, { headers: getToken() });
    }
 
 

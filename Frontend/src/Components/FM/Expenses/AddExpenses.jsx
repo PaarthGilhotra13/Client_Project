@@ -127,8 +127,17 @@ export default function AddExpenses() {
             fileInputRef.current.value = "";
           }
         } else {
-          Swal.fire("Error", res.data.message, "error");
+          const errorMsg = Array.isArray(res.data.message)
+            ? res.data.message.join("<br>")
+            : res.data.message;
+
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            html: errorMsg,
+          });
         }
+
       })
       .catch(() => {
         setLoad(false);
