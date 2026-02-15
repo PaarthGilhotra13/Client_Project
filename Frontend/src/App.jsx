@@ -104,6 +104,7 @@ import AllExpenses from "./Components/Admin/Expenses/AllExpenses"
 import TodayRequests from "./Components/Admin/Expenses/TodayRequests"
 import PrPoClosedExpense from "./Components/PR_PO/Expenses/PrPoClosedExpenses"
 import AllClosedExpense from "./Components/Admin/Expenses/AllClosedExpense"
+import ZcDashboard from "./Components/Zonal_Commercial/ZcDashboard"
 
 
 function App() {
@@ -235,7 +236,7 @@ function App() {
           </Route>
 
           <Route path="/ZonalCommercial" element={<ZCMaster />}>
-            <Route path="/ZonalCommercial" element={<FacilityManagerDashboard />} />
+            <Route path="/ZonalCommercial" element={<ZcDashboard />} />
             <Route path="/ZonalCommercial/pendingTickets" element={<ZcPendingTickets />} />
             <Route path="/ZonalCommercial/approvedTickets" element={<ZcApprovedTickets />} />
 
