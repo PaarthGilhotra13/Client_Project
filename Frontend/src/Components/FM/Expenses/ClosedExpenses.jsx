@@ -5,7 +5,7 @@ import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
-
+import { CSVLink } from "react-csv";
 
 export default function ClosedTickets() {
     const [data, setData] = useState([]);
@@ -13,6 +13,13 @@ export default function ClosedTickets() {
     const [selectedExpense, setSelectedExpense] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [approvalHistory, setApprovalHistory] = useState([]);
+
+    // 🔎 Search
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // 📄 Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
     const userId = sessionStorage.getItem("userId");
 
@@ -31,6 +38,31 @@ export default function ClosedTickets() {
             });
     }, []);
 
+    /* ================= SEARCH FILTER ================= */
+    const filteredData = data.filter((el) =>
+        el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    /* ================= PAGINATION ================= */
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const currentExpenses = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    /* ================= CSV DATA ================= */
+    const csvData = filteredData.map((el, index) => ({
+        SrNo: index + 1,
+        TicketID: el.ticketId,
+        Store: el.storeId?.storeName,
+        ExpenseHead: el.expenseHeadId?.name,
+        Amount: el.amount,
+        Status: el.currentStatus,
+        PrismID: el.prismId || "-"
+    }));
+
     const handleViewClick = (expense) => {
         setSelectedExpense(expense);
         setShowModal(true);
@@ -44,72 +76,143 @@ export default function ClosedTickets() {
             });
     };
 
-
     const handleCloseModal = () => {
         setSelectedExpense(null);
         setApprovalHistory([]);
         setShowModal(false);
     };
+
     return (
         <main className="main" id="main">
             <PageTitle child="Closed Tickets" />
 
-            {load ? (
-                <ScaleLoader
-                    color="#6776f4"
-                    cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
-                />
-            ) : (
-                <div className="container-fluid mt-4 table-responsive">
-                    <table className="table table-hover table-striped">
-                        <thead className="table-dark">
-                            <tr>
-                                <th>S.No</th>
-                                <th>Ticket ID</th>
-                                <th>Store</th>
-                                <th>Expense Head</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
+            <ScaleLoader
+                color="#6776f4"
+                cssOverride={{ marginLeft: "45%", marginTop: "20%" }}
+                loading={load}
+            />
 
-                        <tbody>
-                            {data.length > 0 ? (
-                                data.map((el, i) => (
-                                    <tr key={el._id}>
-                                        <td>{i + 1}</td>
-                                        <td>{el.ticketId}</td>
-                                        <td>{el.storeId?.storeName}</td>
-                                        <td>{el.expenseHeadId?.name}</td>
-                                        <td>₹ {el.amount}</td>
-                                        <td>
-                                            {el.currentStatus === "Closed" ? (
-                                                <span className="badge bg-secondary">Closed</span>
-                                            ) : (
-                                                <span className="badge bg-warning text-dark">Pending</span>
-                                            )}
-                                        </td>
-                                        <td>
-                                            <button
-                                                className="btn btn-sm btn-primary"
-                                                onClick={() => handleViewClick(el)}
-                                            >
-                                                View
-                                            </button>
+            {!load && (
+                <>
+                    {/* 🔎 Search + CSV */}
+                    <div className="container-fluid mb-3">
+                        <div className="row align-items-center">
+                            <div className="col-md-6">
+                                <input
+                                    className="form-control"
+                                    placeholder="Search by Ticket ID, Store, Expense Head"
+                                    value={searchTerm}
+                                    onChange={(e) => {
+                                        setSearchTerm(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                />
+                            </div>
+
+                            <div className="col-md-6 text-end">
+                                <CSVLink
+                                    data={csvData}
+                                    filename="FM_Closed_Tickets.csv"
+                                    className="btn btn-primary btn-sm"
+                                >
+                                    Download CSV
+                                </CSVLink>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 📋 Table */}
+                    <div className="container-fluid table-responsive">
+                        <table className="table table-hover table-striped">
+                            <thead className="table-dark">
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Ticket ID</th>
+                                    <th>Store</th>
+                                    <th>Expense Head</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {currentExpenses.length > 0 ? (
+                                    currentExpenses.map((el, i) => (
+                                        <tr key={el._id}>
+                                            <td>
+                                                {(currentPage - 1) * itemsPerPage + i + 1}
+                                            </td>
+                                            <td>{el.ticketId}</td>
+                                            <td>{el.storeId?.storeName}</td>
+                                            <td>{el.expenseHeadId?.name}</td>
+                                            <td>₹ {el.amount}</td>
+                                            <td>
+                                                {el.currentStatus === "Closed" ? (
+                                                    <span className="badge bg-secondary">
+                                                        Closed
+                                                    </span>
+                                                ) : (
+                                                    <span className="badge bg-warning text-dark">
+                                                        Pending
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>
+                                                <button
+                                                    className="btn btn-sm btn-primary"
+                                                    onClick={() => handleViewClick(el)}
+                                                >
+                                                    View
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="7" className="text-center text-muted">
+                                            No Closed Tickets
                                         </td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="7" className="text-center text-muted">
-                                        No Closed Tickets
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                )}
+                            </tbody>
+                        </table>
+
+                        {/* 📄 Pagination */}
+                        {totalPages > 1 && (
+                            <div className="d-flex justify-content-center mt-3">
+                                <button
+                                    className="btn btn-secondary me-2"
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage((p) => p - 1)}
+                                >
+                                    Previous
+                                </button>
+
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        className={`btn me-1 ${currentPage === i + 1
+                                                ? "btn-primary"
+                                                : "btn-light"
+                                            }`}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+
+                                <button
+                                    className="btn btn-secondary ms-2"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage((p) => p + 1)}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </>
             )}
 
             {/* ================= MODAL ================= */}
@@ -213,8 +316,6 @@ export default function ClosedTickets() {
                     </div>
                 </div>
             )}
-
-
         </main>
     );
 }

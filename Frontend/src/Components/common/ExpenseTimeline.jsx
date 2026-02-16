@@ -13,6 +13,8 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
         timeline.push({
             type: "ORIGINAL",
             attachment: expense.attachment,
+            prAttachment: null,
+            poAttachment: null,
             date: expense.createdAt,
         });
     }
@@ -21,18 +23,25 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
     (approvalHistory || []).forEach((item) => {
         const actionType = item.action?.toUpperCase();
 
-        const isPrPo =
-            item.level?.replace(/\s+/g, "").toUpperCase() === "PR/PO";
+        const normalizedLevel =
+            item.level?.replace(/\s+/g, "").toUpperCase();
+
+        const isPrPoApproved =
+            normalizedLevel === "PR/PO" && actionType === "APPROVED";
 
         timeline.push({
             type: actionType,
             level: item.level,
             comment: item.comment,
-            prAttachment: isPrPo ? expense.prAttachment : null,
-            poAttachment: isPrPo ? expense.poAttachment : null,
+
+            // ✅ Attachments only when PR/PO APPROVED
+            prAttachment: isPrPoApproved ? expense.prAttachment : null,
+            poAttachment: isPrPoApproved ? expense.poAttachment : null,
+
             date: item.actionAt,
         });
     });
+
 
     /* ================= RESUBMISSIONS ================= */
     (expense.resubmissions || []).forEach((resub) => {
