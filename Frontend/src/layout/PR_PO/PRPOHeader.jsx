@@ -125,7 +125,7 @@ export default function PRPOHeader() {
                 </li>
                 <li><hr className="dropdown-divider" /></li>
                 <li>
-                  <Link to="/clm/clmProfile" className="dropdown-item d-flex align-items-center">
+                  <Link to="/PR_PO/prprprofile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person" />
                     <span>My Profile</span>
                   </Link>

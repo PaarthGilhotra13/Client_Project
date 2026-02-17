@@ -211,7 +211,7 @@ export default function ZonalHeadDashboard() {
           <strong>Zonal Head Dashboard</strong>
         </h3>
 
-        <div className="row mt-4">
+        <div className="row mt-4 g-3">
           <Card
             title="Pending Requests"
             value={counts.pending}
@@ -252,7 +252,7 @@ export default function ZonalHeadDashboard() {
 /* 🔹 CARD – UI SAME AS CLM / FM */
 function Card({ title, value, color, icon, link }) {
   return (
-    <div className="col-xxl-4 col-md-6 mb-4">
+    <div className="col-6 col-md-6 col-xl-4">
       <Link to={link} style={{ textDecoration: "none", color: "inherit" }}>
         <div className="card info-card h-100">
           <div className="card-body mb-4">

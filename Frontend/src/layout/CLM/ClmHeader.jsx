@@ -87,7 +87,7 @@ export default function ClmHeader() {
           <ul className="d-flex align-items-center">
 
             {/* 🔔 NOTIFICATION BELL (PROFILE SE PEHLE) */}
-            <li className="nav-item pe-3">
+            {/* <li className="nav-item pe-3">
               <span
                 className="nav-link position-relative"
                 style={{ cursor: "pointer" }}
@@ -98,7 +98,7 @@ export default function ClmHeader() {
                   <span className="notify-badge">{unreadCount}</span>
                 )}
               </span>
-            </li>
+            </li> */}
 
             {/* 👤 PROFILE */}
             <li className="nav-item dropdown pe-3">

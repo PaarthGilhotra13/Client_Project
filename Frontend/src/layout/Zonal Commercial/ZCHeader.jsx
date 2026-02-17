@@ -82,7 +82,7 @@ export default function ZCHeader() {
           <ul className="d-flex align-items-center">
 
             {/* 🔔 NOTIFICATION BELL (PROFILE SE PEHLE) */}
-            <li className="nav-item pe-3">
+            {/* <li className="nav-item pe-3">
               <span
                 className="nav-link position-relative"
                 style={{ cursor: "pointer" }}
@@ -93,7 +93,7 @@ export default function ZCHeader() {
                   <span className="notify-badge">{unreadCount}</span>
                 )}
               </span>
-            </li>
+            </li> */}
 
             {/* 👤 PROFILE */}
             <li className="nav-item dropdown pe-3">
@@ -117,7 +117,7 @@ export default function ZCHeader() {
                 </li>
                 <li><hr className="dropdown-divider" /></li>
                 <li>
-                  <Link to="/ZonalHead/zhprofile" className="dropdown-item d-flex align-items-center">
+                  <Link to="/ZonalCommercial/zcprofile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person" />
                     <span>My Profile</span>
                   </Link>

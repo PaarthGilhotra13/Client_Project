@@ -122,7 +122,7 @@ export default function ProcureHeader() {
                 </li>
                 <li><hr className="dropdown-divider" /></li>
                 <li>
-                  <Link to="/employee/myProfile" className="dropdown-item d-flex align-items-center">
+                  <Link to="/Procurement/procurementprofile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person" />
                     <span>My Profile</span>
                   </Link>

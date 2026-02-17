@@ -52,7 +52,6 @@ export default function AdminDashboard() {
     navigate("");
   };
 
-
   /* ================= DASHBOARD DATA STATE ================= */
   const [data, setData] = useState({
     totalRequests: 0,
@@ -109,26 +108,37 @@ export default function AdminDashboard() {
       /* ================= APPLY FILTER LOGIC ================= */
 
       expenses = expenses.filter((e) => {
-
         const createdDate = new Date(e.createdAt);
 
         // Date Filter
-        if (appliedFilters.date && createdDate.getDate() !== Number(appliedFilters.date)) {
+        if (
+          appliedFilters.date &&
+          createdDate.getDate() !== Number(appliedFilters.date)
+        ) {
           return false;
         }
 
         // Month Filter
-        if (appliedFilters.month && (createdDate.getMonth() + 1) !== Number(appliedFilters.month)) {
+        if (
+          appliedFilters.month &&
+          createdDate.getMonth() + 1 !== Number(appliedFilters.month)
+        ) {
           return false;
         }
 
         // Year Filter
-        if (appliedFilters.year && createdDate.getFullYear() !== Number(appliedFilters.year)) {
+        if (
+          appliedFilters.year &&
+          createdDate.getFullYear() !== Number(appliedFilters.year)
+        ) {
           return false;
         }
 
         // State Filter
-        if (appliedFilters.state && e.storeId?.stateId !== appliedFilters.state) {
+        if (
+          appliedFilters.state &&
+          e.storeId?.stateId !== appliedFilters.state
+        ) {
           return false;
         }
 
@@ -144,29 +154,45 @@ export default function AdminDashboard() {
 
       const todayDate = new Date().toISOString().split("T")[0];
 
-      const pending = expenses.filter(e => e.currentStatus === "Pending");
-      const rejected = expenses.filter(e => e.currentStatus === "Rejected");
-      const hold = expenses.filter(e => e.currentStatus === "Hold");
+      const pending = expenses.filter((e) => e.currentStatus === "Pending");
+      const rejected = expenses.filter((e) => e.currentStatus === "Rejected");
+      const hold = expenses.filter((e) => e.currentStatus === "Hold");
 
       const todayExpenses = expenses.filter(
-        e => e.createdAt?.split("T")[0] === todayDate
+        (e) => e.createdAt?.split("T")[0] === todayDate,
       );
 
       const sumAmount = (arr) =>
         arr.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
-      const approvedRes = await ApiServices.AdminExpensesByStatus({ status: "Approved" });
+      const approvedRes = await ApiServices.AdminExpensesByStatus({
+        status: "Approved",
+      });
       let approvedList = approvedRes?.data?.data || [];
 
       // Apply same filters to approved list
       approvedList = approvedList.filter((e) => {
         const createdDate = new Date(e.createdAt);
 
-        if (appliedFilters.date && createdDate.getDate() !== Number(appliedFilters.date)) return false;
-        if (appliedFilters.month && (createdDate.getMonth() + 1) !== Number(appliedFilters.month)) return false;
-        if (appliedFilters.year && createdDate.getFullYear() !== Number(appliedFilters.year)) return false;
-        if (appliedFilters.state && e.storeId?.stateId !== appliedFilters.state) return false;
-        if (appliedFilters.zone && e.storeId?.zoneId !== appliedFilters.zone) return false;
+        if (
+          appliedFilters.date &&
+          createdDate.getDate() !== Number(appliedFilters.date)
+        )
+          return false;
+        if (
+          appliedFilters.month &&
+          createdDate.getMonth() + 1 !== Number(appliedFilters.month)
+        )
+          return false;
+        if (
+          appliedFilters.year &&
+          createdDate.getFullYear() !== Number(appliedFilters.year)
+        )
+          return false;
+        if (appliedFilters.state && e.storeId?.stateId !== appliedFilters.state)
+          return false;
+        if (appliedFilters.zone && e.storeId?.zoneId !== appliedFilters.zone)
+          return false;
 
         return true;
       });
@@ -204,7 +230,6 @@ export default function AdminDashboard() {
         totalZonalCommercial: roleData.totalZonalCommercial ?? 0,
         totalMissingBridgeUsers: roleData.totalMissingBridgeUsers ?? 0,
       });
-
     } finally {
       setLoad(false);
     }
@@ -215,31 +240,125 @@ export default function AdminDashboard() {
     `${base}?${new URLSearchParams(filters).toString()}`;
 
   const requestCards = [
-    { title: "Total Requests", count: data.totalRequests, amount: data.totalAmount, color: "#4B49AC", icon: "bi-collection", link: buildLink("/admin/allExpenses") },
-    { title: "Pending Requests", count: data.pendingRequests, amount: data.pendingAmount, color: "#FFC107", icon: "bi-hourglass-split", link: buildLink("/admin/allPendingExpenses") },
-    { title: "Approved Requests", count: data.approvedRequests, amount: data.approvedAmount, color: "#20C997", icon: "bi-check-circle", link: buildLink("/admin/allApprovedExpenses") },
-    { title: "Rejected Requests", count: data.rejectedRequests, amount: data.rejectedAmount, color: "#FF6B6B", icon: "bi-x-circle", link: buildLink("/admin/allRejectedExpenses") },
-    { title: "In-Process", count: data.inProcessRequests, amount: data.holdAmount, color: "#4D96FF", icon: "bi-arrow-repeat", link: buildLink("/admin/allHoldExpenses") },
-    { title: "Today’s New Requests", count: data.todayRequests, amount: data.todayAmount, color: "#00B8D9", icon: "bi-calendar-event", link: buildLink("/admin/todayRequests") },
+    {
+      title: "Total Requests",
+      count: data.totalRequests,
+      amount: data.totalAmount,
+      color: "#4B49AC",
+      icon: "bi-collection",
+      link: buildLink("/admin/allExpenses"),
+    },
+    {
+      title: "Pending Requests",
+      count: data.pendingRequests,
+      amount: data.pendingAmount,
+      color: "#FFC107",
+      icon: "bi-hourglass-split",
+      link: buildLink("/admin/allPendingExpenses"),
+    },
+    {
+      title: "Approved Requests",
+      count: data.approvedRequests,
+      amount: data.approvedAmount,
+      color: "#20C997",
+      icon: "bi-check-circle",
+      link: buildLink("/admin/allApprovedExpenses"),
+    },
+    {
+      title: "Rejected Requests",
+      count: data.rejectedRequests,
+      amount: data.rejectedAmount,
+      color: "#FF6B6B",
+      icon: "bi-x-circle",
+      link: buildLink("/admin/allRejectedExpenses"),
+    },
+    {
+      title: "In-Process",
+      count: data.inProcessRequests,
+      amount: data.holdAmount,
+      color: "#4D96FF",
+      icon: "bi-arrow-repeat",
+      link: buildLink("/admin/allHoldExpenses"),
+    },
+    {
+      title: "Today’s New Requests",
+      count: data.todayRequests,
+      amount: data.todayAmount,
+      color: "#00B8D9",
+      icon: "bi-calendar-event",
+      link: buildLink("/admin/todayRequests"),
+    },
   ];
 
-
   const roleCards = [
-    { title: "Total Users", value: data.totalUsers, color: "#6F42C1", icon: "bi-people", link: "/admin/manageEmployee" },
-    { title: "Facility Managers", value: data.totalFacilityManagers, color: "#198754", icon: "bi-person-badge", link: "/admin/FMs" },
-    { title: "CLMs", value: data.totalCLMs, color: "#FD7E14", icon: "bi-building", link: "/admin/CLMs" },
-    { title: "Zonal Heads", value: data.totalZonalHeads, color: "#0D6EFD", icon: "bi-diagram-3", link: "/admin/zonalHead" },
-    { title: "Business Finance", value: data.totalBusinessFinance, color: "#6610f2", icon: "bi-currency-rupee", link: "/admin/businessFinance" },
-    { title: "Procurement", value: data.totalProcurement, color: "#0dcaf0", icon: "bi-cart-check", link: "/admin/procurement" },
-    { title: "PR / PO", value: data.totalPrPo, color: "#adb5bd", icon: "bi-receipt", link: "/admin/prpo" },
-    { title: "Zonal Commercial", value: data.totalZonalCommercial, color: "#20c997", icon: "bi-briefcase", link: "/admin/zonalCommercial" },
-    { title: "Missing Bridge", value: data.totalMissingBridgeUsers, color: "#dc3545", icon: "bi-exclamation-octagon", link: "/admin/missingBridge" },
+    {
+      title: "Total Users",
+      value: data.totalUsers,
+      color: "#6F42C1",
+      icon: "bi-people",
+      link: "/admin/manageEmployee",
+    },
+    {
+      title: "Facility Managers",
+      value: data.totalFacilityManagers,
+      color: "#198754",
+      icon: "bi-person-badge",
+      link: "/admin/FMs",
+    },
+    {
+      title: "CLMs",
+      value: data.totalCLMs,
+      color: "#FD7E14",
+      icon: "bi-building",
+      link: "/admin/CLMs",
+    },
+    {
+      title: "Zonal Heads",
+      value: data.totalZonalHeads,
+      color: "#0D6EFD",
+      icon: "bi-diagram-3",
+      link: "/admin/zonalHead",
+    },
+    {
+      title: "Business Finance",
+      value: data.totalBusinessFinance,
+      color: "#6610f2",
+      icon: "bi-currency-rupee",
+      link: "/admin/businessFinance",
+    },
+    {
+      title: "Procurement",
+      value: data.totalProcurement,
+      color: "#0dcaf0",
+      icon: "bi-cart-check",
+      link: "/admin/procurement",
+    },
+    {
+      title: "PR / PO",
+      value: data.totalPrPo,
+      color: "#adb5bd",
+      icon: "bi-receipt",
+      link: "/admin/prpo",
+    },
+    {
+      title: "Zonal Commercial",
+      value: data.totalZonalCommercial,
+      color: "#20c997",
+      icon: "bi-briefcase",
+      link: "/admin/zonalCommercial",
+    },
+    {
+      title: "Missing Bridge",
+      value: data.totalMissingBridgeUsers,
+      color: "#dc3545",
+      icon: "bi-exclamation-octagon",
+      link: "/admin/missingBridge",
+    },
   ];
   const handleApplyFilters = () => {
     const query = new URLSearchParams(filters).toString();
     navigate(`?${query}`);
   };
-
 
   return (
     <main id="main" className="main">
@@ -252,7 +371,11 @@ export default function AdminDashboard() {
           <div className="row g-3 align-items-end">
             <div className="col-md-2">
               <label className="form-label">Date</label>
-              <select className="form-select" value={filters.date} onChange={(e) => handleFilterChange("date", e.target.value)} >
+              <select
+                className="form-select"
+                value={filters.date}
+                onChange={(e) => handleFilterChange("date", e.target.value)}
+              >
                 <option value="">Select Date</option>
                 {Array.from({ length: 31 }, (_, i) => (
                   <option key={i + 1} value={i + 1}>
@@ -264,54 +387,93 @@ export default function AdminDashboard() {
 
             <div className="col-md-2">
               <label className="form-label">Month</label>
-              <select className="form-select" value={filters.month}
-                onChange={(e) => handleFilterChange("month", e.target.value)}>
+              <select
+                className="form-select"
+                value={filters.month}
+                onChange={(e) => handleFilterChange("month", e.target.value)}
+              >
                 <option value="">Select Month</option>
                 {[
-                  "January", "February", "March", "April", "May", "June",
-                  "July", "August", "September", "October", "November", "December"
+                  "January",
+                  "February",
+                  "March",
+                  "April",
+                  "May",
+                  "June",
+                  "July",
+                  "August",
+                  "September",
+                  "October",
+                  "November",
+                  "December",
                 ].map((m, j) => (
-                  <option key={j} value={j + 1}>{m}</option>
+                  <option key={j} value={j + 1}>
+                    {m}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div className="col-md-2">
               <label className="form-label">Year</label>
-              <select className="form-select" value={filters.year}
-                onChange={(e) => handleFilterChange("year", e.target.value)}>
+              <select
+                className="form-select"
+                value={filters.year}
+                onChange={(e) => handleFilterChange("year", e.target.value)}
+              >
                 <option value="">Select Year</option>
                 {Array.from({ length: 6 }, (_, i) => {
                   const y = 2023 + i;
-                  return <option key={y} value={y}>{y}</option>;
+                  return (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  );
                 })}
               </select>
             </div>
 
             <div className="col-md-3">
               <label className="form-label">State</label>
-              <select className="form-select" value={filters.state}
-                onChange={(e) => handleFilterChange("state", e.target.value)}>
+              <select
+                className="form-select"
+                value={filters.state}
+                onChange={(e) => handleFilterChange("state", e.target.value)}
+              >
                 <option value="">All States</option>
                 {states.map((s) => (
-                  <option key={s._id} value={s._id}>{s.stateName}</option>
+                  <option key={s._id} value={s._id}>
+                    {s.stateName}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div className="col-md-3">
               <label className="form-label">Zone</label>
-              <select className="form-select" value={filters.zone}
-                onChange={(e) => handleFilterChange("zone", e.target.value)}>
+              <select
+                className="form-select"
+                value={filters.zone}
+                onChange={(e) => handleFilterChange("zone", e.target.value)}
+              >
                 <option value="">All Zones</option>
                 {zones.map((z) => (
-                  <option key={z._id} value={z._id}>{z.zoneName}</option>
+                  <option key={z._id} value={z._id}>
+                    {z.zoneName}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="col-md-12 d-flex gap-2 mt-2">
-              <button className="btn btn-primary" onClick={handleApplyFilters}>Apply</button>
-              <button className="btn btn-secondary" onClick={handleResetFilters}>Reset</button>
+              <button className="btn btn-primary" onClick={handleApplyFilters}>
+                Apply
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={handleResetFilters}
+              >
+                Reset
+              </button>
             </div>
           </div>
         </div>
@@ -326,20 +488,30 @@ export default function AdminDashboard() {
       {!load && (
         <>
           {/* ===== REQUEST CARDS (4 PER ROW) ===== */}
-          <div className="row">
+          {/* ===== REQUEST CARDS ===== */}
+          <div className="row g-3">
             {requestCards.map((c, i) => (
-              <div key={i} className="col-xxl-3 col-lg-3 col-md-6 mb-0">
-                <Link to={c.link} style={{ textDecoration: "none", color: "inherit" }}>
-                  <div className="card info-card h-75">
+              <div key={i} className="col-6 col-md-4 col-xxl-3">
+                <Link
+                  to={c.link}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div className="card info-card h-100">
                     <div className="card-body">
                       <h5 className="card-title">{c.title}</h5>
+
                       <div className="d-flex align-items-center">
                         <div
                           className="card-icon text-white rounded-circle d-flex align-items-center justify-content-center me-3"
-                          style={{ width: 50, height: 50, background: c.color }}
+                          style={{
+                            width: 50,
+                            height: 50,
+                            background: c.color,
+                          }}
                         >
                           <i className={`bi ${c.icon} fs-4`} />
                         </div>
+
                         <div>
                           <h6 className="fw-bold mb-0">{c.count}</h6>
                           <small className="text-muted">
@@ -359,21 +531,30 @@ export default function AdminDashboard() {
             System & Role Overview
           </h4>
 
-          <div className="row">
+          <div className="row g-3">
             {roleCards.map((c, i) => (
-              <div key={i} className="mb-0" style={{ flex: "0 0 20%", maxWidth: "20%" }}>
-                <Link to={c.link} style={{ textDecoration: "none", color: "inherit" }}>
-                  <div className="card info-card h-75">
+              <div key={i} className="col-4 col-sm-4 col-md-3 col-xl-2 role-col">
+                <Link
+                  to={c.link}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div className="card info-card h-100">
                     <div className="card-body">
                       <h5 className="card-title">{c.title}</h5>
+
                       <div className="d-flex align-items-center">
                         <div
                           className="card-icon text-white rounded-circle d-flex align-items-center justify-content-center me-3"
-                          style={{ width: 50, height: 50, background: c.color }}
+                          style={{
+                            width: 50,
+                            height: 50,
+                            background: c.color,
+                          }}
                         >
                           <i className={`bi ${c.icon} fs-4`} />
                         </div>
-                        <h6 className="fw-bold">{c.value}</h6>
+
+                        <h6 className="fw-bold mb-0">{c.value}</h6>
                       </div>
                     </div>
                   </div>
