@@ -35,7 +35,7 @@ export default function AddExpenses() {
   const [ticketId, setTicketId] = useState("");
 
   // Attachment
-  const [attachment, setAttachment] = useState(null);
+  const [attachment, setAttachment] = useState([]);
   const fileInputRef = useRef(null);
 
   const [load, setLoad] = useState(false);
@@ -71,7 +71,7 @@ export default function AddExpenses() {
       !expenseValue ||
       !policy ||
       !ticketId ||
-      !attachment
+      attachment.length === 0
     ) {
       Swal.fire("Error", "Please fill all required fields", "error");
       return;
@@ -88,7 +88,10 @@ export default function AddExpenses() {
     data.append("policy", policy);
     data.append("ticketId", ticketId);
     data.append("raisedBy", userId);
-    data.append("attachment", attachment);
+    attachment.forEach((file) => {
+      data.append("attachment", file);  // 👈 SAME NAME
+    });
+
 
     setLoad(true);
 
@@ -122,7 +125,7 @@ export default function AddExpenses() {
           setPolicy("");
           setTicketId("");
 
-          setAttachment(null);
+          setAttachment([]);
           if (fileInputRef.current) {
             fileInputRef.current.value = "";
           }
@@ -434,14 +437,65 @@ export default function AddExpenses() {
                 </div>
 
                 {/* ================= ATTACHMENT ================= */}
-                <div className="col-12">
+                {/* <div className="col-12">
                   <label className="form-label">Attachment</label>
                   <input
                     type="file"
+                    multiple
                     ref={fileInputRef}
                     className="form-control"
-                    onChange={(e) => setAttachment(e.target.files[0])}
+                    onChange={(e) => setAttachment([...e.target.files])}
                   />
+                </div> */}
+                {/* ================= ATTACHMENT ================= */}
+                <div className="col-12">
+                  <label className="form-label">Attachments</label>
+
+                  <input
+                    type="file"
+                    multiple
+                    ref={fileInputRef}
+                    className="form-control"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files);
+
+                      setAttachment((prev) => [...prev, ...files]);
+
+                      // important: reset input so same file dubara select ho sake
+                      e.target.value = null;
+                    }}
+                  />
+
+                  {/* Selected Files Preview */}
+                  {attachment.length > 0 && (
+                    <div className="mt-2">
+                      <small className="text-muted">
+                        {attachment.length} file(s) selected
+                      </small>
+
+                      <ul className="list-group mt-2">
+                        {attachment.map((file, index) => (
+                          <li
+                            key={index}
+                            className="list-group-item d-flex justify-content-between align-items-center"
+                          >
+                            {file.name}
+
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-danger"
+                              onClick={() => {
+                                const updated = attachment.filter((_, i) => i !== index);
+                                setAttachment(updated);
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 {/* ================= TICKET ================= */}

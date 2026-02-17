@@ -94,7 +94,6 @@ import ManageProcurement from "./Components/Procurement/ManageProcurement"
 import ManageMissingBridge from "./Components/Admin/Missing_Bridge/ManageMissingBridge"
 import ManageZonalCommercial from "./Components/Zonal_Commercial/ManageZonalCommercial"
 import ZonalHeadDashboard from "./Components/Zonal_Head/ZonalHeadDashboard"
-import FacilityManagerDashboard from "./Components/Employee/FacilityManagerDashboard"
 import AssignedRequests from "./Components/FM/Expenses/AssignedRequest"
 import CLMDashboard from "./Components/CLM/ClmDashboard"
 import BusinessFinanceDashboard from "./Components/Business_FInance/BusinessFinanceDashboard"
@@ -109,6 +108,7 @@ import ZonalCommercialProfile from "./Components/Profile/PrPoProfile"
 import BFProfile from "./Components/Profile/BFProfile"
 import ProcurementProfile from "./Components/Profile/ProcurementProfile"
 import PrPoProfile from "./Components/Profile/PrPoProfile"
+import FacilityManagerDashboard from "./Components/FM/FacilityManagerDashboard"
 
 function App() {
   return (

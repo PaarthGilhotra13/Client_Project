@@ -23,7 +23,6 @@ export default function PendingExpense() {
   /* ================= FETCH PENDING EXPENSE ================= */
   useEffect(() => {
     setLoad(true);
-
     const userId = sessionStorage.getItem("userId");
     if (!userId) {
       Swal.fire("Error", "User not logged in", "error");
@@ -66,6 +65,7 @@ export default function PendingExpense() {
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
+    console.log("EXPENSE OBJECT:", expense);
     setShowModal(true);
 
     ApiServices.ExpenseHistory({ expenseId: expense._id })

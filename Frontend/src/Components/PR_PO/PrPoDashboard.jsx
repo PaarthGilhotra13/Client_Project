@@ -12,6 +12,7 @@ export default function PrPoDashboard() {
     hold: 0,
     approved: 0,
     rejected: 0,
+    closedRes: 0,
   });
 
   useEffect(() => {
@@ -43,13 +44,22 @@ export default function PrPoDashboard() {
         action: "Rejected",
         level: "PR/PO",
       }),
+
+      // Closed
+      ApiServices.MyApprovalActions({
+        userId,
+        action: "Closed",
+        level: "PR/PO"
+      })
     ])
-      .then(([pendingRes, holdRes, approvedRes, rejectedRes]) => {
+      .then(([pendingRes, holdRes, approvedRes, rejectedRes, closedRes]) => {
         setCounts({
           pendingApprovals: pendingRes?.data?.data?.length || 0,
           hold: holdRes?.data?.data?.length || 0,
           approved: approvedRes?.data?.data?.length || 0,
           rejected: rejectedRes?.data?.data?.length || 0,
+          closed: closedRes?.data?.data?.length || 0
+
         });
 
         setLoad(false);
@@ -111,6 +121,14 @@ export default function PrPoDashboard() {
             color="#DC3545"
             icon="bi-x-circle-fill"
             link="/PR_PO/rejectedExpenses"
+          />
+
+          <Card
+            title="Closed Requests"
+            value={counts.closed}
+            color="#6c757d"
+            icon="bi-lock-fill"
+            link="/PR_PO/closedExpenses"
           />
         </div>
       </div>

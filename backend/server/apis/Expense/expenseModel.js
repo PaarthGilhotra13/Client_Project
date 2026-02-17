@@ -38,10 +38,12 @@ const expenseSchema = new mongoose.Schema({
     },
 
     // 🔹 FIRST TIME FM UPLOAD
-    attachment: {
-        type: String,
-        default: ""
-    },
+    attachment: [
+        {
+            type: String
+        }
+    ],
+
 
     // 🔹 CURRENT FLOW TRACKING
     currentApprovalLevel: {

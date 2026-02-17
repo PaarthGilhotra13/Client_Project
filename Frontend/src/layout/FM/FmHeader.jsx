@@ -87,7 +87,7 @@ export default function FmHeader() {
           <ul className="d-flex align-items-center">
 
             {/* 🔔 NOTIFICATION BELL (PROFILE SE PEHLE) */}
-            <li className="nav-item pe-3">
+            {/* <li className="nav-item pe-3">
               <span
                 className="nav-link position-relative"
                 style={{ cursor: "pointer" }}
@@ -98,7 +98,7 @@ export default function FmHeader() {
                   <span className="notify-badge">{unreadCount}</span>
                 )}
               </span>
-            </li>
+            </li> */}
 
             {/* 👤 PROFILE */}
             <li className="nav-item dropdown pe-3">
@@ -121,12 +121,12 @@ export default function FmHeader() {
                   <span>{profile?.jobTitle || ""}</span>
                 </li>
                 <li><hr className="dropdown-divider" /></li>
-                <li>
+                {/* <li>
                   <Link to="/fm/fmProfile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person" />
                     <span>My Profile</span>
                   </Link>
-                </li>
+                </li> */}
                 <li><hr className="dropdown-divider" /></li>
                 <li>
                   <span onClick={logoutfun} className="dropdown-item d-flex align-items-center">
