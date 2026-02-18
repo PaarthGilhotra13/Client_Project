@@ -96,14 +96,16 @@ export default function AllApprovedExpenses() {
     fetchApproved();
   }, []);
 
+  const sortedData = [...data].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
   /* ================= SEARCH FILTER ================= */
-  const filteredData = data.filter(
+  const filteredData = sortedData.filter(
     (e) =>
       e.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       e.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       e.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   /* ================= PAGINATION ================= */
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
@@ -198,11 +200,12 @@ export default function AllApprovedExpenses() {
                 <thead className="table-dark">
                   <tr>
                     <th>Sr No</th>
+                    <th>Created At</th>
                     <th>Ticket ID</th>
                     <th>Store</th>
                     <th>Expense Head</th>
                     <th>Amount</th>
-                    <th>Approved By</th>
+                    <th>Approved Date</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -215,12 +218,25 @@ export default function AllApprovedExpenses() {
                         <td>
                           {(currentPage - 1) * itemsPerPage + index + 1}
                         </td>
+                        <td>
+                            {e.createdAt
+                              ? new Date(e.createdAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
+                              : "-"}
+                          </td>
                         <td>{e.ticketId}</td>
                         <td>{e.storeId?.storeName || "-"}</td>
                         <td>{e.expenseHeadId?.name || "-"}</td>
                         <td>₹ {e.amount}</td>
                         <td>
-                          {e.actionBy} ({e.actionLevel})
+                          {e.updatedAt
+                            ? new Date(e.updatedAt).toLocaleDateString()
+                            : "-"}
                         </td>
                         <td>
                           <span className="badge bg-success">
@@ -305,7 +321,66 @@ export default function AllApprovedExpenses() {
 
               <div className="modal-body px-4">
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+<div className="row g-3">
 
+                    <div className="col-md-6">
+                      <div className="text-muted small">Ticket ID</div>
+                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Store</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.storeId?.storeName}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Expense Head</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.expenseHeadId?.name}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Amount</div>
+                      <div className="fw-semibold text-success">
+                        ₹ {selectedExpense.amount}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Policy</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.policy || "-"}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Nature of Expense</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.natureOfExpense}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">RCA</div>
+                      <div>{selectedExpense.rca || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Remarks</div>
+                      <div>{selectedExpense.remark || "-"}</div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="text-muted small">Status</div>
+                      <span className="badge bg-success px-3 py-2">
+                        Approved
+                      </span>
+                    </div>
+
+                  </div>
                   {/* SAME DETAILS */}
 
                   <ExpenseTimeline

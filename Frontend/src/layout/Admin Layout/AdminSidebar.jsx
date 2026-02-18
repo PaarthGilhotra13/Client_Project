@@ -9,34 +9,6 @@ export default function AdminSidebar() {
       document.getElementById("sidebar").classList.remove("active"); // if you're toggling class on sidebar
     }
   };
-
-  // ✅ Export Expenses
-  const downloadCSV = async () => {
-    try {
-      const token = sessionStorage.getItem("token");
-
-      const res = await axios.get(
-        "http://localhost:3000/admin/export-sheet",
-        {
-          responseType: "blob",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `expense-report_${Date.now()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-    } catch (err) {
-      console.log("CSV DOWNLOAD ERROR:", err);
-    }
-  };
-
-
   return (
     <>
       {/* ======= Sidebar ======= */}
@@ -448,13 +420,6 @@ export default function AdminSidebar() {
             </ul>
           </li>
           {/* End Employee Nav */}
-
-          <li className="nav-item">
-            <button className="btn btn-success w-100" onClick={downloadCSV}>
-              <i className="bi bi-download me-2"></i>
-              Download Expense CSV
-            </button>
-          </li>
         </ul>
       </aside>
       {/* End Sidebar*/}

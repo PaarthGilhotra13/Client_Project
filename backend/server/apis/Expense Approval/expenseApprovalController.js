@@ -303,6 +303,7 @@ const rejectExpense = async (req, res) => {
             comment: comment.trim(),
             action: "Rejected",
             status: "Rejected",
+            actionAt: new Date(),
         });
 
         expense.currentStatus = "Rejected";
@@ -892,7 +893,6 @@ const myApprovalActions = async (req, res) => {
 const adminExpensesByStatus = async (req, res) => {
     try {
         const { status } = req.body;
-        // status = Pending | Approved | Hold | Rejected | Closed
 
         if (!status) {
             return res.send({
@@ -901,7 +901,7 @@ const adminExpensesByStatus = async (req, res) => {
             });
         }
 
-        /* ================= FETCH FROM EXPENSE MODEL ================= */
+        /* ================= FETCH EXPENSES ================= */
         const expenses = await expenseModel
             .find({ currentStatus: status })
             .populate("raisedBy")
@@ -913,23 +913,67 @@ const adminExpensesByStatus = async (req, res) => {
                 ]
             })
             .populate("expenseHeadId")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean(); // 🔥 IMPORTANT
+
+        /* ================= ADD REJECT DATA IF NEEDED ================= */
+        const updatedExpenses = await Promise.all(
+            expenses.map(async (exp) => {
+
+                if (status === "Rejected") {
+
+                    const lastReject = await expenseApprovalModel
+                        .findOne({
+                            expenseId: exp._id,
+                            action: "Rejected"
+                        })
+                        .sort({ actionAt: -1 })
+                        .populate("approverId", "name designation")
+                        .lean();
+
+                    if (lastReject) {
+                        exp.rejectionComment = lastReject.comment;
+                        exp.rejectedOn = lastReject.actionAt || lastReject.createdAt;
+                        exp.rejectedBy = lastReject.approverId?.name;
+                    }
+                }
+                if (status === "Closed") {
+                    const lastClose = await expenseApprovalModel
+                        .findOne({
+                            expenseId: exp._id,
+                            action: "Closed"
+                        })
+                        .sort({ actionAt: -1 })
+                        .populate("approverId", "name designation")
+                        .lean();
+
+                    if (lastClose) {
+                        exp.closedOn = lastClose.actionAt || lastClose.createdAt;
+                        exp.closedBy = lastClose.approverId?.name;
+                    }
+                }
+
+                return {
+                    ...exp,
+                    currentAt: exp.currentApprovalLevel
+                };
+            })
+        );
 
         return res.send({
             success: true,
-            data: expenses.map(e => ({
-                ...e.toObject(),
-                currentAt: e.currentApprovalLevel
-            }))
+            data: updatedExpenses
         });
 
     } catch (err) {
+        console.log("Admin Fetch Error:", err);
         return res.send({
             success: false,
             message: "Admin expense fetch failed"
         });
     }
 };
+
 
 const uploadWcrInvoice = async (req, res) => {
     try {

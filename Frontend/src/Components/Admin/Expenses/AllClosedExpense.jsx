@@ -188,6 +188,7 @@ export default function AllClosedExpense() {
                   <thead className="table-dark">
                     <tr>
                       <th>Sr. No</th>
+                      <th>Created At</th>
                       <th>Ticket ID</th>
                       <th>Store</th>
                       <th>Expense Head</th>
@@ -205,6 +206,17 @@ export default function AllClosedExpense() {
                           <td>
                             {(currentPage - 1) * itemsPerPage + index + 1}
                           </td>
+                          <td>
+                            {el.createdAt
+                              ? new Date(el.createdAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
+                              : "-"}
+                          </td>
                           <td>{el.ticketId}</td>
                           <td>{el.storeId?.storeName}</td>
                           <td>{el.expenseHeadId?.name}</td>
@@ -215,8 +227,14 @@ export default function AllClosedExpense() {
                             </span>
                           </td>
                           <td>
-                            {el.actionAt
-                              ? new Date(el.actionAt).toLocaleDateString()
+                            {el.closedOn
+                              ? new Date(el.closedOn).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
                               : "-"}
                           </td>
                           <td>

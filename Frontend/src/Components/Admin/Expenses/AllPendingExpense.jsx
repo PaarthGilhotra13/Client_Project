@@ -85,9 +85,12 @@ export default function AdminPendingExpense() {
   useEffect(() => {
     fetchPending();
   }, []);
-
+/* ================= SORT (Latest First) ================= */
+const sortedData = [...data].sort(
+  (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+);
   /* ================= SEARCH ================= */
-  const filteredData = data.filter((el) =>
+  const filteredData = sortedData.filter((el) =>
     el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -183,6 +186,7 @@ export default function AdminPendingExpense() {
                   <thead className="table-dark">
                     <tr>
                       <th>Sr. No</th>
+                      <th>Created At</th>
                       <th>Ticket ID</th>
                       <th>Store</th>
                       <th>Expense Head</th>
@@ -198,6 +202,17 @@ export default function AdminPendingExpense() {
                         <tr key={el._id}>
                           <td>
                             {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
+                          <td>
+                            {el.createdAt
+                              ? new Date(el.createdAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
+                              : "-"}
                           </td>
                           <td>{el.ticketId}</td>
                           <td>{el.storeId?.storeName}</td>
