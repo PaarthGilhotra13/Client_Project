@@ -179,6 +179,7 @@ export default function AllHoldExpense() {
 
 
           {/* TABLE */}
+          {/* TABLE */}
           <div className="container-fluid">
             <div className="row justify-content-center">
               <div className="col-lg-12 mt-4 table-responsive">
@@ -186,12 +187,13 @@ export default function AllHoldExpense() {
                   <thead className="table-dark">
                     <tr>
                       <th>Sr. No</th>
+                      <th>Created At</th>
                       <th>Ticket ID</th>
                       <th>Store</th>
                       <th>Expense Head</th>
                       <th>Amount</th>
                       <th>Status</th>
-                      <th>Comment</th>
+                      <th>Hold Comment</th>
                       <th>Action Date</th>
                       <th>Action</th>
                     </tr>
@@ -204,21 +206,47 @@ export default function AllHoldExpense() {
                           <td>
                             {(currentPage - 1) * itemsPerPage + index + 1}
                           </td>
+
+                          <td>
+                            {el.createdAt
+                              ? new Date(el.createdAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
+                              : "-"}
+                          </td>
+
                           <td>{el.ticketId}</td>
-                          <td>{el.storeId?.storeName}</td>
-                          <td>{el.expenseHeadId?.name}</td>
+
+                          <td>{el.storeId?.storeName || "-"}</td>
+
+                          <td>{el.expenseHeadId?.name || "-"}</td>
+
                           <td>₹ {el.amount}</td>
+
                           <td>
                             <span className="badge bg-secondary">
                               Hold
                             </span>
                           </td>
-                          <td>{el.comment || "-"}</td>
+
+                          <td>{el.holdComment || "-"}</td>
+
                           <td>
-                            {el.actionAt
-                              ? new Date(el.actionAt).toLocaleDateString()
+                            {el.updatedAt
+                              ? new Date(el.updatedAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
                               : "-"}
                           </td>
+
                           <td>
                             <button
                               className="btn btn-sm btn-primary"
@@ -231,50 +259,17 @@ export default function AllHoldExpense() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={9} className="text-center text-muted">
+                        <td colSpan={10} className="text-center text-muted">
                           No Hold Expenses Found
                         </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
-
-                {/* PAGINATION */}
-                {totalPages > 1 && (
-                  <div className="d-flex justify-content-center mt-3">
-                    <button
-                      className="btn btn-secondary me-2"
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage((p) => p - 1)}
-                    >
-                      Previous
-                    </button>
-
-                    {[...Array(totalPages)].map((_, i) => (
-                      <button
-                        key={i}
-                        className={`btn me-1 ${currentPage === i + 1
-                          ? "btn-primary"
-                          : "btn-light"
-                          }`}
-                        onClick={() => setCurrentPage(i + 1)}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-
-                    <button
-                      className="btn btn-secondary ms-2"
-                      disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage((p) => p + 1)}
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
+
         </>
       )}
 

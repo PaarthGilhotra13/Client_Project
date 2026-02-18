@@ -214,14 +214,19 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
     const fileUrl = (path) => (path ? Base_URL + path : null);
 
     /* ================= ORIGINAL ================= */
-    if (expense.attachment && expense.attachment.length > 0) {
+    if (expense.attachment) {
+        const normalizedAttachments = Array.isArray(expense.attachment)
+            ? expense.attachment
+            : [expense.attachment]; // convert string to array
+
         timeline.push({
             type: "ORIGINAL",
-            attachments: expense.attachment,
+            attachments: normalizedAttachments,
             submittedBy: expense?.raisedBy,
             date: expense.createdAt,
         });
     }
+
 
     /* ================= APPROVAL HISTORY ================= */
     (approvalHistory || []).forEach((item) => {
@@ -286,30 +291,34 @@ export default function ExpenseTimeline({ expense, approvalHistory }) {
                                 <div className="d-flex flex-column flex-md-row justify-content-between mt-3">
                                     <div>
                                         <h6 className="text-primary mb-1">
-                                            Expense Submitted by{" "}
-                                            {item.submittedBy?.name}
+                                            Expense Submitted by {item.submittedBy?.name || "-"}
                                         </h6>
                                         <small className="text-muted">
-                                            {item.submittedBy?.designation}
+                                            {item.submittedBy?.designation || ""}
                                         </small>
                                     </div>
                                 </div>
 
                                 <div className="mt-3 d-flex flex-wrap gap-2">
-                                    {item.attachments.map((file, i) => (
-                                        <a
-                                            key={i}
-                                            href={fileUrl(file)}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="btn btn-sm btn-primary"
-                                        >
-                                            Attachment {i + 1}
-                                        </a>
-                                    ))}
+                                    {Array.isArray(item.attachments) && item.attachments.length > 0 ? (
+                                        item.attachments.map((file, i) => (
+                                            <a
+                                                key={i}
+                                                href={fileUrl(file)}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="btn btn-sm btn-primary"
+                                            >
+                                                Attachment {i + 1}
+                                            </a>
+                                        ))
+                                    ) : (
+                                        <span className="text-muted">No Attachment</span>
+                                    )}
                                 </div>
                             </>
                         )}
+
 
                         {/* ================= APPROVAL ACTIONS ================= */}
                         {["APPROVED", "REJECTED", "HOLD", "CLOSED"].includes(

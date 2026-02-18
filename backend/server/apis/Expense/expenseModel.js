@@ -168,6 +168,6 @@ const expenseSchema = new mongoose.Schema({
     executionUploadedAt: {
         type: Date,
     },
-});
+},{ timestamps: true });
 
 module.exports = mongoose.model("expenseData", expenseSchema);

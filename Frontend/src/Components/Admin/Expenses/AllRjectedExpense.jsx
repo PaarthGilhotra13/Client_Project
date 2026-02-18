@@ -177,7 +177,6 @@ export default function AllRejectedExpense() {
             </div>
           </div>
 
-
           {/* TABLE */}
           <div className="container-fluid">
             <div className="row justify-content-center">
@@ -186,12 +185,13 @@ export default function AllRejectedExpense() {
                   <thead className="table-dark">
                     <tr>
                       <th>Sr. No</th>
+                      <th>Created At</th>
                       <th>Ticket ID</th>
                       <th>Store</th>
                       <th>Expense Head</th>
                       <th>Amount</th>
                       <th>Status</th>
-                      <th>Comment</th>
+                      <th>Rejection Comment</th>
                       <th>Rejected On</th>
                       <th>Action</th>
                     </tr>
@@ -204,21 +204,47 @@ export default function AllRejectedExpense() {
                           <td>
                             {(currentPage - 1) * itemsPerPage + index + 1}
                           </td>
+
+                          <td>
+                            {el.createdAt
+                              ? new Date(el.createdAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
+                              : "-"}
+                          </td>
+
                           <td>{el.ticketId}</td>
-                          <td>{el.storeId?.storeName}</td>
-                          <td>{el.expenseHeadId?.name}</td>
+
+                          <td>{el.storeId?.storeName || "-"}</td>
+
+                          <td>{el.expenseHeadId?.name || "-"}</td>
+
                           <td>₹ {el.amount}</td>
+
                           <td>
                             <span className="badge bg-danger">
                               Rejected
                             </span>
                           </td>
-                          <td>{el.comment || "-"}</td>
+
+                          <td>{el.rejectionComment || "-"}</td>
+
                           <td>
-                            {el.actionAt
-                              ? new Date(el.actionAt).toLocaleDateString()
+                            {el.rejectedOn
+                              ? new Date(el.rejectedOn).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
                               : "-"}
                           </td>
+
                           <td>
                             <button
                               className="btn btn-sm btn-primary"
@@ -231,50 +257,17 @@ export default function AllRejectedExpense() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="9" className="text-center text-muted">
+                        <td colSpan="10" className="text-center text-muted">
                           No Rejected Expenses Found
                         </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
-
-                {/* PAGINATION */}
-                {totalPages > 1 && (
-                  <div className="d-flex justify-content-center mt-3">
-                    <button
-                      className="btn btn-secondary me-2"
-                      disabled={currentPage === 1}
-                      onClick={() => setCurrentPage((p) => p - 1)}
-                    >
-                      Previous
-                    </button>
-
-                    {[...Array(totalPages)].map((_, i) => (
-                      <button
-                        key={i}
-                        className={`btn me-1 ${currentPage === i + 1
-                          ? "btn-primary"
-                          : "btn-light"
-                          }`}
-                        onClick={() => setCurrentPage(i + 1)}
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-
-                    <button
-                      className="btn btn-secondary ms-2"
-                      disabled={currentPage === totalPages}
-                      onClick={() => setCurrentPage((p) => p + 1)}
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
+
         </>
       )}
 

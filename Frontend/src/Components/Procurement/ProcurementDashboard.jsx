@@ -21,11 +21,7 @@ export default function ProcurementDashboard() {
 
     Promise.all([
       // 🔵 Pending (Procurement)
-      ApiServices.MyApprovalActions({
-        userId,
-        action: "Pending",
-        level: "PROCUREMENT",
-      }),
+      ApiServices.GetProcurementPendingExpenses({ userId }),
 
       // 🟡 Hold
       ApiServices.MyApprovalActions({

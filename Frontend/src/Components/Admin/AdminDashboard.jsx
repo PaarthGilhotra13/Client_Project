@@ -4,11 +4,36 @@ import { useEffect, useState } from "react";
 import ApiServices from "../../ApiServices";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function AdminDashboard() {
   const [load, setLoad] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const downloadCSV = async () => {
+    try {
+      const token = sessionStorage.getItem("token");
+
+      const res = await axios.get(
+        "http://localhost:3000/admin/export-sheet",
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `expense-report_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+    } catch (err) {
+      console.log("CSV DOWNLOAD ERROR:", err);
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -362,8 +387,14 @@ export default function AdminDashboard() {
 
   return (
     <main id="main" className="main">
-      <PageTitle child="Dashboard" />
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <PageTitle child="Dashboard" />
 
+        <button className="btn btn-success" onClick={downloadCSV}>
+          <i className="bi bi-download me-2"></i>
+           Expense CSV
+        </button>
+      </div>
       {/* ================= FILTER UI (RESTORED) ================= */}
       <div className="card mb-3">
         <div className="card-body">
