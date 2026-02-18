@@ -14,7 +14,7 @@ export default function FmHeader() {
   const [selectedNotify, setSelectedNotify] = useState(null);
 
   const nav = useNavigate();
-  const unreadCount = data.length;
+  // const unreadCount = data.length;
 
   const addSidebar = () => document.body.classList.toggle('toggle-sidebar');
 
