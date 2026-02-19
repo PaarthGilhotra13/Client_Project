@@ -136,80 +136,12 @@ const getSingle = (req, res) => {
     }
 }
 
-// const changePassword = (req, res) => {
-//     var errMsgs = []
-//     if (!req.body.oldpassword) {
-//         errMsgs.push("oldpassword is required")
-//     }
-//     if (!req.body.newpassword) {
-//         errMsgs.push("newpassword is required")
-//     }
-//     if (!req.body.confirmpassword) {
-//         errMsgs.push("confirmpassword is required")
-//     }
-//     if (errMsgs.length > 0) {
-//         res.send({
-//             status: 422,
-//             success: false,
-//             message: errMsgs
-//         })
-//     }
-//     else {
-//         if (req.body.newpassword == req.body.confirmpassword) {
-//             userModel.findOne({ _id: req.decoded.userId })
-//                 .then((userData) => {
-//                     bcrypt.compare(req.body.oldpassword, userData.password, function (err, ismatch) {
-//                         if (!ismatch) {
-//                             res.send({
-//                                 status: 422,
-//                                 success: false,
-//                                 message: "old password is Incorrect"
-//                             })
-//                         }
-//                         else {
-//                             userData.password = bcrypt.hashSync(req.body.newpassword, 10)
-//                             userData.save()
-//                                 .then((updatedPass) => {
-//                                     res.send({
-//                                         status: 200,
-//                                         success: true,
-//                                         message: "Password Updated Successfully",
-//                                         data: updatedPass
-//                                     })
-//                                 })
-//                                 .catch(() => {
-//                                     res.send({
-//                                         status: 422,
-//                                         success: false,
-//                                         message: "Password Not updated"
-//                                     })
-//                                 })
-//                         }
-//                     })
-//                 })
-//                 .catch(() => {
-//                     res.send({
-//                         status: 422,
-//                         success: false,
-//                         message: "Something Went Wrong"
-//                     })
-//                 })
-//         }
-//         else {
-//             res.send({
-//                 status: 422,
-//                 success: false,
-//                 message: "New password and Confirm Password should be same!!"
-//             })
-//         }
-//     }
-// }
 
 const changePassword = (req, res) => {
     let errMsgs = []
-if(!req.body._id){
+    if (!req.body._id) {
         errMsgs.push("_id is required")
-}
+    }
     if (!req.body.newpassword) {
         errMsgs.push("newpassword is required")
     }
@@ -263,4 +195,4 @@ if(!req.body._id){
 }
 
 
-module.exports = { login ,getAll,getSingle,changePassword}
+module.exports = { login, getAll, getSingle, changePassword }

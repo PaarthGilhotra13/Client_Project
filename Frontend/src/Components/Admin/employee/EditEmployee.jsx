@@ -659,7 +659,7 @@ export default function EditEmployee() {
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
+    const [userId, setUserId] = useState("");
     const nav = useNavigate();
     const params = useParams();
     const location = useLocation();
@@ -682,6 +682,7 @@ export default function EditEmployee() {
 
         apiCall({ _id: params.id }).then((res) => {
             const emp = res?.data?.data;
+            setUserId(emp?.userId || "");
             setName(emp?.name || "");
             setContact(emp?.contact || "");
             setEmail(emp?.email || "");
@@ -771,7 +772,6 @@ export default function EditEmployee() {
                 setPageLoading(false);
             });
     };
-
     // ================= CHANGE PASSWORD =================
     const handleChangePassword = () => {
         if (!newPassword || !confirmPassword) {
@@ -786,7 +786,7 @@ export default function EditEmployee() {
         setPasswordLoading(true);
 
         ApiServices.ChangePassword({
-            _id: params.id,
+            _id: userId,
             newpassword: newPassword,
             confirmpassword: confirmPassword,
         })

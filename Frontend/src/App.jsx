@@ -109,6 +109,7 @@ import BFProfile from "./Components/Profile/BFProfile"
 import ProcurementProfile from "./Components/Profile/ProcurementProfile"
 import PrPoProfile from "./Components/Profile/PrPoProfile"
 import FacilityManagerDashboard from "./Components/FM/FacilityManagerDashboard"
+import AdminProfile from "./Components/Admin/Profile/AdminProfile"
 
 function App() {
   return (
@@ -173,6 +174,9 @@ function App() {
             <Route path="/admin/manageApprovalPolicy" element={<ManageApprovalPolicy />} />
             <Route path="/admin/editApprovalPolicy/:id" element={<EditApprovalPolicy />} />
             <Route path="/admin/blockedApprovalPolicy" element={<BlockedAppovalPolicy />} />
+
+            {/* Profile */}
+            <Route path="/admin/myProfile" element={<AdminProfile />} />
 
             {/* Complaint Routes */}
             <Route path="/admin/allPendingExpenses" element={<AllPendingExpense />} />
