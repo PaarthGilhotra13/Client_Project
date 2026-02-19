@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken")
+const secret = "123@#"
 
 module.exports = (req, res,next) => {
-    const secret = process.env.JWT_SECRET;
     let token = req.headers["authorization"]
     if (!token) {
         res.send({
