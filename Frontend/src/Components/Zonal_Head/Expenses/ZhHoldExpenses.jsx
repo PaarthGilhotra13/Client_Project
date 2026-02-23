@@ -145,9 +145,11 @@ export default function ZhHoldExpense() {
                 <thead className="table-dark">
                   <tr>
                     <th>Sr. No</th>
+                    <th>Created At</th>
                     <th>Ticket ID</th>
                     <th>Store</th>
                     <th>Expense Head</th>
+                    <th>Nature of Expense</th>
                     <th>Amount</th>
                     <th>Status</th>
                     <th>Hold On</th>
@@ -160,9 +162,21 @@ export default function ZhHoldExpense() {
                     currentExpenses.map((el, index) => (
                       <tr key={el._id}>
                         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                        <td>
+                            {el.createdAt
+                              ? new Date(el.createdAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
+                              : "-"}
+                          </td>
                         <td>{el.expenseId?.ticketId}</td>
                         <td>{el.expenseId?.storeId?.storeName}</td>
                         <td>{el.expenseId?.expenseHeadId?.name}</td>
+                        <td>{el.expenseId?.natureOfExpense}</td>
                         <td>₹ {el.expenseId?.amount}</td>
                         <td>
                           <span className="badge bg-warning text-dark">

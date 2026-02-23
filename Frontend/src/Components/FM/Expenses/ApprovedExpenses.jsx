@@ -206,9 +206,11 @@ export default function ApprovedExpenses() {
               <thead className="table-dark">
                 <tr>
                   <th>Sr. No</th>
+                  <th>Created At</th>
                   <th>Ticket ID</th>
                   <th>Store</th>
                   <th>Expense Head</th>
+                  <th>Nature Of Expense</th>
                   <th>Amount</th>
                   <th>Status</th>
                   <th>Action</th>
@@ -222,9 +224,21 @@ export default function ApprovedExpenses() {
                       <td>
                         {(currentPage - 1) * itemsPerPage + index + 1}
                       </td>
+                      <td>
+                            {el.createdAt
+                              ? new Date(el.createdAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
+                              : "-"}
+                          </td>
                       <td>{el.ticketId}</td>
                       <td>{el.storeId?.storeName}</td>
                       <td>{el.expenseHeadId?.name}</td>
+                      <td>{el.natureOfExpense}</td>
                       <td>₹ {el.amount}</td>
                       <td>
                         <span className="badge bg-success">

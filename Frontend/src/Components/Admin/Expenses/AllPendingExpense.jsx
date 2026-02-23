@@ -190,6 +190,7 @@ const sortedData = [...data].sort(
                       <th>Ticket ID</th>
                       <th>Store</th>
                       <th>Expense Head</th>
+                      <th>Nature of Expense</th>
                       <th>Amount</th>
                       <th>Status</th>
                       <th>Action</th>
@@ -217,6 +218,7 @@ const sortedData = [...data].sort(
                           <td>{el.ticketId}</td>
                           <td>{el.storeId?.storeName}</td>
                           <td>{el.expenseHeadId?.name}</td>
+                          <td>{el.natureOfExpense || "-"}</td> 
                           <td>₹ {el.amount}</td>
                           <td>
                             <span className="badge bg-warning">

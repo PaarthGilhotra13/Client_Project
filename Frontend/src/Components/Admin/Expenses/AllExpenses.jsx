@@ -218,6 +218,7 @@ export default function AllExpenses() {
                   <th>Ticket ID</th>
                   <th>Store</th>
                   <th>Expense Head</th>
+                  <th>Nature of Expense</th>
                   <th>Amount</th>
                   <th>Status</th>
                   <th>Action</th>
@@ -232,6 +233,7 @@ export default function AllExpenses() {
                       <td>{e.ticketId}</td>
                       <td>{e.storeId?.storeName}</td>
                       <td>{e.expenseHeadId?.name}</td>
+                        <td>{e.natureOfExpense || "-"}</td> 
                       <td>₹ {Number(e.amount).toLocaleString()}</td>
                       <td>
                         <span

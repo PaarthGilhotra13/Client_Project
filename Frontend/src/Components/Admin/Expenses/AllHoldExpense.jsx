@@ -196,6 +196,7 @@ export default function AllHoldExpense() {
                       <th>Ticket ID</th>
                       <th>Store</th>
                       <th>Expense Head</th>
+                      <th>Nature of Expense</th>
                       <th>Amount</th>
                       <th>Status</th>
                       <th>Hold Comment</th>
@@ -229,6 +230,8 @@ export default function AllHoldExpense() {
                           <td>{el.storeId?.storeName || "-"}</td>
 
                           <td>{el.expenseHeadId?.name || "-"}</td>
+
+                          <td>{el.natureOfExpense || "-"}</td> 
 
                           <td>₹ {el.amount}</td>
 

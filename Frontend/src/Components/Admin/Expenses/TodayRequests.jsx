@@ -110,6 +110,7 @@ export default function TodayRequests() {
                   <th>Sr No</th>
                   <th>Ticket ID</th>
                   <th>Date & Time</th>
+                  <th>Nature Of Expense</th>
                   <th>Amount</th>
                   <th>Status</th>
                   <th>Attachment</th>
@@ -119,7 +120,7 @@ export default function TodayRequests() {
               <tbody>
                 {expenses.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="text-center">
+                    <td colSpan="7" className="text-center">
                       No Requests Created Today
                     </td>
                   </tr>
@@ -130,6 +131,7 @@ export default function TodayRequests() {
                     <td>{index + 1}</td>
                     <td>{e.ticketId || "-"}</td>
                     <td>{new Date(e.createdAt).toLocaleString()}</td>
+                    <td>{e.natureOfExpense}</td>
                     <td>₹ {Number(e.amount || 0).toLocaleString()}</td>
                     <td>
                       <span

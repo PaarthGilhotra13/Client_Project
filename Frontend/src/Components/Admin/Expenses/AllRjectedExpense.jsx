@@ -189,6 +189,7 @@ export default function AllRejectedExpense() {
                       <th>Ticket ID</th>
                       <th>Store</th>
                       <th>Expense Head</th>
+                      <th>Nature of Expense</th>
                       <th>Amount</th>
                       <th>Status</th>
                       <th>Rejection Comment</th>
@@ -222,6 +223,7 @@ export default function AllRejectedExpense() {
                           <td>{el.storeId?.storeName || "-"}</td>
 
                           <td>{el.expenseHeadId?.name || "-"}</td>
+                          <td>{el.natureOfExpense || "-"}</td> 
 
                           <td>₹ {el.amount}</td>
 

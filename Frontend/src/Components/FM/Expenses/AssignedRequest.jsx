@@ -67,10 +67,12 @@ export default function AssignedRequests() {
           <table className="table table-hover table-striped">
             <thead className="table-dark">
               <tr>
-                <th>#</th>
+                <th>Sr No</th>
+                <th>Created At</th>
                 <th>Ticket ID</th>
                 <th>Store</th>
                 <th>Expense Head</th>
+                <th>Nature of Expense</th>
                 <th>Amount</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -82,9 +84,21 @@ export default function AssignedRequests() {
                 data.map((el, i) => (
                   <tr key={el._id}>
                     <td>{i + 1}</td>
+                    <td>
+                            {el.createdAt
+                              ? new Date(el.createdAt).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })
+                              : "-"}
+                          </td>
                     <td>{el.ticketId}</td>
                     <td>{el.storeId?.storeName}</td>
                     <td>{el.expenseHeadId?.name}</td>
+                    <td>{el.natureOfExpense}</td>
                     <td>₹ {el.amount}</td>
                     <td>
                       {el.currentStatus === "Pending" ? (
@@ -157,6 +171,11 @@ export default function AssignedRequests() {
                     <p>{selectedExpense.storeId?.storeName}</p>
                   </div>
 
+                  <div className="col-md-6">
+                    <strong>Nature of Expense:</strong>
+                    <p>{selectedExpense.NatureOfExpense}</p>
+                  </div>
+                  
                   <div className="col-md-6">
                     <strong>Expense Head:</strong>
                     <p>{selectedExpense.expenseHeadId?.name}</p>

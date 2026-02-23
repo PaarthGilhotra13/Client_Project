@@ -192,6 +192,7 @@ export default function AllClosedExpense() {
                       <th>Ticket ID</th>
                       <th>Store</th>
                       <th>Expense Head</th>
+                      <th>Nature of Expense</th>
                       <th>Amount</th>
                       <th>Status</th>
                       <th>Closed On</th>
@@ -220,6 +221,7 @@ export default function AllClosedExpense() {
                           <td>{el.ticketId}</td>
                           <td>{el.storeId?.storeName}</td>
                           <td>{el.expenseHeadId?.name}</td>
+                          <td>₹ {el.natureOfExpense}</td>
                           <td>₹ {el.amount}</td>
                           <td>
                             <span className="badge bg-success">

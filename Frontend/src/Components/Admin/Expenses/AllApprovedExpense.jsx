@@ -40,6 +40,11 @@ export default function AllApprovedExpenses() {
     ApiServices.AdminExpensesByStatus({ status: "Approved" })
       .then((res) => {
         if (res?.data?.success) {
+<<<<<<< Updated upstream
+=======
+          console.log(res?.data)
+
+>>>>>>> Stashed changes
           const list = res.data.data || [];
 
           /* 🔥 APPLY SAME FILTER LOGIC */
@@ -207,6 +212,7 @@ export default function AllApprovedExpenses() {
                     <th>Ticket ID</th>
                     <th>Store</th>
                     <th>Expense Head</th>
+                    <th>Nature of Expense</th>
                     <th>Amount</th>
                     <th>Approved Date</th>
                     <th>Status</th>
@@ -218,7 +224,11 @@ export default function AllApprovedExpenses() {
                   {currentData.length > 0 ? (
                     currentData.map((e, index) => (
                       <tr key={e._id}>
+<<<<<<< Updated upstream
                         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+=======
+                                              
+>>>>>>> Stashed changes
                         <td>
                           {e.createdAt
                             ? new Date(e.createdAt).toLocaleString("en-IN", {
@@ -233,6 +243,8 @@ export default function AllApprovedExpenses() {
                         <td>{e.ticketId}</td>
                         <td>{e.storeId?.storeName || "-"}</td>
                         <td>{e.expenseHeadId?.name || "-"}</td>
+                        <td>{e.natureOfExpense || "-"}</td> 
+
                         <td>₹ {e.amount}</td>
                         <td>
                           {e.updatedAt

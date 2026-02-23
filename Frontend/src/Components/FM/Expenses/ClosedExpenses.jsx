@@ -128,9 +128,11 @@ export default function ClosedTickets() {
                             <thead className="table-dark">
                                 <tr>
                                     <th>S.No</th>
+                                    <th>Created At</th>
                                     <th>Ticket ID</th>
                                     <th>Store</th>
                                     <th>Expense Head</th>
+                                    <th>Nature of Expense</th>
                                     <th>Amount</th>
                                     <th>Status</th>
                                     <th>Action</th>
@@ -144,9 +146,21 @@ export default function ClosedTickets() {
                                             <td>
                                                 {(currentPage - 1) * itemsPerPage + i + 1}
                                             </td>
+                                            <td>
+                                               {el.createdAt
+                                                 ? new Date(el.createdAt).toLocaleString("en-IN", {
+                                                   day: "2-digit",
+                                                   month: "short",
+                                                   year: "numeric",
+                                                   hour: "2-digit",
+                                                   minute: "2-digit"
+                                                 })
+                                                 : "-"}
+                                            </td>
                                             <td>{el.ticketId}</td>
                                             <td>{el.storeId?.storeName}</td>
                                             <td>{el.expenseHeadId?.name}</td>
+                                            <td>{el.natureOfExpense}</td>
                                             <td>₹ {el.amount}</td>
                                             <td>
                                                 {el.currentStatus === "Closed" ? (
@@ -171,7 +185,7 @@ export default function ClosedTickets() {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="text-center text-muted">
+                                        <td colSpan="9" className="text-center text-muted">
                                             No Closed Tickets
                                         </td>
                                     </tr>
