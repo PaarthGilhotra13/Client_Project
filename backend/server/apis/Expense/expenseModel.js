@@ -38,10 +38,12 @@ const expenseSchema = new mongoose.Schema({
     },
 
     // 🔹 FIRST TIME FM UPLOAD
-    attachment: {
-        type: String,
-        default: ""
-    },
+    attachment: [
+        {
+            type: String
+        }
+    ],
+
 
     // 🔹 CURRENT FLOW TRACKING
     currentApprovalLevel: {
@@ -166,6 +168,6 @@ const expenseSchema = new mongoose.Schema({
     executionUploadedAt: {
         type: Date,
     },
-});
+},{ timestamps: true });
 
 module.exports = mongoose.model("expenseData", expenseSchema);

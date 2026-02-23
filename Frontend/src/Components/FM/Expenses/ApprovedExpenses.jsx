@@ -96,6 +96,66 @@ export default function ApprovedExpenses() {
     setInvoiceFile(null);
     setFmComment("");
   };
+  const handleUploadDocs = () => {
+    let isValid = true;
+
+    if (!wcrFile) {
+      setWcrError(true);
+      isValid = false;
+    }
+
+    if (!invoiceFile) {
+      setInvoiceError(true);
+      isValid = false;
+    }
+
+    if (!fmComment.trim()) {
+      setFmCommentError(true);
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    const formData = new FormData();
+    formData.append("expenseId", selectedExpense._id);
+    formData.append("wcrAttachment", wcrFile);
+    formData.append("invoiceAttachment", invoiceFile);
+    formData.append("fmComment", fmComment);
+
+    ApiServices.UploadExecutionDocs(formData)
+      .then((res) => {
+        if (res?.data?.success) {
+          Swal.fire("Success", "Documents Uploaded Successfully", "success");
+
+          handleCloseModal();
+
+          // refresh page data
+          setLoad(true);
+          const userId = sessionStorage.getItem("userId");
+
+          ApiServices.MyExpenses({
+            userId,
+            currentStatus: "Approved",
+            currentApprovalLevel: "FM",
+            postApprovalStage: "FM_PENDING"
+          })
+            .then((res) => {
+              setData(res?.data?.success ? res.data.data || [] : []);
+              setLoad(false);
+            })
+            .catch(() => {
+              setData([]);
+              setLoad(false);
+            });
+
+        } else {
+          Swal.fire("Error", res?.data?.message || "Upload Failed", "error");
+        }
+      })
+      .catch(() => {
+        Swal.fire("Error", "Something went wrong", "error");
+      });
+  };
 
   return (
     <main className="main" id="main">
@@ -202,8 +262,8 @@ export default function ApprovedExpenses() {
                   <button
                     key={i}
                     className={`btn me-1 ${currentPage === i + 1
-                        ? "btn-primary"
-                        : "btn-light"
+                      ? "btn-primary"
+                      : "btn-light"
                       }`}
                     onClick={() => setCurrentPage(i + 1)}
                   >

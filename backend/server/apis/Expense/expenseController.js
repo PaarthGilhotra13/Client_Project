@@ -13,7 +13,9 @@ const add = (req, res) => {
     if (!req.body.amount) errMsgs.push("amount is required");
     if (!req.body.policy) errMsgs.push("policy is required");
     if (!req.body.raisedBy) errMsgs.push("raisedBy is required");
-    if (!req.file) errMsgs.push("attachment is required");
+    if (!req.files || req.files.length === 0)
+        errMsgs.push("At least one attachment is required");
+
 
     if (errMsgs.length > 0) {
         return res.send({
@@ -62,7 +64,7 @@ const add = (req, res) => {
                     expenseObj.policyId = null;
                     expenseObj.postApprovalStage = null;
                     // 🔥 CAPEX always starts from ZONAL_HEAD
-                    expenseObj.attachment = req.file.path;
+                    expenseObj.attachment = req.files.map(file => file.path);
                     expenseObj.currentApprovalLevel = "ZONAL_HEAD";
                     expenseObj.currentStatus = "Pending";
                     expenseObj.raisedBy = req.body.raisedBy;
@@ -138,7 +140,7 @@ const add = (req, res) => {
 
                         // ✅ Backend approval policy (amount-based)
                         expenseObj.policyId = policyData._id;
-                        expenseObj.attachment = req.file.path;
+                        expenseObj.attachment = req.files.map(file => file.path);
                         expenseObj.currentApprovalLevel = nextApprovalLevel;
                         expenseObj.currentStatus = "Pending";
                         expenseObj.raisedBy = req.body.raisedBy;
@@ -329,6 +331,7 @@ const myExpenses = (req, res) => {
         .find(filter)
         .populate("storeId expenseHeadId policyId")
         .populate("holdHistory.heldBy", "name designation")
+        .populate("raisedBy", "name designation")
         .sort({ createdAt: -1 })
         .then((data) => {
             res.send({

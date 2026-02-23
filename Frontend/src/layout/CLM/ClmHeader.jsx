@@ -14,7 +14,7 @@ export default function ClmHeader() {
   const [selectedNotify, setSelectedNotify] = useState(null);
 
   const nav = useNavigate();
-  const unreadCount = data.length;
+  // const unreadCount = data.length;
 
   const addSidebar = () => document.body.classList.toggle('toggle-sidebar');
 
@@ -121,12 +121,12 @@ export default function ClmHeader() {
                   <span>{profile?.jobTitle || ""}</span>
                 </li>
                 <li><hr className="dropdown-divider" /></li>
-                <li>
+                {/* <li>
                   <Link to="/clm/clmProfile" className="dropdown-item d-flex align-items-center">
                     <i className="bi bi-person" />
                     <span>My Profile</span>
                   </Link>
-                </li>
+                </li> */}
                 <li><hr className="dropdown-divider" /></li>
                 <li>
                   <span onClick={logoutfun} className="dropdown-item d-flex align-items-center">

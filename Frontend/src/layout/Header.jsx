@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ScaleLoader } from 'react-spinners';
-import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import ApiServices from '../ApiServices';
 import moment from 'moment';

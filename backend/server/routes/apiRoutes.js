@@ -158,7 +158,7 @@ routes.post("/store/delete", storeController.delStore)
 routes.post("/store/changeStatus", storeController.changeStatus)
 
 // Expense 
-routes.post("/expense/add", upload.single("attachment"), expenseController.add)
+routes.post("/expense/add", upload.array("attachment", 5) , expenseController.add)
 routes.post("/expense/all", expenseController.getAll)
 routes.post("/expense/single", expenseController.getSingle)
 // routes.post("/expense/changeStatus",expenseController.changeStatus)
