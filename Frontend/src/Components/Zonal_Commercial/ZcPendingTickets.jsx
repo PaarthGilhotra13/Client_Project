@@ -114,7 +114,7 @@ export default function ZcPendingTickets() {
 <<<<<<< Updated upstream
         ApiServices.VerifyAndCloseExpense({
             expenseId: selected._id,
-            prismId,
+            prismIrd,
             approverId: userId
         })
             .then((res) => {
