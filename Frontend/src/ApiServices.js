@@ -4,12 +4,7 @@ const getToken = () => ({
    authorization: sessionStorage.getItem("token")
 })
 class ApiServices {
-   // getToken() {
-   //    let obj = { authorization: sessionStorage.getItem("token") }
-   //    return obj
-   // }
-
-
+ 
    //Employee
    AddEmployee(data) {
       return axios.post(BaseURL + "/apis/employee/add", data, { headers: getToken() })
@@ -461,10 +456,6 @@ class ApiServices {
       return axios.post(BaseURL + "/apis/user/changePassword", data, { headers: getToken() })
    }
 
-   //Dashboard
-   // Dashboard() {
-   //    return axios.post(BaseURL + "/apis/dashboard", null, { headers: getToken() })
-   // }
    Dashboard() {
       return axios.get(BaseURL + "/apis/dashboard", { headers: getToken() });
    }

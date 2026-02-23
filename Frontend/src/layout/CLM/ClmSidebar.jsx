@@ -10,7 +10,11 @@ export default function ClmSidebar() {
     <>
       {/* ======= Sidebar ======= */}
       <aside id="sidebar" className="sidebar">
-        <ul className="sidebar-nav" id="sidebar-nav" style={{ cursor: "default" }}>
+        <ul
+          className="sidebar-nav"
+          id="sidebar-nav"
+          style={{ cursor: "default" }}
+        >
           {/* Start Dashboard Nav */}
           <li className="nav-item">
             <Link
@@ -22,18 +26,7 @@ export default function ClmSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/clm/viewAnnouncement"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-megaphone" />
-              <span>Announcement</span>
-            </Link>
-          </li> */}
           {/* End Dashboard Nav */}
-
 
           {/* Start Expense Nav */}
           <li className="nav-item">
@@ -51,7 +44,7 @@ export default function ClmSidebar() {
               className="nav-content collapse "
               data-bs-parent="#sidebar-nav"
             >
-               <li>
+              <li>
                 <Link to={"/clm/approvedExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-check-circle fs-6" />
                   <span>Approved </span>
@@ -70,10 +63,7 @@ export default function ClmSidebar() {
                 </Link>
               </li>
               <li>
-                <Link
-                  to={"/clm/rejectedExpenses"}
-                  onClick={handleSidebarClose}
-                >
+                <Link to={"/clm/rejectedExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-x-circle fs-6" />
                   <span>Rejected</span>
                 </Link>
@@ -81,26 +71,6 @@ export default function ClmSidebar() {
             </ul>
           </li>
           {/* End Expenses Nav */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/dailyProgress"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-clipboard-check" />
-              <span>History</span>
-            </Link>
-          </li> */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/myProfile"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-person" />
-              <span>My Profile</span>
-            </Link>
-          </li> */}
         </ul>
       </aside>
       {/* End Sidebar*/}

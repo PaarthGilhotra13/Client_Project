@@ -24,9 +24,7 @@ export default function ZCHeader() {
     if (!id) return;
 
     const requestData = { userId: id };
-    // let apiCall;
-    // if (userType == "9") apiCall = ApiServices.GetAllZonalCommercial;
-
+    
      ApiServices.GetAllZonalCommercial(requestData)
       .then((res) => {
         const empProfile = res?.data?.data[0] || null;
@@ -81,19 +79,6 @@ export default function ZCHeader() {
         <nav className="header-nav ms-auto">
           <ul className="d-flex align-items-center">
 
-            {/* 🔔 NOTIFICATION BELL (PROFILE SE PEHLE) */}
-            {/* <li className="nav-item pe-3">
-              <span
-                className="nav-link position-relative"
-                style={{ cursor: "pointer" }}
-                onClick={() => setShowNotifyPanel(true)}
-              >
-                <i className="bi bi-bell fs-5"></i>
-                {unreadCount > 0 && (
-                  <span className="notify-badge">{unreadCount}</span>
-                )}
-              </span>
-            </li> */}
 
             {/* 👤 PROFILE */}
             <li className="nav-item dropdown pe-3">

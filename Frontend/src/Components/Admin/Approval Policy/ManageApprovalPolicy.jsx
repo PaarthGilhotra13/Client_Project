@@ -85,7 +85,7 @@ export default function ManageApprovalPolicy() {
 
   const currentPolicies = activePolicies.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   // ================= CSV =================
@@ -157,9 +157,7 @@ export default function ManageApprovalPolicy() {
                 {currentPolicies.length ? (
                   currentPolicies.map((el, index) => (
                     <tr key={el._id}>
-                      <td>
-                        {(currentPage - 1) * itemsPerPage + index + 1}
-                      </td>
+                      <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td>{el.minAmount}</td>
                       <td>{el.maxAmount}</td>
                       <td>{el.approvalLevels?.join(" → ")}</td>
@@ -212,8 +210,9 @@ export default function ManageApprovalPolicy() {
           {[...Array(totalPages)].map((_, i) => (
             <button
               key={i}
-              className={`btn me-1 ${currentPage === i + 1 ? "btn-primary" : "btn-light"
-                }`}
+              className={`btn me-1 ${
+                currentPage === i + 1 ? "btn-primary" : "btn-light"
+              }`}
               onClick={() => setCurrentPage(i + 1)}
             >
               {i + 1}

@@ -23,7 +23,6 @@ export default function AllApprovedExpenses() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
@@ -41,31 +40,40 @@ export default function AllApprovedExpenses() {
     ApiServices.AdminExpensesByStatus({ status: "Approved" })
       .then((res) => {
         if (res?.data?.success) {
-
           const list = res.data.data || [];
 
           /* 🔥 APPLY SAME FILTER LOGIC */
           const filteredList = list.filter((e) => {
             const createdDate = new Date(e.createdAt);
 
-            if (appliedFilters.date &&
-              createdDate.getDate() !== Number(appliedFilters.date))
+            if (
+              appliedFilters.date &&
+              createdDate.getDate() !== Number(appliedFilters.date)
+            )
               return false;
 
-            if (appliedFilters.month &&
-              createdDate.getMonth() + 1 !== Number(appliedFilters.month))
+            if (
+              appliedFilters.month &&
+              createdDate.getMonth() + 1 !== Number(appliedFilters.month)
+            )
               return false;
 
-            if (appliedFilters.year &&
-              createdDate.getFullYear() !== Number(appliedFilters.year))
+            if (
+              appliedFilters.year &&
+              createdDate.getFullYear() !== Number(appliedFilters.year)
+            )
               return false;
 
-            if (appliedFilters.state &&
-              e.storeId?.stateId !== appliedFilters.state)
+            if (
+              appliedFilters.state &&
+              e.storeId?.stateId !== appliedFilters.state
+            )
               return false;
 
-            if (appliedFilters.zone &&
-              e.storeId?.zoneId !== appliedFilters.zone)
+            if (
+              appliedFilters.zone &&
+              e.storeId?.zoneId !== appliedFilters.zone
+            )
               return false;
 
             return true;
@@ -75,11 +83,10 @@ export default function AllApprovedExpenses() {
 
           const total = filteredList.reduce(
             (sum, e) => sum + Number(e.amount || 0),
-            0
+            0,
           );
 
           setTotalApprovedAmount(total);
-
         } else {
           setData([]);
           setTotalApprovedAmount(0);
@@ -91,27 +98,26 @@ export default function AllApprovedExpenses() {
       .finally(() => setLoad(false));
   };
 
-
   useEffect(() => {
     fetchApproved();
   }, []);
 
   const sortedData = [...data].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
   );
   /* ================= SEARCH FILTER ================= */
   const filteredData = sortedData.filter(
     (e) =>
       e.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       e.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      e.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   /* ================= PAGINATION ================= */
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const currentData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   /* ================= CSV DATA ================= */
@@ -122,9 +128,7 @@ export default function AllApprovedExpenses() {
     ExpenseHead: e.expenseHeadId?.name,
     Amount: e.amount,
     ApprovedBy: e.actionBy,
-    ApprovedOn: e.actionAt
-      ? new Date(e.actionAt).toLocaleDateString()
-      : "-",
+    ApprovedOn: e.actionAt ? new Date(e.actionAt).toLocaleDateString() : "-",
   }));
 
   /* ================= MODAL ================= */
@@ -161,8 +165,7 @@ export default function AllApprovedExpenses() {
           {/* 🔥 TOTAL */}
           <div className="container-fluid mt-3">
             <h6 className="fw-bold text-success">
-              Total Approved Amount : ₹{" "}
-              {totalApprovedAmount.toLocaleString()}
+              Total Approved Amount : ₹ {totalApprovedAmount.toLocaleString()}
             </h6>
           </div>
 
@@ -215,20 +218,18 @@ export default function AllApprovedExpenses() {
                   {currentData.length > 0 ? (
                     currentData.map((e, index) => (
                       <tr key={e._id}>
+                        <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td>
-                          {(currentPage - 1) * itemsPerPage + index + 1}
-                        </td>
-                        <td>
-                            {e.createdAt
-                              ? new Date(e.createdAt).toLocaleString("en-IN", {
+                          {e.createdAt
+                            ? new Date(e.createdAt).toLocaleString("en-IN", {
                                 day: "2-digit",
                                 month: "short",
                                 year: "numeric",
                                 hour: "2-digit",
-                                minute: "2-digit"
+                                minute: "2-digit",
                               })
-                              : "-"}
-                          </td>
+                            : "-"}
+                        </td>
                         <td>{e.ticketId}</td>
                         <td>{e.storeId?.storeName || "-"}</td>
                         <td>{e.expenseHeadId?.name || "-"}</td>
@@ -239,9 +240,7 @@ export default function AllApprovedExpenses() {
                             : "-"}
                         </td>
                         <td>
-                          <span className="badge bg-success">
-                            Approved
-                          </span>
+                          <span className="badge bg-success">Approved</span>
                         </td>
                         <td>
                           <button
@@ -278,10 +277,9 @@ export default function AllApprovedExpenses() {
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i}
-                    className={`btn me-1 ${currentPage === i + 1
-                      ? "btn-primary"
-                      : "btn-light"
-                      }`}
+                    className={`btn me-1 ${
+                      currentPage === i + 1 ? "btn-primary" : "btn-light"
+                    }`}
                     onClick={() => setCurrentPage(i + 1)}
                   >
                     {i + 1}
@@ -309,7 +307,6 @@ export default function AllApprovedExpenses() {
         >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
-
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
                 <button
@@ -321,11 +318,12 @@ export default function AllApprovedExpenses() {
 
               <div className="modal-body px-4">
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-<div className="row g-3">
-
+                  <div className="row g-3">
                     <div className="col-md-6">
                       <div className="text-muted small">Ticket ID</div>
-                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
+                      <div className="fw-semibold">
+                        {selectedExpense.ticketId}
+                      </div>
                     </div>
 
                     <div className="col-md-6">
@@ -379,7 +377,6 @@ export default function AllApprovedExpenses() {
                         Approved
                       </span>
                     </div>
-
                   </div>
                   {/* SAME DETAILS */}
 
@@ -387,10 +384,8 @@ export default function AllApprovedExpenses() {
                     expense={selectedExpense}
                     approvalHistory={approvalHistory}
                   />
-
                 </div>
               </div>
-
             </div>
           </div>
         </div>

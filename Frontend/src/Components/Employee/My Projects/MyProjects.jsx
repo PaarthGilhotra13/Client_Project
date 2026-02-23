@@ -57,11 +57,6 @@ export default function MyProjects() {
                                                                 <p lassName="card-text"> <strong>Project Technology :</strong> {el?.projectId?.technology} </p>
                                                                 <p lassName="card-text"> <strong>Project Client :</strong> {el?.projectId?.client} </p>
                                                             </div>
-                                                            {/* <div className="card-text ms-3 mb-3">
-                                                                {el?.status == true ?
-                                                                    <button className="btn btn-success">Active</button>
-                                                                    : <button className="btn btn-danger">Inactive</button>}
-                                                            </div> */}
                                                             <div className="card-footer">
                                                                 <Link to={"/employee/viewProjectDetails/" + el?._id} type="button" className="btn" style={{ background: "#6776f4", color: "white" }}>
                                                                     View Details

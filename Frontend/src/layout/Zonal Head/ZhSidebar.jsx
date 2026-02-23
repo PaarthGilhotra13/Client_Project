@@ -10,7 +10,11 @@ export default function ZhSidebar() {
     <>
       {/* ======= Sidebar ======= */}
       <aside id="sidebar" className="sidebar">
-        <ul className="sidebar-nav" id="sidebar-nav" style={{ cursor: "default" }}>
+        <ul
+          className="sidebar-nav"
+          id="sidebar-nav"
+          style={{ cursor: "default" }}
+        >
           {/* Start Dashboard Nav */}
           <li className="nav-item">
             <Link
@@ -22,16 +26,6 @@ export default function ZhSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/ZonalHead/viewAnnouncement"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-megaphone" />
-              <span>Announcement</span>
-            </Link>
-          </li> */}
           {/* End Dashboard Nav */}
 
           {/* Start Expense Nav */}
@@ -51,19 +45,28 @@ export default function ZhSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/ZonalHead/approvedExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/ZonalHead/approvedExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-check-circle fs-6" />
                   <span>Approved </span>
                 </Link>
               </li>
               <li>
-                <Link to={"/ZonalHead/pendingExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/ZonalHead/pendingExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-clock fs-6" />
                   <span>Pending </span>
                 </Link>
               </li>
               <li>
-                <Link to={"/ZonalHead/holdExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/ZonalHead/holdExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-pause-circle fs-6" />
                   <span>Hold </span>
                 </Link>
@@ -80,26 +83,6 @@ export default function ZhSidebar() {
             </ul>
           </li>
           {/* End Expenses Nav */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/dailyProgress"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-clipboard-check" />
-              <span>History</span>
-            </Link>
-          </li> */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/fm/trackApproval"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-hourglass-split text-warning" />
-              <span>Track Approval</span>
-            </Link>
-          </li> */}
         </ul>
       </aside>
       {/* End Sidebar*/}

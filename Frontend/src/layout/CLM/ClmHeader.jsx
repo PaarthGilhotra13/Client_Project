@@ -87,20 +87,7 @@ export default function ClmHeader() {
           <ul className="d-flex align-items-center">
 
             {/* 🔔 NOTIFICATION BELL (PROFILE SE PEHLE) */}
-            {/* <li className="nav-item pe-3">
-              <span
-                className="nav-link position-relative"
-                style={{ cursor: "pointer" }}
-                onClick={() => setShowNotifyPanel(true)}
-              >
-                <i className="bi bi-bell fs-5"></i>
-                {unreadCount > 0 && (
-                  <span className="notify-badge">{unreadCount}</span>
-                )}
-              </span>
-            </li> */}
-
-            {/* 👤 PROFILE */}
+                        {/* 👤 PROFILE */}
             <li className="nav-item dropdown pe-3">
               <Link
                 className="nav-link nav-profile d-flex align-items-center pe-0"
@@ -121,12 +108,7 @@ export default function ClmHeader() {
                   <span>{profile?.jobTitle || ""}</span>
                 </li>
                 <li><hr className="dropdown-divider" /></li>
-                {/* <li>
-                  <Link to="/clm/clmProfile" className="dropdown-item d-flex align-items-center">
-                    <i className="bi bi-person" />
-                    <span>My Profile</span>
-                  </Link>
-                </li> */}
+                
                 <li><hr className="dropdown-divider" /></li>
                 <li>
                   <span onClick={logoutfun} className="dropdown-item d-flex align-items-center">

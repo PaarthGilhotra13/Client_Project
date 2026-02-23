@@ -16,7 +16,7 @@ export default function Footer() {
                     <div className="copyright">
                         © Copyright{" "}
                         <strong>
-                            @<span>कर्मIO</span>
+                            @<span>R&M Tools</span>
                         </strong>
                         . All Rights Reserved
                     </div>

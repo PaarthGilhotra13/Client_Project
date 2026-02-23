@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import ApiServices from '../../ApiServices';
-import moment from 'moment';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import ApiServices from "../../ApiServices";
+import moment from "moment";
 
 export default function BfHeader() {
   const [profile, setProfile] = useState(null);
@@ -16,7 +16,7 @@ export default function BfHeader() {
   const nav = useNavigate();
   // const unreadCount = data.length;
 
-  const addSidebar = () => document.body.classList.toggle('toggle-sidebar');
+  const addSidebar = () => document.body.classList.toggle("toggle-sidebar");
 
   useEffect(() => {
     const id = sessionStorage.getItem("userId");
@@ -45,13 +45,13 @@ export default function BfHeader() {
       {
         title: "New Announcement",
         message: "New policy update released.",
-        createdAt: new Date()
+        createdAt: new Date(),
       },
       {
         title: "Meeting Reminder",
         message: "Monthly meeting at 4 PM.",
-        createdAt: new Date()
-      }
+        createdAt: new Date(),
+      },
     ]);
   }, []);
 
@@ -72,9 +72,15 @@ export default function BfHeader() {
 
   return (
     <>
-      <header id="header" className="header fixed-top d-flex align-items-center">
+      <header
+        id="header"
+        className="header fixed-top d-flex align-items-center"
+      >
         <div className="d-flex align-items-center justify-content-start">
-          <Link to="/BusinessFinance" className="logo d-flex align-items-center ms-3">
+          <Link
+            to="/BusinessFinance"
+            className="logo d-flex align-items-center ms-3"
+          >
             <img src="/assets/img/logo4.png" alt="Logo" />
             <span className="d-lg-block" style={{ color: "#25353e" }}>
               R&M Tool
@@ -85,21 +91,6 @@ export default function BfHeader() {
 
         <nav className="header-nav ms-auto">
           <ul className="d-flex align-items-center">
-
-            {/* 🔔 NOTIFICATION BELL (PROFILE SE PEHLE)
-            <li className="nav-item pe-3">
-              <span
-                className="nav-link position-relative"
-                style={{ cursor: "pointer" }}
-                onClick={() => setShowNotifyPanel(true)}
-              >
-                <i className="bi bi-bell fs-5"></i>
-                {unreadCount > 0 && (
-                  <span className="notify-badge">{unreadCount}</span>
-                )}
-              </span>
-            </li> */}
-
             {/* 👤 PROFILE */}
             <li className="nav-item dropdown pe-3">
               <Link
@@ -120,23 +111,23 @@ export default function BfHeader() {
                   <h6>{profile?.name || "Clm"}</h6>
                   <span>{profile?.jobTitle || ""}</span>
                 </li>
-                <li><hr className="dropdown-divider" /></li>
-                {/* <li>
-                  <Link to="/BusinessFinance/bfprofile" className="dropdown-item d-flex align-items-center">
-                    <i className="bi bi-person" />
-                    <span>My Profile</span>
-                  </Link>
-                </li> */}
-                <li><hr className="dropdown-divider" /></li>
                 <li>
-                  <span onClick={logoutfun} className="dropdown-item d-flex align-items-center">
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>
+                  <span
+                    onClick={logoutfun}
+                    className="dropdown-item d-flex align-items-center"
+                  >
                     <i className="bi bi-box-arrow-right" />
                     <span>Logout</span>
                   </span>
                 </li>
               </ul>
             </li>
-
           </ul>
         </nav>
       </header>

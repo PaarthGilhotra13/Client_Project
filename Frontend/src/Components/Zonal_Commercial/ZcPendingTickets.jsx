@@ -1,4 +1,3 @@
-// Zonal Commercial - Pending Tickets
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { ScaleLoader } from "react-spinners";
@@ -60,7 +59,7 @@ export default function ZcPendingTickets() {
         ApiServices.VerifyAndCloseExpense({
             expenseId: selected._id,
             prismId,
-            approverId: userId   // ✅ THIS IS THE FIX
+            approverId: userId   
         })
             .then((res) => {
                 if (res?.data?.success) {
@@ -125,7 +124,6 @@ export default function ZcPendingTickets() {
                 </div>
             )}
 
-            {/* ===== MODAL ===== */}
             {/* ===== MODAL ===== */}
             {showModal && selected && (
                 <div

@@ -10,7 +10,11 @@ export default function FmSidebar() {
     <>
       {/* ======= Sidebar ======= */}
       <aside id="sidebar" className="sidebar">
-        <ul className="sidebar-nav" id="sidebar-nav" style={{ cursor: "default" }}>
+        <ul
+          className="sidebar-nav"
+          id="sidebar-nav"
+          style={{ cursor: "default" }}
+        >
           {/* Start Dashboard Nav */}
           <li className="nav-item">
             <Link
@@ -22,16 +26,6 @@ export default function FmSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/fm/viewAnnouncement"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-megaphone" />
-              <span>Announcement</span>
-            </Link>
-          </li> */}
           {/* End Dashboard Nav */}
 
           <li className="nav-item">
@@ -80,19 +74,13 @@ export default function FmSidebar() {
                 </Link>
               </li>
               <li>
-                <Link
-                  to={"/fm/rejectedExpenses"}
-                  onClick={handleSidebarClose}
-                >
+                <Link to={"/fm/rejectedExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-x-circle fs-6" />
                   <span>Rejected</span>
                 </Link>
               </li>
               <li>
-                <Link
-                  to={"/fm/closedExpenses"}
-                  onClick={handleSidebarClose}
-                >
+                <Link to={"/fm/closedExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-door-closed fs-6" />
                   <span>Closed Expenses</span>
                 </Link>
@@ -100,26 +88,6 @@ export default function FmSidebar() {
             </ul>
           </li>
           {/* End Expenses Nav */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/dailyProgress"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-clipboard-check" />
-              <span>History</span>
-            </Link>
-          </li> */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/fm/trackApproval"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-hourglass-split text-warning" />
-              <span>Track Approval</span>
-            </Link>
-          </li> */}
         </ul>
       </aside>
       {/* End Sidebar*/}

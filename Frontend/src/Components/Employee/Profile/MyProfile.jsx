@@ -340,14 +340,7 @@ export default function MyProfile() {
                                                         {profile.contact}
                                                     </div>
                                                 </div>
-                                                {/* <div className="row">
-                                                    <div className="col-lg-3 col-md-4 label">Experience</div>
-                                                    <div className="col-lg-9 col-md-8">{profile.experience}</div>
-                                                </div>
-                                                <div className="row">
-                                                    <div className="col-lg-3 col-md-4 label">Total Coins</div>
-                                                    <div className="col-lg-9 col-md-8">{profile.coins}</div>
-                                                </div> */}
+                                               
                                             </div>
                                             <div
                                                 className="tab-pane fade profile-edit pt-3"
@@ -442,23 +435,7 @@ export default function MyProfile() {
                                                             />
                                                         </div>
                                                     </div>
-                                                    {/* <div className="row mb-3">
-                                                        <label
-                                                            htmlFor="Experience"
-                                                            className="col-md-4 col-lg-3 col-form-label"
-                                                        >
-                                                            Experience
-                                                        </label>
-                                                        <div className="col-md-8 col-lg-9">
-                                                            <input
-                                                                name="experience"
-                                                                type="text"
-                                                                className="form-control"
-                                                                id="Experience"
-                                                                value={experience} onChange={(e) => { setExperience(e.target.value) }}
-                                                            />
-                                                        </div>
-                                                    </div> */}
+                                                    
                                                     <div className="row mb-3">
                                                         <label
                                                             htmlFor="github"

@@ -1,4 +1,3 @@
-// Zonal Commercial - Approved Tickets
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { ScaleLoader } from "react-spinners";

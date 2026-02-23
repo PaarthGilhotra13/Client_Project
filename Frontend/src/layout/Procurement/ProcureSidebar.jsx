@@ -10,7 +10,11 @@ export default function ProcureSidebar() {
     <>
       {/* ======= Sidebar ======= */}
       <aside id="sidebar" className="sidebar">
-        <ul className="sidebar-nav" id="sidebar-nav" style={{ cursor: "default" }}>
+        <ul
+          className="sidebar-nav"
+          id="sidebar-nav"
+          style={{ cursor: "default" }}
+        >
           {/* Start Dashboard Nav */}
           <li className="nav-item">
             <Link
@@ -22,18 +26,7 @@ export default function ProcureSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/Procurement/viewAnnouncement"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-megaphone" />
-              <span>Announcement</span>
-            </Link>
-          </li> */}
           {/* End Dashboard Nav */}
-
 
           {/* Start Expense Nav */}
           <li className="nav-item">
@@ -52,19 +45,28 @@ export default function ProcureSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/Procurement/approvedExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/Procurement/approvedExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-check-circle fs-6" />
                   <span>Approved </span>
                 </Link>
               </li>
               <li>
-                <Link to={"/Procurement/pendingExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/Procurement/pendingExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-clock fs-6" />
                   <span>Pending </span>
                 </Link>
               </li>
               <li>
-                <Link to={"/Procurement/holdExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/Procurement/holdExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-pause-circle fs-6" />
                   <span>Hold </span>
                 </Link>
@@ -81,26 +83,6 @@ export default function ProcureSidebar() {
             </ul>
           </li>
           {/* End Expenses Nav */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/dailyProgress"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-clipboard-check" />
-              <span>History</span>
-            </Link>
-          </li> */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/myProfile"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-person" />
-              <span>My Profile</span>
-            </Link>
-          </li> */}
         </ul>
       </aside>
       {/* End Sidebar*/}

@@ -55,10 +55,7 @@ export default function Header() {
       })
       .catch((err) => console.log("Error fetching profile:", err));
 
-    // Fetch announcements
-    // ApiServices.GetAllAnnouncement()
-    //   .then((res) => setData(res?.data?.data || []))
-    //   .catch((err) => console.log("Error fetching announcements:", err));
+   
   }, []);
 
   function logoutfun() {
@@ -84,15 +81,6 @@ export default function Header() {
       }
     });
   }
-
-  // // Show loader while profile is null
-  // if (!profile) {
-  //   return (
-  //     <div className="text-center my-3">
-  //       <ScaleLoader color="#25353e" loading={true} />
-  //     </div>
-  //   );
-  // }
 
   return (
     <>

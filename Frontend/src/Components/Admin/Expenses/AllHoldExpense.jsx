@@ -34,30 +34,39 @@ export default function AllHoldExpense() {
     ApiServices.AdminExpensesByStatus({ status: "Hold" })
       .then((res) => {
         if (res?.data?.success) {
-
           const list = res.data.data || [];
 
           const filteredList = list.filter((e) => {
             const createdDate = new Date(e.createdAt);
 
-            if (appliedFilters.date &&
-              createdDate.getDate() !== Number(appliedFilters.date))
+            if (
+              appliedFilters.date &&
+              createdDate.getDate() !== Number(appliedFilters.date)
+            )
               return false;
 
-            if (appliedFilters.month &&
-              createdDate.getMonth() + 1 !== Number(appliedFilters.month))
+            if (
+              appliedFilters.month &&
+              createdDate.getMonth() + 1 !== Number(appliedFilters.month)
+            )
               return false;
 
-            if (appliedFilters.year &&
-              createdDate.getFullYear() !== Number(appliedFilters.year))
+            if (
+              appliedFilters.year &&
+              createdDate.getFullYear() !== Number(appliedFilters.year)
+            )
               return false;
 
-            if (appliedFilters.state &&
-              e.storeId?.stateId !== appliedFilters.state)
+            if (
+              appliedFilters.state &&
+              e.storeId?.stateId !== appliedFilters.state
+            )
               return false;
 
-            if (appliedFilters.zone &&
-              e.storeId?.zoneId !== appliedFilters.zone)
+            if (
+              appliedFilters.zone &&
+              e.storeId?.zoneId !== appliedFilters.zone
+            )
               return false;
 
             return true;
@@ -67,11 +76,10 @@ export default function AllHoldExpense() {
 
           const total = filteredList.reduce(
             (sum, e) => sum + Number(e.amount || 0),
-            0
+            0,
           );
 
           setTotalAmount(total);
-
         } else {
           setData([]);
           setTotalAmount(0);
@@ -80,23 +88,23 @@ export default function AllHoldExpense() {
       .finally(() => setLoad(false));
   };
 
-
   useEffect(() => {
     fetchHold();
   }, []);
 
   /* ================= SEARCH ================= */
-  const filteredData = data.filter((el) =>
-    el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredData = data.filter(
+    (el) =>
+      el.ticketId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.storeId?.storeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      el.expenseHeadId?.name?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   /* ================= PAGINATION ================= */
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentExpenses = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   /* ================= CSV ================= */
@@ -108,9 +116,7 @@ export default function AllHoldExpense() {
     Amount: el.amount,
     Status: "Hold",
     Comment: el.comment || "-",
-    ActionDate: el.actionAt
-      ? new Date(el.actionAt).toLocaleDateString()
-      : "-",
+    ActionDate: el.actionAt ? new Date(el.actionAt).toLocaleDateString() : "-",
   }));
 
   /* ================= MODAL ================= */
@@ -177,7 +183,6 @@ export default function AllHoldExpense() {
             </div>
           </div>
 
-
           {/* TABLE */}
           {/* TABLE */}
           <div className="container-fluid">
@@ -210,12 +215,12 @@ export default function AllHoldExpense() {
                           <td>
                             {el.createdAt
                               ? new Date(el.createdAt).toLocaleString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit"
-                              })
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
                               : "-"}
                           </td>
 
@@ -228,9 +233,7 @@ export default function AllHoldExpense() {
                           <td>₹ {el.amount}</td>
 
                           <td>
-                            <span className="badge bg-secondary">
-                              Hold
-                            </span>
+                            <span className="badge bg-secondary">Hold</span>
                           </td>
 
                           <td>{el.holdComment || "-"}</td>
@@ -238,12 +241,12 @@ export default function AllHoldExpense() {
                           <td>
                             {el.updatedAt
                               ? new Date(el.updatedAt).toLocaleString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit"
-                              })
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
                               : "-"}
                           </td>
 
@@ -269,7 +272,6 @@ export default function AllHoldExpense() {
               </div>
             </div>
           </div>
-
         </>
       )}
 
@@ -281,7 +283,6 @@ export default function AllHoldExpense() {
         >
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
-
               <div className="modal-header">
                 <h5 className="modal-title">Expense Details</h5>
                 <button
@@ -294,7 +295,6 @@ export default function AllHoldExpense() {
               <div className="modal-body px-4">
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
                   <div className="row g-3">
-
                     <div className="col-md-6">
                       <div className="text-muted small">Ticket ID</div>
                       <div className="fw-semibold">
@@ -325,16 +325,13 @@ export default function AllHoldExpense() {
 
                     <div className="col-md-6">
                       <div className="text-muted small">Status</div>
-                      <span className="badge bg-secondary px-3 py-2">
-                        Hold
-                      </span>
+                      <span className="badge bg-secondary px-3 py-2">Hold</span>
                     </div>
 
                     <div className="col-md-6">
                       <div className="text-muted small">Hold Comment</div>
                       <div>{selectedExpense.comment || "-"}</div>
                     </div>
-
                   </div>
 
                   {/* Timeline */}
@@ -342,10 +339,8 @@ export default function AllHoldExpense() {
                     expense={selectedExpense}
                     approvalHistory={approvalHistory}
                   />
-
                 </div>
               </div>
-
             </div>
           </div>
         </div>

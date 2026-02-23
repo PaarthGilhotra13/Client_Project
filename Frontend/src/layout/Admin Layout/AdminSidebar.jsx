@@ -5,8 +5,8 @@ import axios from "axios";
 export default function AdminSidebar() {
   const handleSidebarClose = () => {
     if (window.innerWidth <= 1024) {
-      document.body.classList.remove("toggle-sidebar"); // if you're toggling class on body
-      document.getElementById("sidebar").classList.remove("active"); // if you're toggling class on sidebar
+      document.body.classList.remove("toggle-sidebar"); 
+      document.getElementById("sidebar").classList.remove("active"); 
     }
   };
   return (

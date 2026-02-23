@@ -82,9 +82,9 @@ export default function Login() {
                             style={{
                                 boxShadow: "0 8px 32px 0 rgba(39,44,63,.2)",
                                 borderRadius: "20px",
-                                minWidth: "300px", // Keep a minimum width for smaller screens
-                                maxWidth: "500px", // Max width for larger screens
-                                padding: "2rem", // Space inside the box
+                                minWidth: "300px", 
+                                maxWidth: "500px", 
+                                padding: "2rem", 
                                 zIndex: 20,
                                 backgroundColor: "white",
                             }}

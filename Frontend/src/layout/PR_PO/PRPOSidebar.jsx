@@ -10,7 +10,11 @@ export default function PRPOSidebar() {
     <>
       {/* ======= Sidebar ======= */}
       <aside id="sidebar" className="sidebar">
-        <ul className="sidebar-nav" id="sidebar-nav" style={{ cursor: "default" }}>
+        <ul
+          className="sidebar-nav"
+          id="sidebar-nav"
+          style={{ cursor: "default" }}
+        >
           {/* Start Dashboard Nav */}
           <li className="nav-item">
             <Link
@@ -22,18 +26,8 @@ export default function PRPOSidebar() {
               <span>Dashboard</span>
             </Link>
           </li>
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/PR_PO/viewAnnouncement"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-megaphone" />
-              <span>Announcement</span>
-            </Link>
-          </li> */}
-          {/* End Dashboard Nav */}
 
+          {/* End Dashboard Nav */}
 
           {/* Start Expense Nav */}
           <li className="nav-item">
@@ -52,13 +46,19 @@ export default function PRPOSidebar() {
               data-bs-parent="#sidebar-nav"
             >
               <li>
-                <Link to={"/PR_PO/approvedExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/PR_PO/approvedExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-check-circle fs-6" />
                   <span>Approved </span>
                 </Link>
               </li>
               <li>
-                <Link to={"/PR_PO/pendingExpenses"} onClick={handleSidebarClose}>
+                <Link
+                  to={"/PR_PO/pendingExpenses"}
+                  onClick={handleSidebarClose}
+                >
                   <i className="bi bi-clock fs-6" />
                   <span>Pending </span>
                 </Link>
@@ -79,10 +79,7 @@ export default function PRPOSidebar() {
                 </Link>
               </li>
               <li>
-                <Link
-                  to={"/PR_PO/closedExpenses"}
-                  onClick={handleSidebarClose}
-                >
+                <Link to={"/PR_PO/closedExpenses"} onClick={handleSidebarClose}>
                   <i className="bi bi-door-closed fs-6" />
                   <span>Closed Expenses</span>
                 </Link>
@@ -90,26 +87,6 @@ export default function PRPOSidebar() {
             </ul>
           </li>
           {/* End Expenses Nav */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/dailyProgress"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-clipboard-check" />
-              <span>History</span>
-            </Link>
-          </li> */}
-          {/* <li className="nav-item">
-            <Link
-              className="nav-link collapsed"
-              to={"/employee/myProfile"}
-              onClick={handleSidebarClose}
-            >
-              <i className="bi bi-person" />
-              <span>My Profile</span>
-            </Link>
-          </li> */}
         </ul>
       </aside>
       {/* End Sidebar*/}
