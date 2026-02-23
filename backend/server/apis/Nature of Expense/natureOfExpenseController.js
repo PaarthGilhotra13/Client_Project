@@ -1,7 +1,5 @@
 const NatureOfExpenseModel= require("./natuteOfExpenseModel")
 
-
-
 const add = (req, res) => {
     var errMsgs = []
     if (!req.body.name) {

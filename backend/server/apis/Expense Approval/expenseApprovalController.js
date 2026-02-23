@@ -1103,7 +1103,7 @@ const verifyAndCloseExpense = async (req, res) => {
             level: "ZONAL_COMMERCIAL",
             approverId,
             action: "Closed",
-            comment: prismId,  // ✅ YE HONA CHAHIYE
+            comment: prismId,  
             actionAt: new Date()
         });
         return res.send({
@@ -1174,7 +1174,7 @@ const prpoEmailAndClose = async (req, res) => {
         if (
             expense.currentApprovalLevel !== "PR/PO" ||
             expense.postApprovalStage !== "PRPO_EMAIL" ||
-            expense.currentStatus !== "Pending"   // 🔥 FIX HERE
+            expense.currentStatus !== "Pending"  
         ) {
             return res.send({
                 status: 422,

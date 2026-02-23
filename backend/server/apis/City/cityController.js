@@ -24,7 +24,6 @@ const add = (req, res) => {
     }
     else {
 
-        // 🔁 SAME LOGIC AS ADD STATE
         cityModel.findOne({
             stateId: req.body.stateId,
             zoneId: req.body.zoneId
