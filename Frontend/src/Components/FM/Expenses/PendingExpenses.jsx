@@ -4,7 +4,7 @@ import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import { CSVLink } from "react-csv";
-import ExpenseTimeline from "../../common/ExpenseTimeline";
+import ExpenseDetails from "../../common/ExpenseDetails";
 
 export default function PendingExpense() {
   const [data, setData] = useState([]);
@@ -65,7 +65,6 @@ export default function PendingExpense() {
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
-    console.log("EXPENSE OBJECT:", expense);
     setShowModal(true);
 
     ApiServices.ExpenseHistory({ expenseId: expense._id })
@@ -80,6 +79,7 @@ export default function PendingExpense() {
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
+    setApprovalHistory([]);
     setShowModal(false);
   };
 
@@ -225,130 +225,14 @@ export default function PendingExpense() {
       )}
 
       {/* Modal */}
-      {showModal && selectedExpense && (
-        <div
-          className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Expense Details</h5>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    backgroundColor: "red",
-                    color: "white",
-                    fontWeight: "bold",
-                    border: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    fontSize: "18px",
-                  }}
-                >
-                  &times;
-                </button>
-              </div>
+      <ExpenseDetails
+        show={showModal}
+        onClose={handleCloseModal}
+        expense={selectedExpense}
+        approvalHistory={approvalHistory}
+      />
 
-              <div className="modal-body px-4">
-                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-                  <div className="row g-3">
 
-                    <div className="col-md-6">
-                      <div className="text-muted small">Ticket ID</div>
-                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">Store:</div>
-                      <div className="fw-semibold">{selectedExpense.storeId?.storeName}</div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">Expense Head:</div>
-                      <div className="fw-semibold">{selectedExpense.expenseHeadId?.name}</div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">Amount:</div>
-                      <div className="fw-semibold">₹ {selectedExpense.amount}</div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">Policy:</div>
-                      <div className="fw-semibold">{selectedExpense.policy || "-"}</div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">Nature of Expense:</div>
-                      <div className="fw-semibold">{selectedExpense.natureOfExpense || "-"}</div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">RCA:</div>
-                      <div className="fw-semibold">{selectedExpense.rca || "-"}</div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">Remarks:</div>
-                      <div className="fw-semibold">{selectedExpense.remark || "-"}</div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">Status</div>
-                      <span className="badge bg-warning text-dark px-3 py-2">
-                        Pending
-                      </span>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="text-muted small">Created At:</div>
-                      <div className="fw-semibold">
-                        {new Date(
-                          selectedExpense.createdAt
-                        ).toLocaleDateString()}
-                      </div>
-                    </div>
-                    {/* <div className="col-12 mt-3">
-                      <div className="text-muted small mb-2">Attachments</div>
-
-                      {selectedExpense.attachment && (
-                        <a
-                          href={selectedExpense.attachment}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-primary me-2"
-                        >
-                          Original
-                        </a>
-                      )}
-
-                      {selectedExpense.resubmittedAttachment && (
-                        <a
-                          href={selectedExpense.resubmittedAttachment}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn btn-sm btn-success"
-                        >
-                          Resubmitted
-                        </a>
-                      )}
-
-                      {!selectedExpense.attachment &&
-                        !selectedExpense.resubmittedAttachment && (
-                          <div className="text-muted">No Attachment</div>
-                        )}
-                    </div> */}
-
-                    {/* 🔥 FIXED ATTACHMENT LOGIC (UI SAME) */}
-                    <ExpenseTimeline
-                      expense={selectedExpense}
-                      approvalHistory={approvalHistory}
-                    />
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
