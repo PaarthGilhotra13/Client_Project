@@ -13,8 +13,29 @@ export default function NotFoundPage() {
             if(userType==1){
                 nav("/admin")
             }
-            else{
-                nav("/employee")
+            if(userType==3){
+                nav("/fm")
+            }
+            if(userType==4){
+                nav("/clm")
+            }
+            if(userType==5){
+                nav("/ZonalHead")
+            }
+            if(userType==6){
+                nav("/BusinessFinance")
+            }
+            if(userType==7){
+                nav("/Procurement")
+            }
+            if(userType==8){
+                nav("/PR_PO")
+            }
+            if(userType==9){
+                nav("/ZonalCommercial")
+            }
+            if(userType==10){
+                nav("/MissingBridge")
             }
         }
     }

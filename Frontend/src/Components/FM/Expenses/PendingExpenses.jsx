@@ -225,12 +225,55 @@ export default function PendingExpense() {
       )}
 
       {/* Modal */}
-      <ExpenseDetails
-        show={showModal}
-        onClose={handleCloseModal}
-        expense={selectedExpense}
-        approvalHistory={approvalHistory}
-      />
+      {/* ================= MODAL ================= */}
+      {showModal && selectedExpense && (
+        <div
+          className="modal show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 1055 }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Expense Details</h5>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              <div className="modal-body px-4">
+
+                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+                  <ExpenseDetails
+                    show={showModal}
+                    onClose={handleCloseModal}
+                    expense={selectedExpense}
+                    approvalHistory={approvalHistory}
+                     page="Pending"
+                  />
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
 
     </main>

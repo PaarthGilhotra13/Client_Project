@@ -6,6 +6,7 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
 import { CSVLink } from "react-csv";
+import ExpenseDetails from "../../common/ExpenseDetails";
 
 export default function ApprovedExpenses() {
   const [data, setData] = useState([]);
@@ -75,6 +76,7 @@ export default function ApprovedExpenses() {
   /* ================= VIEW MODAL ================= */
   const handleViewClick = (expense) => {
     setSelectedExpense(expense);
+    setApprovalHistory([]);
     setWcrFile(null);
     setInvoiceFile(null);
     setFmComment("");
@@ -92,6 +94,7 @@ export default function ApprovedExpenses() {
   const handleCloseModal = () => {
     setSelectedExpense(null);
     setShowModal(false);
+    setApprovalHistory([]);
     setWcrFile(null);
     setInvoiceFile(null);
     setFmComment("");
@@ -118,11 +121,12 @@ export default function ApprovedExpenses() {
 
     const formData = new FormData();
     formData.append("expenseId", selectedExpense._id);
+    formData.append("fmId", sessionStorage.getItem("userId")); 
     formData.append("wcrAttachment", wcrFile);
     formData.append("invoiceAttachment", invoiceFile);
     formData.append("fmComment", fmComment);
 
-    ApiServices.UploadExecutionDocs(formData)
+    ApiServices.UploadWcrInvoice(formData)
       .then((res) => {
         if (res?.data?.success) {
           Swal.fire("Success", "Documents Uploaded Successfully", "success");
@@ -319,7 +323,7 @@ export default function ApprovedExpenses() {
               <div className="modal-body px-4">
 
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-                  <div className="row g-3">
+                  {/* <div className="row g-3">
 
                     <div className="col-md-6">
                       <div className="text-muted small">Ticket ID</div>
@@ -378,12 +382,19 @@ export default function ApprovedExpenses() {
                       </span>
                     </div>
 
-                  </div>
+                  </div> */}
 
                   {/* ===== FULL TIMELINE ===== */}
-                  <ExpenseTimeline
+                  {/* <ExpenseTimeline
                     expense={selectedExpense}
                     approvalHistory={approvalHistory}
+                  /> */}
+                  <ExpenseDetails
+                    show={showModal}
+                    onClose={handleCloseModal}
+                    expense={selectedExpense}
+                    approvalHistory={approvalHistory}
+                    page="Approved"
                   />
 
 

@@ -330,7 +330,7 @@ const rejectExpense = async (req, res) => {
 
 const resubmitHeldExpense = async (req, res) => {
     try {
-        const { expenseId, fmComment } = req.body;
+        const { expenseId, fmComment, approverId } = req.body;
 
         if (!expenseId) {
             return res.send({
@@ -366,34 +366,26 @@ const resubmitHeldExpense = async (req, res) => {
             });
         }
 
-        /* ================= CLOUDINARY UPLOAD ================= */
-        if (!req.file) {
-            return res.send({
-                status: 422,
-                success: false,
-                message: "Attachment is required for resubmission"
-            });
-        }
+        /* ================= OPTIONAL FILE UPLOAD ================= */
 
         let uploadedUrl = null;
-        try {
 
-            if (req.file) {
+        if (req.file) {
+            try {
                 uploadedUrl = req.file.path;
+            } catch (err) {
+                return res.send({
+                    status: 422,
+                    success: false,
+                    message: "File upload failed"
+                });
             }
-
-        } catch (err) {
-            return res.send({
-                status: 422,
-                success: false,
-                message: "File upload failed"
-            });
         }
 
         /* ================= PUSH INTO RESUBMISSION HISTORY ================= */
 
         expense.resubmissions.push({
-            attachment: uploadedUrl,
+            attachment: uploadedUrl,   // can be null
             fmComment: fmComment.trim(),
             heldFromLevel: expense.heldFromLevel
         });
@@ -403,13 +395,13 @@ const resubmitHeldExpense = async (req, res) => {
         await expenseApprovalModel.create({
             expenseId: expense._id,
             level: "FM",
-            approverId: req.body.approverId,
+            approverId: approverId,
             action: "Resubmitted",
             comment: fmComment.trim(),
             actionAt: new Date()
         });
 
-        /* ================= MOVE BACK TO SAME LEVEL ================= */
+        /* ================= MOVE BACK TO ORIGINAL LEVEL ================= */
 
         expense.currentStatus = "Pending";
         expense.currentApprovalLevel = expense.heldFromLevel;
@@ -1147,7 +1139,7 @@ const verifyAndCloseExpense = async (req, res) => {
             level: "ZONAL_COMMERCIAL",
             approverId,
             action: "Closed",
-            comment: prismId,  
+            comment: prismId,
             actionAt: new Date()
         });
         return res.send({
@@ -1218,7 +1210,7 @@ const prpoEmailAndClose = async (req, res) => {
         if (
             expense.currentApprovalLevel !== "PR/PO" ||
             expense.postApprovalStage !== "PRPO_EMAIL" ||
-            expense.currentStatus !== "Pending"  
+            expense.currentStatus !== "Pending"
         ) {
             return res.send({
                 status: 422,

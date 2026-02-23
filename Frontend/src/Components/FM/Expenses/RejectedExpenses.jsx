@@ -5,6 +5,7 @@ import ApiServices from "../../../ApiServices";
 import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
+import ExpenseDetails from "../../common/ExpenseDetails";
 
 export default function RejectedExpenses() {
   const [data, setData] = useState([]);
@@ -205,72 +206,14 @@ export default function RejectedExpenses() {
               <div className="modal-body px-4">
 
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-                  <div className="row g-3">
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Ticket ID</div>
-                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Store</div>
-                      <div className="fw-semibold">
-                        {selectedExpense.storeId?.storeName}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Expense Head</div>
-                      <div className="fw-semibold">
-                        {selectedExpense.expenseHeadId?.name}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Amount</div>
-                      <div className="fw-semibold text-success">
-                        ₹ {selectedExpense.amount}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Policy</div>
-                      <div className="fw-semibold">
-                        {selectedExpense.policy || "-"}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Nature of Expense</div>
-                      <div className="fw-semibold">
-                        {selectedExpense.natureOfExpense}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">RCA</div>
-                      <div>{selectedExpense.rca || "-"}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Remarks</div>
-                      <div>{selectedExpense.remark || "-"}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Status</div>
-                      <span className="badge bg-danger px-3 py-2">
-                        Rejected
-                      </span>
-                    </div>
-
-                  </div>
-
-                  {/* ===== FULL TIMELINE ===== */}
-                  <ExpenseTimeline
+                  <ExpenseDetails
+                    show={showModal}
+                    onClose={handleCloseModal}
                     expense={selectedExpense}
                     approvalHistory={approvalHistory}
+                    page="Rejected"
                   />
+
 
 
                 </div>

@@ -6,6 +6,7 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import { CSVLink } from "react-csv";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
+import ExpenseDetails from "../../common/ExpenseDetails";
 
 export default function HoldExpenses() {
   const [data, setData] = useState([]);
@@ -103,18 +104,21 @@ export default function HoldExpenses() {
   /* ================= RESUBMIT ================= */
   const handleResubmit = () => {
 
-    const isFileMissing = !resubmitFile;
     const isCommentMissing = !fmComment.trim();
 
-    setFileError(isFileMissing);
     setCommentError(isCommentMissing);
 
-    if (isFileMissing || isCommentMissing) return;
+    // fileError reset kar do
+    setFileError(false);
+
+    if (isCommentMissing) return;
 
     const formData = new FormData();
     formData.append("expenseId", selectedExpense._id);
     formData.append("approverId", userId);
-    formData.append("resubmittedAttachment", resubmitFile);
+    if (resubmitFile) {
+      formData.append("resubmittedAttachment", resubmitFile);
+    }
     formData.append("fmComment", fmComment);
 
     setSubmitting(true);
@@ -316,88 +320,12 @@ export default function HoldExpenses() {
                 {/* <div className="row g-3"> */}
 
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-                  <div className="row g-3">
-
-                    <div className="col-md-6">
-                      <div>
-                        <div className="text-muted small">Ticket ID</div>
-                        <div className="fw-semibold">{selectedExpense.ticketId}</div>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div>
-                        <div className="text-muted small">Store</div>
-                        <div className="fw-semibold">{selectedExpense.storeId?.storeName}</div>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div>
-                        <div className="text-muted small">Expense Head</div>
-                        <div className="fw-semibold">{selectedExpense.expenseHeadId?.name}</div>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div>
-                        <div className="text-muted small">Amount</div>
-                        <div className="fw-semibold text-success">₹ {selectedExpense.amount}</div>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div>
-                        <div className="text-muted small">Policy</div>
-                        <div className="fw-semibold">{selectedExpense.policy || "-"}</div>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div>
-                        <div className="text-muted small">Nature of Expense</div>
-                        <div className="fw-semibold">{selectedExpense.natureOfExpense}</div>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div>
-                        <div className="text-muted small">RCA</div>
-                        <div>{selectedExpense.rca || "-"}</div>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div>
-                        <div className="text-muted small">Remarks</div>
-                        <div>{selectedExpense.remark || "-"}</div>
-                      </div>
-                    </div>
-
-                    {/* Status + Hold Comment */}
-                    <div className="col-md-6">
-                      <div className="text-muted small">Status</div>
-                      <span className="badge bg-warning text-dark px-3 py-2">
-                        {selectedExpense.currentStatus}
-                      </span>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Latest Hold Comment</div>
-                      <div className="text-danger fw-semibold">
-                        {selectedExpense.holdComment || "-"}
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* ===== ATTACHMENTS ===== */}
-
-
-                  {/* ===== FULL TIMELINE ===== */}
-                  <ExpenseTimeline
+                  <ExpenseDetails
+                    show={showModal}
+                    onClose={handleCloseModal}
                     expense={selectedExpense}
                     approvalHistory={approvalHistory}
+                    page="Hold"
                   />
 
 
@@ -406,7 +334,7 @@ export default function HoldExpenses() {
                   <div className="row mt-4 g-3">
                     <div className="col-md-6">
                       <label className="form-label">
-                        Upload New Attachment (Required)
+                        Upload New Attachment
                       </label>
                       <input
                         type="file"

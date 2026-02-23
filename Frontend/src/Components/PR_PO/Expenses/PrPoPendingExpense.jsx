@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
+import ExpenseDetails from "../../common/ExpenseDetails";
 
 export default function PrPoPendingExpense() {
   const [data, setData] = useState([]);
@@ -320,69 +321,14 @@ export default function PrPoPendingExpense() {
               <div className="modal-body px-4">
 
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+                  <ExpenseDetails
+                    show={showModal}
+                    onClose={handleCloseModal}
+                    expense={selectedExpense}
+                    approvalHistory={approvalHistory}
+                    page="Pending"
+                  />
 
-                  {/* ================= BASIC DETAILS ================= */}
-                  <div className="row g-3">
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Ticket ID</div>
-                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Store</div>
-                      <div className="fw-semibold">
-                        {selectedExpense.storeId?.storeName}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Expense Head</div>
-                      <div className="fw-semibold">
-                        {selectedExpense.expenseHeadId?.name}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Amount</div>
-                      <div className="fw-semibold text-success">
-                        ₹ {selectedExpense.amount}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Policy</div>
-                      <div className="fw-semibold">
-                        {selectedExpense.policy || "-"}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Nature of Expense</div>
-                      <div className="fw-semibold">
-                        {selectedExpense.natureOfExpense || "-"}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">RCA</div>
-                      <div>{selectedExpense.rca || "-"}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Remarks</div>
-                      <div>{selectedExpense.remark || "-"}</div>
-                    </div>
-
-                  </div>
-
-                  {/* ================= TIMELINE ================= */}
-                  <div className="mt-4">
-                    <ExpenseTimeline
-                      expense={selectedExpense}
-                      approvalHistory={approvalHistory}
-                    />
-                  </div>
                   {/* ================= PR / PO SECTION ================= */}
                   {isPrPoStage && (
                     <>

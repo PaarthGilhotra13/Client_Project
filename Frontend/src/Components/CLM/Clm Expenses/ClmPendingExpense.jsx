@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
+import ExpenseDetails from "../../common/ExpenseDetails";
 
 export default function ClmPendingExpense() {
   const [data, setData] = useState([]);
@@ -69,7 +70,8 @@ export default function ClmPendingExpense() {
 
   /* ================= MODAL HANDLERS ================= */
   const handleViewClick = (expense) => {
-    setSelectedExpense(expense);
+    const actualExpense = expense.expenseId || expense;
+    setSelectedExpense(actualExpense);
     setShowModal(true);
     ApiServices.ExpenseHistory({ expenseId: expense._id })
       .then((res) => {
@@ -82,6 +84,7 @@ export default function ClmPendingExpense() {
 
   const handleCloseModal = () => {
     setSelectedExpense(null);
+    setApprovalHistory([]);
     setShowModal(false);
   };
 
@@ -315,95 +318,12 @@ export default function ClmPendingExpense() {
               <div className="modal-body px-4">
 
                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-                  <div className="row g-3">
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Ticket ID</div>
-                      <div className="fw-semibold">{selectedExpense.ticketId}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Store</div>
-                      <div className="fw-semibold">{selectedExpense.storeId?.storeName}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Expense Head</div>
-                      <div className="fw-semibold">{selectedExpense.expenseHeadId?.name}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Amount</div>
-                      <div className="fw-semibold text-success">
-                        ₹ {selectedExpense.amount}
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Policy</div>
-                      <div>{selectedExpense.policy || "-"}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Nature of Expense</div>
-                      <div>{selectedExpense.natureOfExpense || "-"}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">RCA</div>
-                      <div>{selectedExpense.rca || "-"}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Remarks</div>
-                      <div>{selectedExpense.remark || "-"}</div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="text-muted small">Status</div>
-                      <span className="badge bg-warning px-3 py-2">
-                        {selectedExpense.currentStatus}
-                      </span>
-                    </div>
-
-                    {/* Attachments */}
-                    <div className="col-12">
-                      <div className="text-muted small mb-1">Attachments</div>
-
-                      {selectedExpense.attachment && (
-                        <a
-                          href={selectedExpense.attachment}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="btn btn-sm btn-primary me-2"
-                        >
-                          Original
-                        </a>
-                      )}
-
-                      {selectedExpense.resubmittedAttachment && (
-                        <a
-                          href={selectedExpense.resubmittedAttachment}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="btn btn-sm btn-success"
-                        >
-                          Resubmitted
-                        </a>
-                      )}
-
-                      {!selectedExpense.attachment &&
-                        !selectedExpense.resubmittedAttachment && (
-                          <span className="text-muted">No Attachment</span>
-                        )}
-                    </div>
-
-                  </div>
-
-                  {/* Timeline */}
-                  <ExpenseTimeline
+                  <ExpenseDetails
+                    show={showModal}
+                    onClose={handleCloseModal}
                     expense={selectedExpense}
                     approvalHistory={approvalHistory}
+                    page="Pending"
                   />
 
                 </div>

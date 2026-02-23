@@ -289,14 +289,77 @@ export default function ProcurementPendingExpense() {
         </div>
       )}
 
-      {/* Modal with Approve/Hold/Reject */}
-    {/* Modal */}
-          <ExpenseDetails
-            show={showModal}
-            onClose={handleCloseModal}
-            expense={selectedExpense}
-            approvalHistory={approvalHistory}
-          />
+      {showModal && selectedExpense && (
+        <div
+          className="modal show d-block"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Expense Details</h5>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    backgroundColor: "red",
+                    color: "white",
+                    fontWeight: "bold",
+                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              <div className="modal-body px-4">
+
+                <div className="p-4 mb-4 rounded shadow-sm bg-light border">
+                  <ExpenseDetails
+                    show={showModal}
+                    onClose={handleCloseModal}
+                    expense={selectedExpense}
+                    approvalHistory={approvalHistory}
+                    page="Pending"
+                  />
+
+                </div>
+
+              </div>
+
+              {/* ================= MODAL FOOTER WITH ACTIONS ================= */}
+              <div className="modal-footer">
+                <button
+                  className="btn btn-success"
+                  onClick={() => takeAction("Approve", selectedExpense._id)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => takeAction("Hold", selectedExpense._id)}
+                >
+                  Hold
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => takeAction("Reject", selectedExpense._id)}
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }

@@ -4,6 +4,7 @@ import { ScaleLoader } from "react-spinners";
 import ApiServices from "../../ApiServices";
 import PageTitle from "../PageTitle";
 import ExpenseTimeline from "../common/ExpenseTimeline";
+import ExpenseDetails from "../common/ExpenseDetails";
 
 export default function ZcPendingTickets() {
     const [data, setData] = useState([]);
@@ -31,12 +32,27 @@ export default function ZcPendingTickets() {
             });
     }, []);
 
+    // const handleView = (exp) => {
+    //     setSelected(exp);
+    //     setPrismId("");
+    //     setShowModal(true);
+
+    //     ApiServices.ExpenseHistory({ expenseId: exp._id })
+    //         .then((res) => {
+    //             setApprovalHistory(res?.data?.data || []);
+    //         })
+    //         .catch(() => {
+    //             setApprovalHistory([]);
+    //         });
+    // };
     const handleView = (exp) => {
-        setSelected(exp);
+        const actualExpense = exp.expenseId ?? exp;
+
+        setSelected(actualExpense);
         setPrismId("");
         setShowModal(true);
 
-        ApiServices.ExpenseHistory({ expenseId: exp._id })
+        ApiServices.ExpenseHistory({ expenseId: actualExpense?._id })
             .then((res) => {
                 setApprovalHistory(res?.data?.data || []);
             })
@@ -44,7 +60,6 @@ export default function ZcPendingTickets() {
                 setApprovalHistory([]);
             });
     };
-
 
     const handleClose = () => {
         setSelected(null);
@@ -59,7 +74,7 @@ export default function ZcPendingTickets() {
         ApiServices.VerifyAndCloseExpense({
             expenseId: selected._id,
             prismId,
-            approverId: userId   
+            approverId: userId
         })
             .then((res) => {
                 if (res?.data?.success) {
@@ -160,52 +175,12 @@ export default function ZcPendingTickets() {
 
                                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
 
-                                    {/* ================= BASIC DETAILS ================= */}
-                                    <div className="row g-3">
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Ticket ID</div>
-                                            <div className="fw-semibold">{selected.ticketId}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Store</div>
-                                            <div className="fw-semibold">{selected.storeId?.storeName}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Expense Head</div>
-                                            <div className="fw-semibold">{selected.expenseHeadId?.name}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Amount</div>
-                                            <div className="fw-semibold text-success">₹ {selected.amount}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Policy</div>
-                                            <div className="fw-semibold">{selected.policy || "-"}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Nature of Expense</div>
-                                            <div className="fw-semibold">{selected.natureOfExpense || "-"}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Status</div>
-                                            <span className="badge bg-warning px-3 py-2">
-                                                Pending Verification
-                                            </span>
-                                        </div>
-
-                                    </div>
-
-                                    {/* ================= TIMELINE ================= */}
-                                    <ExpenseTimeline
+                                    <ExpenseDetails
+                                        show={showModal}
+                                        onClose={handleClose}
                                         expense={selected}
                                         approvalHistory={approvalHistory}
+                                        page="Pending"
                                     />
 
                                     {/* ================= ZC ACTION ================= */}

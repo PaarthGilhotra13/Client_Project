@@ -4,6 +4,7 @@ import { ScaleLoader } from "react-spinners";
 import ApiServices from "../../ApiServices";
 import PageTitle from "../PageTitle";
 import ExpenseTimeline from "../common/ExpenseTimeline";
+import ExpenseDetails from "../common/ExpenseDetails";
 
 export default function ZcApprovedTickets() {
     const [data, setData] = useState([]);
@@ -32,10 +33,12 @@ export default function ZcApprovedTickets() {
 
 
     const handleView = (exp) => {
-        setSelected(exp.expenseId);
+        const actualExpense = exp.expenseId ?? exp;
+
+        setSelected(actualExpense);
         setShowModal(true);
 
-        ApiServices.ExpenseHistory({ expenseId: exp.expenseId._id })
+        ApiServices.ExpenseHistory({ expenseId: actualExpense?._id })
             .then((res) => {
                 setApprovalHistory(res?.data?.data || []);
             })
@@ -142,62 +145,12 @@ export default function ZcApprovedTickets() {
                                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
 
                                     {/* ================= BASIC DETAILS ================= */}
-                                    <div className="row g-3">
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Ticket ID</div>
-                                            <div className="fw-semibold">{selected.ticketId}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Store</div>
-                                            <div className="fw-semibold">{selected.storeId?.storeName}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Expense Head</div>
-                                            <div className="fw-semibold">{selected.expenseHeadId?.name}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Amount</div>
-                                            <div className="fw-semibold text-success">
-                                                ₹ {selected.amount}
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Policy</div>
-                                            <div className="fw-semibold">{selected.policy || "-"}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Nature of Expense</div>
-                                            <div className="fw-semibold">
-                                                {selected.natureOfExpense || "-"}
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Prism ID</div>
-                                            <div className="fw-semibold">
-                                                {selected.prismId || "-"}
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Status</div>
-                                            <span className="badge bg-success px-3 py-2">
-                                                Closed
-                                            </span>
-                                        </div>
-
-                                    </div>
-
-                                    {/* ================= TIMELINE ================= */}
-                                    <ExpenseTimeline
+                                    <ExpenseDetails
+                                        show={showModal}
+                                        onClose={handleClose}
                                         expense={selected}
                                         approvalHistory={approvalHistory}
+                                        page="Approved"
                                     />
 
                                 </div>

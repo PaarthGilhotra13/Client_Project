@@ -6,6 +6,7 @@ import { ScaleLoader } from "react-spinners";
 import Swal from "sweetalert2";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
 import { CSVLink } from "react-csv";
+import ExpenseDetails from "../../common/ExpenseDetails";
 
 export default function ClosedTickets() {
     const [data, setData] = useState([]);
@@ -193,8 +194,8 @@ export default function ClosedTickets() {
                                     <button
                                         key={i}
                                         className={`btn me-1 ${currentPage === i + 1
-                                                ? "btn-primary"
-                                                : "btn-light"
+                                            ? "btn-primary"
+                                            : "btn-light"
                                             }`}
                                         onClick={() => setCurrentPage(i + 1)}
                                     >
@@ -247,66 +248,12 @@ export default function ClosedTickets() {
                             <div className="modal-body px-4">
 
                                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
-                                    <div className="row g-3">
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Ticket ID</div>
-                                            <div className="fw-semibold">{selectedExpense.ticketId}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Store</div>
-                                            <div className="fw-semibold">{selectedExpense.storeId?.storeName}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Expense Head</div>
-                                            <div className="fw-semibold">{selectedExpense.expenseHeadId?.name}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Amount</div>
-                                            <div className="fw-semibold text-success">
-                                                ₹ {selectedExpense.amount}
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Policy</div>
-                                            <div>{selectedExpense.policy || "-"}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Nature of Expense</div>
-                                            <div>{selectedExpense.natureOfExpense || "-"}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Prism ID</div>
-                                            <div>{selectedExpense.prismId || "-"}</div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Status</div>
-
-                                            {selectedExpense.currentStatus === "Closed" ? (
-                                                <span className="badge bg-secondary px-3 py-2">
-                                                    Closed
-                                                </span>
-                                            ) : (
-                                                <span className="badge bg-warning text-dark px-3 py-2">
-                                                    Pending
-                                                </span>
-                                            )}
-                                        </div>
-
-
-                                    </div>
-
-                                    {/* ===== TIMELINE ===== */}
-                                    <ExpenseTimeline
+                                    <ExpenseDetails
+                                        show={showModal}
+                                        onClose={handleCloseModal}
                                         expense={selectedExpense}
                                         approvalHistory={approvalHistory}
+                                        page="Closed"
                                     />
 
 

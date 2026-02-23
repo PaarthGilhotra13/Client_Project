@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import ApiServices from "../../../ApiServices";
 import { CSVLink } from "react-csv";
 import ExpenseTimeline from "../../common/ExpenseTimeline";
+import ExpenseDetails from "../../common/ExpenseDetails";
 
 export default function PrpoHoldExpense() {
     const [data, setData] = useState([]);
@@ -80,21 +81,20 @@ export default function PrpoHoldExpense() {
     }));
 
     /* ================= MODAL ================= */
-    const handleViewClick = (item) => {
+    const handleViewClick = (el) => {
+        const actualExpense = el.expenseId;
 
-        const expense = item.expenseId;
-
-        setSelectedExpense(expense);
+        setSelectedExpense(actualExpense);
         setShowModal(true);
 
-        ApiServices.ExpenseHistory({ expenseId: expense._id })
+        ApiServices.ExpenseHistory({ expenseId: actualExpense?._id })
             .then((res) => {
                 setApprovalHistory(res?.data?.data || []);
             })
             .catch(() => {
                 setApprovalHistory([]);
             });
-    };
+    }
 
 
     const handleCloseModal = () => {
@@ -233,56 +233,12 @@ export default function PrpoHoldExpense() {
 
                                 <div className="p-4 mb-4 rounded shadow-sm bg-light border">
 
-                                    <div className="row g-3">
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Ticket ID</div>
-                                            <div className="fw-semibold">
-                                                {selectedExpense.ticketId}
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Store</div>
-                                            <div className="fw-semibold">
-                                                {selectedExpense.storeId?.storeName}
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Expense Head</div>
-                                            <div className="fw-semibold">
-                                                {selectedExpense.expenseHeadId?.name}
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Amount</div>
-                                            <div className="fw-semibold text-success">
-                                                ₹ {selectedExpense.amount}
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Status</div>
-                                            <span className="badge bg-secondary px-3 py-2">
-                                                Hold
-                                            </span>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="text-muted small">Hold Comment</div>
-                                            <div className="text-danger fw-semibold">
-                                                {selectedExpense.holdComment || "-"}
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    {/* ================= TIMELINE ================= */}
-                                    <ExpenseTimeline
+                                    <ExpenseDetails
+                                        show={showModal}
+                                        onClose={handleCloseModal}
                                         expense={selectedExpense}
                                         approvalHistory={approvalHistory}
+                                        page="Hold"
                                     />
 
                                 </div>
