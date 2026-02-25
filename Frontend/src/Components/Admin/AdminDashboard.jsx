@@ -864,6 +864,26 @@ export default function AdminDashboard() {
           </div>
 
           <div className="row g-4 mb-4">
+           {/* Zone Cost */}
+            <div className="col-lg-5">
+              <div className="card shadow-sm border-0 h-100">
+                <div className="card-body">
+                  <h5 className="card-title">Zone-wise Cost Analysis (₹)</h5>
+                  <div style={{ height: "300px" }}>
+                    <Bar
+                      data={zoneCostData}
+                      options={{
+                        indexAxis: "y",
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        onClick: (e, el, chart) => onChartClick(e, el, chart, "ZONE"),
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+           
             {/* Monthly Cost */}
             <div className="col-lg-7">
               <div className="card shadow-sm border-0 h-100">
@@ -902,27 +922,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Zone Cost */}
-            <div className="col-lg-5">
-              <div className="card shadow-sm border-0 h-100">
-                <div className="card-body">
-                  <h5 className="card-title">Zone-wise Cost Analysis (₹)</h5>
-                  <div style={{ height: "300px" }}>
-                    <Bar
-                      data={zoneCostData}
-                      options={{
-                        indexAxis: "y",
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        onClick: (e, el, chart) => onChartClick(e, el, chart, "ZONE"),
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            </div>    
           </div>
 
           {/* ===== APPROVER WORKLOAD SECTION ===== */}
